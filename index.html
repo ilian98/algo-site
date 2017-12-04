@@ -1,6 +1,7 @@
 <html>
     <head>
         <link type="text/css" rel="stylesheet" href="node_modules/bootstrap/dist/css/bootstrap.min.css"  media="screen,projection"/>
+        <link type="text/css" rel="stylesheet" href="style.css"  media="screen,projection"/>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     </head>
@@ -16,7 +17,41 @@
                 <a class="nav-link" href="#">Начало <span class="sr-only">(current)</span></a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="#">Алгоритми</a>
+                <div class="dropdown">
+                    <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Алгоритми
+                    </button>
+                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                        <a class="dropdown-item" href="#">1. За начинаещи</a>
+                        <a class="dropdown-item" href="#">2. В графи</a>
+                        <a class="dropdown-item" href="#">3. Динамично програмиране</a>
+                        <a class="dropdown-item" href="#">4. Математични</a>
+                        <a class="dropdown-item" href="#">5. Алчни</a>
+                        <a class="dropdown-item" href="#">6. С низове</a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" href="#">Други</a>
+                    </div>
+                </div>
+              </li>
+              <li class="nav-item">
+                <div class="dropdown">
+                    <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Структури от данни
+                    </button>
+                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                        <a class="dropdown-item" href="#">1. STL-ски</a>
+                        <a class="dropdown-item" href="#">2. Дървета</a>
+                        <a class="dropdown-item" href="#">3. Disjoint-sets</a>
+                        <a class="dropdown-item" href="#">4. Envelope</a>
+                        <a class="dropdown-item" href="#">5. Суфиксен масив</a>
+                    </div>
+                </div>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#">Задачи</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#">Статистика</a>
               </li>
             </ul>
             <form class="form-inline my-2 my-lg-0">

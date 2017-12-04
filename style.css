@@ -1,0 +1,12 @@
+@media (min-width: 768px) {
+        .navbar-nav > li{
+         padding-left: 30px;
+         padding-right: 30px;
+         }
+}
+@media (max-width: 767px) {
+        .dropdown {
+         padding-bottom: 10px;
+         padding-top: 10px;
+         }
+}
