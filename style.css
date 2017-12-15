@@ -25,3 +25,9 @@
     background-size: 100%;
     opacity: 0.15;
 }
+.unselectable {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
