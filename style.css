@@ -1,10 +1,10 @@
-@media (min-width: 768px) {
+@media (min-width: 769px) {
         .navbar-nav > li{
          padding-left: 25px;
          padding-right: 25px;
          }
 }
-@media (max-width: 767px) {
+@media (max-width: 768px) {
         .dropdown {
          padding-bottom: 10px;
          padding-top: 10px;
