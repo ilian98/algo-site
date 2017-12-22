@@ -22,7 +22,6 @@
     background-image: url(background.jpg);
     background-repeat: repeat;
     background-attachment: fixed;
-    background-size: 100%;
     opacity: 0.15;
 }
 .unselectable {

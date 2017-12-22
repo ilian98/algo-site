@@ -1,0 +1,8 @@
+<div style="position:absolute" id="flags">
+    <img src="en_flag.gif" width="50" class="d-none d-lg-block" align="right">
+    <img src="bg_flag.gif" width="50" class="d-none d-lg-block" align="right">
+</div>
+<script>
+    $("#flags").css({top: $("nav").height() + parseInt($("nav").css("paddingBottom")) + parseInt($("nav").css("paddingTop")),
+                     width: $("nav").width() + parseInt($("nav").css("paddingRight")) + parseInt($("nav").css("paddingLeft"))});
+</script>
