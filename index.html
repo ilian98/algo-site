@@ -9,18 +9,20 @@
         <script type="text/javascript" src="node_modules/popper.js/dist/umd/popper.min.js"></script>
         <script type="text/javascript" src="node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
     </head>
-    <div class="background"></div>
-    <body>
-        <div id="nav-placeholder"></div>
-        <script> $.get("navigation.html", function (data) {
-                      $("#nav-placeholder").replaceWith(data);
-                      });
-        </script>
-        
-        <div id="language-flags"></div>
-        <script> $.get("language_flags.html", function (data) {
-                      $("#language-flags").replaceWith(data);
-                      });
-        </script>
+    <body style="z-index:0" onresize="flagsPosition()">
+        <header>
+            <div id="nav-placeholder"></div>
+            <script> $.get("navigation.html", function (data) {
+                          $("#nav-placeholder").replaceWith(data);
+                          });
+            </script>
+
+            <div id="language-flags"></div>
+            <script> $.get("language_flags.html", function (data) {
+                          $("#language-flags").replaceWith(data);
+                          });
+            </script>
+            <div class="background"></div>
+        </header>
     </body>
 </html>

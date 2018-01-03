@@ -10,6 +10,10 @@
          padding-top: 10px;
          }
 }
+.content {
+    padding-left: 5%;
+    padding-right: 5%;
+}
 .bg-navbar-color {
     background-color:lightgreen;
 }
@@ -23,10 +27,24 @@
     background-repeat: repeat;
     background-attachment: fixed;
     opacity: 0.15;
+    z-index: -1;
 }
 .unselectable {
     -webkit-user-select: none;
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
+}
+ul {
+    list-style-type: none;
+}
+.dashed-list:before {
+    content: '\2014';
+    position: absolute;
+    margin-left: -20px;
+}
+.tilded-list:before {
+    content: '\223C';
+    position: absolute;
+    margin-left: -40px;
 }
