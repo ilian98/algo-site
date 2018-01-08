@@ -1,19 +1,25 @@
 @media (min-width: 769px) {
         .navbar-nav > li{
-         padding-left: 25px;
-         padding-right: 25px;
+         margin-left: 4%;
+         margin-right: 4%;
          }
 }
 @media (max-width: 768px) {
         .dropdown {
-         padding-bottom: 10px;
-         padding-top: 10px;
+         padding-bottom: 3%;
+         padding-top: 3%;
          }
 }
+
+body {
+    z-index:0;
+}
+
 .content {
     padding-left: 5%;
     padding-right: 5%;
 }
+
 .bg-navbar-color {
     background-color:lightgreen;
 }
@@ -29,12 +35,14 @@
     opacity: 0.15;
     z-index: -1;
 }
+
 .unselectable {
     -webkit-user-select: none;
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
 }
+
 ul {
     list-style-type: none;
 }
@@ -47,4 +55,12 @@ ul {
     content: '\223C';
     position: absolute;
     margin-left: -40px;
+}
+
+.text-format {
+    text-indent: 50;
+    text-align: justify;
+}
+.bold {
+    font-weight: bold;
 }
