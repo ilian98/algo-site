@@ -14,12 +14,10 @@
 body {
     z-index:0;
 }
-
 .content {
     padding-left: 5%;
     padding-right: 5%;
 }
-
 .bg-navbar-color {
     background-color:lightgreen;
 }
@@ -36,13 +34,6 @@ body {
     z-index: -1;
 }
 
-.unselectable {
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
-}
-
 ul {
     list-style-type: none;
 }
@@ -57,10 +48,28 @@ ul {
     margin-left: -40px;
 }
 
+
 .text-format {
     text-indent: 50;
     text-align: justify;
 }
 .bold {
     font-weight: bold;
+}
+.unselectable {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+.flag {
+    width: 50px;
+    float: right;
+}
+
+.lesson-part-position {
+    margin-top: 1%;
+    margin-bottom: 1%;
+    clear: both;
 }

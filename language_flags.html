@@ -1,11 +1,7 @@
-<div style="position:absolute" id="flags" class="unselectable">
-    <img src="en_flag.gif" width="50" class="d-none d-lg-block" align="right">
-    <img src="bg_flag.gif" width="50" class="d-none d-lg-block" align="right">
+<div id="flags" class="unselectable" style="position: absolute">
+    <img src="en_flag.gif" class="d-none d-lg-block flag">
+    <img src="bg_flag.gif" class="d-none d-lg-block flag">
 </div>
 <script>
-    function flagsPosition () {
-        $("#flags").css({top: $("nav").height() + parseInt($("nav").css("paddingBottom")) + parseInt($("nav").css("paddingTop")),
-                         width: $("nav").width() + parseInt($("nav").css("paddingRight")) + parseInt($("nav").css("paddingLeft"))});
-        }
     flagsPosition();
 </script>

@@ -8,6 +8,7 @@
         <script type="text/javascript" src="node_modules/jquery/dist/jquery.min.js"></script>
         <script type="text/javascript" src="node_modules/popper.js/dist/umd/popper.min.js"></script>
         <script type="text/javascript" src="node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
+        <script type="text/javascript" src="functions.js"></script>
     </head>
     <body onresize="flagsPosition()">
         <header>
@@ -25,28 +26,27 @@
             </script>
         </header>
         
-        <div class="content">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item" style="z-index:0"><a href="graph_lessons.html">Графи</a></li>
+                <li class="breadcrumb-item active" style="z-index:0" aria-current="page">Увод в графите</li>
+            </ol>
+        </nav>
+        
+        <div class="content">            
             <h1 align="center">Увод в графите</h1>
 
-            <script> function toggleText (name) {
-                              if (cur===null) return 0;
-                              var cur=document.getElementById(name);
-                              if (cur.style.display==="none") cur.style.display="block";
-                              else cur.style.display="none";
-                              flagsPosition();
-                              }
-            </script>
-            <div style="margin-top: 2%; margin-bottom: 2%">
+            <div class="lesson-part-position">
                 <button class="btn btn-secondary" onclick="toggleText('firstPart')">1. Какво представляват графите?</button>
-                <div style="display:none" id="firstPart">
+                <div style="display: none" id="firstPart">
                     <p class="text-format">Най-просто казано това са някакви неща, между които има някакви връзки. Например маршрутна мрежа, където „нещата“ са градове, а тези „връзки“ са пътни връзки. Има множество други примери, които могат да се моделират по такъв начин (приятелства, йерархия във фирма, ...).</p>
                     <p class="text-format bold">Формална дефиниция и стандартни означения: Граф G е наредена двойка от множество от елементи (наречени върхове) V и множество от наредени/ненаредени двойки (наречени ребра) E между тях. Накратко: G (V,E).</p>
                     <p class="text-format">Тази тема е много важна в състезателната (и практическата) информатика. Има разнообразни алгоритми, които могат да се прилагат в графи. Понятията в тази тема са изключително много, затова ще ги въвеждаме малко, по-малка, когато ни трябват.</p>
                 </div>
             </div>
-            <div style="margin-bottom: 2%; clear:both">
+            <div class="lesson-part-position">
                 <button class="btn btn-secondary" onclick="toggleText('secondPart')">2. Видове графи.</button>
-                <div style="display:none" id="secondPart">
+                <div style="display: none" id="secondPart">
                     <ul>
                         <li class="dashed-list">според ребрата
                             <ul>
@@ -64,7 +64,7 @@
                 </div>
             </div>
 
-            <div style="clear:both">
+            <div class="lesson-part-position">
                 <button class="btn btn-secondary" onclick="toggleText('thirdPart')">3. Представяне в паметта.</button>
             </div>
         </div>
