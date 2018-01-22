@@ -19,7 +19,7 @@ body {
     padding-right: 5%;
 }
 .bg-navbar-color {
-    background-color:lightgreen;
+    background-color: lightgreen;
 }
 .background {
     position: fixed;
@@ -72,4 +72,27 @@ ul {
     margin-top: 1%;
     margin-bottom: 1%;
     clear: both;
+}
+
+.card {
+    background-color: mediumaquamarine;
+}
+
+.breadcrumb {
+    padding-top: 7px;
+    padding-bottom: 7px;
+}
+
+.arrow .not-collapsed {display:inline}
+.arrow:not(.collapsed) .not-collapsed {display:none}
+.arrow.collapsed .collapsed {display:none}
+
+.white-bg {
+    background-color: rgba(255,255,255,0.5);
+    border-radius: 10px;
+}
+
+.card-footer {
+    padding-top: 2px;
+    padding-bottom: 2px;
 }

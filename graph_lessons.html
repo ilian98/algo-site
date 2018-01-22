@@ -25,53 +25,169 @@
                           });
             </script>
         </header>
+        
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item" style="z-index:0" aria-current="page">Графи</li>
+            </ol>
+        </nav>
+        
         <div class="content">
-            <div class="card-deck">
-                <div class="card" style="width: 18rem;">
+            <div style="height: 40px"></div>
+            
+            <div class="card-columns">
+                <div class="card">
                     <div class="card-body">
-                        <h3 class="card-title">
-                            <a href="introduction_to_graphs.html">Увод в графите</a>
+                        <h3 class="card-title text-center unselectable">
+                            <a href="introduction_to_graphs.html" class="text-muted">Увод в графите</a>
                         </h3>
                     </div>
                 </div>
                 
-                <div class="card" style="width: 18rem;">
+                <div class="card">
                     <div class="card-body">
-                        <h3 class="card-title">
+                        <h3 class="card-title text-center">Обхождане на граф</h3>
+                        <div id="collapseOne" class="collapse hide" aria-labelledby="headingOne">
+                            <hr class="my-4">
+                            <ul align="left">
+                                <li type="disc">
+                                    <a>Търсене в дълбочина - DFS</a>
+                                </li>
+                                <li type="disc">
+                                    <a>Търсене в ширина - BFS</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="card-footer unselectable text-center arrow collapsed" id="headingOne" data-toggle="collapse" href="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                        <span class="not-collapsed">&#9660;</span>
+                        <span class="collapsed">&#9650;</span>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-body">
+                        <h3 class="card-title text-center">Най-кратък/най-дълъг път</h3>
+                        <div id="collapseSecond" class="collapse hide" aria-labelledby="headingSecond">
+                            <hr class="my-4">
+                            <ul align="left">
+                                <li type="disc">
+                                    <a>без цена на ребрата</a>
+                                </li>
+                                <li type="disc">
+                                    <a>с цена на ребрата</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="card-footer unselectable text-center arrow collapsed" id="headingSecond" data-toggle="collapse" href="#collapseSecond" aria-expanded="true" aria-controls="collapseSecond">
+                        <span class="not-collapsed">&#9660;</span>
+                        <span class="collapsed">&#9650;</span>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-body">
+                        <h3 class="card-title text-center">Дървета</h3>
+                        <div id="collapseThird" class="collapse hide" aria-labelledby="headingThird">
+                            <hr class="my-4">
+                            <ul align="left">
+                                <li type="disc">
+                                    <a>Увод в дърветата</a>
+                                </li>
+                                <li type="disc">
+                                    <a>Най-близък общ предшественик</a>
+                                </li>
+                                <li type="disc">Минимални покриващи дървета</li>
+                                <li type="disc">Центроидна декомпозиция</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="card-footer unselectable text-center arrow collapsed" id="headingThird" data-toggle="collapse" href="#collapseThird" aria-expanded="true" aria-controls="collapseThird">
+                        <span class="not-collapsed">&#9660;</span>
+                        <span class="collapsed">&#9650;</span>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-body">
+                        <h3 class="card-title text-center">
                             <a>Артикулационни върхове и ребра</a>
                         </h3>
                     </div>
                 </div>
-                
-                <div class="card" style="width: 18rem;">
+            
+                <div class="card">
                     <div class="card-body">
-                        <h3 class="card-title">Дървета</h3>
-                        <hr class="my-5">
-                        <ul align="left">
-                            <li type="disc">
-                                <a>Увод в дърветата</a>
-                            </li>
-                            <li type="disc">
-                                <a>Най-близък общ предшественик</a>
-                            </li>
-                            <li type="disc">Минимални покриващи дървета</li>
-                            <li type="disc">Центроидна декомпозиция</li>
-                        </ul>
+                        <h3 class="card-title text-center">Максимален поток</h3>
+                        <div id="collapseFourth" class="collapse hide" aria-labelledby="headingFourth">
+                            <hr class="my-4">
+                            <ul align="left">
+                                <li type="disc">
+                                    <a>без цена на ребрата</a>
+                                </li>
+                                <li type="disc">
+                                    <a>с цена на ребрата</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="card-footer unselectable text-center arrow collapsed" id="headingFourth" data-toggle="collapse" href="#collapseFourth" aria-expanded="true" aria-controls="collapseFourth">
+                        <span class="not-collapsed">&#9660;</span>
+                        <span class="collapsed">&#9650;</span>
                     </div>
                 </div>
-            
-                <div class="card" style="width: 18rem;">
+                
+                <div class="card">
                     <div class="card-body">
-                        <h3 class="card-title">Максимален поток</h3>
-                        <hr class="my-5">
-                        <ul align="left">
-                            <li type="disc">
-                                <a>с цена на ребрата</a>
-                            </li>
-                            <li type="disc">
-                                <a>без цена на ребрата</a>
-                            </li>
-                        </ul>
+                        <h3 class="card-title text-center">
+                            <a>Максимално двойкосъчетание</a>
+                        </h3>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-body">
+                        <h3 class="card-title text-center">Ойлерови и Хамилтонови цикли/пътища</h3>
+                        <div id="collapseFifth" class="collapse hide" aria-labelledby="headingFifth">
+                            <hr class="my-4">
+                            <ul align="left">
+                                <li type="disc">
+                                    <a>Ойлерови и Хамилтонови цикли</a>
+                                </li>
+                                <li type="disc">
+                                    <a>Ойлерови и Хамилтонови пътища</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="card-footer unselectable text-center arrow collapsed" id="headingFifth" data-toggle="collapse" href="#collapseFifth" aria-expanded="true" aria-controls="collapseFifth">
+                        <span class="not-collapsed">&#9660;</span>
+                        <span class="collapsed">&#9650;</span>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-body">
+                        <h3 class="card-title text-center">
+                            <a>Силно свързани компоненти</a>
+                        </h3>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-body">
+                        <h3 class="card-title text-center">
+                            <a>Топологично сортиране</a>
+                        </h3>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-body">
+                        <h3 class="card-title text-center">
+                            <a>Транзитивна редукция</a>
+                        </h3>
                     </div>
                 </div>
             </div>
