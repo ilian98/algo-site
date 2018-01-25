@@ -83,16 +83,24 @@ ul {
     padding-bottom: 7px;
 }
 
-.arrow .not-collapsed {display:inline}
-.arrow:not(.collapsed) .not-collapsed {display:none}
-.arrow.collapsed .collapsed {display:none}
-
-.white-bg {
-    background-color: rgba(255,255,255,0.5);
-    border-radius: 10px;
+.arrow .not-collapsed {
+    display:inline;
+}
+.arrow:not(.collapsed) .not-collapsed {
+    display:none;
+}
+.arrow.collapsed .collapsed {
+    display:none;
 }
 
 .card-footer {
     padding-top: 2px;
     padding-bottom: 2px;
+}
+
+#firstPart, #secondPart, #thirdPart {
+    background-color: rgba(255,255,255,0.5);
+    border-radius: 10px;
+    float: left;
+    display: none;
 }
