@@ -1,0 +1,64 @@
+<html>
+    <head>
+        <link type="text/css" rel="stylesheet" href="node_modules/bootstrap/dist/css/bootstrap.min.css"  media="screen,projection"/>
+        <link type="text/css" rel="stylesheet" href="style.css"  media="screen,projection"/>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+        <script type="text/javascript" src="node_modules/jquery/dist/jquery.slim.min.js"></script>
+        <script type="text/javascript" src="node_modules/jquery/dist/jquery.min.js"></script>
+        <script type="text/javascript" src="node_modules/popper.js/dist/umd/popper.min.js"></script>
+        <script type="text/javascript" src="node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
+        <script type="text/javascript" src="node_modules/Snap.svg/dist/snap.svg-min.js"></script>
+        <script type="text/javascript" src="functions.js"></script>
+        <script type="text/javascript" src="DFS.js"></script>
+    </head>
+    <body onresize="flagsPosition()">
+        <header>
+            <div class="background"></div>
+            <div id="nav-placeholder"></div>
+            <script> $.get("navigation.html", function (data) {
+                          $("#nav-placeholder").replaceWith(data);
+                          });
+            </script>
+
+            <div id="language-flags"></div>
+            <script> $.get("language_flags.html", function (data) {
+                          $("#language-flags").replaceWith(data);
+                          });
+            </script>
+        </header>
+        
+        <nav aria-label="breadcrumb" class="unselectable">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item" style="z-index:0"><a href="graph_lessons.html" class="text-danger">Графи</a></li>
+                <li class="breadcrumb-item active" style="z-index:0" aria-current="page">Търсене в дълбочина - DFS</li>
+            </ol>
+        </nav>
+        
+        <div class="content">            
+            <h1 align="center">Търсене в дълбочина (DFS)</h1>
+
+            <div class="lesson-part-position">
+                <button class="btn btn-secondary" onclick="toggleText('firstPart')">1. Какво представлява DFS?</button>
+                <div id="firstPart">
+                    <p class="text-format">Както вече казахме, графите моделират много проблеми от реалния живот. Затова е важно да можем да ги обхождаме (това е нещо, което различава задачите с графи в информатиката от тези в математиката). Единият от най-популярните методи е така нареченото търсене в дълбочина.</p>
+                    <p class="text-format">Идеята му е много проста. Започваме от произволен начален връх. След това отиваме в произволен негов съсед. От текущия връх се пробваме да обходим друг негов необходен досега съсед, в противен случай се връщаме по пътя. Тази процедура я повтаряме многократно, докато не се върнем в началния връх и всичките му съседи са вече обходени.</p>
+                </div>
+            </div>
+            
+            <div class="lesson-part-position">
+                <button class="btn btn-secondary" onclick="toggleText('secondPart'); loadSvg();">2. Разглеждане на примери.</button>
+                <div></div>
+                <div id="secondPart">
+                    <button class="btn btn-primary" onclick="start()">Старт!</button>
+                    <svg id="img" width="100%" viewBox="0 0 300 200"></svg>
+                </div>
+            </div>
+            
+            <div class="lesson-part-position">
+                <button class="btn btn-secondary" onclick="toggleText('thirdPart')">3. Реализиране на алгоритъма.</button>
+            </div>
+            
+        </div>
+    </body>
+</html>

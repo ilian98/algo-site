@@ -30,7 +30,7 @@ body {
     background-image: url(background.jpg);
     background-repeat: repeat;
     background-attachment: fixed;
-    opacity: 0.15;
+    opacity: 0.1;
     z-index: -1;
 }
 
