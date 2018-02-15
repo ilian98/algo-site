@@ -1,4 +1,5 @@
-function circleSegment (segPoint1, segPoint2, center, rad) {
+var possiblePos=[];
+function circleSegment (segPoint1, segPoint2, center) {
          var area,height,sides=[];    
          area=Math.abs(segPoint1[0]*segPoint2[1]+segPoint1[1]*center[0]+segPoint2[0]*center[1]-
                        segPoint1[1]*segPoint2[0]-segPoint1[0]*center[1]-segPoint2[1]*center[0])/2;
@@ -8,65 +9,90 @@ function circleSegment (segPoint1, segPoint2, center, rad) {
          if ((sides[0]*sides[0]+sides[2]*sides[2]-sides[1]*sides[1]>0)&&
              (sides[0]*sides[0]+sides[1]*sides[1]-sides[2]*sides[2]>0)) {
             height=area*2/sides[0];
-            if (height<=1.1*rad) return true;
+            if (height<=1.1*vertexRad) return true;
             }
          return false;
 }
+function eraseGraph () {
+         for (var i=0; i<edgeLines.length; i++) {
+             if (edgeLines[i]!=null) edgeLines[i].remove();
+             }
+         for (var i=0; i<n; i++) {
+             if (verCircles[i]!=null) verCircles[i].remove();
+             if (textCircles[i]!=null) textCircles[i].remove();
+             if (circles[i]!=null) circles[i].remove();
+             }
+}
+function checkVertex (vr) {
+         var i,j;
+         for (i=0; i<n; i++) {
+             if ((i==vr)||(verCoord[i]==null)) continue;
+             if (adjMatrix[vr][i]==0) continue;
+             for (j=0; j<n; j++) {
+                 if ((j==vr)||(j==i)||(verCoord[j]==null)) continue;
+                 if (circleSegment(verCoord[vr],verCoord[i],verCoord[j])==true) return false;
+                 }
+             }
+         return true;
+}
+function placeVertex (vr) {
+         var i,j,ind,curpossiblePos=[];
+         curpossiblePos=possiblePos.slice();
+         for (;;) {
+             if (curpossiblePos.length==0) return false;
+             ind=parseInt(Math.random()*(10*curpossiblePos.length))%curpossiblePos.length;
+             verCoord[vr]=curpossiblePos[ind];
+             if (checkVertex(vr)==0) {
+                curpossiblePos.splice(ind,1);
+                continue;
+                }
+             possiblePos.splice(possiblePos.findIndex(function (elem) {
+                 return (elem==verCoord[vr]);
+                 }),1);
+             for (i=0; i<n; i++) {
+                 if ((i==vr)||(verCoord[i]==null)) continue;
+                 if (adjMatrix[vr][i]==0) continue;
+                 for (j=0; j<possiblePos.length; j++) {
+                     if (circleSegment(verCoord[vr],verCoord[i],possiblePos[j])==true) {
+                        possiblePos.splice(j,1); j--;
+                        }
+                     }
+                 }
+             break;
+             }
+        return true;
+         
+}
 function drawGraph (frameX, frameY, frameW, frameH) {
-         var adjMatrix=[],coord=[],possiblePos=[],possiblePosLen=0,dist;
-         for (var i=0; i<n; i++) {
-             adjMatrix[i]=[];
-             for (var j=0; j<n; j++) {
-                 adjMatrix[i][j]=0;
+         eraseGraph();
+         var i,j,dist;
+         dist=vertexRad/2+(Math.random())*vertexRad/2;
+         possiblePos=[];
+         for (i=0; i<=(frameW-2*vertexRad)/(2*vertexRad+dist); i++) {
+             for (j=0; j<=(frameH-2*vertexRad)/(2*vertexRad+dist); j++) {
+                 possiblePos.push([i*(2*vertexRad+dist)+frameX,j*(2*vertexRad+dist)+frameY]);
                  }
              }
-         for (var i=0; i<edgeList.length; i++) {
-             adjMatrix[edgeList[i][0]-1][edgeList[i][1]-1]=adjMatrix[edgeList[i][1]-1][edgeList[i][0]-1]=1;
+         verCoord=[];
+         for (i=0; i<n; i++) {
+             placeVertex(i);
              }
-         dist=vertexRad/2+(Math.random()).toPrecision(4)*vertexRad/2;
-         for (var i=0; i<=(frameW-2*vertexRad)/(2*vertexRad+dist); i++) {
-             for (var j=0; j<=(frameH-2*vertexRad)/(2*vertexRad+dist); j++) {
-                 possiblePos[possiblePosLen++]=[i*(2*vertexRad+dist)+frameX,j*(2*vertexRad+dist)+frameY];
-                 }
+         draw(true);
+         }
+function draw (addDraw) {
+         eraseGraph();
+         for (i=0; i<edgeList.length; i++) {
+             var st=verCoord[edgeList[i][0]],end=verCoord[edgeList[i][1]];
+             edgeLines[i]=s.line(st[0]+vertexRad,st[1]+vertexRad,end[0]+vertexRad,end[1]+vertexRad);
+             edgeLines[i].attr({stroke: "black", "stroke-width": 1.5});
              }
-         for (var i=0; i<n; i++) {
-             var ind,j,h,fl,curPoint;
-             curpossiblePos=possiblePos.slice();
-             for (;;) {
-                 if (curpossiblePos.length==0) return drawGraph(frameX,frameY,frameW,frameH,n,edgeList,vertexRad);
-                 ind=parseInt(Math.random()*(10*curpossiblePos.length))%curpossiblePos.length;
-                 curPoint=curpossiblePos[ind];
-                 fl=0;
-                 for (j=0; j<i; j++) {
-                     if (adjMatrix[i][j]==0) continue;
-                     for (h=0; h<i; h++) {
-                         if (h==j) continue;
-                         if (circleSegment(curPoint,coord[j],coord[h],vertexRad)==true) {
-                            fl++;
-                            break;
-                            }
-                         }
-                     if (fl!=0) break;
-                     }
-                 if (fl!=0) {
-                    curpossiblePos.splice(ind,1);
-                    continue;
-                    }
-                 coord[i]=curPoint;
-                 possiblePos.splice(possiblePos.findIndex(function (elem) {
-                     return (elem==curPoint);
-                     }),1);
-                 
-                 for (j=0; j<i; j++) {
-                     if (adjMatrix[i][j]==0) continue;
-                     for (h=0; h<possiblePos.length; h++) {
-                         if (circleSegment(curPoint,coord[j],possiblePos[h],vertexRad)==true) {
-                            possiblePos.splice(h,1); h--;
-                            }
-                         }
-                     }
-                 break;
-                 }
+         for (i=0; i<n; i++) {
+             verCircles[i]=s.circle(verCoord[i][0]+vertexRad,verCoord[i][1]+vertexRad,vertexRad,vertexRad);
+             verCircles[i].attr({fill: "white", stroke: "black", "stroke-width": 1.5});
+             textCircles[i]=s.text(verCoord[i][0]+vertexRad,verCoord[i][1]+vertexRad,(i+1).toString());
+             textCircles[i].attr({"font-size": 25});
+             textCircles[i].attr({x: textCircles[i].getBBox().x-textCircles[i].getBBox().w/2, y:textCircles[i].getBBox().y+textCircles[i].getBBox().h, class: "unselectable"});
+             circles[i]=s.group(verCircles[i],textCircles[i]);
              }
-         return coord;
+         if (addDraw==true) drawEdges();
 }

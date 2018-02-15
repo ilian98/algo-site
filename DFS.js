@@ -1,27 +1,81 @@
-var s,verCircles=[],textCircles=[],edgeLines=[];
-var vertexRad=20,n=5,edgeList=[[1,2],[1,3],[1,4],[1,5],[2,3]],adjList=[[1,2,3,4],[0,2],[0,1],[0],[0]];
-var used=[],verCoord,animations=[];
+var s,circles=[],verCircles=[],textCircles=[],edgeLines=[];
+var vertexRad=20,n=5,edgeList=[[0,1],[0,2],[0,3],[0,4],[1,2]],adjList=[[1,2,3,4],[0,2],[0,1],[0],[0]];
+var adjMatrix=[[0,1,1,1,1],
+               [1,0,1,0,0],
+               [1,1,0,0,0],
+               [1,0,0,0,0],
+               [1,0,0,0,0]];
+var used=[],verCoord=[],animations=[];
 function loadSvg () {
          s=Snap("#graph");
-         verCoord=drawGraph(1,1,299,299,n,edgeList,vertexRad);
-         for (var i=0; i<edgeList.length; i++) {
-             var st=verCoord[edgeList[i][0]-1],end=verCoord[edgeList[i][1]-1];
-             edgeLines[i]=s.line(st[0]+vertexRad,st[1]+vertexRad,end[0]+vertexRad,end[1]+vertexRad);
-             edgeLines[i].attr({stroke: "black", "stroke-width": 1.5});
+         drawGraph(1,1,299,299);
+}
+function drawEdges () {
+         var flag=0,mouseX,mouseY,stVer,curEdge,i,len;
+         var svgElem=$("#graph")[0];
+         var point=svgElem.createSVGPoint();
+         for (i=0; i<n; i++) {
+             circles[i]["index"]=i;
+             circles[i].mousedown(function (event) {
+                point.x=event.x; point.y=event.y;
+                point=point.matrixTransform(svgElem.getScreenCTM().inverse());
+                mouseX=point.x; mouseY=point.y;
+                flag=1;
+                stVer=this.index;
+                });
              }
-         for (var i=0; i<n; i++) {
-             verCircles[i]=s.circle(verCoord[i][0]+vertexRad,verCoord[i][1]+vertexRad,vertexRad,vertexRad);
-             verCircles[i].attr({fill: "white", stroke: "black", "stroke-width": 1.5});
-             textCircles[i]=s.text(verCoord[i][0]+vertexRad,verCoord[i][1]+vertexRad,(i+1).toString());
-             textCircles[i].attr({"font-size": 25});
-             textCircles[i].attr({x: textCircles[i].getBBox().x-textCircles[i].getBBox().w/2, y:textCircles[i].getBBox().y+textCircles[i].getBBox().h, class: "unselectable"});
+         s.mousemove(function (event) {
+            point.x=event.x; point.y=event.y;
+            point=point.matrixTransform(svgElem.getScreenCTM().inverse());
+            if (flag==0) return ;
+            if ((Math.abs(mouseX-point.x)>=1)||(Math.abs(mouseY-point.y)>=1)) {
+               if (curEdge!=null) curEdge.remove();
+               curEdge=s.line(verCoord[stVer][0]+vertexRad,verCoord[stVer][1]+vertexRad,point.x,point.y);
+               curEdge.attr({stroke: "black", "stroke-width": 1.5});
+               for (i=0; i<n; i++) {
+                   s.append(circles[i]);
+                   }
+               }
+            });
+         for (i=0; i<n; i++) {
+             circles[i].mouseup(function () {
+                flag=0;
+                if (stVer==this.index) return ;
+                if (adjMatrix[stVer][this.index]==1) return ;
+                len=edgeList.length;
+                edgeLines[len]=s.line(verCoord[stVer][0]+vertexRad,verCoord[stVer][1]+vertexRad,verCoord[this.index][0]+vertexRad,verCoord[this.index][1]+vertexRad);
+                edgeLines[len].attr({stroke: "black", "stroke-width": 1.5});
+                curEdge.remove();
+                edgeList.push([stVer,this.index]);
+                adjList[stVer].push(this.index); adjList[this.index].push(stVer);
+                adjMatrix[stVer][this.index]=1; adjMatrix[this.index][stVer]=1;
+                for (i=0; i<n; i++) {
+                    s.append(circles[i]);
+                    }
+                for (i=0; i<n; i++) {
+                    if ((i==stVer)||(i==this.index)) continue;
+                    if (circleSegment(verCoord[stVer],verCoord[this.index],verCoord[i])==true) {
+                       possiblePos.push(verCoord[stVer]);
+                       if (placeVertex(stVer)==false) drawGraph(1,1,299,299);
+                       else draw(true);
+                       break;
+                       }
+                    }
+                });
              }
+         s.mouseup(function () {
+            if (curEdge!=null) curEdge.remove();
+            flag=0;
+            });
 }
 function start () {
+         eraseGraph();
+         draw(false);
          used=[];
          for (var i=0; i<n; i++) {
              used[i]=0;
              }
+         animations=[];
          animations.push([[0,0,"red"]])
          dfs(0);
          var animFuncs=[];
@@ -43,14 +97,15 @@ function start () {
                                                    "stroke-dasharray": length.toString()+" "+length.toString(),
                                                    "stroke-dashoffset": length, "stroke-linecap": "round",
                                                    "stroke-linejoin": "round", "stroke-miterlimit": 10});
-                                    s.append(verCircles[curAnim[1]]); s.append(textCircles[curAnim[1]]);
-                                    s.append(verCircles[curAnim[2]]); s.append(textCircles[curAnim[2]]);
+                                    s.append(circles[curAnim[1]]);
+                                    s.append(circles[curAnim[2]]);
                                     lineDraw.animate({strokeDashoffset: 0},1000);
                                     }
                              }
                          curAnim=animations[i][animLen-1];
                          if (curAnim[0]==0) verCircles[curAnim[1]].animate({fill: curAnim[2]},1000,function () {
                                             if (i!=animations.length-1) animFuncs[i+1].func();
+                                            else drawEdges();
                                             });
                          else { var stx,sty,endx,endy;
                                 stx=verCoord[curAnim[1]][0]+20; sty=verCoord[curAnim[1]][1]+20;
@@ -62,11 +117,12 @@ function start () {
                                                "stroke-dasharray": length.toString()+" "+length.toString(),
                                                "stroke-dashoffset": length, "stroke-linecap": "round",
                                                "stroke-linejoin": "round", "stroke-miterlimit": 10});
-                                s.append(verCircles[curAnim[1]]); s.append(textCircles[curAnim[1]]);
-                                s.append(verCircles[curAnim[2]]); s.append(textCircles[curAnim[2]]);
+                                s.append(circles[curAnim[1]]);
+                                s.append(circles[curAnim[2]]);
                                 lineDraw.animate({strokeDashoffset: 0},1000,function () {
                                     lineDraw.remove();
                                     if (i!=animations.length-1) animFuncs[i+1].func();
+                                    else drawEdges();
                                     });
                                 }
                         }
@@ -85,6 +141,7 @@ function dfs (vr) {
                 dfs(adjList[vr][i]);
                 fl++;
                 }
+             else animations.push([[1,vr,adjList[vr][i]]]);
              }
         if (fl==0) animations.push([[0,vr,"white"]]);
 }

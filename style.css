@@ -1,13 +1,13 @@
-@media (min-width: 769px) {
+@media (min-width: 992px) {
         .navbar-nav > li{
          margin-left: 4%;
          margin-right: 4%;
          }
 }
-@media (max-width: 768px) {
+@media (max-width: 991px) {
         .dropdown {
-         padding-bottom: 3%;
-         padding-top: 3%;
+         padding-bottom: 2%;
+         padding-top: 2%;
          }
 }
 
@@ -103,4 +103,38 @@ ul {
     border-radius: 10px;
     float: left;
     display: none;
+}
+
+.slidecontainer {
+    width: 100%;
+}
+.slider {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 5px;
+    background: grey;
+    outline: none;
+    opacity: 0.5;
+    -webkit-transition: .1s;
+    transition: opacity .1s;
+}
+.slider:hover {
+    opacity: 0.7;
+}
+.slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: green;
+    cursor: pointer;
+}
+.slider::-moz-range-thumb {
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    background: green;
+    cursor: pointer;
 }
