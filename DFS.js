@@ -55,8 +55,8 @@ function drawEdges () {
                 for (i=0; i<n; i++) {
                     if ((i==stVer)||(i==this.index)) continue;
                     if (circleSegment(verCoord[stVer],verCoord[this.index],verCoord[i])==true) {
-                       possiblePos.push(verCoord[stVer]);
-                       if (placeVertex(stVer)==false) drawGraph(1,1,299,299);
+                       possiblePos.push(verCoord[this.index]);
+                       if (placeVertex(this.index)==false) drawGraph(1,1,299,299);
                        else draw(true);
                        break;
                        }
@@ -131,17 +131,24 @@ function start () {
         animFuncs[0].func();
 }
 function dfs (vr) {
-         var fl=0;
+         var verColour=0;
          used[vr]=1;
          for (var i=0; i<adjList[vr].length; i++) {
              if (used[adjList[vr][i]]==0) {
-                if (fl!=0) animations.push([[0,vr,"red"]]);
+                if (verColour!=0) {
+                   animations.push([[0,vr,"red"]]);
+                   verColour=0;
+                   }
                 animations.push([[0,vr,"white"],[1,vr,adjList[vr][i]]]);
                 animations.push([[0,adjList[vr][i],"red"]]);
                 dfs(adjList[vr][i]);
-                fl++;
+                verColour=1;
                 }
-             else animations.push([[1,vr,adjList[vr][i]]]);
+             else { if (verColour!=0) {
+                       animations.push([[0,vr,"red"]]);
+                       verColour=0;
+                       }
+                    animations.push([[1,vr,adjList[vr][i]]]); }
              }
-        if (fl==0) animations.push([[0,vr,"white"]]);
+        if (verColour==0) animations.push([[0,vr,"white"]]);
 }

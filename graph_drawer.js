@@ -1,4 +1,4 @@
-var possiblePos=[];
+var possiblePos=[],distVertices;
 function circleSegment (segPoint1, segPoint2, center) {
          var area,height,sides=[];    
          area=Math.abs(segPoint1[0]*segPoint2[1]+segPoint1[1]*center[0]+segPoint2[0]*center[1]-
@@ -36,46 +36,50 @@ function checkVertex (vr) {
          return true;
 }
 function placeVertex (vr) {
-         var i,j,ind,curpossiblePos=[];
+         var i,j,h,ind,curpossiblePos=[];
          curpossiblePos=possiblePos.slice();
+         for (i=0; i<n; i++) {
+             if ((i==vr)||(verCoord[i]==null)) continue;
+             for (j=0; j<n; j++) {
+                 if ((j==vr)||(verCoord[j]==null)||(adjMatrix[i][j]==0)) continue;
+                 for (h=0; h<curpossiblePos.length; h++) {
+                     if (circleSegment(verCoord[i],verCoord[j],curpossiblePos[h])==true) {
+                        curpossiblePos.splice(h,1); h--;
+                        }
+                     }
+                 }
+             }
          for (;;) {
              if (curpossiblePos.length==0) return false;
              ind=parseInt(Math.random()*(10*curpossiblePos.length))%curpossiblePos.length;
              verCoord[vr]=curpossiblePos[ind];
-             if (checkVertex(vr)==0) {
+             if (checkVertex(vr)==false) {
                 curpossiblePos.splice(ind,1);
                 continue;
                 }
              possiblePos.splice(possiblePos.findIndex(function (elem) {
                  return (elem==verCoord[vr]);
                  }),1);
-             for (i=0; i<n; i++) {
-                 if ((i==vr)||(verCoord[i]==null)) continue;
-                 if (adjMatrix[vr][i]==0) continue;
-                 for (j=0; j<possiblePos.length; j++) {
-                     if (circleSegment(verCoord[vr],verCoord[i],possiblePos[j])==true) {
-                        possiblePos.splice(j,1); j--;
-                        }
-                     }
-                 }
              break;
              }
         return true;
-         
 }
 function drawGraph (frameX, frameY, frameW, frameH) {
          eraseGraph();
-         var i,j,dist;
-         dist=vertexRad/2+(Math.random())*vertexRad/2;
+         var i,j;
+         distVertices=vertexRad/2+parseInt((Math.random())*vertexRad/2);
          possiblePos=[];
-         for (i=0; i<=(frameW-2*vertexRad)/(2*vertexRad+dist); i++) {
-             for (j=0; j<=(frameH-2*vertexRad)/(2*vertexRad+dist); j++) {
-                 possiblePos.push([i*(2*vertexRad+dist)+frameX,j*(2*vertexRad+dist)+frameY]);
+         for (i=0; i<=(frameW-2*vertexRad)/(2*vertexRad+distVertices); i++) {
+             for (j=0; j<=(frameH-2*vertexRad)/(2*vertexRad+distVertices); j++) {
+                 possiblePos.push([i*(2*vertexRad+distVertices)+frameX,j*(2*vertexRad+distVertices)+frameY]);
                  }
              }
          verCoord=[];
          for (i=0; i<n; i++) {
-             placeVertex(i);
+             if (placeVertex(i)==false) {
+                drawGraph(frameX,frameY,frameW,frameH);
+                return ;
+                }
              }
          draw(true);
          }
