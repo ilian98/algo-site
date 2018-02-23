@@ -9,21 +9,39 @@ function toggleText (name) {
          else cur.style.display="block";
          flagsPosition();
 }
-function slider () {
-         var slider=document.getElementById("range");
-         var output=document.getElementById("sliderValue");
+function sliderUnoriented () {
+         var slider=document.getElementById("rangeUnoriented");
+         var output=document.getElementById("sliderValueUnoriented");
          output.innerHTML=slider.value;
+         var DFSObject = new DFS ();
+         DFSObject.n=5;
+         DFSObject.init("graphUnoriented");
          slider.oninput=function() {
+            DFSObject.clear(true);
             output.innerHTML=this.value;
-            eraseGraph();
-            n=this.value;
-            edgeList=[]; adjList=[]; adjMatrix=[];
-            for (var i=0; i<n; i++) {
-                adjList[i]=[]; adjMatrix[i]=[];
-                for (var j=0; j<n; j++) {
-                    adjMatrix[i][j]=0;
-                    }
-                }
-            drawGraph(1,1,299,299);
+            DFSObject.n=this.value;
+            DFSObject.init();
             }
+        $("#startUnoriented").on("click",function () {
+            DFSObject.clear(false);
+            DFSObject.start();
+        }); console.log(DFSObject);
+}
+function sliderOriented () {
+         var slider=document.getElementById("rangeOriented");
+         var output=document.getElementById("sliderValueOriented");
+         output.innerHTML=slider.value;
+         var DFSObject = new DFS ();
+         DFSObject.n=5;
+         DFSObject.init("graphOriented");
+         slider.oninput=function() {
+            DFSObject.clear(true);
+            output.innerHTML=this.value;
+            DFSObject.n=this.value;
+            DFSObject.init();
+            }
+        $("#startOriented").on("click",function () {
+            DFSObject.clear(false);
+            DFSObject.start();
+        });
 }

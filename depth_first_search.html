@@ -48,18 +48,28 @@
             </div>
             
             <div class="lesson-part-position">
-                <button class="btn btn-secondary" onclick="toggleText('secondPart'); loadSvg(); slider();">2. Разглеждане на примери.</button>
+                <button class="btn btn-secondary" onclick="toggleText('secondPart'); sliderUnoriented(); sliderOriented();">2. Разглеждане на примери.</button>
                 <div></div>
                 <div id="secondPart">
-                    <button class="btn btn-primary" onclick="start()" style="margin-top: 5%">Старт!</button>
+                    <button class="btn btn-primary" style="margin-top: 5%" id="startUnoriented">Старт!</button>
                     <div class="slidecontainer" style="margin-top: 5%">
-                        <input type="range" min="1" max="10" value="5" class="slider" id="range">
+                        <input type="range" min="1" max="10" value="5" class="slider" id="rangeUnoriented">
                     </div>
                     <div class="slider-text unselectable">
                         <span>Брой върхове: </span>
-                        <span id="sliderValue" style="color: red; font-weight: bold"></span>
+                        <span id="sliderValueUnoriented" style="color: red; font-weight: bold"></span>
                     </div>
-                    <svg id="graph" width="100%" viewBox="0 0 300 300"></svg>
+                    <svg id="graphUnoriented" width="100%" viewBox="0 0 300 300"></svg>
+                    
+                    <button class="btn btn-primary" style="margin-top: 5%" id="startOriented">Старт!</button>
+                    <div class="slidecontainer" style="margin-top: 5%">
+                        <input type="range" min="1" max="10" value="5" class="slider" id="rangeOriented">
+                    </div>
+                    <div class="slider-text unselectable">
+                        <span>Брой върхове: </span>
+                        <span id="sliderValueOriented" style="color: red; font-weight: bold"></span>
+                    </div>
+                    <svg id="graphOriented" width="100%" viewBox="0 0 300 300"></svg>
                 </div>
             </div>
             
