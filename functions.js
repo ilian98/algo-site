@@ -25,7 +25,7 @@ function sliderUnoriented () {
         $("#startUnoriented").on("click",function () {
             DFSObject.clear(false);
             DFSObject.start();
-        }); console.log(DFSObject);
+        });
 }
 function sliderOriented () {
          var slider=document.getElementById("rangeOriented");

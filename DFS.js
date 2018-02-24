@@ -40,62 +40,89 @@ function DFS () {
          drawGraph(this.s,this.circles,this.verCircles,this.verCoord,this.textCircles,this.edgeLines,1,1,299,299,this.n,this.adjMatrix,this.adjList,this.edgeList,this.isOriented);
          };
     this.start = function () {
-         s=this.s; circles=this.circles; verCircles=this.verCircles; verCoord=this.verCoord; textCircles=this.textCircles;
-         edgeLines=this.edgeLines;
-         n=this.n; edgeList=this.edgeList; adjList=this.adjList; adjMatrix=this.adjMatrix; isOriented=this.isOriented;
-         draw(s,circles,verCircles,verCoord,textCircles,edgeLines,1,1,299,299,n,adjMatrix,adjList,edgeList,isOriented,false);
+        draw(this.s,this.circles,this.verCircles,this.verCoord,this.textCircles,this.edgeLines,1,1,299,299,this.n,this.adjMatrix,this.adjList,this.edgeList,this.isOriented,false);
          this.used=[];
-         for (var i=0; i<n; i++) {
+         for (var i=0; i<this.n; i++) {
              this.used[i]=0;
              }
          this.animations=[];
-         this.animations.push([[0,0,"red"]])
+         this.animations.push([[0,0,"red"]]);
          this.dfs(0);
-         animations=this.animations;
          var animFuncs=[];
-         for (i=animations.length-1; i>=0; i--) {
+         for (i=this.animations.length-1; i>=0; i--) {
              animFuncs[i]={
                 index: i,
+                s: this.s,
+                circles: this.circles, verCircles: this.verCircles, verCoord: this.verCoord, textCircles: this.textCircles,
+                edgeLines: this.edgeLines,
+                n: this.n,
+                edgeList: this.edgeList, adjList: this.adjList, adjMatrix: this.adjMatrix, isOriented: this.isOriented,
+                animations: this.animations,
                 func: function () {
-                         var i=this.index,curAnim,animLen=animations[i].length; console.log(isOriented);
+                         var i=this.index,curAnim,animLen=this.animations[i].length;
                          for (var j=0; j<animLen; j++) {
-                             curAnim=animations[i][j];
+                             curAnim=this.animations[i][j];
+                             this.verCircles[curAnim[1]].isLast=(j==animLen-1);
+                             this.verCircles[curAnim[1]].s=this.s,
+                             this.verCircles[curAnim[1]].circles=this.circles;
+                             this.verCircles[curAnim[1]].verCircles=this.verCircles;
+                             this.verCircles[curAnim[1]].verCoord=this.verCoord;
+                             this.verCircles[curAnim[1]].textCircles=this.textCircles;
+                             this.verCircles[curAnim[1]].edgeLines=this.edgeLines;
+                             this.verCircles[curAnim[1]].n=this.n;
+                             this.verCircles[curAnim[1]].edgeList=this.edgeList;
+                             this.verCircles[curAnim[1]].adjList=this.adjList;
+                             this.verCircles[curAnim[1]].adjMatrix=this.adjMatrix;
+                             this.verCircles[curAnim[1]].isOriented=this.isOriented;
+                             this.verCircles[curAnim[1]].animations=this.animations;
                              if (curAnim[0]==0) {
-                                verCircles[curAnim[1]].isLast=(j==animLen-1);
-                                verCircles[curAnim[1]].animate({fill: curAnim[2]},1000,function () {
+                                this.verCircles[curAnim[1]].animate({fill: curAnim[2]},1000,function () {
                                     if (this.isLast==true) {
-                                       if (i!=animations.length-1) animFuncs[i+1].func();
-                                       else drawEdges(s,circles,verCircles,verCoord,textCircles,edgeLines,1,1,299,299,n,adjMatrix,adjList,edgeList,isOriented);
+                                       if (i!=this.animations.length-1) {
+                                          animFuncs[i+1].func();
+                                       }
+                                       else drawEdges(this.s,this.circles,this.verCircles,this.verCoord,this.textCircles,this.edgeLines,1,1,299,299,this.n,this.adjMatrix,this.adjList,this.edgeList,this.isOriented);
                                        }
                                     });
                                 }
                              else if (curAnim[0]==2) {
-                                     textCircles[curAnim[1]].isLast=(j==animLen-1);
-                                     textCircles[curAnim[1]].animate({fill: curAnim[2]},1000,function () {
+                                     this.textCircles[curAnim[1]].animate({fill: curAnim[2]},1000,function () {
                                          if (this.isLast==true) {
-                                            if (i!=animations.length-1) animFuncs[i+1].func();
-                                            else drawEdges(s,circles,verCircles,verCoord,textCircles,edgeLines,1,1,299,299,n,adjMatrix,adjList,edgeList,isOriented);
+                                            if (i!=this.animations.length-1) animFuncs[i+1].func();
+                                            else drawEdges(this.s,this.circles,this.verCircles,this.verCoord,this.textCircles,this.edgeLines,1,1,299,299,this.n,this.adjMatrix,this.adjList,this.edgeList,this.isOriented);
                                             }
                                          });
                                      }
                              else { var stx,sty,endx,endy;
-                                    stx=verCoord[curAnim[1]][0]+vertexRad; sty=verCoord[curAnim[1]][1]+vertexRad;
-                                    endx=verCoord[curAnim[2]][0]+vertexRad; endy=verCoord[curAnim[2]][1]+vertexRad;
+                                    stx=this.verCoord[curAnim[1]][0]+vertexRad; sty=this.verCoord[curAnim[1]][1]+vertexRad;
+                                    endx=this.verCoord[curAnim[2]][0]+vertexRad; endy=this.verCoord[curAnim[2]][1]+vertexRad;
                                     var path="M "+stx.toString()+","+sty.toString()+" L"+endx.toString()+","+endy.toString();
                                     var length=Snap.path.getTotalLength(path);
-                                    var lineDraw=s.path(path);
+                                    var lineDraw=this.s.path(path);
                                     lineDraw.attr({fill: "none", stroke: "red", "stroke-width": 4,
                                                    "stroke-dasharray": length.toString()+" "+length.toString(),
                                                    "stroke-dashoffset": length, "stroke-linecap": "round",
                                                    "stroke-linejoin": "round", "stroke-miterlimit": 10});
-                                    s.append(circles[curAnim[1]]);
-                                    s.append(circles[curAnim[2]]);
+                                    this.s.append(this.circles[curAnim[1]]);
+                                    this.s.append(this.circles[curAnim[2]]);
                                     lineDraw.isLast=(j==animLen-1);
+                                    lineDraw.s=this.s,
+                                    lineDraw.circles=this.circles;
+                                    lineDraw.verCircles=this.verCircles;
+                                    lineDraw.verCoord=this.verCoord;
+                                    lineDraw.textCircles=this.textCircles;
+                                    lineDraw.edgeLines=this.edgeLines;
+                                    lineDraw.n=this.n;
+                                    lineDraw.edgeList=this.edgeList;
+                                    lineDraw.adjList=this.adjList;
+                                    lineDraw.adjMatrix=this.adjMatrix;
+                                    lineDraw.isOriented=this.isOriented;
+                                    lineDraw.animations=this.animations;
                                     lineDraw.animate({strokeDashoffset: 0},1000,function () {
                                         lineDraw.remove();
                                         if (this.isLast==true) {
-                                           if (i!=animations.length-1) animFuncs[i+1].func();
-                                           else drawEdges(s,circles,verCircles,verCoord,textCircles,edgeLines,1,1,299,299,n,adjMatrix,adjList,edgeList,isOriented);
+                                           if (i!=this.animations.length-1) animFuncs[i+1].func();
+                                           else drawEdges(this.s,this.circles,this.verCircles,this.verCoord,this.textCircles,this.edgeLines,1,1,299,299,this.n,this.adjMatrix,this.adjList,this.edgeList,this.isOriented);
                                            }
                                         });
                                     }
