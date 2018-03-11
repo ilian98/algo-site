@@ -34,7 +34,7 @@ function eraseGraph (graph) {
          for (var i=0; i<graph.edgeLines.length; i++) {
              if (graph.edgeLines[i]!=null) graph.edgeLines[i].remove();
              }
-         for (var i=0; i<this.n; i++) {
+         for (var i=0; i<graph.n; i++) {
              if (graph.verCircles[i]!=null) graph.verCircles[i].remove();
              if (graph.textCircles[i]!=null) graph.textCircles[i].remove();
              if (graph.circles[i]!=null) graph.circles[i].remove();
@@ -101,6 +101,7 @@ function drawGraph (graph, frameX, frameY, frameW, frameH) {
          draw(graph,frameX,frameY,frameW,frameH,true);
 }
 function draw (graph, frameX, frameY, frameW, frameH, addDraw) {
+         eraseGraph(graph);
          for (i=0; i<graph.edgeList.length; i++) {
              var st=graph.verCoord[graph.edgeList[i][0]],end=graph.verCoord[graph.edgeList[i][1]],edgeLen,quotient=1;
              st=[graph.verCoord[graph.edgeList[i][0]][0]+vertexRad,graph.verCoord[graph.edgeList[i][0]][1]+vertexRad];
@@ -183,7 +184,7 @@ function drawEdges (graph, frameX, frameY, frameW, frameH) {
                        break;
                        }
                     }
-                 draw(graph,frameX,frameY,frameW,frameH,true);
+                draw(graph,frameX,frameY,frameW,frameH,true);
                 });
              }
          graph.s.mouseup(function () {
