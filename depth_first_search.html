@@ -9,6 +9,7 @@
         <script type="text/javascript" src="source_files/popper.js/dist/umd/popper.min.js"></script>
         <script type="text/javascript" src="source_files/bootstrap/dist/js/bootstrap.min.js"></script>
         <script type="text/javascript" src="source_files/Snap.svg/dist/snap.svg-min.js"></script>
+        <script type="text/javascript" src="jquery.ui.touch-punch.min.js"></script>
         <script type="text/javascript" src="main.js"></script>
         <script type="text/javascript" src="graph_drawer.js"></script>
         <script type="text/javascript" src="DFS.js"></script>
@@ -50,35 +51,39 @@
             <div class="lesson-part-position">
                 <button class="btn btn-secondary" onclick="toggleText('secondPart'); initExamples();">2. Разглеждане на примери.</button>
                 <div></div>
-                <div id="secondPart">
+                <div id="secondPart" style="width: 75%">
                     <div class="row">
-                        <div class="col-sm graphExample1">
-                            <button class="btn btn-primary start" style="margin-top: 5%">Старт!</button>
-                            <button class="btn btn-primary pause" style="margin-top: 5%; display: none">Пауза</button>
-                            <div class="slidecontainer" style="margin-top: 5%">
-                                <input type="range" min="1" max="10" value="5" class="slider range" id="range">
+                        <div class="col-sm">
+                            <div class="graphExample1" style="float: left">
+                                <button class="btn btn-primary start" style="margin-top: 5%">Старт!</button>
+                                <button class="btn btn-primary pause" style="margin-top: 5%; display: none">Пауза</button>
+                                <div class="slidecontainer" style="margin-top: 5%">
+                                    <input type="range" min="1" max="10" value="5" class="slider range" id="range">
+                                </div>
+                                <div class="slider-text unselectable">
+                                    <span draggable="false">Брой върхове: </span>
+                                    <span draggable="false" class="slider-value" style="color: red; font-weight: bold"></span>
+                                </div>
+                                <svg class="graph" width="100%" viewBox="0 0 300 300" style="margin-top: 2%" onmousedown="return false"></svg>
                             </div>
-                            <div class="slider-text unselectable">
-                                <span draggable="false">Брой върхове: </span>
-                                <span draggable="false" class="slider-value" style="color: red; font-weight: bold"></span>
-                            </div>
-                            <svg class="graph" width="100%" viewBox="0 0 300 300" style="margin-top: 2%" onmousedown="return false"></svg>
                         </div>
-                    
-                        <div class="col-sm graphExample2">
-                            <button class="btn btn-primary start" style="margin-top: 5%">Старт!</button>
-                            <button class="btn btn-primary pause" style="margin-top: 5%; display: none">Пауза</button>
-                            <div class="slidecontainer" style="margin-top: 5%">
-                                <input type="range" min="1" max="10" value="5" class="slider range">
+                        <div class="col-sm">
+                            <div class="graphExample2" style="float: left">
+                                <button class="btn btn-primary start" style="margin-top: 5%">Старт!</button>
+                                <button class="btn btn-primary pause" style="margin-top: 5%; display: none">Пауза</button>
+                                <div class="slidecontainer" style="margin-top: 5%">
+                                    <input type="range" min="1" max="10" value="5" class="slider range">
+                                </div>
+                                <div class="slider-text unselectable">
+                                    <span draggable="false">Брой върхове: </span>
+                                    <span draggable="false" class="slider-value" style="color: red; font-weight: bold"></span>
+                                </div>
+                                <svg class="graph" width="100%" viewBox="0 0 300 300" style="margin-top: 2%" onmousedown="return false"></svg>
                             </div>
-                            <div class="slider-text unselectable">
-                                <span draggable="false">Брой върхове: </span>
-                                <span draggable="false" class="slider-value" style="color: red; font-weight: bold"></span>
-                            </div>
-                            <svg class="graph" width="100%" viewBox="0 0 300 300" style="margin-top: 2%" onmousedown="return false"></svg>
                         </div>
                     </div>
                 </div>
+            
             </div>
             
             <div class="lesson-part-position">
