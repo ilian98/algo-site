@@ -158,7 +158,7 @@ function drawEdges (graph, frameX, frameY, frameW, frameH) {
                      point.x=event.x; point.y=event.y;
                      }
                   else {
-                     point.x=event.touches[0].x; point.y=event.touches[0].y;
+                     point.x=event.changedTouches[0].x; point.y=event.changedTouches[0].y;
                      }
                   point=point.matrixTransform(graph.s.paper.node.getScreenCTM().inverse());
                   if (flag==0) return ;
