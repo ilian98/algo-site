@@ -39,4 +39,14 @@ function graphExample (name, isOriented) {
 function initExamples () {
          var example1 = new graphExample (".graphExample1",false);
          var example2 = new graphExample (".graphExample2",true);
+         window.blockMenuHeaderScroll=false;
+         $(".graphExample1").on("touchstart", function (event) {
+             blockMenuHeaderScroll=true;
+             });
+         $(window).on('touchend', function () {
+             blockMenuHeaderScroll=false;
+             });
+         $(window).on('touchmove', function (event) {
+             if (blockMenuHeaderScroll==true) event.preventDefault();
+             });
 }
