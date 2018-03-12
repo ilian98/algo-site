@@ -131,7 +131,7 @@ function drawEdges (graph, frameX, frameY, frameW, frameH) {
          var flag=0,mouseX,mouseY,stVer=1,curEdge,i,len;
          var point=graph.s.paper.node.createSVGPoint();
         
-         function circlesClick (event, device, index) {
+         function circlesClick (event, device, index) { alert("Tuk");
                   if (device=="desktop") {
                      point.x=event.x; point.y=event.y;
                      }
