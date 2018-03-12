@@ -136,7 +136,7 @@ function drawEdges (graph, frameX, frameY, frameW, frameH) {
                      point.x=event.x; point.y=event.y;
                      }
                   else {
-                     point.x=event.touches[0].x; point.y=event.touches[0].y;
+                     point.x=event.touches[0].clientX; point.y=event.touches[0].clientY;
                      }
                   point=point.matrixTransform(graph.s.paper.node.getScreenCTM().inverse());
                   mouseX=point.x; mouseY=point.y;
@@ -158,13 +158,13 @@ function drawEdges (graph, frameX, frameY, frameW, frameH) {
                      point.x=event.x; point.y=event.y;
                      }
                   else {
-                     point.x=event.changedTouches[0].x; point.y=event.changedTouches[0].y;
+                     point.x=event.changedTouches[0].clientX; point.y=event.changedTouches[0].clientY;
                      }
                   point=point.matrixTransform(graph.s.paper.node.getScreenCTM().inverse());
                   if (flag==0) return ;
                   if ((Math.abs(mouseX-point.x)>=1)||(Math.abs(mouseY-point.y)>=1)) {
                      if (curEdge!=null) curEdge.remove();
-                     var st,end,edgeLen,quotient=1; //console.log(stVer);
+                     var st,end,edgeLen,quotient=1;
                      st=[graph.verCoord[stVer][0]+vertexRad,graph.verCoord[stVer][1]+vertexRad];
                      end=[point.x,point.y];
                      edgeLen=Math.sqrt((st[0]-end[0])*(st[0]-end[0])+(st[1]-end[1])*(st[1]-end[1]));
@@ -211,6 +211,7 @@ function drawEdges (graph, frameX, frameY, frameW, frameH) {
                   draw(graph,frameX,frameY,frameW,frameH,true);
                   }
          for (i=0; i<graph.n; i++) {
+             graph.circles[i].index=i;
              graph.circles[i].mouseup(function () {
                 circlesEnd(this.index);
                 });
