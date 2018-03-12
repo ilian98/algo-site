@@ -131,7 +131,7 @@ function drawEdges (graph, frameX, frameY, frameW, frameH) {
          var flag=0,mouseX,mouseY,stVer=1,curEdge,i,len;
          var point=graph.s.paper.node.createSVGPoint();
         
-         function circlesClick (event, device, index) { alert("Tuk");
+         function circlesClick (event, device, index) {
                   if (device=="desktop") {
                      point.x=event.x; point.y=event.y;
                      }
@@ -180,15 +180,14 @@ function drawEdges (graph, frameX, frameY, frameW, frameH) {
                          graph.s.append(graph.circles[i]);
                          }
                      }
+                  if ((point.x<graph.s.getBBox().x)||(point.x>graph.s.getBBox().x2)||
+                      (point.y<graph.s.getBBox().y)||(point.y>graph.s.getBBox().y2)) {
+                     if (curEdge!=null) curEdge.remove();
+                     flag=0;
+                     }
                   }
-         graph.s.mousemove(function (event) {
-            trackMouse(event,"desktop");
-            });
-         graph.s.touchmove(function (event) {
-            trackMouse(event,"mobile");
-            });
-         
-         function circlesEnd (index) {
+    
+        function circlesEnd (index) {
                   if (flag==0) return ;
                   flag=0;
                   if (stVer==index) return ;
@@ -210,26 +209,35 @@ function drawEdges (graph, frameX, frameY, frameW, frameH) {
                       }
                   draw(graph,frameX,frameY,frameW,frameH,true);
                   }
-         for (i=0; i<graph.n; i++) {
-             graph.circles[i].index=i;
-             graph.circles[i].mouseup(function () {
-                circlesEnd(this.index);
-                });
-             graph.circles[i].touchend(function () {
-                circlesEnd(this.index);
-                });
-             }
+        graph.s.mouseup(function () {
+            for (i=0; i<graph.n; i++) {
+                if ((point.x>=graph.circles[i].getBBox().x)&&(point.x<=graph.circles[i].getBBox().x2)&&
+                    (point.y>=graph.circles[i].getBBox().y)&&(point.y<=graph.circles[i].getBBox().y2)) {
+                   circlesEnd(i);
+                   }
+                }
+            });
+        graph.s.touchend(function () {
+            for (i=0; i<graph.n; i++) {
+                if ((point.x>=graph.circles[i].getBBox().x)&&(point.x<=graph.circles[i].getBBox().x2)&&
+                    (point.y>=graph.circles[i].getBBox().y)&&(point.y<=graph.circles[i].getBBox().y2)) {
+                   circlesEnd(i);
+                   }
+                }
+            });
+
+        graph.s.mousemove(function (event) {
+            trackMouse(event,"desktop");
+            });
+        graph.s.touchmove(function (event) {
+            trackMouse(event,"mobile");
+            });
     
-         graph.s.mouseup(function () {
+        graph.s.mouseup(function () {
             if (curEdge!=null) curEdge.remove();
             flag=0;
             });
-         graph.s.touchend(function () {
+        graph.s.touchend(function () {
             if (curEdge!=null) curEdge.remove();
-            });
-    
-         $(graph.svgName).mouseleave(function () {
-            if (curEdge!=null) curEdge.remove();
-            flag=0;
             });
 }
