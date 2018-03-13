@@ -11,6 +11,18 @@ function toggleText (name) {
 }
 
 function graphExample (name, isOriented) {
+         this.svgElement=document.querySelector(name+" .graph");
+         this.svgElement.blockScroll=false;
+         this.svgElement.ontouchstart = function (event) {
+             this.blockScroll=true;
+             };
+         this.svgElement.ontouchend = function () {
+             this.blockScroll=false;
+             };
+         this.svgElement.ontouchmove = function (event) {
+             if (this.blockScroll==true) event.preventDefault();
+             };
+    
          this.startButton=document.querySelector(name+" .start");
          this.pauseButton=document.querySelector(name+" .pause");
          this.slider=document.querySelector(name+" .range");
@@ -39,14 +51,4 @@ function graphExample (name, isOriented) {
 function initExamples () {
          var example1 = new graphExample (".graphExample1",false);
          var example2 = new graphExample (".graphExample2",true);
-         var blockMenuHeaderScroll=false;
-         $(".graphExample1").on("touchstart", function (event) {
-             blockMenuHeaderScroll=true;
-             });
-         document.ontouchend = function () {
-             blockMenuHeaderScroll=false;
-             };
-         document.ontouchmove = function (event) {
-             if (blockMenuHeaderScroll==true) event.preventDefault();
-             };
 }

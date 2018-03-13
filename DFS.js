@@ -61,7 +61,7 @@ function DFS () {
                                        if (i!=this.animations.length-1) {
                                           animFuncs[i+1].func();
                                        }
-                                       else drawEdges(this.graph,1,1,299,299);
+                                       else this.graph.drawEdges(1,1,299,299);
                                        }
                                     });
                                 }
@@ -72,7 +72,7 @@ function DFS () {
                                      this.graph.textCircles[curAnim[1]].animate({fill: curAnim[2]},1000,function () {
                                          if (this.isLast==true) {
                                             if (i!=this.animations.length-1) animFuncs[i+1].func();
-                                            else drawEdges(this.graph,1,1,299,299);
+                                            else this.graph.drawEdges(1,1,299,299);
                                             }
                                          });
                                      }
@@ -97,7 +97,7 @@ function DFS () {
                                         lineDraw.remove();
                                         if (this.isLast==true) {
                                            if (i!=this.animations.length-1) animFuncs[i+1].func();
-                                           else drawEdges(this.graph,1,1,299,299);
+                                           else this.graph.drawEdges(1,1,299,299);
                                            }
                                         });
                                     }

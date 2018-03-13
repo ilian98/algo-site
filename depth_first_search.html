@@ -14,6 +14,13 @@
         <script type="text/javascript" src="DFS.js"></script>
     </head>
     <body onresize="flagsPosition()">
+        <script type="text/javascript">
+            window.isMobile=false;
+            window.addEventListener("touchstart",function onFirstTouch() {
+                window.isMobile=true;
+                window.removeEventListener("touchstart",onFirstTouch,false);
+                },false);
+        </script>
         <header>
             <div class="background"></div>
             <div id="nav-placeholder"></div>

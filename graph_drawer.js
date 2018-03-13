@@ -1,4 +1,79 @@
 var possiblePos=[],distVertices,vertexRad=20;
+
+function getCoordinates (event, graph) {
+         if (window.isMobile==false) {
+            graph.svgPoint.x=event.clientX; graph.svgPoint.y=event.clientY;
+            }
+         else if (event.changedTouches!=undefined) {
+                 graph.svgPoint.x=event.changedTouches[0].clientX;
+                 graph.svgPoint.y=event.changedTouches[0].clientY;
+                 }
+         else if (event.touches!=undefined) {
+                 graph.svgPoint.x=event.touches[0].clientX;
+                 graph.svgPoint.y=event.touches[0].clientY;
+                 }
+ }
+function circleClick (event, index, graph) {
+         getCoordinates(event,graph);
+         graph.svgPoint=graph.svgPoint.matrixTransform(graph.s.paper.node.getScreenCTM().inverse());
+         graph.mouseX=graph.svgPoint.x; graph.mouseY=graph.svgPoint.y;
+         graph.flagDraw=1;
+         graph.stVerDraw=index;
+}
+function trackMouse (event, graph) {
+         var i;
+         getCoordinates(event,graph);
+         graph.svgPoint=graph.svgPoint.matrixTransform(graph.s.paper.node.getScreenCTM().inverse());
+         if (graph.flagDraw==0) return ;
+         if ((Math.abs(graph.mouseX-graph.svgPoint.x)>=1)||(Math.abs(graph.mouseY-graph.svgPoint.y)>=1)) {
+            if (graph.curEdgeDraw!=null) graph.curEdgeDraw.remove();
+            var st,end,edgeLen,quotient=1;
+            st=[graph.verCoord[graph.stVerDraw][0]+vertexRad,graph.verCoord[graph.stVerDraw][1]+vertexRad];
+            end=[graph.svgPoint.x,graph.svgPoint.y];
+            edgeLen=Math.sqrt((st[0]-end[0])*(st[0]-end[0])+(st[1]-end[1])*(st[1]-end[1]));
+            if (graph.isOriented==true) quotient=(edgeLen-10)/edgeLen;
+            graph.curEdgeDraw=graph.s.line(st[0],st[1],st[0]+quotient*(end[0]-st[0]),st[1]+quotient*(end[1]-st[1]));
+            graph.curEdgeDraw.attr({stroke: "black", "stroke-width": 1.5});
+            if (graph.isOriented==true) {
+               var arrow=graph.s.polygon([0,10,4,10,2,0,0,10]).attr({fill: "black"}).transform('r90');
+               var marker=arrow.marker(0,0,10,10,0,5);
+               graph.curEdgeDraw.attr({"marker-end": marker});
+               }
+            for (i=0; i<graph.n; i++) {
+                graph.s.append(graph.circles[i]);
+                }
+            }
+}
+function circleEnd (graph, frameX, frameY, frameW, frameH) {
+         var i,len;
+         for (i=0; i<graph.n; i++) { 
+             if ((graph.svgPoint.x>=graph.circles[i].getBBox().x)&&(graph.svgPoint.x<=graph.circles[i].getBBox().x2)&&
+                 (graph.svgPoint.y>=graph.circles[i].getBBox().y)&&(graph.svgPoint.y<=graph.circles[i].getBBox().y2)) {
+                if (graph.flagDraw==0) return ;
+                graph.flagDraw=0; graph.curEdgeDraw.remove();
+                if (graph.stVerDraw==i) return ;
+                if (graph.adjMatrix[graph.stVerDraw][i]==1) return ;
+                len=graph.edgeList.length;
+                graph.edgeList.push([graph.stVerDraw,i]);
+                graph.adjList[graph.stVerDraw].push(i);
+                if (graph.isOriented==false) graph.adjList[i].push(graph.stVerDraw);
+                graph.adjMatrix[graph.stVerDraw][i]=1;
+                if (graph.isOriented==false) graph.adjMatrix[i][graph.stVerDraw]=1;
+                for (j=0; j<graph.n; j++) {
+                    if ((j==graph.stVerDraw)||(j==i)) continue;
+                    if (circleSegment(graph.verCoord[graph.stVerDraw],graph.verCoord[i],graph.verCoord[j])==true) {
+                       possiblePos.push(graph.verCoord[i]);
+                       if (placeVertex(graph,i)==false) drawGraph(graph,frameX,frameY,frameW,frameH);
+                       break;
+                       }
+                    }
+                draw(graph,frameX,frameY,frameW,frameH,true);
+                }
+            }
+         if (graph.curEdgeDraw!=null) graph.curEdgeDraw.remove();
+         graph.flagDraw=0;
+}
+
 function Graph () {
          this.svgName=undefined; this.s=undefined;
          this.circles=undefined; this.verCircles=undefined; this.verCoord=undefined; this.textCircles=undefined;
@@ -13,7 +88,59 @@ function Graph () {
                      this.adjMatrix[i][j]=0;
                      }
                  }
+             this.flagDraw=0;
              }
+         
+         this.flagDraw=undefined; this.mouseX=undefined; this.mouseY=undefined;
+         this.stVerDraw=undefined; this.curEdgeDraw=undefined; this.svgPoint=undefined;
+         this.drawEdges = function (frameX, frameY, frameW, frameH) {
+              var page=$(document),boundBox=$(this.svgName)[0].getBoundingClientRect();
+              var graph=this.graph;
+              draw(this,frameX,frameY,frameW,frameH,false);
+              this.svgPoint=this.s.paper.node.createSVGPoint(); this.flagDraw=0; this.stVer=1;
+              for (i=0; i<this.n; i++) {
+                  this.circles[i].index=i; this.circles[i].graph=this;
+                  this.circles[i].mousedown(function (event) {
+                      if (window.isMobile==true) return ;
+                      circleClick(event,this.index,this.graph);
+                      });
+                  this.circles[i].touchstart(function (event) {
+                      circleClick(event,this.index,this.graph);
+                      });
+                  }
+                
+              this.s.graph=this;
+              this.s.mousemove(function (event) {
+                  if (window.isMobile==true) return ;
+                  trackMouse(event,this.graph);
+                  });
+              this.s.touchmove(function (event) {
+                  trackMouse(event,this.graph);
+                  });
+
+             this.s.graph=this;
+             this.s.mouseup(function () {
+                 if (window.isMobile==true) return ;
+                 circleEnd(this.graph,frameX,frameY,frameW,frameH);
+                 });
+             this.s.touchend(function () {
+                 circleEnd(this.graph,frameX,frameY,frameW,frameH);
+                 });
+
+             page.graph=this; page.boundBox=boundBox;
+             page.on("mousemove touchmove",function (event) {
+                 var point=[page.graph.svgPoint.x,page.graph.svgPoint.y];
+                 getCoordinates(event,page.graph);
+                 console.log(page.graph.svgName,page.graph.svgPoint,page.boundBox);
+                 if ((page.graph.svgPoint.x<page.boundBox.left)||(page.graph.svgPoint.x>page.boundBox.right)||
+                     (page.graph.svgPoint.y<page.boundBox.top)||(page.graph.svgPoint.y>page.boundBox.bottom)) {
+                    if (page.graph.curEdgeDraw!=null) page.graph.curEdgeDraw.remove();
+                    page.graph.flagDraw=0;
+                    }
+                 page.graph.svgPoint.x=point[0];
+                 page.graph.svgPoint.y=point[1];
+                 });
+            }
 }
 
 function circleSegment (segPoint1, segPoint2, center) {
@@ -124,120 +251,5 @@ function draw (graph, frameX, frameY, frameW, frameH, addDraw) {
              graph.textCircles[i].attr({x: graph.textCircles[i].getBBox().x-graph.textCircles[i].getBBox().w/2, y:graph.textCircles[i].getBBox().y+graph.textCircles[i].getBBox().h, class: "unselectable"});
              graph.circles[i]=graph.s.group(graph.verCircles[i],graph.textCircles[i]);
              }
-         if (addDraw==true) drawEdges(graph,frameX,frameY,frameW,frameH);
-}
-function drawEdges (graph, frameX, frameY, frameW, frameH) {
-         draw(graph,frameX,frameY,frameW,frameH,false);
-         var flag=0,mouseX,mouseY,stVer=1,curEdge,i,len;
-         var point=graph.s.paper.node.createSVGPoint();
-        
-         function circlesClick (event, device, index) {
-                  if (device=="desktop") {
-                     point.x=event.x; point.y=event.y;
-                     }
-                  else {
-                     point.x=event.touches[0].clientX; point.y=event.touches[0].clientY;
-                     }
-                  point=point.matrixTransform(graph.s.paper.node.getScreenCTM().inverse());
-                  mouseX=point.x; mouseY=point.y;
-                  flag=1;
-                  stVer=index;
-                  }
-         for (i=0; i<graph.n; i++) {
-             graph.circles[i].index=i;
-             graph.circles[i].mousedown(function (event) {
-                circlesClick(event,"desktop",this.index);
-                });
-             graph.circles[i].touchstart(function (event) {
-                circlesClick(event,"mobile",this.index);
-                });
-             }
-    
-         function trackMouse (event, device) {
-                  if (device=="desktop") {
-                     point.x=event.x; point.y=event.y;
-                     }
-                  else {
-                     point.x=event.changedTouches[0].clientX; point.y=event.changedTouches[0].clientY;
-                     }
-                  point=point.matrixTransform(graph.s.paper.node.getScreenCTM().inverse());
-                  if (flag==0) return ;
-                  if ((Math.abs(mouseX-point.x)>=1)||(Math.abs(mouseY-point.y)>=1)) {
-                     if (curEdge!=null) curEdge.remove();
-                     var st,end,edgeLen,quotient=1;
-                     st=[graph.verCoord[stVer][0]+vertexRad,graph.verCoord[stVer][1]+vertexRad];
-                     end=[point.x,point.y];
-                     edgeLen=Math.sqrt((st[0]-end[0])*(st[0]-end[0])+(st[1]-end[1])*(st[1]-end[1]));
-                     if (graph.isOriented==true) quotient=(edgeLen-10)/edgeLen;
-                     curEdge=graph.s.line(st[0],st[1],st[0]+quotient*(end[0]-st[0]),st[1]+quotient*(end[1]-st[1]));
-                     curEdge.attr({stroke: "black", "stroke-width": 1.5});
-                     if (graph.isOriented==true) {
-                        var arrow=graph.s.polygon([0,10,4,10,2,0,0,10]).attr({fill: "black"}).transform('r90');
-                        var marker=arrow.marker(0,0,10,10,0,5);
-                        curEdge.attr({"marker-end": marker});
-                        }
-                     for (i=0; i<graph.n; i++) {
-                         graph.s.append(graph.circles[i]);
-                         }
-                     }
-                  if ((point.x<graph.s.getBBox().x)||(point.x>graph.s.getBBox().x2)||
-                      (point.y<graph.s.getBBox().y)||(point.y>graph.s.getBBox().y2)) {
-                     if (curEdge!=null) curEdge.remove();
-                     flag=0;
-                     }
-                  }
-    
-        function circlesEnd (index) {
-                  if (flag==0) return ;
-                  flag=0;
-                  if (stVer==index) return ;
-                  if (graph.adjMatrix[stVer][index]==1) return ;
-                  len=graph.edgeList.length;
-                  curEdge.remove();
-                  graph.edgeList.push([stVer,index]);
-                  graph.adjList[stVer].push(index);
-                  if (graph.isOriented==false) graph.adjList[index].push(stVer);
-                  graph.adjMatrix[stVer][index]=1;
-                  if (graph.isOriented==false) graph.adjMatrix[index][stVer]=1;
-                  for (i=0; i<graph.n; i++) {
-                      if ((i==stVer)||(i==index)) continue;
-                      if (circleSegment(graph.verCoord[stVer],graph.verCoord[index],graph.verCoord[i])==true) {
-                         possiblePos.push(graph.verCoord[index]);
-                         if (placeVertex(graph,index)==false) drawGraph(graph,frameX,frameY,frameW,frameH);
-                         break;
-                         }
-                      }
-                  draw(graph,frameX,frameY,frameW,frameH,true);
-                  }
-        graph.s.mouseup(function () {
-            for (i=0; i<graph.n; i++) {
-                if ((point.x>=graph.circles[i].getBBox().x)&&(point.x<=graph.circles[i].getBBox().x2)&&
-                    (point.y>=graph.circles[i].getBBox().y)&&(point.y<=graph.circles[i].getBBox().y2)) {
-                   circlesEnd(i);
-                   }
-                }
-            });
-        graph.s.touchend(function () {
-            for (i=0; i<graph.n; i++) {
-                if ((point.x>=graph.circles[i].getBBox().x)&&(point.x<=graph.circles[i].getBBox().x2)&&
-                    (point.y>=graph.circles[i].getBBox().y)&&(point.y<=graph.circles[i].getBBox().y2)) {
-                   circlesEnd(i);
-                   }
-                }
-            });
-
-        graph.s.mousemove(function (event) {
-            trackMouse(event,"desktop");
-            });
-        graph.s.touchmove(function (event) {
-            trackMouse(event,"mobile");
-            });
-    
-        graph.s.mouseup(function () {
-            if (curEdge!=null) curEdge.remove();
-            flag=0;
-            });
-        graph.s.touchend(function () {
-            if (curEdge!=null) curEdge.remove();
-            });
+         if (addDraw==true) graph.drawEdges(frameX,frameY,frameW,frameH);
 }
