@@ -94,8 +94,14 @@ function Graph () {
          this.flagDraw=undefined; this.mouseX=undefined; this.mouseY=undefined;
          this.stVerDraw=undefined; this.curEdgeDraw=undefined; this.svgPoint=undefined;
          this.drawEdges = function (frameX, frameY, frameW, frameH) {
-              var page=$(document),boundBox=$(this.svgName)[0].getBoundingClientRect();
-              var graph=this.graph;
+              $(document).off();
+              var page=$(document);
+              var boundBox = {
+                  top: $(this.svgName)[0].getBoundingClientRect().top+window.scrollY,
+                  bottom: $(this.svgName)[0].getBoundingClientRect().bottom+window.scrollY,
+                  left: $(this.svgName)[0].getBoundingClientRect().left+window.scrollX,
+                  right: $(this.svgName)[0].getBoundingClientRect().right+window.scrollX
+                  };
               draw(this,frameX,frameY,frameW,frameH,false);
               this.svgPoint=this.s.paper.node.createSVGPoint(); this.flagDraw=0; this.stVer=1;
               for (i=0; i<this.n; i++) {
@@ -129,16 +135,14 @@ function Graph () {
 
              page.graph=this; page.boundBox=boundBox;
              page.on("mousemove touchmove",function (event) {
-                 var point=[page.graph.svgPoint.x,page.graph.svgPoint.y];
-                 getCoordinates(event,page.graph);
-                 console.log(page.graph.svgName,page.graph.svgPoint,page.boundBox);
-                 if ((page.graph.svgPoint.x<page.boundBox.left)||(page.graph.svgPoint.x>page.boundBox.right)||
-                     (page.graph.svgPoint.y<page.boundBox.top)||(page.graph.svgPoint.y>page.boundBox.bottom)) {
+                 if (window.isMobile==false) var point=[event.pageX,event.pageY];
+                 else if (event.changeTouches!=undefined) var point=[event.changedTouches[0].pageX,event.changedTouches[0].pageY];
+                 else var point=[event.touches[0].pageX,event.touches[0].pageY];
+                 if ((point[0]<page.boundBox.left)||(point[0]>page.boundBox.right)||
+                     (point[1]<page.boundBox.top)||(point[1]>page.boundBox.bottom)) {
                     if (page.graph.curEdgeDraw!=null) page.graph.curEdgeDraw.remove();
                     page.graph.flagDraw=0;
                     }
-                 page.graph.svgPoint.x=point[0];
-                 page.graph.svgPoint.y=point[1];
                  });
             }
 }

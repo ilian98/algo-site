@@ -92,6 +92,9 @@ ul {
 .arrow.collapsed .collapsed {
     display:none;
 }
+[data-toggle~="collapse"] {
+    cursor: pointer;
+}
 
 .card-footer {
     padding-top: 2px;
