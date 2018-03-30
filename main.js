@@ -28,6 +28,7 @@ function graphExample (name, isOriented) {
          this.pauseButton.style.display="none";
          this.slider=document.querySelector(name+" .range");
          this.output=document.querySelector(name+" .slider-value");
+         this.slider.value=5;
          this.output.innerHTML=this.slider.value;
     
          this.DFSObject = new DFS ();

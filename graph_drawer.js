@@ -80,8 +80,13 @@ function Graph () {
          this.edgeLines=undefined;
          this.n=undefined; this.edgeList=undefined; this.adjList=undefined; this.adjMatrix=undefined; this.isOriented=undefined;
          this.init = function (svgName) {
-             this.svgName=svgName;
-             this.s=Snap(svgName); this.s.paper.clear();
+             if (this.s==undefined) {
+                this.svgName=svgName;
+                this.s=Snap(svgName);
+                }
+             this.s.selectAll("*").forEach(function (element) {
+                 element.remove();
+                 });
              this.circles=[]; this.verCircles=[]; this.verCoord=[]; this.textCircles=[]; this.edgeLines=[];
              this.edgeList=[]; this.adjList=[]; this.adjMatrix=[];
              for (var i=0; i<this.n; i++) {
