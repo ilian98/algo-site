@@ -79,7 +79,9 @@ function Graph () {
          this.circles=undefined; this.verCircles=undefined; this.verCoord=undefined; this.textCircles=undefined;
          this.edgeLines=undefined;
          this.n=undefined; this.edgeList=undefined; this.adjList=undefined; this.adjMatrix=undefined; this.isOriented=undefined;
-         this.init = function () {
+         this.init = function (svgName) {
+             this.svgName=svgName;
+             this.s=Snap(svgName); this.s.paper.clear();
              this.circles=[]; this.verCircles=[]; this.verCoord=[]; this.textCircles=[]; this.edgeLines=[];
              this.edgeList=[]; this.adjList=[]; this.adjMatrix=[];
              for (var i=0; i<this.n; i++) {
@@ -95,13 +97,7 @@ function Graph () {
          this.stVerDraw=undefined; this.curEdgeDraw=undefined; this.svgPoint=undefined;
          this.drawEdges = function (frameX, frameY, frameW, frameH) {
               $(document).off();
-              var page=$(document);
-              var boundBox = {
-                  top: $(this.svgName)[0].getBoundingClientRect().top+window.scrollY,
-                  bottom: $(this.svgName)[0].getBoundingClientRect().bottom+window.scrollY,
-                  left: $(this.svgName)[0].getBoundingClientRect().left+window.scrollX,
-                  right: $(this.svgName)[0].getBoundingClientRect().right+window.scrollX
-                  };
+              var graph=this;
               draw(this,frameX,frameY,frameW,frameH,false);
               this.svgPoint=this.s.paper.node.createSVGPoint(); this.flagDraw=0; this.stVer=1;
               for (i=0; i<this.n; i++) {
@@ -132,19 +128,41 @@ function Graph () {
              this.s.touchend(function () {
                  circleEnd(this.graph,frameX,frameY,frameW,frameH);
                  });
-
-             page.graph=this; page.boundBox=boundBox;
-             page.on("mousemove touchmove",function (event) {
+             window.addEventListener("mousemove",function (event) {
+                 if (window.isMobile==true) return ;
+                 var boundBox = {
+                     top: $(graph.svgName)[0].getBoundingClientRect().top+window.scrollY,
+                     bottom: $(graph.svgName)[0].getBoundingClientRect().bottom+window.scrollY,
+                     left: $(graph.svgName)[0].getBoundingClientRect().left+window.scrollX,
+                     right: $(graph.svgName)[0].getBoundingClientRect().right+window.scrollX
+                     };
                  if (window.isMobile==false) var point=[event.pageX,event.pageY];
                  else if (event.changeTouches!=undefined) var point=[event.changedTouches[0].pageX,event.changedTouches[0].pageY];
                  else var point=[event.touches[0].pageX,event.touches[0].pageY];
-                 if ((point[0]<page.boundBox.left)||(point[0]>page.boundBox.right)||
-                     (point[1]<page.boundBox.top)||(point[1]>page.boundBox.bottom)) {
-                    if (page.graph.curEdgeDraw!=null) page.graph.curEdgeDraw.remove();
-                    page.graph.flagDraw=0;
+                 console.log(point[0],point[1],boundBox,graph.svgName,this);
+                 if ((point[0]<boundBox.left)||(point[0]>boundBox.right)||
+                     (point[1]<boundBox.top)||(point[1]>boundBox.bottom)) {
+                    if (graph.curEdgeDraw!=null) graph.curEdgeDraw.remove();
+                    graph.flagDraw=0;
                     }
-                 });
-            }
+                 },false);
+             window.addEventListener("touchmove",function (event) {
+                 var boundBox = {
+                     top: $(graph.svgName)[0].getBoundingClientRect().top+window.scrollY,
+                     bottom: $(graph.svgName)[0].getBoundingClientRect().bottom+window.scrollY,
+                     left: $(graph.svgName)[0].getBoundingClientRect().left+window.scrollX,
+                     right: $(graph.svgName)[0].getBoundingClientRect().right+window.scrollX
+                     };
+                 if (window.isMobile==false) var point=[event.pageX,event.pageY];
+                 else if (event.changeTouches!=undefined) var point=[event.changedTouches[0].pageX,event.changedTouches[0].pageY];
+                 else var point=[event.touches[0].pageX,event.touches[0].pageY];
+                 if ((point[0]<boundBox.left)||(point[0]>boundBox.right)||
+                     (point[1]<boundBox.top)||(point[1]>boundBox.bottom)) {
+                    if (graph.curEdgeDraw!=null) graph.curEdgeDraw.remove();
+                    graph.flagDraw=0;
+                    }
+                 },false);
+             }
 }
 
 function circleSegment (segPoint1, segPoint2, center) {

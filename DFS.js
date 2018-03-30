@@ -3,9 +3,9 @@ function DFS () {
     this.name=undefined; this.graph = new Graph();
     this.used=undefined; this.animations=undefined;
     this.init = function (firstTime, name, svgName, isOriented) {
-         this.graph.init();
+         this.graph.init(svgName);
          if (firstTime==true) {
-            this.name=name; this.graph.svgName=svgName; this.graph.s=Snap(svgName);
+            this.name=name;
             if (isOriented==false) {
                this.graph.edgeList=[[0,1],[0,2],[0,3],[0,4],[1,2]];
                this.graph.adjList=[[1,2,3,4],[0,2],[0,1],[0],[0]];
