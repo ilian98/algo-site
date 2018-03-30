@@ -40,13 +40,14 @@ function DFS () {
              this.used[i]=0;
              }
          this.animations=[];
-         this.animations.push([[0,0,"red"]]);
+         this.animations.push([[0,0,"red","Започваме обхождането от връх номер 1."]]);
          this.dfs(0);
          var animFuncs=[];
          for (i=this.animations.length-1; i>=0; i--) {
              animFuncs[i] = {
                 index: i,
                 graph: this.graph,
+                name: this.name,
                 animations: this.animations,
                 func: function () {
                          var i=this.index,curAnim,animLen=this.animations[i].length;
@@ -55,24 +56,30 @@ function DFS () {
                              if (curAnim[0]==0) {
                                 this.graph.verCircles[curAnim[1]].isLast=(j==animLen-1);
                                 this.graph.verCircles[curAnim[1]].graph=this.graph;
+                                this.graph.verCircles[curAnim[1]].name=this.name;
                                 this.graph.verCircles[curAnim[1]].animations=this.animations;
-                                this.graph.verCircles[curAnim[1]].animate({fill: curAnim[2]},1000,function () {
+                                $(this.name+" .anim-text").text(curAnim[3]);
+                                this.graph.verCircles[curAnim[1]].animate({fill: curAnim[2]},2000,function () {
                                     if (this.isLast==true) {
-                                       if (i!=this.animations.length-1) {
-                                          animFuncs[i+1].func();
-                                       }
-                                       else this.graph.drawEdges(1,1,299,299);
+                                       if (i!=this.animations.length-1) animFuncs[i+1].func();
+                                       else { $(this.name+" .pause").css("display","none");
+                                              $(this.name+" .anim-text").text("");
+                                              this.graph.drawEdges(1,1,299,299); }
                                        }
                                     });
                                 }
                              else if (curAnim[0]==2) {
                                      this.graph.textCircles[curAnim[1]].isLast=(j==animLen-1);
                                      this.graph.textCircles[curAnim[1]].graph=this.graph;
+                                     this.graph.textCircles[curAnim[1]].name=this.name;
                                      this.graph.textCircles[curAnim[1]].animations=this.animations;
-                                     this.graph.textCircles[curAnim[1]].animate({fill: curAnim[2]},1000,function () {
+                                     $(this.name+" .anim-text").text(curAnim[3]);
+                                     this.graph.textCircles[curAnim[1]].animate({fill: curAnim[2]},2000,function () {
                                          if (this.isLast==true) {
                                             if (i!=this.animations.length-1) animFuncs[i+1].func();
-                                            else this.graph.drawEdges(1,1,299,299);
+                                            else { $(this.name+" .pause").css("display","none");
+                                                   $(this.name+" .anim-text").text("");
+                                                   this.graph.drawEdges(1,1,299,299); }
                                             }
                                          });
                                      }
@@ -92,12 +99,16 @@ function DFS () {
                                     this.graph.s.append(this.graph.circles[curAnim[2]]);
                                     lineDraw.isLast=(j==animLen-1);
                                     lineDraw.graph=this.graph;
+                                    lineDraw.name=this.name;
                                     lineDraw.animations=this.animations;
-                                    lineDraw.animate({strokeDashoffset: 0},1000,function () {
+                                    $(this.name+" .anim-text").text(curAnim[3]);
+                                    lineDraw.animate({strokeDashoffset: 0},2000,function () {
                                         lineDraw.remove();
                                         if (this.isLast==true) {
                                            if (i!=this.animations.length-1) animFuncs[i+1].func();
-                                           else this.graph.drawEdges(1,1,299,299);
+                                           else { $(this.name+" .pause").css("display","none");
+                                                  $(this.name+" .anim-text").text("");
+                                                  this.graph.drawEdges(1,1,299,299); }
                                            }
                                         });
                                     }
@@ -109,33 +120,43 @@ function DFS () {
         };
     
     this.dfs = function (vr) {
-         var verColour=0;
+         var verColour=0,text;
          this.used[vr]=1;
          for (var i=0; i<this.graph.adjList[vr].length; i++) {
              if (this.used[this.graph.adjList[vr][i]]==0) {
                 if (verColour!=0) {
-                   this.animations.push([[0,vr,"red"],[2,vr,"black"]]);
+                   text="Връщаме се на връх "+(vr+1)+".";
+                   this.animations.push([[0,vr,"red",text],[2,vr,"black",text]]);
                    verColour=0;
                    }
-                this.animations.push([[0,vr,"grey"],[1,vr,this.graph.adjList[vr][i]],[2,vr,"white"]]);
-                this.animations.push([[0,this.graph.adjList[vr][i],"red"],[2,this.graph.adjList[vr][i],"black"]]);
+                text="Напускаме връх "+(vr+1)+" и отиваме в "+(this.graph.adjList[vr][i]+1)+".";
+                this.animations.push([[0,vr,"grey",text],[1,vr,this.graph.adjList[vr][i]],[2,vr,"white",text]]);
+                text="Сега сме във връх "+(this.graph.adjList[vr][i]+1)+".";
+                this.animations.push([[0,this.graph.adjList[vr][i],"red",text],[2,this.graph.adjList[vr][i],"black",text]]);
                 this.dfs(this.graph.adjList[vr][i]);
                 verColour=1;
                 }
              else { if (verColour!=0) {
-                       this.animations.push([[0,vr,"red"],[2,vr,"black"]]);
+                       text="Връщаме се на връх "+(vr+1)+".";
+                       this.animations.push([[0,vr,"red",text],[2,vr,"black",text]]);
                        verColour=0;
                        }
-                    this.animations.push([[1,vr,this.graph.adjList[vr][i]]]); }
+                    text="Oказва се, че съседът с номер "+(this.graph.adjList[vr][i]+1)+" вече е обходен.";
+                    this.animations.push([[1,vr,this.graph.adjList[vr][i],text]]); }
              }
-        if (verColour==1) this.animations.push([[0,vr,"red"],[2,vr,"black"]]);
-        this.animations.push([[0,vr,"grey"],[2,vr,"white"]]);
+        if (verColour==1) {
+           text="Връщаме се на връх "+(vr+1)+" и се оказва, че сме проверили всички негови съседи.";
+           this.animations.push([[0,vr,"red",text],[2,vr,"black",text]]);
+           }
+        text="Вече проверихме всички съседи на връх "+(vr+1)+" и го напускаме.";
+        this.animations.push([[0,vr,"grey",text],[2,vr,"white",text]]);
         };
     
     this.clear = function (remove) {
          this.graph.s.selectAll("*").forEach(function (elem) {
-            elem.stop();
-            });
+             if (elem.inAnim().length!=0) elem.inAnim()[0].mina.s=0;
+             elem.stop();
+             });
          if (remove==true) this.graph.s.selectAll("*").remove();
          }
         

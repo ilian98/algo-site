@@ -25,6 +25,7 @@ function graphExample (name, isOriented) {
     
          this.startButton=document.querySelector(name+" .start");
          this.pauseButton=document.querySelector(name+" .pause");
+         this.pauseButton.style.display="none";
          this.slider=document.querySelector(name+" .range");
          this.output=document.querySelector(name+" .slider-value");
          this.output.innerHTML=this.slider.value;
@@ -43,10 +44,27 @@ function graphExample (name, isOriented) {
             }
          
          this.startButton.DFSObject=this.DFSObject;
+         this.startButton.pause=this.pauseButton;
+         
          this.startButton.onclick = function () {
              this.DFSObject.clear(false);
              this.DFSObject.start(false);
-         };
+             this.pause.style.display="block";
+             this.pause.DFSObject=this.DFSObject;
+             this.pause.flagPause=false; this.pause.innerText="Пауза";
+             this.pause.onclick = function () {
+                 if (this.flagPause==false) {
+                    this.flagPause=true; this.innerText="Пусни";
+                    this.DFSObject.graph.s.selectAll("*").forEach(function (element) {
+                        if (element.inAnim().length!=0) element.inAnim()[0].mina.pause();
+                        });
+                    }
+                 else { this.flagPause=false; this.innerText="Пaуза";
+                        this.DFSObject.graph.s.selectAll("*").forEach(function (element) {
+                            if (element.inAnim().length!=0) element.inAnim()[0].mina.resume();
+                            }); }
+                 }
+             }
 }
 function initExamples () {
          var example1 = new graphExample (".graphExample1",false);
