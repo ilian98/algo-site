@@ -73,7 +73,7 @@ function graphExample (name, isOriented) {
                  }
              }
 }
-function initExamples () {
+function initExamples () {/*
          if (this.example1!=undefined) {
             this.example1.DFSObject.graph.s.selectAll("*").forEach(function (element) {
                 element.stop();
@@ -83,9 +83,9 @@ function initExamples () {
             this.example2.DFSObject.graph.s.selectAll("*").forEach(function (element) {
                 element.stop();
                 });
-            }
-         this.example1 = new graphExample (".graphExample1",false);
-         this.example2 = new graphExample (".graphExample2",true);
+            }*/
+         var example1 = new graphExample (".graphExample1",false);
+         var example2 = new graphExample (".graphExample2",true);
 }
 
 Snap.plugin(function (Snap, Element, Paper, glob) {
