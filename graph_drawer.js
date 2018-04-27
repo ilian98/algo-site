@@ -86,7 +86,7 @@ function Graph () {
                 this.s=Snap(svgName);
                 }
              this.s.selectAll("*").forEach(function (element) {
-                 //element.stop();
+                 element.stop();
                  element.remove();
                  });
              this.circles=[]; this.verCircles=[]; this.verCoord=[]; this.textCircles=[]; this.edgeLines=[];
@@ -127,39 +127,28 @@ function Graph () {
               this.s.mouseup(circleEnd);
               this.s.untouchend(circleEnd);
               this.s.touchend(circleEnd);
-              window.addEventListener("mousemove",function (event) {
-                  if (window.isMobile==true) return ;
-                  var boundBox = {
-                      top: $(graph.svgName)[0].getBoundingClientRect().top+window.scrollY,
-                      bottom: $(graph.svgName)[0].getBoundingClientRect().bottom+window.scrollY,
-                      left: $(graph.svgName)[0].getBoundingClientRect().left+window.scrollX,
-                      right: $(graph.svgName)[0].getBoundingClientRect().right+window.scrollX
-                      };
-                  if (window.isMobile==false) var point=[event.pageX,event.pageY];
-                  else if (event.changeTouches!=undefined) var point=[event.changedTouches[0].pageX,event.changedTouches[0].pageY];
-                  else var point=[event.touches[0].pageX,event.touches[0].pageY];
-                  if ((point[0]<boundBox.left)||(point[0]>boundBox.right)||
-                      (point[1]<boundBox.top)||(point[1]>boundBox.bottom)) {
-                     if (graph.curEdgeDraw!=null) graph.curEdgeDraw.remove();
-                     graph.flagDraw=0;
-                     }
-                  },false);
-              window.addEventListener("touchmove",function (event) {
-                  var boundBox = {
-                      top: $(graph.svgName)[0].getBoundingClientRect().top+window.scrollY,
-                      bottom: $(graph.svgName)[0].getBoundingClientRect().bottom+window.scrollY,
-                      left: $(graph.svgName)[0].getBoundingClientRect().left+window.scrollX,
-                      right: $(graph.svgName)[0].getBoundingClientRect().right+window.scrollX
-                      };
-                  if (window.isMobile==false) var point=[event.pageX,event.pageY];
-                  else if (event.changeTouches!=undefined) var point=[event.changedTouches[0].pageX,event.changedTouches[0].pageY];
-                  else var point=[event.touches[0].pageX,event.touches[0].pageY];
-                  if ((point[0]<boundBox.left)||(point[0]>boundBox.right)||
-                      (point[1]<boundBox.top)||(point[1]>boundBox.bottom)) {
-                     if (graph.curEdgeDraw!=null) graph.curEdgeDraw.remove();
-                     graph.flagDraw=0;
-                     }
-                  },false);
+             
+              function lineOut (event) {
+                 if (window.isMobile==true) return ;
+                 var boundBox = {
+                     top: $(graph.svgName)[0].getBoundingClientRect().top+window.scrollY,
+                     bottom: $(graph.svgName)[0].getBoundingClientRect().bottom+window.scrollY,
+                     left: $(graph.svgName)[0].getBoundingClientRect().left+window.scrollX,
+                     right: $(graph.svgName)[0].getBoundingClientRect().right+window.scrollX
+                     };
+                 if (window.isMobile==false) var point=[event.pageX,event.pageY];
+                 else if (event.changeTouches!=undefined) var point=[event.changedTouches[0].pageX,event.changedTouches[0].pageY];
+                 else var point=[event.touches[0].pageX,event.touches[0].pageY];
+                 if ((point[0]<boundBox.left)||(point[0]>boundBox.right)||
+                     (point[1]<boundBox.top)||(point[1]>boundBox.bottom)) {
+                    if (graph.curEdgeDraw!=null) graph.curEdgeDraw.remove();
+                    graph.flagDraw=0;
+                    }
+                 }
+              window.removeEventListener("mousemove",lineOut,false);
+              window.addEventListener("mousemove",lineOut,false);
+              window.removeEventListener("touchmove",lineOut,false);
+              window.addEventListener("touchmove",lineOut,false);
               }
 }
 
