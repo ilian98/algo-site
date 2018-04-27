@@ -33,6 +33,7 @@ function trackMouse (event) {
             end=[graph.svgPoint.x,graph.svgPoint.y];
             edgeLen=Math.sqrt((st[0]-end[0])*(st[0]-end[0])+(st[1]-end[1])*(st[1]-end[1]));
             if (graph.isOriented==true) quotient=(edgeLen-10)/edgeLen;
+            if (graph.curEdgeDraw!=undefined) graph.curEdgeDraw.remove();
             graph.curEdgeDraw=graph.s.line(st[0],st[1],st[0]+quotient*(end[0]-st[0]),st[1]+quotient*(end[1]-st[1]));
             graph.curEdgeDraw.attr({stroke: "black", "stroke-width": 1.5});
             graph.curEdgeDraw.prependTo(graph.s);
