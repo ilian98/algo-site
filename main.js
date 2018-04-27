@@ -84,6 +84,6 @@ function initExamples () {/*
                 element.stop();
                 });
             }*/
-         var example1 = new graphExample (".graphExample1",false);
+         this.example1 = new graphExample (".graphExample1",false);
          var example2 = new graphExample (".graphExample2",true);
 }
