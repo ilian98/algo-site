@@ -87,7 +87,7 @@ function initExamples () {/*
          var example1 = new graphExample (".graphExample1",false);
          var example2 = new graphExample (".graphExample2",true);
 }
-
+/*
 Snap.plugin(function (Snap, Element, Paper, glob) {
     var elproto = Element.prototype;
     elproto.toFront = function () {
@@ -98,4 +98,4 @@ Snap.plugin(function (Snap, Element, Paper, glob) {
         this.prependTo(this.paper);
         return this;
     };
-})
+})*/
