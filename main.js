@@ -26,6 +26,8 @@ function graphExample (name, isOriented) {
          this.startButton=document.querySelector(name+" .start");
          this.pauseButton=document.querySelector(name+" .pause");
          this.pauseButton.style.display="none";
+         this.animText=document.querySelector(name+" .anim-text");
+         this.animText.innerHTML="";
          this.slider=document.querySelector(name+" .range");
          this.output=document.querySelector(name+" .slider-value");
          this.slider.value=5;
@@ -37,11 +39,15 @@ function graphExample (name, isOriented) {
     
          this.slider.DFSObject=this.DFSObject;
          this.slider.output=this.output;
+         this.slider.pauseButton=this.pauseButton;
+         this.slider.animText=this.animText;
          this.slider.oninput = function() {
             this.DFSObject.clear(true);
             this.output.innerHTML=this.value;
             this.DFSObject.graph.n=this.value;
             this.DFSObject.init(false);
+            this.pauseButton.style.display="none";
+            this.animText.innerHTML="";
             }
          
          this.startButton.DFSObject=this.DFSObject;
@@ -68,6 +74,28 @@ function graphExample (name, isOriented) {
              }
 }
 function initExamples () {
-         var example1 = new graphExample (".graphExample1",false);
-         var example2 = new graphExample (".graphExample2",true);
+         if (this.example1!=undefined) {
+            this.example1.DFSObject.graph.s.selectAll("*").forEach(function (element) {
+                element.stop();
+                });
+            }
+         if (this.example2!=undefined) {
+            this.example2.DFSObject.graph.s.selectAll("*").forEach(function (element) {
+                element.stop();
+                });
+            }
+         this.example1 = new graphExample (".graphExample1",false);
+         this.example2 = new graphExample (".graphExample2",true);
 }
+
+Snap.plugin(function (Snap, Element, Paper, glob) {
+    var elproto = Element.prototype;
+    elproto.toFront = function () {
+        this.appendTo(this.paper);
+        return this;
+    };
+    elproto.toBack = function () {
+        this.prependTo(this.paper);
+        return this;
+    };
+})
