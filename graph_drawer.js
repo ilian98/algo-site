@@ -74,6 +74,25 @@ function circleEnd (event) {
          if (graph.curEdgeDraw!=null) graph.curEdgeDraw.remove();
          graph.flagDraw=0;
 }
+function lineOut (event) {
+         var graph=this; console.log(graph);
+         if (window.isMobile==true) return ;
+         var boundBox = {
+             top: $(graph.svgName)[0].getBoundingClientRect().top+window.scrollY,
+             bottom: $(graph.svgName)[0].getBoundingClientRect().bottom+window.scrollY,
+             left: $(graph.svgName)[0].getBoundingClientRect().left+window.scrollX,
+             right: $(graph.svgName)[0].getBoundingClientRect().right+window.scrollX
+             };
+         if (window.isMobile==false) var point=[event.pageX,event.pageY];
+         else if (event.changeTouches!=undefined) var point=[event.changedTouches[0].pageX,event.changedTouches[0].pageY];
+         else var point=[event.touches[0].pageX,event.touches[0].pageY];
+          console.log(point);
+         if ((point[0]<boundBox.left)||(point[0]>boundBox.right)||
+             (point[1]<boundBox.top)||(point[1]>boundBox.bottom)) {
+            if (graph.curEdgeDraw!=null) graph.curEdgeDraw.remove();
+            graph.flagDraw=0;
+            }
+}
 
 function Graph () {
          this.svgName=undefined; this.s=undefined;
@@ -105,7 +124,6 @@ function Graph () {
          this.stVerDraw=undefined; this.curEdgeDraw=undefined; this.svgPoint=undefined;
          this.drawEdges = function () {
               $(document).off();
-              $(window).off();
               var graph=this;
               draw(this,false);
               this.svgPoint=this.s.paper.node.createSVGPoint(); this.flagDraw=0; this.stVer=1;
@@ -129,7 +147,11 @@ function Graph () {
               this.s.untouchend(circleEnd);
               this.s.touchend(circleEnd);
              
-              function lineOut (event) {
+              if (graph.hasOwnProperty("lineOut")==true) window.removeEventListener("mousemove",graph.lineOut,false);
+              if (graph.hasOwnProperty("lineOut")==true) window.removeEventListener("touchmove",graph.lineOut,false);
+              graph.lineOut = function (event) {
+                 if (event==undefined) return ;
+                 var graph=this;
                  if (window.isMobile==true) return ;
                  var boundBox = {
                      top: $(graph.svgName)[0].getBoundingClientRect().top+window.scrollY,
@@ -140,16 +162,15 @@ function Graph () {
                  if (window.isMobile==false) var point=[event.pageX,event.pageY];
                  else if (event.changeTouches!=undefined) var point=[event.changedTouches[0].pageX,event.changedTouches[0].pageY];
                  else var point=[event.touches[0].pageX,event.touches[0].pageY];
+                  console.log(point);
                  if ((point[0]<boundBox.left)||(point[0]>boundBox.right)||
                      (point[1]<boundBox.top)||(point[1]>boundBox.bottom)) {
                     if (graph.curEdgeDraw!=null) graph.curEdgeDraw.remove();
                     graph.flagDraw=0;
                     }
-                 }
-              window.removeEventListener("mousemove",lineOut,false);
-              window.addEventListener("mousemove",lineOut,false);
-              window.removeEventListener("touchmove",lineOut,false);
-              window.addEventListener("touchmove",lineOut,false);
+                 }.bind(graph);
+              window.addEventListener("mousemove",graph.lineOut,false);
+              window.addEventListener("touchmove",graph.lineOut,false);
               }
 }
 
