@@ -127,7 +127,7 @@ function Graph () {
               this.s.mouseup(circleEnd);
               this.s.untouchend(circleEnd);
               this.s.touchend(circleEnd);
-              $(window).on("mousemove",function (event) {
+              window.addEventListener("mousemove",function (event) {
                   if (window.isMobile==true) return ;
                   var boundBox = {
                       top: $(graph.svgName)[0].getBoundingClientRect().top+window.scrollY,
@@ -144,7 +144,7 @@ function Graph () {
                      graph.flagDraw=0;
                      }
                   },false);
-              $(window).on("touchmove",function (event) {
+              window.addEventListener("touchmove",function (event) {
                   var boundBox = {
                       top: $(graph.svgName)[0].getBoundingClientRect().top+window.scrollY,
                       bottom: $(graph.svgName)[0].getBoundingClientRect().bottom+window.scrollY,
