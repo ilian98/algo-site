@@ -73,7 +73,10 @@ function graphExample (name, isOriented) {
                  }
              }
 }
-function initExamples () {/*
+function initExamples () {
+         this.example1=undefined;
+         this.init = function () {
+         /*
          if (this.example1!=undefined) {
             this.example1.DFSObject.graph.s.selectAll("*").forEach(function (element) {
                 element.stop();
@@ -86,4 +89,5 @@ function initExamples () {/*
             }*/
          this.example1 = new graphExample (".graphExample1",false);
          var example2 = new graphExample (".graphExample2",true);
+         }
 }
