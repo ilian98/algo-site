@@ -19,8 +19,8 @@ function graphExample (name, isOriented) {
          this.svgElement.ontouchend = function () {
              this.blockScroll=false;
              };
-         this.svgElement.ontouchmove = function (event) {
-             if (this.blockScroll==true) event.preventDefault();
+         this.svgElement.ontouchmove = function (event) { /*console.log("tuk");
+             if (this.blockScroll==true) event.preventDefault();*/
              };
     
          this.startButton=document.querySelector(name+" .start");
