@@ -103,7 +103,7 @@ function Graph () {
          this.stVerDraw=undefined; this.curEdgeDraw=undefined; this.svgPoint=undefined;
          this.drawEdges = function () {
               $(document).off();
-              //$(window).off();
+              $(window).off();
               var graph=this;
               draw(this,false);
               this.svgPoint=this.s.paper.node.createSVGPoint(); this.flagDraw=0; this.stVer=1;
