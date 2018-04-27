@@ -19,8 +19,8 @@ function graphExample (name, isOriented) {
          this.svgElement.ontouchend = function () {
              this.blockScroll=false;
              };
-         this.svgElement.ontouchmove = function (event) { /*console.log("tuk");
-             if (this.blockScroll==true) event.preventDefault();*/
+         this.svgElement.ontouchmove = function (event) {
+             if (this.blockScroll==true) event.preventDefault();
              };
     
          this.startButton=document.querySelector(name+" .start");
@@ -73,7 +73,7 @@ function graphExample (name, isOriented) {
                  }
              }
 }
-function initExamples () {/*
+function initExamples () {
          if (this.example1!=undefined) {
             this.example1.DFSObject.graph.s.selectAll("*").forEach(function (element) {
                 element.stop();
@@ -83,19 +83,7 @@ function initExamples () {/*
             this.example2.DFSObject.graph.s.selectAll("*").forEach(function (element) {
                 element.stop();
                 });
-            }*/
-         var example1 = new graphExample (".graphExample1",false);
-         var example2 = new graphExample (".graphExample2",true);
+            }
+         this.example1 = new graphExample (".graphExample1",false);
+         this.example2 = new graphExample (".graphExample2",true);
 }
-/*
-Snap.plugin(function (Snap, Element, Paper, glob) {
-    var elproto = Element.prototype;
-    elproto.toFront = function () {
-        this.appendTo(this.paper);
-        return this;
-    };
-    elproto.toBack = function () {
-        this.prependTo(this.paper);
-        return this;
-    };
-})*/

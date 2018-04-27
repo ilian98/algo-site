@@ -35,7 +35,7 @@ function trackMouse (event) {
             if (graph.isOriented==true) quotient=(edgeLen-10)/edgeLen;
             graph.curEdgeDraw=graph.s.line(st[0],st[1],st[0]+quotient*(end[0]-st[0]),st[1]+quotient*(end[1]-st[1]));
             graph.curEdgeDraw.attr({stroke: "black", "stroke-width": 1.5});
-            graph.curEdgeDraw.toBack();
+            graph.curEdgeDraw.prependTo(graph.s);
             if (graph.isOriented==true) {
                var arrow=graph.s.polygon([0,10,4,10,2,0,0,10]).attr({fill: "black"}).transform('r90');
                var marker=arrow.marker(0,0,10,10,0,5);
@@ -103,7 +103,7 @@ function Graph () {
          this.stVerDraw=undefined; this.curEdgeDraw=undefined; this.svgPoint=undefined;
          this.drawEdges = function () {
               $(document).off();
-              //$(window).off();
+              $(window).off();
               var graph=this;
               draw(this,false);
               this.svgPoint=this.s.paper.node.createSVGPoint(); this.flagDraw=0; this.stVer=1;
@@ -126,7 +126,7 @@ function Graph () {
               this.s.mouseup(circleEnd);
               this.s.untouchend(circleEnd);
               this.s.touchend(circleEnd);
-              window.addEventListener("mousemove",function (event) { console.log("tuk");
+              $(window).on("mousemove",function (event) { console.log("tuk");
                   if (window.isMobile==true) return ;
                   var boundBox = {
                       top: $(graph.svgName)[0].getBoundingClientRect().top+window.scrollY,
@@ -143,7 +143,7 @@ function Graph () {
                      graph.flagDraw=0;
                      }
                   },false);
-              window.addEventListener("touchmove",function (event) {
+              $(window).on("touchmove",function (event) {
                   var boundBox = {
                       top: $(graph.svgName)[0].getBoundingClientRect().top+window.scrollY,
                       bottom: $(graph.svgName)[0].getBoundingClientRect().bottom+window.scrollY,
