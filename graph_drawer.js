@@ -86,7 +86,7 @@ function Graph () {
                 this.s=Snap(svgName);
                 }
              this.s.selectAll("*").forEach(function (element) {
-                 element.stop();
+                 //element.stop();
                  element.remove();
                  });
              this.circles=[]; this.verCircles=[]; this.verCoord=[]; this.textCircles=[]; this.edgeLines=[];
