@@ -20,7 +20,7 @@ function graphExample (name, isOriented) {
              this.blockScroll=false;
              };
          this.svgElement.ontouchmove = function (event) {
-             //if (this.blockScroll==true) event.preventDefault();
+             if (this.blockScroll==true) event.preventDefault();
              };
     
          this.startButton=document.querySelector(name+" .start");

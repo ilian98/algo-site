@@ -35,7 +35,7 @@ function trackMouse (event) {
             if (graph.isOriented==true) quotient=(edgeLen-10)/edgeLen;
             graph.curEdgeDraw=graph.s.line(st[0],st[1],st[0]+quotient*(end[0]-st[0]),st[1]+quotient*(end[1]-st[1]));
             graph.curEdgeDraw.attr({stroke: "black", "stroke-width": 1.5});
-            //graph.curEdgeDraw.prependTo(graph.s);
+            graph.curEdgeDraw.prependTo(graph.s);
             if (graph.isOriented==true) {
                var arrow=graph.s.polygon([0,10,4,10,2,0,0,10]).attr({fill: "black"}).transform('r90');
                var marker=arrow.marker(0,0,10,10,0,5);
