@@ -33,7 +33,7 @@ function DFS () {
          };
     
     this.start = function () {
-         draw(this.graph,1,1,299,299,false);
+         draw(this.graph,false);
          
          this.used=[];
          for (var i=0; i<this.graph.n; i++) {

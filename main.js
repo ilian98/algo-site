@@ -73,7 +73,34 @@ function graphExample (name, isOriented) {
                  }
              }
 }
-function initExamples () {
-         var example1 = new graphExample (".graphExample1",false);
-         var example2 = new graphExample (".graphExample2",true);
+function initExamples (page) {
+         if (page==0) {
+             var example1 = new Graph ();
+             example1.n=5; example1.isOriented=true;
+             example1.init(".graphExample1");
+             example1.edgeList=[[0,1],[0,2],[0,3],[1,4],[2,4]];
+             example1.adjList=[[1,2,3],[4],[4],[],[]];
+             example1.adjMatrix=[[0,1,1,1,0],
+                                 [0,0,0,0,1],
+                                 [0,0,0,0,1],
+                                 [0,0,0,0,0],
+                                 [0,0,0,0,0]];
+             drawGraph(example1,1,1,299,299);
+             
+             var example2 = new Graph ();
+             example2.n=5; example2.isOriented=false;
+             example2.init(".graphExample2");
+             example2.edgeList=[[0,1],[0,2],[0,3],[1,4],[2,4]];
+             example2.adjList=[[1,2,3],[0,4],[0,4],[0],[1,2]];
+             example2.adjMatrix=[[0,1,1,1,0],
+                                 [1,0,0,0,1],
+                                 [1,0,0,0,1],
+                                 [1,0,0,0,0],
+                                 [0,1,1,0,0]];
+             drawGraph(example2,1,1,299,299);
+             }
+         if (page==1) {
+            var example1 = new graphExample (".graphExample1",false);
+            var example2 = new graphExample (".graphExample2",true);
+            }
 }
