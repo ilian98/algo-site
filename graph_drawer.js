@@ -162,7 +162,6 @@ function Graph () {
                  if (window.isMobile==false) var point=[event.pageX,event.pageY];
                  else if (event.changeTouches!=undefined) var point=[event.changedTouches[0].pageX,event.changedTouches[0].pageY];
                  else var point=[event.touches[0].pageX,event.touches[0].pageY];
-                  console.log(point);
                  if ((point[0]<boundBox.left)||(point[0]>boundBox.right)||
                      (point[1]<boundBox.top)||(point[1]>boundBox.bottom)) {
                     if (graph.curEdgeDraw!=null) graph.curEdgeDraw.remove();
