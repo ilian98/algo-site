@@ -10,18 +10,12 @@
         <script type="text/javascript" src="source_files/bootstrap/dist/js/bootstrap.min.js"></script>
         <script type="text/javascript" src="main.js"></script>
     </head>
-    <body onresize="flagsPosition()">
+    <body>
         <header>
             <div class="background"></div>
             <div id="nav-placeholder"></div>
             <script> $.get("navigation.html", function (data) {
                           $("#nav-placeholder").replaceWith(data);
-                          });
-            </script>
-
-            <div id="language-flags"></div>
-            <script> $.get("language_flags.html", function (data) {
-                          $("#language-flags").replaceWith(data);
                           });
             </script>
         </header>
@@ -39,18 +33,18 @@
                 <div class="card">
                     <div class="card-body">
                         <h3 class="card-title text-center unselectable">
-                            <a href="introduction_to_graphs.html" class="text-muted">Увод в графите</a>
+                            <a href="introduction_to_graphs.html" class="lesson-link">Увод в графите</a>
                         </h3>
                     </div>
                 </div>
                 
                 <div class="card">
                     <div class="card-body">
-                        <h3 class="card-title text-center">Обхождане на граф</h3>
+                        <h3 class="card-title text-center lesson-name">Обхождане на граф</h3>
                         <div id="collapseOne" class="collapse hide" aria-labelledby="headingOne">
                             <ul align="left">
                                 <li type="disc">
-                                    <a href="depth_first_search.html" class="text-muted">Търсене в дълбочина - DFS</a>
+                                    <a href="depth_first_search.html" class="lesson-link">Търсене в дълбочина - DFS</a>
                                 </li>
                                 <li type="disc">
                                     <a>Търсене в ширина - BFS</a>
@@ -66,7 +60,7 @@
                 
                 <div class="card">
                     <div class="card-body">
-                        <h3 class="card-title text-center">Най-кратък/най-дълъг път</h3>
+                        <h3 class="card-title text-center lesson-name">Най-кратък/най-дълъг път</h3>
                         <div id="collapseSecond" class="collapse hide" aria-labelledby="headingSecond">
                             <ul align="left">
                                 <li type="disc">
@@ -86,7 +80,7 @@
                 
                 <div class="card">
                     <div class="card-body">
-                        <h3 class="card-title text-center">Дървета</h3>
+                        <h3 class="card-title text-center lesson-name">Дървета</h3>
                         <div id="collapseThird" class="collapse hide" aria-labelledby="headingThird">
                             <ul align="left">
                                 <li type="disc">
@@ -108,7 +102,7 @@
                 
                 <div class="card">
                     <div class="card-body">
-                        <h3 class="card-title text-center">
+                        <h3 class="card-title text-center lesson-name">
                             <a>Артикулационни върхове и ребра</a>
                         </h3>
                     </div>
@@ -116,7 +110,7 @@
             
                 <div class="card">
                     <div class="card-body">
-                        <h3 class="card-title text-center">Максимален поток</h3>
+                        <h3 class="card-title text-center lesson-name">Максимален поток</h3>
                         <div id="collapseFourth" class="collapse hide" aria-labelledby="headingFourth">
                             <ul align="left">
                                 <li type="disc">
@@ -136,7 +130,7 @@
                 
                 <div class="card">
                     <div class="card-body">
-                        <h3 class="card-title text-center">
+                        <h3 class="card-title text-center lesson-name">
                             <a>Максимално двойкосъчетание</a>
                         </h3>
                     </div>
@@ -144,7 +138,7 @@
                 
                 <div class="card">
                     <div class="card-body">
-                        <h3 class="card-title text-center">Ойлерови и Хамилтонови цикли/пътища</h3>
+                        <h3 class="card-title text-center lesson-name">Ойлерови и Хамилтонови цикли/пътища</h3>
                         <div id="collapseFifth" class="collapse hide" aria-labelledby="headingFifth">
                             <ul align="left">
                                 <li type="disc">
@@ -164,7 +158,7 @@
                 
                 <div class="card">
                     <div class="card-body">
-                        <h3 class="card-title text-center">
+                        <h3 class="card-title text-center lesson-name">
                             <a>Силно свързани компоненти</a>
                         </h3>
                     </div>
@@ -172,7 +166,7 @@
                 
                 <div class="card">
                     <div class="card-body">
-                        <h3 class="card-title text-center">
+                        <h3 class="card-title text-center lesson-name">
                             <a>Топологично сортиране</a>
                         </h3>
                     </div>
@@ -180,7 +174,7 @@
                 
                 <div class="card">
                     <div class="card-body">
-                        <h3 class="card-title text-center">
+                        <h3 class="card-title text-center lesson-name">
                             <a>Транзитивна редукция</a>
                         </h3>
                     </div>

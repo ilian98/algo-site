@@ -10,7 +10,7 @@
         <script type="text/javascript" src="source_files/bootstrap/dist/js/bootstrap.min.js"></script>
         <script type="text/javascript" src="main.js"></script>
     </head>
-    <body onresize="flagsPosition()">
+    <body>
         <header>
             <div id="nav-placeholder"></div>
             <script> $.get("navigation.html", function (data) {
@@ -18,11 +18,6 @@
                           });
             </script>
 
-            <div id="language-flags"></div>
-            <script> $.get("language_flags.html", function (data) {
-                          $("#language-flags").replaceWith(data);
-                          });
-            </script>
             <div class="background"></div>
         </header>
     </body>

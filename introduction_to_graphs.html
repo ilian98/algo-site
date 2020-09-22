@@ -12,7 +12,7 @@
         <script type="text/javascript" src="main.js"></script>
         <script type="text/javascript" src="graph_drawer.js"></script>
     </head>
-    <body onresize="flagsPosition()">
+    <body>
         <script type="text/javascript">
             window.isMobile=false;
             window.addEventListener("touchstart",function onFirstTouch() {
@@ -25,12 +25,6 @@
             <div id="nav-placeholder"></div>
             <script> $.get("navigation.html", function (data) {
                           $("#nav-placeholder").replaceWith(data);
-                          });
-            </script>
-
-            <div id="language-flags"></div>
-            <script> $.get("language_flags.html", function (data) {
-                          $("#language-flags").replaceWith(data);
                           });
             </script>
         </header>
