@@ -123,7 +123,6 @@ function Graph () {
          this.flagDraw=undefined; this.mouseX=undefined; this.mouseY=undefined;
          this.stVerDraw=undefined; this.curEdgeDraw=undefined; this.svgPoint=undefined;
          this.drawEdges = function () {
-              $(document).off();
               var graph=this;
               draw(this,false);
               this.svgPoint=this.s.paper.node.createSVGPoint(); this.flagDraw=0; this.stVer=1;

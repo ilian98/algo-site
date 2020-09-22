@@ -57,11 +57,21 @@ function graphExample (name, isOriented) {
              this.pause.onclick = function () {
                  if (this.flagPause==false) {
                     this.flagPause=true; this.innerText="Пусни";
+                    if (this.DFSObject.graph.minas!==undefined) {
+                       for (var i=0; i<this.DFSObject.graph.minas.length; i++) {
+                           this.DFSObject.graph.minas[i][0].pause();
+                           }
+                       }
                     this.DFSObject.graph.s.selectAll("*").forEach(function (element) {
                         if (element.inAnim().length!=0) element.inAnim()[0].mina.pause();
                         });
                     }
                  else { this.flagPause=false; this.innerText="Пaуза";
+                        if (this.DFSObject.graph.minas!==undefined) {
+                           for (var i=0; i<this.DFSObject.graph.minas.length; i++) {
+                               this.DFSObject.graph.minas[i][0].resume();
+                               }
+                           }
                         this.DFSObject.graph.s.selectAll("*").forEach(function (element) {
                             if (element.inAnim().length!=0) element.inAnim()[0].mina.resume();
                             }); }

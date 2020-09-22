@@ -35,6 +35,7 @@ function DFS () {
     this.start = function () {
          draw(this.graph,false);
          
+         this.graph.minas=[];
          this.used=[];
          for (var i=0; i<this.graph.n; i++) {
              this.used[i]=0;
@@ -102,15 +103,18 @@ function DFS () {
                                     lineDraw.name=this.name;
                                     lineDraw.animations=this.animations;
                                     $(this.name+" .anim-text").text(curAnim[3]);
-                                    lineDraw.animate({strokeDashoffset: 0},2000,function () {
-                                        lineDraw.remove();
-                                        if (this.isLast==true) {
-                                           if (i!=this.animations.length-1) animFuncs[i+1].func();
-                                           else { $(this.name+" .pause").css("display","none");
-                                                  $(this.name+" .anim-text").text("");
-                                                  this.graph.drawEdges(1,1,299,299); }
+                                    this.graph.minas.push([Snap.animate(length,0, function (value) {
+                                        lineDraw.attr({strokeDashoffset: value});
+                                    },2000, function () {
+                                        if (lineDraw.isLast==true) {
+                                           if (i!=lineDraw.animations.length-1) animFuncs[i+1].func();
+                                           else { $(lineDraw.name+" .pause").css("display","none");
+                                                  $(lineDraw.name+" .anim-text").text("");
+                                                  lineDraw.graph.drawEdges(1,1,299,299); }
                                            }
-                                        });
+                                        lineDraw.remove();
+                                    }),lineDraw]);
+                                    lineDraw.stop();
                                     }
                              }
                         }
@@ -153,6 +157,12 @@ function DFS () {
         };
     
     this.clear = function (remove) {
+         if (this.graph.minas!==undefined) {
+            for (var i=0; i<this.graph.minas.length; i++) {
+                this.graph.minas[i][0].stop();
+                this.graph.minas[i][1].remove();
+                }
+            }
          this.graph.s.selectAll("*").forEach(function (elem) {
              if (elem.inAnim().length!=0) elem.inAnim()[0].mina.s=0;
              elem.stop();
