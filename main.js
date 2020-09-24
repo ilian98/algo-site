@@ -85,30 +85,39 @@ function graphExample (name, isOriented) {
     this.saveButton.DFSObject=this.DFSObject;
     this.saveButton.canvas=document.querySelector(name+" .canvas-save");
     this.saveButton.canvas.style.display="none";
+    this.saveButton.svgSave=document.querySelector(name+" .svg-save");
+    this.saveButton.svgSave.style.display="none";
     this.saveButton.onclick = function () {
         var canvas=this.canvas;
         var context=canvas.getContext('2d');
         var svg=document.querySelector(this.DFSObject.graph.svgName);
+        this.svgSave.setAttribute("width",svg.getBoundingClientRect().width);
+        this.svgSave.setAttribute("height",svg.getBoundingClientRect().height);
+        $(name+' .graph').clone().appendTo($(name+" .svg-save"));
         canvas.width=svg.getBoundingClientRect().width;
         canvas.height=svg.getBoundingClientRect().height;
         
-        var data=(new XMLSerializer()).serializeToString(svg);
+        this.svgSave.style.display="";
+        var data=(new XMLSerializer()).serializeToString(this.svgSave);
         var DOMURL=window.URL || window.webkitURL || window;
         var image = new Image();
         var svgBlob = new Blob([data],{type: 'image/svg+xml;charset=utf-8'});
         var url=DOMURL.createObjectURL(svgBlob);
+        image.src=url;
+        image.svgSave=this.svgSave;
         image.onload = function () {
+            this.svgSave.style.display="none";
             context.drawImage(image,0,0);
             DOMURL.revokeObjectURL(url);
-            var imageURI=canvas.toDataURL('image/jpg').replace('image/jpg','image/octet-stream');
+            var imageURL=canvas.toDataURL('image/png').replace('image/png','image/octet-stream');
             var event = new MouseEvent('click',{view: window, bubbles: false, cancelable: true});
             var temp=document.createElement('a');
-            temp.setAttribute('download','graph.jpg');
-            temp.setAttribute('href',imageURI);
+            temp.setAttribute('download','graph.png');
+            temp.setAttribute('href',imageURL);
             temp.setAttribute('target','_blank');
             temp.dispatchEvent(event);
+            $(name+" .svg-save").empty();
             }
-        image.src=url;
         }
 }
 function initExamples (page) {
