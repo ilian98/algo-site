@@ -98,22 +98,17 @@ function graphExample (name, isOriented) {
         canvas.height=svg.getBoundingClientRect().height;
         
         this.svgSave.style.display="";
-        var data=(new XMLSerializer()).serializeToString(this.svgSave);
-        var DOMURL=window.URL || window.webkitURL || window;
+        var svgString=(new XMLSerializer()).serializeToString(this.svgSave);
+        this.svgSave.style.display="none";
         var image = new Image();
-        var svgBlob = new Blob([data],{type: 'image/svg+xml;charset=utf-8'});
-        var url=DOMURL.createObjectURL(svgBlob);
-        image.src=url;
-        image.svgSave=this.svgSave;
+        image.src="data:image/svg+xml; charset=utf8, "+encodeURIComponent(svgString);
         image.onload = function () {
-            this.svgSave.style.display="none";
             context.drawImage(image,0,0);
-            DOMURL.revokeObjectURL(url);
-            var imageURL=canvas.toDataURL('image/png').replace('image/png','image/octet-stream');
+            var imageURI=canvas.toDataURL('image/png').replace('image/png','image/octet-stream');
             var event = new MouseEvent('click',{view: window, bubbles: false, cancelable: true});
             var temp=document.createElement('a');
             temp.setAttribute('download','graph.png');
-            temp.setAttribute('href',imageURL);
+            temp.setAttribute('href',imageURI);
             temp.setAttribute('target','_blank');
             temp.dispatchEvent(event);
             $(name+" .svg-save").empty();
