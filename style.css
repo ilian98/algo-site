@@ -1,15 +1,23 @@
-@media (min-width: 992px) {
+@media (min-width: 1200px) {
         .navbar-nav > li{
          margin-left: 4%;
          margin-right: 4%;
          }
 }
-@media (max-width: 991px) {
-        .dropdown {
-         padding-bottom: 2%;
-         padding-top: 2%;
-         }
+
+@font-face {
+  font-family: 'Lobster';
+  font-style: normal;
+  font-weight: 400;
+  src: url('fonts/lobster-v23-latin-ext_latin_cyrillic-ext_cyrillic-regular.eot'); /* IE9 Compat Modes */
+  src: local('Lobster Regular'), local('Lobster-Regular'),
+       url('fonts/lobster-v23-latin-ext_latin_cyrillic-ext_cyrillic-regular.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
+       url('fonts/lobster-v23-latin-ext_latin_cyrillic-ext_cyrillic-regular.woff2') format('woff2'), /* Super Modern Browsers */
+       url('fonts/lobster-v23-latin-ext_latin_cyrillic-ext_cyrillic-regular.woff') format('woff'), /* Modern Browsers */
+       url('fonts/lobster-v23-latin-ext_latin_cyrillic-ext_cyrillic-regular.ttf') format('truetype'), /* Safari, Android, iOS */
+       url('fonts/lobster-v23-latin-ext_latin_cyrillic-ext_cyrillic-regular.svg#Lobster') format('svg'); /* Legacy iOS */
 }
+
 
 body {
     z-index:0;
@@ -32,6 +40,27 @@ body {
     background-attachment: fixed;
     opacity: 0.2;
     z-index: -1;
+}
+.site-heading {
+    font-family: "Lobster";
+    font-size: 45px;
+    font-weight: 700;
+    line-height: 75px;
+    text-align: center;
+    color: darkslategrey;
+}
+.card-news {
+    background-color: ghostwhite;
+    margin-top: 40px;
+}
+.news-link:link {
+    color: brown;
+}
+.news-link:visited {
+    color: brown;
+}
+.news-link:hover {
+    color: brown;
 }
 
 ul {
@@ -74,7 +103,7 @@ ul {
     clear: both;
 }
 
-.card {
+.card-lessons {
     background-color: mediumaquamarine;
 }
 

@@ -4,6 +4,12 @@ function toggleText (name) {
          if (cur.style.display==="block") cur.style.display="none";
          else cur.style.display="block";
 }
+function changeLanguage (object, language) {
+    var s=document.URL;
+    if (language=="bg") s=s.replace("_en.html",".html");
+    else if (s.replace("_en.html",".html")==s) s=s.replace(".html","_en.html");
+    object.setAttribute("href",s);
+}
 
 function graphExample (name, isOriented) {
     this.svgElement=document.querySelector(name+" .graph");

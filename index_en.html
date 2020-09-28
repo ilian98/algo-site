@@ -1,0 +1,36 @@
+<html>
+    <head>
+        <link type="text/css" rel="stylesheet" href="source_files/bootstrap/dist/css/bootstrap.min.css"  media="screen,projection"/>
+        <link type="text/css" rel="stylesheet" href="style.css"  media="screen,projection"/>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+        <script type="text/javascript" src="source_files/jquery/dist/jquery.slim.min.js"></script>
+        <script type="text/javascript" src="source_files/jquery/dist/jquery.min.js"></script>
+        <script type="text/javascript" src="source_files/popper.js/dist/umd/popper.min.js"></script>
+        <script type="text/javascript" src="source_files/bootstrap/dist/js/bootstrap.min.js"></script>
+        <script type="text/javascript" src="main.js"></script>
+    </head>
+    <body>
+        <header>
+            <div id="nav-placeholder"></div>
+            <script> $.get("navigation_en.html", function (data) {
+                          $("#nav-placeholder").replaceWith(data);
+                          });
+            </script>
+
+            <div class="background"></div>
+        </header>
+        
+        <div class="site-heading unselectable">Algorithms for competitive programming</div>
+        <div class="content">
+            <div class="card flex-md-row mb-4 box-shadow h-md-250 card-news">
+                <div class="card-body d-flex flex-column align-items-start">
+                  <h3 class="mb-0 unselectable">New lesson</h3>
+                  <div class="mb-1 text-muted unselectable">?.09.2020</div>
+                  <p class="card-text mb-auto">Lesson for hashing was added in Algorithms -> Other -> Hashing.</p>
+                  <a href="#" class="news-link unselectable">Go to the lesson</a>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

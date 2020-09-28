@@ -1,50 +1,28 @@
 {
-  "_args": [
-    [
-      {
-        "raw": "eve@~0.5.1",
-        "scope": null,
-        "escapedName": "eve",
-        "name": "eve",
-        "rawSpec": "~0.5.1",
-        "spec": ">=0.5.1 <0.6.0",
-        "type": "range"
-      },
-      "D:\\Моите неща\\algo-site\\node_modules\\snapsvg"
-    ]
-  ],
-  "_from": "eve@>=0.5.1 <0.6.0",
+  "_from": "eve",
   "_id": "eve@0.5.4",
-  "_inCache": true,
+  "_inBundle": false,
+  "_integrity": "sha1-Z9CAuXJSkdfjieNMJoYN2X8d66o=",
   "_location": "/eve",
-  "_nodeVersion": "4.4.5",
-  "_npmOperationalInternal": {
-    "host": "packages-12-west.internal.npmjs.com",
-    "tmp": "tmp/eve-0.5.4.tgz_1492515861035_0.19881510804407299"
-  },
-  "_npmUser": {
-    "name": "dmitrybaranovskiy",
-    "email": "dmitry@baranovskiy.com"
-  },
-  "_npmVersion": "2.15.5",
   "_phantomChildren": {},
   "_requested": {
-    "raw": "eve@~0.5.1",
-    "scope": null,
-    "escapedName": "eve",
+    "type": "tag",
+    "registry": true,
+    "raw": "eve",
     "name": "eve",
-    "rawSpec": "~0.5.1",
-    "spec": ">=0.5.1 <0.6.0",
-    "type": "range"
+    "escapedName": "eve",
+    "rawSpec": "",
+    "saveSpec": null,
+    "fetchSpec": "latest"
   },
   "_requiredBy": [
-    "/snapsvg"
+    "#USER",
+    "/"
   ],
   "_resolved": "https://registry.npmjs.org/eve/-/eve-0.5.4.tgz",
   "_shasum": "67d080b9725291d7e389e34c26860dd97f1debaa",
-  "_shrinkwrap": null,
-  "_spec": "eve@~0.5.1",
-  "_where": "D:\\Моите неща\\algo-site\\node_modules\\snapsvg",
+  "_spec": "eve",
+  "_where": "D:\\Моите неща\\algo-site\\source_files",
   "author": {
     "name": "Dmitry Baranovskiy",
     "email": "dmitry@baranovskiy.com",
@@ -53,18 +31,14 @@
   "bugs": {
     "url": "https://github.com/adobe-webplatform/eve/issues"
   },
-  "dependencies": {},
+  "bundleDependencies": false,
+  "deprecated": false,
   "description": "Simple custom events",
   "devDependencies": {
     "dr.js": "~0.1.0",
     "eslint": "*",
     "expect.js": "*",
     "mocha": "*"
-  },
-  "directories": {},
-  "dist": {
-    "shasum": "67d080b9725291d7e389e34c26860dd97f1debaa",
-    "tarball": "https://registry.npmjs.org/eve/-/eve-0.5.4.tgz"
   },
   "eslintConfig": {
     "globals": {
@@ -134,19 +108,10 @@
       ]
     }
   },
-  "gitHead": "30c41dfb9de9679ea4fba10f192cc08cf7142b02",
   "homepage": "https://github.com/adobe-webplatform/eve#readme",
   "license": "Apache-2.0",
   "main": "./eve.js",
-  "maintainers": [
-    {
-      "name": "dmitrybaranovskiy",
-      "email": "dmitry@baranovskiy.com"
-    }
-  ],
   "name": "eve",
-  "optionalDependencies": {},
-  "readme": "ERROR: No README data found!",
   "repository": {
     "type": "git",
     "url": "git+ssh://git@github.com/adobe-webplatform/eve.git"
