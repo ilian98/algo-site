@@ -92,11 +92,6 @@ ul {
     user-select: none;
 }
 
-.flag {
-    width: 50px;
-    float: right;
-}
-
 .lesson-part-position {
     margin-top: 1%;
     margin-bottom: 1%;
@@ -183,4 +178,9 @@ ul {
 }
 .lesson-link:hover {
     color: black;
+}
+
+.label-input {
+    margin-top: 7px;
+    margin-right: 5px;
 }

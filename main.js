@@ -6,6 +6,7 @@ function toggleText (name) {
 }
 function changeLanguage (object, language) {
     var s=document.URL;
+<<<<<<< Updated upstream
     if (language=="bg") s=s.replace("_en.html",".html");
     else if (s.replace("_en.html",".html")==s) s=s.replace(".html","_en.html");
     object.setAttribute("href",s);
@@ -119,10 +120,24 @@ function graphExample (name, isOriented) {
             temp.dispatchEvent(event);
             $(name+" .svg-save").empty();
             }
+=======
+    if (s.includes(".html")===false) {
+        if (language=="en") s+="index_en.html";
+        else return ;
+>>>>>>> Stashed changes
         }
+    if (language=="bg") s=s.replace("_en.html",".html");
+    else if (s.includes("_en")===false) s=s.replace(".html","_en.html");
+    object.setAttribute("href",s);
 }
-function initExamples (page) {
-    if (page==0) {
+
+function initExamples () {
+    var URL=document.URL,index=-1;
+    for (var i=0; i<URL.length; i++) {
+        if (URL[i]=='/') index=i;
+        }
+    var page=URL.slice(index+1,URL.length);
+    if (page=="introduction_to_graphs.html") {
         var example1 = new Graph ();
         example1.n=5; example1.isOriented=true;
         example1.init(".graphExample1");
@@ -147,8 +162,14 @@ function initExamples (page) {
                             [0,1,1,0,0]];
         drawGraph(example2,1,1,299,299);
         }
-    if (page==1) {
+    else if (page=="depth_first_search.html") {
         var example1 = new graphExample (".graphExample1",false);
         var example2 = new graphExample (".graphExample2",true);
+        }
+    else if (page=="hashing.html") {
+        document.getElementById("base").value="3";
+        document.getElementById("modulo").value="1009";
+        document.getElementById("string").value="abcab";
+        calculateHash();
         }
 }
