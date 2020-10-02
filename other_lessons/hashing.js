@@ -39,7 +39,7 @@ function calculateHash () {
     var base=document.getElementById("base").value;
     var modulo=document.getElementById("modulo").value;
     var paragraph=document.getElementById("hashString"),hash;
-    if (s.length==0) {
+    if ((s.length==0)||(base<2)||(modulo<2)) {
         paragraph.textContent="";
         return ;
     }
