@@ -20,6 +20,7 @@
                 window.isMobile=true;
                 window.removeEventListener("touchstart",onFirstTouch,false);
                 },false);
+            
         </script>
         <header>
             <div class="background"></div>
@@ -36,6 +37,7 @@
                     <a href="/algo-site/other_lessons.html" class="text-danger">Други алгоритми</a>
                 </li>
                 <li class="breadcrumb-item active" style="z-index:0" aria-current="page">Хеширане</li>
+                <li class="ml-auto">Последна промяна: 02.10.2020</li>
             </ol>
         </nav>
         
@@ -45,12 +47,12 @@
             <div class="lesson-part-position">
                 <button class="btn btn-secondary" onclick="toggleText('firstPart')">1. Какво представлява хеширането?</button>
                 <div id="firstPart">
-                    <p class="text-format">Нека имаме произволен вид обекти и искаме да можем лесно да разпознаваме кога два от тях съвпадат. Най-лесно би било ако можем да им съпоставяме числа и просто сравняваме дали числата са равни или не. Това е същността на хеширането. Съпоставяме на обекти числа по някакъв хеширащ алгоритъм.</p>
+                    <p class="text-format">Нека имамe произволен вид обекти и искаме да можем лесно да разпознаваме кога два от тях съвпадат. Най-лесно би било ако можем да им съпоставяме числа и просто сравняваме дали числата са равни или не. Това е същността на хеширането. Съпоставяме на обекти числа по някакъв хеширащ алгоритъм.</p>
                     <p class="text-format bold">Определение: Нека множеството обекти означим с \(D\). Тогава математически хеширането е функция \(h: D \rightarrow N,\) т.е. на елемент от \(D\) съпоставя число, което се нарича хеш-код или хеш накратко.</p>
                     <p class="text-format">Преди да продължим нататък нека дадем един практически пример. Всеки е теглил файлове от интернет чрез торенти. След като даден торент завърши, се прави кратка проверка за това дали е изтеглен цял файл (и без вируси). Тази проверка в същността си е да провери хеша на изтегления файл дали съвпада с хеша на ориганала.</p>
                     <p class="text-format">Идеята е хубава, но тя има един голям проблем. Нека да се насочим към често срещан пример в състезателната информатика. Ще хешираме низове, т.е. хеш-функцията е \(h:\) <i>низове</i> \(\rightarrow\) <i>числа</i>, като числата ги ограничаваме до около \(2^{64}\), колкото е броят на 64-битовите числа (съответно големината на тип <i>long long</i> в <i>C++</i>). Ако разглеждаме низове с малки латински букви с до \(10^5\) символа, то различните такива низове са \(26^{10^5}\). Така на тази голяма бройка съпоставяме едва \(2^{64}\) числа. По принципа на Дирихле е ясно, че ще имаме повторения, т.е. на различни низове ще съпоставяме едно и също число. Това наричаме <b>колизия</b> на хеш-функцията.</p>
                     <p class="text-format bold">Определение: Нека имаме два обекта \(d_1\) и \(d_2\) от \(D\). Тогава ако \(d_1 \ne d_2,\) но \(h(d_1) = h(d_2),\) казваме че имаме колизия на хеш-функцията.</p>
-                    <p class="text-format">Ясно е, че няма как, използвайки по-малко множество, да кодираме по-голямо множество без да имаме колизии. Затова има разчлични алгоритми и практики, чрез които да намалим негативните ефекти на това. Има два основни типа хеширащи алгоритми:</p>
+                    <p class="text-format">Ясно е, че няма как, използвайки по-малко множество, да кодираме по-голямо множество без да имаме <i>колизии</i>. Затова има разчлични алгоритми и практики, чрез които да намалим негативните ефекти на това. Има два основни типа хеширащи алгоритми:</p>
                     <ul>
                         <li class="dashed-list">позиционно хеширане</li>
                         <li class="dashed-list">непозиционно хеширане</li>
@@ -60,20 +62,20 @@
             <div class="lesson-part-position">
                 <button class="btn btn-secondary" onclick="toggleText('secondPart'); initExamples();">2. Позиционно хеширане.</button>
                 <div id="secondPart">
-                    <p class="text-format">Този вид се изпозва за хеширане на низове, редици, въобще обекти, в които наредбата има значение. Нека да се върнем към примера с низовете от малки латински букви (с това не целим ограничаване на символите, а по-голяма простота при обяснение), за да демонстрираме стандартното хеширане, използвано в състезателната информатика. Разглеждаме низа като число в позиционна бройна система. Лесно можем да съпоставяме на всяка буква, индексът в азбуката или по-универсално <i>ASCII</i> кода. Така ако фиксираме основата на бройната система \(p\) можем лесно да сметнем какви числа, съпоставяме на низовете. По този начин обаче не се съобразяваме, че ще съпоставяме единствено числа, които се събират в типа <i>long long</i> в <i>C++</i>, защото хешът на низа лесно ще стане много по-голям, отколкото може да се побере в типа. Затова стандартно се добавя модул \(m\), по който извършваме сметките смятаме. По този начин възможните хеш-кодове са числата \(0,1, \dots , m-1\) \(-\) общо \(m\) на брой. По математически причини е силно препоръчително това число да е просто (един такъв факт е следният - когато \(m\) е просто число, то \(\forall a \in \Bbb{N}, a \not\equiv 0 \pmod{m} : a.k\) за \(k=0,1, \dots ,m-1\) минава всички възможни остатъци по модул \(m\)). Желателно е и основата на бройната система \(p\) да е просто число. Нека разгледаме точно как става описаното хеширане със следният интерактивен пример:</p>
+                    <p class="text-format">Този вид се изпозва за хеширане на низове, редици, въобще обекти, в които наредбата има значение. Нека да се върнем към примера с низовете от малки латински букви (<a class="info" onclick="triggerInfo(1)" id="trigger1">...</a><a class="info" onclick="triggerInfo(1)" id="info1" style="display: none">с това не целим ограничаване на символите, а по-голяма простота при обяснение</a>), за да демонстрираме стандартното хеширане, използвано в състезателната информатика. Разглеждаме низа като число в позиционна бройна система. Лесно можем да съпоставяме на всяка буква, индексът в азбуката или по-универсално <i>ASCII</i> кода. Така ако фиксираме основата на бройната система \(p\) можем лесно да сметнем какви числа, съпоставяме на низовете. По този начин обаче не се съобразяваме, че ще съпоставяме единствено числа, които се събират в типа <i>long long</i> в <i>C++</i>, защото хешът на низа лесно ще стане много по-голям, отколкото може да се побере в типа. Затова стандартно се добавя модул \(m\), по който извършваме сметките смятаме. По този начин възможните хеш-кодове са числата \(0,1, \dots , m-1\) \(-\) общо \(m\) на брой. По математически причини е силно препоръчително това число да е просто (<a class="info" onclick="triggerInfo(2)" id="trigger2">...</a><a class="info" onclick="triggerInfo(2)" id="info2" style="display: none">един такъв факт е следният - когато \(m\) е просто число, то \(\forall a \in \Bbb{N}, a \not\equiv 0 \pmod{m} : a.k\) за \(k=0,1, \dots ,m-1\) минава всички възможни остатъци по модул \(m\)</a>). Желателно е и основата на бройната система \(p\) да е просто число, по-голямо от най-големия <i>ASCII</i> код (255). Нека разгледаме точно как става описаното хеширане със следният интерактивен пример:</p>
                     <div class="hashExample">
                         <div class="row">
                             <div class="col-sm-4">
                                 <div class="form-group float-right">
-                                    <input class="form-control col-4" style="float: right" maxLength="10" id="base"/>
+                                    <input class="form-control col-4" style="float: right" maxLength="10" onkeypress="return isDigit(event)" id="base"/>
                                     <label for="base" class="label-input" style="float: right">Основа \(p\):</label>
                                 </div>
                                 <div class="form-group float-right">
-                                    <input class="form-control col-4" style="float: right" maxLength="10" id="modulo"/>
+                                    <input class="form-control col-4" style="float: right" maxLength="10" onkeypress="return isDigit(event)" id="modulo"/>
                                     <label for="modulo" class="label-input" style="float: right">Модул \(m\):</label>
                                 </div>
                                 <div class="form-group float-right">
-                                    <input class="form-control col-5" style="float: right" maxLength="10" id="string"/>
+                                    <input class="form-control col-5" style="float: right" maxLength="10" onkeypress="return isSmallLatinLetter(event)" id="string"/>
                                     <label for="string" class="label-input" style="float: right">Низ \(s\):</label>
                                 </div>
                             </div>
@@ -93,12 +95,65 @@
 <span style="color:#b060b0; ">}</span>
 </pre>
                     
-                    <p class="text-format">Тук използваме схемата на Хорнер за пресмятане на стойността на "число", като знаем цифрите му. Ако погледнем по-внимателно ще видим, че единствената по-тежка операция, която се извършва е \(\%\). Понеже тази операция се извършва постоянно при работата с хешове, то тя прави по-голямата константа при използването на техниката. Има един трик, с който понякога можем да спестим модването. Можем да използваме естественото модване на тип <i>unsigned long long</i> - когато дадена сметка надвиши максималната допустима стойност става т.нар. <i>overflow</i> или превъртане на типа. Това от своя страна е естествено модване по модул \(2^{64}\). Така ако използваме този тип няма нужда от измислянето на модул. Негативите са следните. Първо, по-лесно ще стават колизии, защото модулът е далеч от просто число. Второ, много от задачите имат така наречените анти-хеш тестове, които са направени специално срещу този вид хеширане. Затова по принцип се използва стандартното хеширане с модул просто число.</p>
+                    <p class="text-format">Тук използваме схемата на Хорнер за пресмятане на стойността на "число", като знаем цифрите му. Ако погледнем по-внимателно ще видим, че единствената по-тежка операция, която се извършва е \(\%\). Понеже тази операция се извършва постоянно при работата с хешове, то тя прави по-голямата константа при използването на техниката. Има един трик, с който понякога можем да спестим модването. Можем да използваме естественото модване на тип <i>unsigned long long</i> - когато дадена сметка надвиши максималната допустима стойност става т.нар. <i>overflow</i> или превъртане на типа. Това от своя страна е естествено модване по модул \(2^{64}\). Така ако използваме този тип няма нужда от измислянето на модул. Негативите са следните. Първо, по-лесно ще стават <i>колизии</i>, защото модулът е далеч от просто число. Второ, много от задачите имат така наречените анти-хеш тестове, които са направени специално срещу този вид хеширане. Затова по принцип се използва стандартното хеширане с модул просто число.</p>
                 </div>
             </div>
 
             <div class="lesson-part-position">
                 <button class="btn btn-secondary" onclick="toggleText('thirdPart')">3. Алгоритъм на Рабин-Карп.</button>
+                <div id="thirdPart">
+                    <p class="text-format">Сега ще приложим тази техника за оптимално решаване на една стандартна задача - търсене на шаблон в текст. Нека текстът е с големина \(n\), а шаблонът с големина \(m\). От сега нататък, основата на бройната система ще означаваме с <i>base</i>, а модулът с <i>mod</i>. Наивният алгоритъм за решаване на тази задача, със сложност \(O(nm)\), работи по следния начин. Пробва всяка позиция в текста за срещането на шаблона, като проверката дали се среща е линейна по дължината на шаблон - в най-лошия случай \(O(m)\). Тук идва място на хеширането за оптимизиране на проверката. В алгоритъма на Рабин-Карп, преди да почнем да обхождаме текста, ще изчислим хеша на шаблона. Да разгледаме точно как се променя изразът за намиране на хеша на подниз в текста при последователното обхождане на текста, чрез следното примерче:</p>
+                    <p class="text-format">Нека текстът е: \(abcba\) и търсим шаблон с големина 3, т.е. \(m=3\). Нека сме намерили хеша \(num\) на първите три букви - \(num=h(abc)\). Да видим как се променя тази стойност за хеша на вторите три букви в шаблона или по-точно колко е \(h(bcb)\), използвайки намерения \(h(abc)\). Лесно може да се види, като се разпише, че \(h(bcb)\) \(= (h(abcb)-h(a)*base^3) \space \% \space mod\) \(=(h(abc)*base+h(b)-h(a)*base^m)\) \(\space \% \space mod\) \(=(num*base+h(b)-h(a)*base^m) \space \% \space mod\). Това следва от работата в бройната системат с основа <i>base</i>. Забелязва се общият модел на това как се променя последователно хеша на поднизовете с дължина \(m\) в текста - ако на текущ подниз сме сметнали, че хеш-стойността е \(num\), то за да получим новата хеш-стойност трябва да умножим по основата, да добавим новата буква отзад и да махнем излишната буква най-отпред. Така с последователното обхождане на текста, хешът се "плъзга" по поднизовете с дължина \(m\). Затова се казва също, че този алгоритъм използва метода <i>rolling hash</i>. Ако се вгледаме подробно виждаме, че за смятането на хешовете едниствено ще ни трябва да знаем \(base^m\). Вече можем да напишем точните стъпки на алгоритъма, след което следва и примерна реализация на езика <i>C++</i>:</p>
+                    <ol>
+                        <li>Определяме основа и модул за хеша.</li>
+                        <li>Намираме хеш-стойността на модела и едновременно с това \(base^m\). </li>
+                        <li>Последователно намираме хеша на всички поднизове с дължина \(m\) в текста, използвайки техниката <b>rolling hash</b></li>
+                    </ol>
+                    
+<pre style="color:#d1d1d1;background:#343a40;"><span style="color:#e66170; font-weight:bold; ">const</span> <span style="color:#e66170; font-weight:bold; ">long</span> <span style="color:#e66170; font-weight:bold; ">long</span> <span style="color:#e66170; font-weight:bold; ">int</span> mod<span style="color:#d2cd86; ">=</span><span style="color:#009f00; ">1e9</span><span style="color:#d2cd86; ">+</span><span style="color:#008c00; ">9</span><span style="color:#d2cd86; ">,</span>base<span style="color:#d2cd86; ">=</span><span style="color:#008c00; ">1009</span><span style="color:#b060b0; ">;</span>
+<span style="color:#e66170; font-weight:bold; ">int</span> <span style="color:#e66170; font-weight:bold; ">main</span> <span style="color:#d2cd86; ">(</span><span style="color:#d2cd86; ">)</span> <span style="color:#b060b0; ">{</span>
+    <span style="color:#e66170; font-weight:bold; ">long</span> <span style="color:#e66170; font-weight:bold; ">long</span> <span style="color:#e66170; font-weight:bold; ">int</span> hash1<span style="color:#d2cd86; ">,</span>hash2<span style="color:#d2cd86; ">,</span><span style="color:#e66170; font-weight:bold; ">pow</span><span style="color:#b060b0; ">;</span>
+    <span style="color:#e66170; font-weight:bold; ">int</span> n<span style="color:#d2cd86; ">,</span>m<span style="color:#d2cd86; ">,</span>i<span style="color:#b060b0; ">;</span>
+    <span style="color:#e66170; font-weight:bold; ">string</span> s<span style="color:#d2cd86; ">,</span>model<span style="color:#b060b0; ">;</span>
+
+    <span style="color:#e66170; font-weight:bold; ">ios_base</span><span style="color:#b060b0; ">::</span>sync_with_stdio<span style="color:#d2cd86; ">(</span><span style="color:#e66170; font-weight:bold; ">false</span><span style="color:#d2cd86; ">)</span><span style="color:#b060b0; ">;</span>
+    <span style="color:#e66170; font-weight:bold; ">cin</span><span style="color:#d2cd86; ">.</span>tie<span style="color:#d2cd86; ">(</span><span style="color:#007d45; ">NULL</span><span style="color:#d2cd86; ">)</span><span style="color:#b060b0; ">;</span> <span style="color:#e66170; font-weight:bold; ">cout</span><span style="color:#d2cd86; ">.</span>tie<span style="color:#d2cd86; ">(</span><span style="color:#007d45; ">NULL</span><span style="color:#d2cd86; ">)</span><span style="color:#b060b0; ">;</span>
+
+    getline<span style="color:#d2cd86; ">(</span><span style="color:#e66170; font-weight:bold; ">cin</span><span style="color:#d2cd86; ">,</span>model<span style="color:#d2cd86; ">)</span><span style="color:#b060b0; ">;</span> m<span style="color:#d2cd86; ">=</span>model<span style="color:#d2cd86; ">.</span>size<span style="color:#d2cd86; ">(</span><span style="color:#d2cd86; ">)</span><span style="color:#b060b0; ">;</span>
+    getline<span style="color:#d2cd86; ">(</span><span style="color:#e66170; font-weight:bold; ">cin</span><span style="color:#d2cd86; ">,</span>s<span style="color:#d2cd86; ">)</span><span style="color:#b060b0; ">;</span> n<span style="color:#d2cd86; ">=</span>s<span style="color:#d2cd86; ">.</span>size<span style="color:#d2cd86; ">(</span><span style="color:#d2cd86; ">)</span><span style="color:#b060b0; ">;</span>
+
+    <span style="color:#e66170; font-weight:bold; ">pow</span><span style="color:#d2cd86; ">=</span><span style="color:#008c00; ">1</span><span style="color:#b060b0; ">;</span> hash1<span style="color:#d2cd86; ">=</span><span style="color:#008c00; ">0</span><span style="color:#b060b0; ">;</span>
+    <span style="color:#e66170; font-weight:bold; ">for</span> <span style="color:#d2cd86; ">(</span>i<span style="color:#d2cd86; ">=</span><span style="color:#008c00; ">0</span><span style="color:#b060b0; ">;</span> i<span style="color:#d2cd86; ">&lt;</span>m<span style="color:#b060b0; ">;</span> i<span style="color:#d2cd86; ">+</span><span style="color:#d2cd86; ">+</span><span style="color:#d2cd86; ">)</span> <span style="color:#b060b0; ">{</span>
+        <span style="color:#e66170; font-weight:bold; ">pow</span><span style="color:#d2cd86; ">*</span><span style="color:#d2cd86; ">=</span>base<span style="color:#b060b0; ">;</span> <span style="color:#e66170; font-weight:bold; ">pow</span><span style="color:#d2cd86; ">%</span><span style="color:#d2cd86; ">=</span>mod<span style="color:#b060b0; ">;</span>
+        hash1<span style="color:#d2cd86; ">*</span><span style="color:#d2cd86; ">=</span>base<span style="color:#b060b0; ">;</span> hash1<span style="color:#d2cd86; ">+</span><span style="color:#d2cd86; ">=</span>model<span style="color:#d2cd86; ">[</span>i<span style="color:#d2cd86; ">]</span><span style="color:#b060b0; ">;</span>
+        hash1<span style="color:#d2cd86; ">%</span><span style="color:#d2cd86; ">=</span>mod<span style="color:#b060b0; ">;</span>
+    <span style="color:#b060b0; ">}</span>
+
+    hash2<span style="color:#d2cd86; ">=</span><span style="color:#008c00; ">0</span><span style="color:#b060b0; ">;</span>
+    <span style="color:#e66170; font-weight:bold; ">for</span> <span style="color:#d2cd86; ">(</span>i<span style="color:#d2cd86; ">=</span><span style="color:#008c00; ">0</span><span style="color:#b060b0; ">;</span> i<span style="color:#d2cd86; ">&lt;</span>n<span style="color:#b060b0; ">;</span> i<span style="color:#d2cd86; ">+</span><span style="color:#d2cd86; ">+</span><span style="color:#d2cd86; ">)</span> <span style="color:#b060b0; ">{</span>
+        hash2<span style="color:#d2cd86; ">*</span><span style="color:#d2cd86; ">=</span>base<span style="color:#b060b0; ">;</span> hash2<span style="color:#d2cd86; ">+</span><span style="color:#d2cd86; ">=</span>s<span style="color:#d2cd86; ">[</span>i<span style="color:#d2cd86; ">]</span><span style="color:#b060b0; ">;</span>
+        hash2<span style="color:#d2cd86; ">%</span><span style="color:#d2cd86; ">=</span>mod<span style="color:#b060b0; ">;</span>
+        <span style="color:#e66170; font-weight:bold; ">if</span> <span style="color:#d2cd86; ">(</span>i<span style="color:#d2cd86; ">&gt;</span><span style="color:#d2cd86; ">=</span>m<span style="color:#d2cd86; ">)</span> <span style="color:#b060b0; ">{</span>
+           hash2<span style="color:#d2cd86; ">+</span><span style="color:#d2cd86; ">=</span>mod<span style="color:#d2cd86; ">*</span>mod<span style="color:#b060b0; ">;</span> hash2<span style="color:#d2cd86; ">-</span><span style="color:#d2cd86; ">=</span><span style="color:#e66170; font-weight:bold; ">pow</span><span style="color:#d2cd86; ">*</span>s<span style="color:#d2cd86; ">[</span>i<span style="color:#d2cd86; ">-</span>m<span style="color:#d2cd86; ">]</span><span style="color:#b060b0; ">;</span>
+           hash2<span style="color:#d2cd86; ">%</span><span style="color:#d2cd86; ">=</span>mod<span style="color:#b060b0; ">;</span>
+           <span style="color:#b060b0; ">}</span>
+        <span style="color:#e66170; font-weight:bold; ">if</span> <span style="color:#d2cd86; ">(</span>hash2<span style="color:#d2cd86; ">=</span><span style="color:#d2cd86; ">=</span>hash1<span style="color:#d2cd86; ">)</span> <span style="color:#b060b0; ">{</span>
+           <span style="color:#e66170; font-weight:bold; ">cout</span> <span style="color:#d2cd86; ">&lt;</span><span style="color:#d2cd86; ">&lt;</span> <span style="color:#02d045; ">"</span><span style="color:#00c4c4; ">yes</span><span style="color:#008080; ">\n</span><span style="color:#02d045; ">"</span><span style="color:#b060b0; ">;</span>
+           <span style="color:#e66170; font-weight:bold; ">return</span> <span style="color:#008c00; ">0</span><span style="color:#b060b0; ">;</span>
+           <span style="color:#b060b0; ">}</span>
+        <span style="color:#b060b0; ">}</span>
+    <span style="color:#e66170; font-weight:bold; ">cout</span> <span style="color:#d2cd86; ">&lt;</span><span style="color:#d2cd86; ">&lt;</span> <span style="color:#02d045; ">"</span><span style="color:#00c4c4; ">no</span><span style="color:#008080; ">\n</span><span style="color:#02d045; ">"</span><span style="color:#b060b0; ">;</span>
+    <span style="color:#e66170; font-weight:bold; ">return</span> <span style="color:#008c00; ">0</span><span style="color:#b060b0; ">;</span>
+<span style="color:#b060b0; ">}</span>
+</pre>
+
+                    <p class="text-format">Една от подробностите по този код е, че основата и модулът са константи, за да е по-бърза работата с тях (те така или иначе не се променят). Друга подробност е, че там където трябва да вадим по модул, стандартно добавяме модула преди изваждането, за да не получим отрицателни числа (в случая добавяме \(mod*mod\)). Също много важна подробност е, че тук реализираме в някакъв смисъл "смело" алгоритъма, вярвайки напълно, че няма да получим <i>колизии</i> с хеша. На практика това няма как да е вярно. Затова по принцип като се реализира този алгоритъм, при съвпадение на хешовете се използва наивния начин, за да се провери дали наистина е намерен шаблона. Разбира се, за състезания това не се прави. Има начини да се подсигури липсата на <i>колизии</i>. Един такъв начин е да се използва повече от една основа и модул за хеширане, т.нар. <i>двоен хеш, троен хеш, ...</i> Същността на този начин е, че правим същото като преди само че няколко пъти (колкото основи и модули имаме). Минусът на това е, че се утежнява програмата, обикновено така се умножава времето по 2 или по 3 съответно. Математически може да се сметне, че при размери на низовете, каквито има по състезанията, при използване на троен хеш, вероятността да се получи <i>колизия</i> е по-малка, отколкото да се спечели тотото :) Тук също има различни начини, като може например да имаме само една основа и различни модули и т.н. (<a class="info" onclick="triggerInfo(3)" id="trigger3">...</a><a class="info" onclick="triggerInfo(3)" id="info3" style="display: none">забележка: по-рано дефинирахме, за простота, хеш-функцията да съпоставя на обектите числа, а в действителност понятието е по-обширно, както например при <i>двоен хеш</i> се съпоставя двойка числа</a>)</p>
+                </div>
+            </div>
+            
+            <div class="lesson-part-position">
+                <button class="btn btn-secondary" onclick="toggleText('fourthPart')">4. Непозиционно хеширане.</button>
+                <div id="fourthPart"></div>
             </div>
         </div>
     </body>

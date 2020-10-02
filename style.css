@@ -184,3 +184,19 @@ ul {
     margin-top: 7px;
     margin-right: 5px;
 }
+
+.info {
+    text-decoration: none;
+    color: black;
+}
+.info:visited {
+    text-decoration: none;
+    color: black;
+}
+.info:hover {
+    text-decoration: none;
+    background-color: white;
+    border-radius: 5px;
+    color: black;
+}
+

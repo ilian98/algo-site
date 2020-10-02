@@ -14,6 +14,16 @@ function changeLanguage (object, language) {
     else if (s.includes("_en")===false) s=s.replace(".html","_en.html");
     object.setAttribute("href",s);
 }
+function triggerInfo (number) {
+    if ($("#trigger"+number).is(":hidden")===false) {
+        $("#trigger"+number).hide();
+        $("#info"+number).show();
+        }
+    else {
+        $("#trigger"+number).show();
+        $("#info"+number).hide();
+        }
+}
 
 function initExamples () {
     var URL=document.URL,index=-1;
