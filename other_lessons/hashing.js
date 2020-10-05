@@ -3,13 +3,19 @@ function isDigit (event) {
     if ((charCode<=31)||((charCode>=48)&&(charCode<=57))) return true;
     return false;
 }
+function isDigitOrComma (event) {
+    if (isDigit(event)==true) return true;
+    var charCode=(event.which)?event.which:event.keyCode;
+    if ((charCode<=31)||(charCode==44)) return true;
+    return false;
+}
 function isSmallLatinLetter (event) {
     var charCode=(event.which)?event.which:event.keyCode;
     if ((charCode>=97)&&(charCode<=122)) return true;
     return false;
 }
 
-function calculateHash () {
+function calculateHashString () {
     var table=document.getElementById("stringTable");
     var s=document.getElementById("string").value;
     $("#stringTable").empty();
@@ -36,9 +42,9 @@ function calculateHash () {
     table.appendChild(rows[0]);
     table.appendChild(rows[1]);
     
-    var base=document.getElementById("base").value;
-    var modulo=document.getElementById("modulo").value;
-    var paragraph=document.getElementById("hashString"),hash;
+    var base=document.querySelector(".hashExample1 .base").value;
+    var modulo=document.querySelector(".hashExample1 .modulo").value;
+    var paragraph=document.querySelector(".hashExample1 .hash"),hash;
     if ((s.length==0)||(base<2)||(modulo<2)) {
         paragraph.textContent="";
         return ;
@@ -58,5 +64,64 @@ function calculateHash () {
         hash%=modulo;
     }
     paragraph.textContent+="\\( )\\space \\% \\space"+modulo+" = "+hash+"\\).";
-    MathJax.typeset(["#hashString"]);
+    MathJax.typeset([".hashExample1 .hash"]);
+}
+
+function fastPower (base, power, modulo) {
+    if (power==0) return 1;
+    if (power%2==1) return (base*fastPower(base,power-1,modulo))%modulo;
+    var num=fastPower(base,power/2,modulo);
+    return (num*num)%modulo;
+    
+}
+function calculateHashMultiSet () {
+   var s=document.getElementById("multiSet").value;
+    var base=document.querySelector(".hashExample2 .base").value;
+    var modulo=document.querySelector(".hashExample2 .modulo").value;
+    var paragraph=document.querySelector(".hashExample2 .hash"),hash,curHash;
+    if ((s.length==0)||(base<2)||(modulo<2)) {
+        paragraph.textContent="";
+        return ;
+    }
+    
+    var elements=[],num=0,digs=0;
+    for (var i=0; i<s.length; i++) {
+        if (s[i]==',') {
+            if (digs==0) {
+                paragraph.textContent="";
+                return ;
+            }
+            elements.push(num);
+            num=0; digs=0;
+        }
+        else {
+            num*=10; num+=s[i]-'0';
+            digs++;
+        }
+    }
+    if (digs==0) {
+        paragraph.textContent="";
+        return ;
+    }
+    elements.push(num);
+    
+    paragraph.textContent="Хеш-кодът на мултимножеството е: ";
+    for (var i=0; i<elements.length; i++) {
+        paragraph.textContent+=" \\(";
+        if (i==0) paragraph.textContent+="(";
+        paragraph.textContent+=base+"^{"+elements[i]+"} \\space \\% \\space"+modulo+"\\)";
+        if (i<elements.length-1) paragraph.textContent+="\\( \\space + \\)";
+    }
+    paragraph.textContent+="\\( ) \\space \\% \\space"+modulo+" = \\)";
+    hash=0;
+    for (var i=0; i<elements.length; i++) {
+        curHash=fastPower(base,elements[i],modulo);
+        paragraph.textContent+=" \\(";
+        if (i==0) paragraph.textContent+="(";
+        paragraph.textContent+=curHash+"\\)";
+        if (i<elements.length-1) paragraph.textContent+="\\( \\space + \\)";
+        hash+=curHash; hash%=modulo;
+    }
+    paragraph.textContent+="\\( ) \\space \\% \\space"+modulo+"\\space = "+hash+"\\).";
+    MathJax.typeset([".hashExample2 .hash"]);
 }

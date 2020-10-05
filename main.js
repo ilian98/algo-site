@@ -61,9 +61,14 @@ function initExamples () {
         var example2 = new graphExample (".graphExample2",true);
         }
     else if (page=="hashing.html") {
-        document.getElementById("base").value="3";
-        document.getElementById("modulo").value="1009";
+        document.querySelector(".hashExample1 .base").value="307";
+        document.querySelector(".hashExample1 .modulo").value="1009";
         document.getElementById("string").value="abcab";
-        calculateHash();
+        calculateHashString();
+        
+        document.querySelector(".hashExample2 .base").value="7";
+        document.querySelector(".hashExample2 .modulo").value="1009";
+        document.getElementById("multiSet").value="1,2,3";
+        calculateHashMultiSet();
         }
 }

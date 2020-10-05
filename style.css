@@ -52,6 +52,7 @@ body {
 .card-news {
     background-color: ghostwhite;
     margin-top: 40px;
+    border-radius: 10px;
 }
 .news-link:link {
     color: brown;
@@ -125,7 +126,7 @@ ul {
     padding-bottom: 2px;
 }
 
-#firstPart, #secondPart, #thirdPart {
+#firstPart, #secondPart, #thirdPart, #fourthPart {
     background-color: rgba(255,255,255,0.5);
     border-radius: 10px;
     float: left;
