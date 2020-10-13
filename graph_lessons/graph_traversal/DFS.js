@@ -1,263 +1,370 @@
 function DFS () {
-
+    
     this.name=undefined; this.graph = new Graph();
     this.used=undefined; this.animations=undefined;
+    this.startButton=undefined; this.pauseButton=undefined;
+    this.animText=undefined; this.animFuncs=undefined;
+    this.currAnimation=undefined;
+    this.speed=undefined;
     this.init = function (firstTime, name, svgName, isOriented) {
-         this.graph.init(svgName);
-         if (firstTime==true) {
+        var graph=this.graph;
+        graph.init(svgName);
+        if (firstTime==true) {
             this.name=name;
             if (isOriented==false) {
-               this.graph.edgeList=[[0,1],[0,2],[0,3],[0,4],[1,2]];
-               this.graph.adjList=[[1,2,3,4],[0,2],[0,1],[0],[0]];
-               this.graph.adjMatrix=[[0,1,1,1,1],
-                                     [1,0,1,0,0],
-                                     [1,1,0,0,0],
-                                     [1,0,0,0,0],
-                                     [1,0,0,0,0]];
-               this.graph.isOriented=false;
-               }
-             else {
-                this.graph.s=Snap(svgName);
-                this.graph.edgeList=[[0,1],[1,0],[0,2],[2,0],[0,3],[3,0],[0,4],[4,0],[1,2],[2,1]];
-                this.graph.adjList=[[1,2,3,4],[0,2],[0,1],[0],[0]];
-                this.graph.adjMatrix=[[0,1,1,1,1],
-                                      [1,0,1,0,0],
-                                      [1,1,0,0,0],
-                                      [1,0,0,0,0],
-                                      [1,0,0,0,0]];
-                this.graph.isOriented=true;
+                graph.edgeList=[[0,1],[0,2],[0,3],[0,4],[1,2]];
+                graph.adjList=[[1,2,3,4],[0,2],[0,1],[0],[0]];
+                graph.adjMatrix=[[0,1,1,1,1],
+                                 [1,0,1,0,0],
+                                 [1,1,0,0,0],
+                                 [1,0,0,0,0],
+                                 [1,0,0,0,0]];
+                graph.isOriented=false;
                 }
-             }        
-         this.used=[]; this.animations=[];
-         drawGraph(this.graph,1,1,299,299);
-         };
+            else {
+                graph.s=Snap(svgName);
+                graph.edgeList=[[0,1],[1,0],[0,2],[2,0],[0,3],[3,0],[0,4],[4,0],[1,2],[2,1]];
+                graph.adjList=[[1,2,3,4],[0,2],[0,1],[0],[0]];
+                graph.adjMatrix=[[0,1,1,1,1],
+                                 [1,0,1,0,0],
+                                 [1,1,0,0,0],
+                                 [1,0,0,0,0],
+                                 [1,0,0,0,0]];
+                graph.isOriented=true;
+                }
+            }
+        this.used=[]; this.animations=[];
+        this.speed=2000;
+        drawGraph(graph,1,1,299,299);
+        };
     
     this.start = function () {
-         draw(this.graph,false);
-         
-         this.graph.minas=[];
-         this.used=[];
-         for (var i=0; i<this.graph.n; i++) {
-             this.used[i]=0;
-             }
-         this.animations=[];
-         this.animations.push([[0,0,"red","Започваме обхождането от връх номер 1."]]);
-         this.dfs(0);
-         var animFuncs=[];
-         for (i=this.animations.length-1; i>=0; i--) {
-             animFuncs[i] = {
+        var graph = this.graph;
+        var animations = this.animations = [];
+        var startButton = this.startButton;
+        var pauseButton = this.pauseButton;
+        var animText = this.animText;
+        var DFSObject = this;
+        var speed = parseInt(this.speed);
+        draw(graph,false);
+        
+        graph.minas=[];
+        this.used=[];
+        for (var i=0; i<graph.n; i++) {
+            this.used[i]=0;
+            }
+        animations.push([[0,0,"red","Започваме обхождането от връх номер 1."]]);
+        this.dfs(0);
+        var animFuncs = this.animFuncs = [];
+        for (i=animations.length-1; i>=0; i--) {
+            animFuncs[i] = {
                 index: i,
-                graph: this.graph,
-                name: this.name,
-                animations: this.animations,
                 func: function () {
-                         var i=this.index,curAnim,animLen=this.animations[i].length;
-                         for (var j=0; j<animLen; j++) {
-                             curAnim=this.animations[i][j];
-                             if (curAnim[0]==0) {
-                                this.graph.verCircles[curAnim[1]].isLast=(j==animLen-1);
-                                this.graph.verCircles[curAnim[1]].graph=this.graph;
-                                this.graph.verCircles[curAnim[1]].name=this.name;
-                                this.graph.verCircles[curAnim[1]].animations=this.animations;
-                                $(this.name+" .anim-text").text(curAnim[3]);
-                                this.graph.verCircles[curAnim[1]].animate({fill: curAnim[2]},2000,function () {
-                                    if (this.isLast==true) {
-                                       if (i!=this.animations.length-1) animFuncs[i+1].func();
-                                       else { $(this.name+" .pause").css("display","none");
-                                              $(this.name+" .anim-text").text("");
-                                              this.graph.drawEdges(1,1,299,299); }
-                                       }
-                                    });
-                                }
-                             else if (curAnim[0]==2) {
-                                     this.graph.textCircles[curAnim[1]].isLast=(j==animLen-1);
-                                     this.graph.textCircles[curAnim[1]].graph=this.graph;
-                                     this.graph.textCircles[curAnim[1]].name=this.name;
-                                     this.graph.textCircles[curAnim[1]].animations=this.animations;
-                                     $(this.name+" .anim-text").text(curAnim[3]);
-                                     this.graph.textCircles[curAnim[1]].animate({fill: curAnim[2]},2000,function () {
-                                         if (this.isLast==true) {
-                                            if (i!=this.animations.length-1) animFuncs[i+1].func();
-                                            else { $(this.name+" .pause").css("display","none");
-                                                   $(this.name+" .anim-text").text("");
-                                                   this.graph.drawEdges(1,1,299,299); }
-                                            }
-                                         });
-                                     }
-                             else { var stx,sty,endx,endy;
-                                    stx=this.graph.verCoord[curAnim[1]][0]+vertexRad;
-                                    sty=this.graph.verCoord[curAnim[1]][1]+vertexRad;
-                                    endx=this.graph.verCoord[curAnim[2]][0]+vertexRad;
-                                    endy=this.graph.verCoord[curAnim[2]][1]+vertexRad;
-                                    var path="M "+stx.toString()+","+sty.toString()+" L"+endx.toString()+","+endy.toString();
-                                    var length=Snap.path.getTotalLength(path);
-                                    var lineDraw=this.graph.s.path(path);
-                                    lineDraw.attr({fill: "none", stroke: "red", "stroke-width": 4,
-                                                   "stroke-dasharray": length.toString()+" "+length.toString(),
-                                                   "stroke-dashoffset": length, "stroke-linecap": "round",
-                                                   "stroke-linejoin": "round", "stroke-miterlimit": 10});
-                                    this.graph.s.append(this.graph.circles[curAnim[1]]);
-                                    this.graph.s.append(this.graph.circles[curAnim[2]]);
-                                    lineDraw.isLast=(j==animLen-1);
-                                    lineDraw.graph=this.graph;
-                                    lineDraw.name=this.name;
-                                    lineDraw.animations=this.animations;
-                                    $(this.name+" .anim-text").text(curAnim[3]);
-                                    this.graph.minas.push([Snap.animate(length,0, function (value) {
-                                        lineDraw.attr({strokeDashoffset: value});
-                                    },2000, function () {
-                                        if (lineDraw.isLast==true) {
-                                           if (i!=lineDraw.animations.length-1) animFuncs[i+1].func();
-                                           else { $(lineDraw.name+" .pause").css("display","none");
-                                                  $(lineDraw.name+" .anim-text").text("");
-                                                  lineDraw.graph.drawEdges(1,1,299,299); }
-                                           }
-                                        lineDraw.remove();
-                                    }),lineDraw]);
-                                    lineDraw.stop();
+                    var i=this.index,curAnim,animLen=animations[i].length;
+                    DFSObject.currAnimation = i;
+                    for (var j=0; j<animLen; j++) {
+                        curAnim=animations[i][j];
+                        if (curAnim[0]==0) {
+                            graph.verCircles[curAnim[1]].isLast=(j==animLen-1);
+                            animText.innerText=curAnim[3];
+                            graph.verCircles[curAnim[1]].animate({fill: curAnim[2]},speed,function () {
+                                if (this.isLast==true) {
+                                    if (i!=animations.length-1) animFuncs[i+1].func();
                                     }
-                             }
+                                });
+                            }
+                        else if (curAnim[0]==2) {
+                            graph.textCircles[curAnim[1]].isLast=(j==animLen-1);
+                            animText.innerText=curAnim[3];
+                            graph.textCircles[curAnim[1]].animate({fill: curAnim[2]},speed,function () {
+                                if (this.isLast==true) {
+                                    if (i!=animations.length-1) animFuncs[i+1].func();
+                                    }
+                                });
+                            }
+                        else {
+                            var stx,sty,endx,endy;
+                            stx=graph.verCoord[curAnim[1]][0]+vertexRad;
+                            sty=graph.verCoord[curAnim[1]][1]+vertexRad;
+                            endx=graph.verCoord[curAnim[2]][0]+vertexRad;
+                            endy=graph.verCoord[curAnim[2]][1]+vertexRad;
+                            var path="M "+stx.toString()+","+sty.toString()+" L"+endx.toString()+","+endy.toString();
+                            var length=Snap.path.getTotalLength(path);
+                            var lineDraw=graph.s.path(path);
+                            lineDraw.attr({fill: "none", stroke: "red", "stroke-width": 4,
+                                           "stroke-dasharray": length.toString()+" "+length.toString(),
+                                           "stroke-dashoffset": length, "stroke-linecap": "round",
+                                           "stroke-linejoin": "round", "stroke-miterlimit": 10});
+                            graph.s.append(graph.circles[curAnim[1]]);
+                            graph.s.append(graph.circles[curAnim[2]]);
+                            lineDraw.isLast=(j==animLen-1);
+                            animText.innerText=curAnim[3];
+                            graph.minas.push([Snap.animate(length,0,
+                                function (value) {
+                                    lineDraw.attr({strokeDashoffset: value});
+                                    },speed,
+                                function () {
+                                    if (lineDraw.isLast==true) {
+                                        if (i!=animations.length-1) animFuncs[i+1].func();
+                                        }
+                                    lineDraw.remove();
+                                    }),lineDraw]);
+                            lineDraw.stop();
+                            }
                         }
+                    }
                 }
-             }
+            }
         animFuncs[0].func();
         };
     
     this.dfs = function (vr) {
-         var verColour=0,text;
-         this.used[vr]=1;
-         for (var i=0; i<this.graph.adjList[vr].length; i++) {
-             if (this.used[this.graph.adjList[vr][i]]==0) {
+        var graph=this.graph;
+        var animations=this.animations;
+        var verColour=0,text;
+        this.used[vr]=1;
+        for (var i=0; i<graph.adjList[vr].length; i++) {
+            if (this.used[graph.adjList[vr][i]]==0) {
                 if (verColour!=0) {
-                   text="Връщаме се на връх "+(vr+1)+".";
-                   this.animations.push([[0,vr,"red",text],[2,vr,"black",text]]);
-                   verColour=0;
-                   }
-                text="Напускаме връх "+(vr+1)+" и отиваме в "+(this.graph.adjList[vr][i]+1)+".";
-                this.animations.push([[0,vr,"grey",text],[1,vr,this.graph.adjList[vr][i]],[2,vr,"white",text]]);
-                text="Сега сме във връх "+(this.graph.adjList[vr][i]+1)+".";
-                this.animations.push([[0,this.graph.adjList[vr][i],"red",text],[2,this.graph.adjList[vr][i],"black",text]]);
-                this.dfs(this.graph.adjList[vr][i]);
+                    text="Връщаме се на връх "+(vr+1)+".";
+                    animations.push([[0,vr,"red",text],[2,vr,"black",text]]);
+                    verColour=0;
+                    }
+                text="Напускаме връх "+(vr+1)+" и отиваме в "+(graph.adjList[vr][i]+1)+".";
+                animations.push([[0,vr,"grey",text],[1,vr,graph.adjList[vr][i]],[2,vr,"white",text]]);
+                text="Сега сме във връх "+(graph.adjList[vr][i]+1)+".";
+                animations.push([[0,graph.adjList[vr][i],"red",text],[2,graph.adjList[vr][i],"black",text]]);
+                this.dfs(graph.adjList[vr][i]);
                 verColour=1;
                 }
-             else { if (verColour!=0) {
-                       text="Връщаме се на връх "+(vr+1)+".";
-                       this.animations.push([[0,vr,"red",text],[2,vr,"black",text]]);
-                       verColour=0;
-                       }
-                    text="Oказва се, че съседът с номер "+(this.graph.adjList[vr][i]+1)+" вече е обходен.";
-                    this.animations.push([[1,vr,this.graph.adjList[vr][i],text]]); }
-             }
-        if (verColour==1) {
-           text="Връщаме се на връх "+(vr+1)+" и се оказва, че сме проверили всички негови съседи.";
-           this.animations.push([[0,vr,"red",text],[2,vr,"black",text]]);
-           }
-        text="Вече проверихме всички съседи на връх "+(vr+1)+" и го напускаме.";
-        this.animations.push([[0,vr,"grey",text],[2,vr,"white",text]]);
-        };
-    
-    this.clear = function (remove) {
-         if (this.graph.minas!==undefined) {
-            for (var i=0; i<this.graph.minas.length; i++) {
-                this.graph.minas[i][0].stop();
-                this.graph.minas[i][1].remove();
+            else {
+                if (verColour!=0) {
+                    text="Връщаме се на връх "+(vr+1)+".";
+                    animations.push([[0,vr,"red",text],[2,vr,"black",text]]);
+                    verColour=0;
+                    }
+                text="Oказва се, че съседът с номер "+(graph.adjList[vr][i]+1)+" вече е обходен.";
+                animations.push([[1,vr,graph.adjList[vr][i],text]]);
                 }
             }
-         this.graph.s.selectAll("*").forEach(function (elem) {
-             if (elem.inAnim().length!=0) elem.inAnim()[0].mina.s=0;
-             elem.stop();
-             });
-         if (remove==true) this.graph.s.selectAll("*").remove();
-         }
+        if (verColour==1) {
+            text="Връщаме се на връх "+(vr+1)+" и се оказва, че сме проверили всички негови съседи.";
+            animations.push([[0,vr,"red",text],[2,vr,"black",text]]);
+            }
+        text="Вече проверихме всички съседи на връх "+(vr+1)+" и го напускаме.";
+        animations.push([[0,vr,"black",text],[2,vr,"white",text]]);
+        };
+    
+    this.clearGraph = function (remove) {
+        var graph=this.graph;
+        if (graph.minas!==undefined) {
+            for (var i=0; i<graph.minas.length; i++) {
+                graph.minas[i][0].stop();
+                graph.minas[i][1].remove();
+                }
+            }
+        graph.s.selectAll("*").forEach(function (elem) {
+            if (elem.inAnim().length!=0) elem.inAnim()[0].mina.s=0;
+            elem.stop();
+            });
+        if (remove==true) graph.s.selectAll("*").remove();
+        }
+    
+    this.clear = function () {
+        this.startButton.flag=false; this.startButton.innerText="Старт!";
+        this.pauseButton.style.display="none";
+        this.previousButton.style.display="none"; this.nextButton.style.display="none";
+        this.animText.innerText="";
+        this.clearGraph(true);
+        this.graph.drawEdges(1,1,299,299);
+    }
         
 }
 
+function dfsUntilStep (graph, used, vr, curStep, step) {
+    if (step==0) return 0;
+    var verColour=0;
+    used[vr]=1;
+    for (var i=0; i<graph.adjList[vr].length; i++) {
+        if (used[graph.adjList[vr][i]]==0) {
+            if (verColour!=0) {
+                graph.verCircles[vr].attr("fill","red");
+                graph.textCircles[vr].attr("fill","black");
+                curStep++;
+                if (curStep==step) return curStep;
+                verColour=0;
+                }
+            graph.verCircles[vr].attr("fill","grey");
+            graph.textCircles[vr].attr("fill","white");
+            curStep++;
+            if (curStep==step) return curStep;
+            
+            graph.verCircles[graph.adjList[vr][i]].attr("fill","red");
+            graph.textCircles[graph.adjList[vr][i]].attr("fill","black");
+            curStep++;
+            if (curStep==step) return curStep;
+            
+            curStep=dfsUntilStep(graph,used,graph.adjList[vr][i],curStep,step);
+            if (curStep==step) return curStep;
+            verColour=1;
+            }
+        else {
+            if (verColour!=0) {
+                graph.verCircles[vr].attr("fill","red");
+                graph.textCircles[vr].attr("fill","black");
+                curStep++;
+                if (curStep==step) return curStep;
+                verColour=0;
+                }
+            curStep++;
+            if (curStep==step) return curStep;
+            }
+        }
+    if (verColour==1) {
+        graph.verCircles[vr].attr("fill","red");
+        graph.textCircles[vr].attr("fill","black");
+        curStep++;
+        if (curStep==step) return curStep;
+        }
+    graph.verCircles[vr].attr("fill","black");
+    graph.textCircles[vr].attr("fill","white");
+    curStep++;
+    return curStep;
+}
+
 function graphExample (name, isOriented) {
-    this.svgElement=document.querySelector(name+" .graph");
-    this.svgElement.blockScroll=false;
-    this.svgElement.ontouchstart = function (event) {
+    
+    var DFSObject = this.DFSObject = new DFS ();
+    DFSObject.graph.n=5;
+    DFSObject.init(true,name,name+" .graph",isOriented);
+    
+    var svgElement = document.querySelector(name+" .graph");
+    svgElement.blockScroll=false;
+    svgElement.ontouchstart = function (event) {
         this.blockScroll=true;
         };
-    this.svgElement.ontouchend = function () {
+    svgElement.ontouchend = function () {
         this.blockScroll=false;
         };
-    this.svgElement.ontouchmove = function (event) {
+    svgElement.ontouchmove = function (event) {
         if (this.blockScroll==true) event.preventDefault();
         };
     
-    this.startButton=document.querySelector(name+" .start");
-    this.pauseButton=document.querySelector(name+" .pause");
-    this.pauseButton.style.display="none";
-    this.saveButton=document.querySelector(name+" .save");
+    var startButton = DFSObject.startButton = document.querySelector(name+" .start");
+    var pauseButton = DFSObject.pauseButton = document.querySelector(name+" .pause");
+    var previousButton = DFSObject.previousButton = document.querySelector(name+" .previous");
+    var nextButton = DFSObject.nextButton = document.querySelector(name+" .next");
+    var animText = DFSObject.animText = document.querySelector(name+" .anim-text");
+    DFSObject.clear();
     
-    this.animText=document.querySelector(name+" .anim-text");
-    this.animText.innerHTML="";
-    this.slider=document.querySelector(name+" .range");
-    this.output=document.querySelector(name+" .slider-value");
-    this.slider.value=5;
-    this.output.innerHTML=this.slider.value;
+    var slider=document.querySelector(name+" .range");
+    var output=document.querySelector(name+" .slider-value");
+    slider.value=5;
+    output.innerHTML=slider.value;
     
-    this.DFSObject = new DFS ();
-    this.DFSObject.graph.n=5;
-    this.DFSObject.init(true,name,name+" .graph",isOriented);
-    
-    this.slider.DFSObject=this.DFSObject;
-    this.slider.output=this.output;
-    this.slider.pauseButton=this.pauseButton;
-    this.slider.animText=this.animText;
-    this.slider.oninput = function() {
-        this.DFSObject.clear(true);
-        this.output.innerHTML=this.value;
-        this.DFSObject.graph.n=this.value;
-        this.DFSObject.init(false);
-        this.pauseButton.style.display="none";
-        this.animText.innerHTML="";
+    slider.oninput = function() {
+        DFSObject.clear();
+        output.innerHTML=this.value;
+        DFSObject.graph.n=this.value;
+        DFSObject.init(false);
         }
-         
-    this.startButton.DFSObject=this.DFSObject;
-    this.startButton.pause=this.pauseButton;
-         
-    this.startButton.onclick = function () {
-        this.DFSObject.clear(false);
-        this.DFSObject.start(false);
-        this.pause.style.display="block";
-        this.pause.DFSObject=this.DFSObject;
-        this.pause.flagPause=false; this.pause.innerText="Пауза";
-        this.pause.onclick = function () {
-            if (this.flagPause==false) {
-                this.flagPause=true; this.innerText="Пусни";
-                if (this.DFSObject.graph.minas!==undefined) {
-                    for (var i=0; i<this.DFSObject.graph.minas.length; i++) {
-                        this.DFSObject.graph.minas[i][0].pause();
+    
+    var speed=document.querySelector(name+" .form-group");
+    var speedInput=document.querySelector(name+" .speed");
+    speedInput.value="2";
+    
+    startButton.flag=false;
+    startButton.onclick = function () {
+        if (this.flag==false) {
+            speed.style.display="none";
+            if (speedInput.value==="") DFSObject.speed=4000/2;
+            else DFSObject.speed=4000/speedInput.value;
+            
+            this.flag=true; this.innerText="Стоп";
+            
+            DFSObject.clearGraph(false);
+            DFSObject.start(false);
+            
+            pauseButton.style.display="block";
+            pauseButton.flagPause=false; pauseButton.flagStep=false;
+            pauseButton.innerText="Пауза";
+            pauseButton.onclick = function () {
+                if (this.flagPause==false) {
+                    this.flagPause=true; this.innerText="Пусни";
+                    if (DFSObject.graph.minas!==undefined) {
+                        for (var i=0; i<DFSObject.graph.minas.length; i++) {
+                            DFSObject.graph.minas[i][0].pause();
+                            }
                         }
+                    DFSObject.graph.s.selectAll("*").forEach(function (element) {
+                        if (element.inAnim().length!=0) element.inAnim()[0].mina.pause();
+                        });
                     }
-                this.DFSObject.graph.s.selectAll("*").forEach(function (element) {
-                    if (element.inAnim().length!=0) element.inAnim()[0].mina.pause();
-                    });
-                }
-            else {
-                this.flagPause=false; this.innerText="Пaуза";
-                if (this.DFSObject.graph.minas!==undefined) {
-                    for (var i=0; i<this.DFSObject.graph.minas.length; i++) {
-                        this.DFSObject.graph.minas[i][0].resume();
+                else {
+                    this.flagPause=false; this.innerText="Пaуза";
+                    if (DFSObject.graph.minas!==undefined) {
+                        for (var i=0; i<DFSObject.graph.minas.length; i++) {
+                            DFSObject.graph.minas[i][0].resume();
+                            }
                         }
+                    DFSObject.graph.s.selectAll("*").forEach(function (element) {
+                        if (element.inAnim().length!=0) element.inAnim()[0].mina.resume();
+                        });
+                    if (this.flagStep==true) DFSObject.animFuncs[DFSObject.currAnimation].func();
+                    this.flagStep=false;
                     }
-                this.DFSObject.graph.s.selectAll("*").forEach(function (element) {
-                    if (element.inAnim().length!=0) element.inAnim()[0].mina.resume();
-                    });
                 }
+            
+            previousButton.style.display="block";
+            previousButton.onclick = function () {
+                var currAnimation = DFSObject.currAnimation;
+                if ((currAnimation!==undefined)&&(currAnimation>0)) {
+                    pauseButton.flagPause=false; pauseButton.flagStep=true;
+                    pauseButton.click();
+                    DFSObject.clearGraph(true);
+                    DFSObject.graph.drawEdges(1,1,299,299);
+                    DFSObject.currAnimation--;
+                    var used=[];
+                    for (var i=0; i<DFSObject.graph.n; i++) used[i]=0;
+                    dfsUntilStep(DFSObject.graph,used,0,0,currAnimation-1);
+                    animText.innerText=DFSObject.animations[currAnimation-1][0][3];
+                    }
+                }
+            
+            nextButton.style.display="block";
+            nextButton.onclick = function () {
+                var currAnimation = DFSObject.currAnimation;
+                if ((currAnimation!==undefined)&&(currAnimation<DFSObject.animFuncs.length-1)) {
+                    pauseButton.flagPause=false; pauseButton.flagStep=true;
+                    pauseButton.click();
+                    DFSObject.clearGraph(true);
+                    DFSObject.graph.drawEdges(1,1,299,299);
+                    DFSObject.currAnimation++;
+                    var used=[];
+                    for (var i=0; i<DFSObject.graph.n; i++) used[i]=0;
+                    dfsUntilStep(DFSObject.graph,used,0,0,currAnimation+1);
+                    animText.innerText=DFSObject.animations[currAnimation+1][0][3];
+                    }
+                }
+            }
+        else {
+            speed.style.display="block";
+            if (speedInput.value==="") speedInput.value="2";
+            this.flag=false; this.innerText="Старт!";
+            DFSObject.clear();
+            DFSObject.graph.drawEdges(1,1,299,299);
             }
         }
     
-    this.saveButton.DFSObject=this.DFSObject;
-    this.saveButton.canvas=document.querySelector(name+" .canvas-save");
-    this.saveButton.canvas.style.display="none";
-    this.saveButton.svgSave=document.querySelector(name+" .svg-save");
-    this.saveButton.svgSave.style.display="none";
-    this.saveButton.onclick = function () {
+    var saveButton=document.querySelector(name+" .save");
+    saveButton.canvas=document.querySelector(name+" .canvas-save");
+    saveButton.canvas.style.display="none";
+    saveButton.svgSave=document.querySelector(name+" .svg-save");
+    saveButton.svgSave.style.display="none";
+    saveButton.onclick = function () {
         var canvas=this.canvas;
         var context=canvas.getContext('2d');
-        var svg=document.querySelector(this.DFSObject.graph.svgName);
+        var svg=document.querySelector(DFSObject.graph.svgName);
         this.svgSave.setAttribute("width",svg.getBoundingClientRect().width);
         this.svgSave.setAttribute("height",svg.getBoundingClientRect().height);
         $(name+' .graph').clone().appendTo($(name+" .svg-save"));

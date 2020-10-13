@@ -25,6 +25,23 @@ function triggerInfo (number) {
         }
 }
 
+function isDigit (event) {
+    var charCode=(event.which)?event.which:event.keyCode;
+    if ((charCode<=31)||((charCode>=48)&&(charCode<=57))) return true;
+    return false;
+}
+function isDigitOrComma (event) {
+    if (isDigit(event)==true) return true;
+    var charCode=(event.which)?event.which:event.keyCode;
+    if ((charCode<=31)||(charCode==44)) return true;
+    return false;
+}
+function isSmallLatinLetter (event) {
+    var charCode=(event.which)?event.which:event.keyCode;
+    if ((charCode>=97)&&(charCode<=122)) return true;
+    return false;
+}
+
 function initExamples () {
     var URL=document.URL,index=-1;
     for (var i=0; i<URL.length; i++) {

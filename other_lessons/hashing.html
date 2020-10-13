@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html>
     <head>
         <link type="text/css" rel="stylesheet" href="/algo-site/source_files/bootstrap/dist/css/bootstrap.min.css"  media="screen,projection"/>
@@ -12,6 +13,7 @@
         <script id="MathJax-script" async src="/algo-site/source_files/mathjax/es5/tex-chtml.js"></script>
         <script type="text/javascript" src="/algo-site/main.js"></script>
         <script type="text/javascript" src="hashing.js"></script>
+        <title>Хеширане</title>
     </head>
     <body>
         <script type="text/javascript">
@@ -87,14 +89,11 @@
                         </div>
                     </div>
                     <p class="text-format">Като работим със <i>C++</i> трябва да подберем модулът, така че \(m^2 \le 2^{63}-1\), за да може спокойно да умножаваме числа по този модул, без да се притесняваме от <i>overflow</i> в <i>long long</i>. По прицип, колкото е по-голям модулът, толкова по-добре. Стандартни модули, които се използват са \(10^9+7, 10^9+9, \dots\) Пресмятането на хеша на даден низ в програма става по-лесно, отколкото в примера, например така:</p>
-                    
-<pre style="color:#d1d1d1;background:#343a40;"><span style="color:#e66170; font-weight:bold; ">long</span> <span style="color:#e66170; font-weight:bold; ">long</span> <span style="color:#e66170; font-weight:bold; ">int</span> hash<span style="color:#d2cd86; ">=</span><span style="color:#008c00; ">0</span><span style="color:#b060b0; ">;</span>
-<span style="color:#e66170; font-weight:bold; ">for</span> <span style="color:#d2cd86; ">(</span><span style="color:#e66170; font-weight:bold; ">int</span> i<span style="color:#d2cd86; ">=</span><span style="color:#008c00; ">0</span><span style="color:#b060b0; ">;</span> i<span style="color:#d2cd86; ">&lt;</span>s<span style="color:#d2cd86; ">.</span>size<span style="color:#d2cd86; ">(</span><span style="color:#d2cd86; ">)</span><span style="color:#b060b0; ">;</span> i<span style="color:#d2cd86; ">+</span><span style="color:#d2cd86; ">+</span><span style="color:#d2cd86; ">)</span> <span style="color:#b060b0; ">{</span>
-    hash<span style="color:#d2cd86; ">*</span><span style="color:#d2cd86; ">=</span>p<span style="color:#b060b0; ">;</span> hash<span style="color:#d2cd86; ">+</span><span style="color:#d2cd86; ">=</span>s<span style="color:#d2cd86; ">[</span>i<span style="color:#d2cd86; ">]</span><span style="color:#b060b0; ">;</span>
-    hash<span style="color:#d2cd86; ">%</span><span style="color:#d2cd86; ">=</span>m<span style="color:#b060b0; ">;</span>
-<span style="color:#b060b0; ">}</span>
-</pre>
-                    
+                    <div id="position-hashing"></div>
+                    <script> $.get("/algo-site/other_lessons/position_hashing.html", function (data) {
+                            $("#position-hashing").replaceWith(data);
+                            });
+                    </script>
                     <p class="text-format">Тук използваме схемата на Хорнер за пресмятане на стойността на "число", като знаем цифрите му. Ако погледнем по-внимателно ще видим, че единствената по-тежка операция, която се извършва е \(\%\). Понеже тази операция се извършва постоянно при работата с хешове, то тя прави по-голямата константа при използването на техниката. Има един трик, с който понякога можем да спестим модването. Можем да използваме естественото модване на тип <i>unsigned long long</i> - когато дадена сметка надвиши максималната допустима стойност става т.нар. <i>overflow</i> или превъртане на типа. Това от своя страна е естествено модване по модул \(2^{64}\). Така ако използваме този тип няма нужда от измислянето на модул. Негативите са следните. Първо, по-лесно ще стават <i>колизии</i>, защото модулът е далеч от просто число. Второ, много от задачите имат така наречените анти-хеш тестове, които са направени специално срещу този вид хеширане. Затова по принцип се използва стандартното хеширане с модул просто число.</p>
                 </div>
             </div>
@@ -109,44 +108,11 @@
                         <li>Намираме хеш-стойността на модела и едновременно с това \(base^m\). </li>
                         <li>Последователно намираме хеша на всички поднизове с дължина \(m\) в текста, използвайки техниката <i>rolling hash</i>.</li>
                     </ol>
-                    
-<pre style="color:#d1d1d1;background:#343a40;"><span style="color:#e66170; font-weight:bold; ">const</span> <span style="color:#e66170; font-weight:bold; ">long</span> <span style="color:#e66170; font-weight:bold; ">long</span> <span style="color:#e66170; font-weight:bold; ">int</span> mod<span style="color:#d2cd86; ">=</span><span style="color:#009f00; ">1e9</span><span style="color:#d2cd86; ">+</span><span style="color:#008c00; ">9</span><span style="color:#d2cd86; ">,</span>base<span style="color:#d2cd86; ">=</span><span style="color:#008c00; ">1009</span><span style="color:#b060b0; ">;</span>
-<span style="color:#e66170; font-weight:bold; ">int</span> <span style="color:#e66170; font-weight:bold; ">main</span> <span style="color:#d2cd86; ">(</span><span style="color:#d2cd86; ">)</span> <span style="color:#b060b0; ">{</span>
-    <span style="color:#e66170; font-weight:bold; ">long</span> <span style="color:#e66170; font-weight:bold; ">long</span> <span style="color:#e66170; font-weight:bold; ">int</span> hash1<span style="color:#d2cd86; ">,</span>hash2<span style="color:#d2cd86; ">,</span><span style="color:#e66170; font-weight:bold; ">pow</span><span style="color:#b060b0; ">;</span>
-    <span style="color:#e66170; font-weight:bold; ">int</span> n<span style="color:#d2cd86; ">,</span>m<span style="color:#d2cd86; ">,</span>i<span style="color:#b060b0; ">;</span>
-    <span style="color:#e66170; font-weight:bold; ">string</span> s<span style="color:#d2cd86; ">,</span>model<span style="color:#b060b0; ">;</span>
-
-    <span style="color:#e66170; font-weight:bold; ">ios_base</span><span style="color:#b060b0; ">::</span>sync_with_stdio<span style="color:#d2cd86; ">(</span><span style="color:#e66170; font-weight:bold; ">false</span><span style="color:#d2cd86; ">)</span><span style="color:#b060b0; ">;</span>
-    <span style="color:#e66170; font-weight:bold; ">cin</span><span style="color:#d2cd86; ">.</span>tie<span style="color:#d2cd86; ">(</span><span style="color:#007d45; ">NULL</span><span style="color:#d2cd86; ">)</span><span style="color:#b060b0; ">;</span> <span style="color:#e66170; font-weight:bold; ">cout</span><span style="color:#d2cd86; ">.</span>tie<span style="color:#d2cd86; ">(</span><span style="color:#007d45; ">NULL</span><span style="color:#d2cd86; ">)</span><span style="color:#b060b0; ">;</span>
-
-    getline<span style="color:#d2cd86; ">(</span><span style="color:#e66170; font-weight:bold; ">cin</span><span style="color:#d2cd86; ">,</span>model<span style="color:#d2cd86; ">)</span><span style="color:#b060b0; ">;</span> m<span style="color:#d2cd86; ">=</span>model<span style="color:#d2cd86; ">.</span>size<span style="color:#d2cd86; ">(</span><span style="color:#d2cd86; ">)</span><span style="color:#b060b0; ">;</span>
-    getline<span style="color:#d2cd86; ">(</span><span style="color:#e66170; font-weight:bold; ">cin</span><span style="color:#d2cd86; ">,</span>s<span style="color:#d2cd86; ">)</span><span style="color:#b060b0; ">;</span> n<span style="color:#d2cd86; ">=</span>s<span style="color:#d2cd86; ">.</span>size<span style="color:#d2cd86; ">(</span><span style="color:#d2cd86; ">)</span><span style="color:#b060b0; ">;</span>
-
-    <span style="color:#e66170; font-weight:bold; ">pow</span><span style="color:#d2cd86; ">=</span><span style="color:#008c00; ">1</span><span style="color:#b060b0; ">;</span> hash1<span style="color:#d2cd86; ">=</span><span style="color:#008c00; ">0</span><span style="color:#b060b0; ">;</span>
-    <span style="color:#e66170; font-weight:bold; ">for</span> <span style="color:#d2cd86; ">(</span>i<span style="color:#d2cd86; ">=</span><span style="color:#008c00; ">0</span><span style="color:#b060b0; ">;</span> i<span style="color:#d2cd86; ">&lt;</span>m<span style="color:#b060b0; ">;</span> i<span style="color:#d2cd86; ">+</span><span style="color:#d2cd86; ">+</span><span style="color:#d2cd86; ">)</span> <span style="color:#b060b0; ">{</span>
-        <span style="color:#e66170; font-weight:bold; ">pow</span><span style="color:#d2cd86; ">*</span><span style="color:#d2cd86; ">=</span>base<span style="color:#b060b0; ">;</span> <span style="color:#e66170; font-weight:bold; ">pow</span><span style="color:#d2cd86; ">%</span><span style="color:#d2cd86; ">=</span>mod<span style="color:#b060b0; ">;</span>
-        hash1<span style="color:#d2cd86; ">*</span><span style="color:#d2cd86; ">=</span>base<span style="color:#b060b0; ">;</span> hash1<span style="color:#d2cd86; ">+</span><span style="color:#d2cd86; ">=</span>model<span style="color:#d2cd86; ">[</span>i<span style="color:#d2cd86; ">]</span><span style="color:#b060b0; ">;</span>
-        hash1<span style="color:#d2cd86; ">%</span><span style="color:#d2cd86; ">=</span>mod<span style="color:#b060b0; ">;</span>
-    <span style="color:#b060b0; ">}</span>
-
-    hash2<span style="color:#d2cd86; ">=</span><span style="color:#008c00; ">0</span><span style="color:#b060b0; ">;</span>
-    <span style="color:#e66170; font-weight:bold; ">for</span> <span style="color:#d2cd86; ">(</span>i<span style="color:#d2cd86; ">=</span><span style="color:#008c00; ">0</span><span style="color:#b060b0; ">;</span> i<span style="color:#d2cd86; ">&lt;</span>n<span style="color:#b060b0; ">;</span> i<span style="color:#d2cd86; ">+</span><span style="color:#d2cd86; ">+</span><span style="color:#d2cd86; ">)</span> <span style="color:#b060b0; ">{</span>
-        hash2<span style="color:#d2cd86; ">*</span><span style="color:#d2cd86; ">=</span>base<span style="color:#b060b0; ">;</span> hash2<span style="color:#d2cd86; ">+</span><span style="color:#d2cd86; ">=</span>s<span style="color:#d2cd86; ">[</span>i<span style="color:#d2cd86; ">]</span><span style="color:#b060b0; ">;</span>
-        hash2<span style="color:#d2cd86; ">%</span><span style="color:#d2cd86; ">=</span>mod<span style="color:#b060b0; ">;</span>
-        <span style="color:#e66170; font-weight:bold; ">if</span> <span style="color:#d2cd86; ">(</span>i<span style="color:#d2cd86; ">&gt;</span><span style="color:#d2cd86; ">=</span>m<span style="color:#d2cd86; ">)</span> <span style="color:#b060b0; ">{</span>
-           hash2<span style="color:#d2cd86; ">+</span><span style="color:#d2cd86; ">=</span>mod<span style="color:#d2cd86; ">*</span>mod<span style="color:#b060b0; ">;</span> hash2<span style="color:#d2cd86; ">-</span><span style="color:#d2cd86; ">=</span><span style="color:#e66170; font-weight:bold; ">pow</span><span style="color:#d2cd86; ">*</span>s<span style="color:#d2cd86; ">[</span>i<span style="color:#d2cd86; ">-</span>m<span style="color:#d2cd86; ">]</span><span style="color:#b060b0; ">;</span>
-           hash2<span style="color:#d2cd86; ">%</span><span style="color:#d2cd86; ">=</span>mod<span style="color:#b060b0; ">;</span>
-           <span style="color:#b060b0; ">}</span>
-        <span style="color:#e66170; font-weight:bold; ">if</span> <span style="color:#d2cd86; ">(</span>hash2<span style="color:#d2cd86; ">=</span><span style="color:#d2cd86; ">=</span>hash1<span style="color:#d2cd86; ">)</span> <span style="color:#b060b0; ">{</span>
-           <span style="color:#e66170; font-weight:bold; ">cout</span> <span style="color:#d2cd86; ">&lt;</span><span style="color:#d2cd86; ">&lt;</span> <span style="color:#02d045; ">"</span><span style="color:#00c4c4; ">yes</span><span style="color:#008080; ">\n</span><span style="color:#02d045; ">"</span><span style="color:#b060b0; ">;</span>
-           <span style="color:#e66170; font-weight:bold; ">return</span> <span style="color:#008c00; ">0</span><span style="color:#b060b0; ">;</span>
-           <span style="color:#b060b0; ">}</span>
-        <span style="color:#b060b0; ">}</span>
-    <span style="color:#e66170; font-weight:bold; ">cout</span> <span style="color:#d2cd86; ">&lt;</span><span style="color:#d2cd86; ">&lt;</span> <span style="color:#02d045; ">"</span><span style="color:#00c4c4; ">no</span><span style="color:#008080; ">\n</span><span style="color:#02d045; ">"</span><span style="color:#b060b0; ">;</span>
-    <span style="color:#e66170; font-weight:bold; ">return</span> <span style="color:#008c00; ">0</span><span style="color:#b060b0; ">;</span>
-<span style="color:#b060b0; ">}</span>
-</pre>
-
+                    <div id="Rabin-Karp"></div>
+                    <script> $.get("/algo-site/other_lessons/Rabin_Karp.html", function (data) {
+                            $("#Rabin-Karp").replaceWith(data);
+                            });
+                    </script>
                     <p class="text-format">Алгоритъмът работи с линейна сложност по входа - \(O(n+m)\). Една от подробностите по този код е, че основата и модулът са константи, за да е по-бърза работата с тях (те така или иначе не се променят). Друга подробност е, че там където трябва да вадим по модул, стандартно добавяме модула преди изваждането, за да не получим отрицателни числа (в случая добавяме \(mod*mod\)). Също много важна подробност е, че тук реализираме в някакъв смисъл "смело" алгоритъма, вярвайки напълно, че няма да получим <i>колизии</i> с хеша. На практика това няма как да е вярно. Затова по принцип като се реализира този алгоритъм, при съвпадение на хешовете се използва наивния начин, за да се провери дали наистина е намерен шаблона. Разбира се, за състезания това не се прави. Има начини да се подсигури липсата на <i>колизии</i>. Един такъв начин е да се използва повече от една основа и модул за хеширане, т.нар. <i>двоен хеш, троен хеш, ...</i> Същността на този начин е, че правим същото като преди само че няколко пъти (колкото основи и модули имаме). Минусът на това е, че се утежнява програмата, обикновено така се умножава времето по 2 или по 3 съответно. Математически може да се сметне, че при размери на низовете, каквито има по състезанията, при използване на троен хеш, вероятността да се получи <i>колизия</i> е по-малка, отколкото да се спечели тотото :) Тук също има различни начини, като може например да имаме само една основа и различни модули и т.н. (<a class="info" onclick="triggerInfo(3)" id="trigger3">...</a><a class="info" onclick="triggerInfo(3)" id="info3" style="display: none">забележка: по-рано дефинирахме, за простота, хеш-функцията да съпоставя на обектите числа, а в действителност понятието е по-обширно, както например при <i>двоен хеш</i> се съпоставя двойка числа</a>)</p>
                 </div>
             </div>

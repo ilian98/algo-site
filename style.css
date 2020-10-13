@@ -48,10 +48,11 @@ body {
     line-height: 75px;
     text-align: center;
     color: darkslategrey;
+    margin-bottom: 40px;
 }
 .card-news {
     background-color: ghostwhite;
-    margin-top: 40px;
+    margin-top: 20px;
     border-radius: 10px;
 }
 .news-link:link {
@@ -80,7 +81,7 @@ ul {
 
 
 .text-format {
-    text-indent: 50;
+    text-indent: 50px;
     text-align: justify;
 }
 .bold {
