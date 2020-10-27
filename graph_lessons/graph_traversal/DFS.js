@@ -6,7 +6,7 @@ function DFS () {
     this.animText=undefined; this.animFuncs=undefined;
     this.currAnimation=undefined;
     this.speed=undefined;
-    this.init = function (firstTime, name, svgName, isOriented) {
+    this.init = function (firstTime, name, svgName, isOriented, vertexRad) {
         var graph=this.graph;
         graph.init(svgName);
         if (firstTime==true) {
@@ -33,9 +33,11 @@ function DFS () {
                 graph.isOriented=true;
                 }
             }
+        else vertexRad=graph.vertexRad;
         this.used=[]; this.animations=[];
         this.speed=2000;
-        drawGraph(graph,1,1,299,299);
+        //console.log(vertexRad);
+        drawGraph(graph,1,1,299,299,vertexRad);
         };
     
     this.start = function () {
@@ -232,11 +234,11 @@ function dfsUntilStep (graph, used, vr, curStep, step) {
     return curStep;
 }
 
-function graphExample (name, isOriented) {
+function graphExample (name, isOriented, vertexRad) {
     
     var DFSObject = this.DFSObject = new DFS ();
     DFSObject.graph.n=5;
-    DFSObject.init(true,name,name+" .graph",isOriented);
+    DFSObject.init(true,name,name+" .graph",isOriented,vertexRad);
     
     var svgElement = document.querySelector(name+" .graph");
     svgElement.blockScroll=false;

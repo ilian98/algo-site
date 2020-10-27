@@ -29,13 +29,13 @@ function trackMouse (event) {
          if ((Math.abs(graph.mouseX-graph.svgPoint.x)>=1)||(Math.abs(graph.mouseY-graph.svgPoint.y)>=1)) {
             if (graph.curEdgeDraw!=null) graph.curEdgeDraw.remove();
             var st,end,edgeLen,quotient=1;
-            st=[graph.verCoord[graph.stVerDraw][0]+vertexRad,graph.verCoord[graph.stVerDraw][1]+vertexRad];
+            st=[graph.verCoord[graph.stVerDraw][0]+graph.vertexRad,graph.verCoord[graph.stVerDraw][1]+graph.vertexRad];
             end=[graph.svgPoint.x,graph.svgPoint.y];
             edgeLen=Math.sqrt((st[0]-end[0])*(st[0]-end[0])+(st[1]-end[1])*(st[1]-end[1]));
             if (graph.isOriented==true) quotient=(edgeLen-10)/edgeLen;
             if (graph.curEdgeDraw!=undefined) graph.curEdgeDraw.remove();
             graph.curEdgeDraw=graph.s.line(st[0],st[1],st[0]+quotient*(end[0]-st[0]),st[1]+quotient*(end[1]-st[1]));
-            graph.curEdgeDraw.attr({stroke: "black", "stroke-width": 1.5});
+            graph.curEdgeDraw.attr({stroke: "black", "stroke-width": graph.vertexRad/20*1.5});
             graph.curEdgeDraw.prependTo(graph.s);
             if (graph.isOriented==true) {
                var arrow=graph.s.polygon([0,10,4,10,2,0,0,10]).attr({fill: "black"}).transform('r90');
@@ -62,9 +62,9 @@ function circleEnd (event) {
                 if (graph.isOriented==false) graph.adjMatrix[i][graph.stVerDraw]=1;
                 for (j=0; j<graph.n; j++) {
                     if ((j==graph.stVerDraw)||(j==i)) continue;
-                    if (circleSegment(graph.verCoord[graph.stVerDraw],graph.verCoord[i],graph.verCoord[j])==true) {
+                    if (circleSegment(graph.verCoord[graph.stVerDraw],graph.verCoord[i],graph.verCoord[j],graph.vertexRad)==true) {
                        possiblePos.push(graph.verCoord[i]);
-                       if (placeVertex(graph,i)==false) drawGraph(graph,graph.frameX,graph.frameY,graph.frameW,graph.frameH);
+                       if (placeVertex(graph,i)==false) drawGraph(graph,graph.frameX,graph.frameY,graph.frameW,graph.frameH,graph.vertexRad);
                        break;
                        }
                     }
@@ -98,8 +98,10 @@ function Graph () {
          this.svgName=undefined; this.s=undefined;
          this.circles=undefined; this.verCircles=undefined; this.verCoord=undefined; this.textCircles=undefined;
          this.edgeLines=undefined;
-         this.n=undefined; this.edgeList=undefined; this.adjList=undefined; this.adjMatrix=undefined; this.isOriented=undefined;
-         this.frameX=undefined; this.frameY=undefined; this.frameW=undefined; this.frameH=undefined;
+         this.n=undefined; this.verNames=undefined;
+         this.edgeList=undefined; this.adjList=undefined; this.adjMatrix=undefined;
+         this.isOriented=undefined;
+         this.frameX=undefined; this.frameY=undefined; this.frameW=undefined; this.frameH=undefined; this.vertexRad=undefined;
          this.init = function (svgName) {
              if (this.s==undefined) {
                 this.svgName=svgName;
@@ -110,6 +112,7 @@ function Graph () {
                  element.remove();
                  });
              this.circles=[]; this.verCircles=[]; this.verCoord=[]; this.textCircles=[]; this.edgeLines=[];
+             this.verNames = [];
              this.edgeList=[]; this.adjList=[]; this.adjMatrix=[];
              for (var i=0; i<this.n; i++) {
                  this.adjList[i]=[]; this.adjMatrix[i]=[];
@@ -172,7 +175,7 @@ function Graph () {
               }
 }
 
-function circleSegment (segPoint1, segPoint2, center) {
+function circleSegment (segPoint1, segPoint2, center, vertexRad) {
          var area,height,sides=[];    
          area=Math.abs(segPoint1[0]*segPoint2[1]+segPoint1[1]*center[0]+segPoint2[0]*center[1]-
                        segPoint1[1]*segPoint2[0]-segPoint1[0]*center[1]-segPoint2[1]*center[0])/2;
@@ -203,7 +206,7 @@ function checkVertex (graph, vr) {
              if ((graph.adjMatrix[vr][i]==0)&&(graph.adjMatrix[i][vr]==0)) continue;
              for (j=0; j<graph.n; j++) {
                  if ((j==vr)||(j==i)||(graph.verCoord[j]==null)) continue;
-                 if (circleSegment(graph.verCoord[vr],graph.verCoord[i],graph.verCoord[j])==true) return false;
+                 if (circleSegment(graph.verCoord[vr],graph.verCoord[i],graph.verCoord[j],graph.vertexRad)==true) return false;
                  }
              }
          return true;
@@ -216,7 +219,7 @@ function placeVertex (graph, vr) {
              for (j=0; j<graph.n; j++) {
                  if ((j==vr)||(graph.verCoord[j]==null)||((graph.adjMatrix[i][j]==0)&&(graph.adjMatrix[j][i]==0))) continue;
                  for (h=0; h<curpossiblePos.length; h++) {
-                     if (circleSegment(graph.verCoord[i],graph.verCoord[j],curpossiblePos[h])==true) {
+                     if (circleSegment(graph.verCoord[i],graph.verCoord[j],curpossiblePos[h],graph.vertexRad)==true) {
                         curpossiblePos.splice(h,1); h--;
                         }
                      }
@@ -237,10 +240,11 @@ function placeVertex (graph, vr) {
              }
          return true;
 }
-function drawGraph (graph, frameX, frameY, frameW, frameH) {
+function drawGraph (graph, frameX, frameY, frameW, frameH, vertexRad) {
          eraseGraph(graph);
          graph.frameX=frameX; graph.frameY=frameY;
          graph.frameW=frameW; graph.frameH=frameH;
+         graph.vertexRad=vertexRad;
          var i,j,h;
          distVertices=vertexRad*5/4+parseInt((Math.random())*vertexRad/4);
          possiblePos=[];
@@ -252,7 +256,7 @@ function drawGraph (graph, frameX, frameY, frameW, frameH) {
          graph.verCoord.splice(0,graph.verCoord.length);
          for (i=0; i<graph.n; i++) {
              if (placeVertex(graph,i)==false) {
-                drawGraph(graph,frameX,frameY,frameW,frameH);
+                drawGraph(graph,frameX,frameY,frameW,frameH,vertexRad);
                 return ;
                 }
              }
@@ -262,12 +266,12 @@ function draw (graph, addDraw) {
          eraseGraph(graph);
          for (i=0; i<graph.edgeList.length; i++) {
              var st=graph.verCoord[graph.edgeList[i][0]],end=graph.verCoord[graph.edgeList[i][1]],edgeLen,quotient=1;
-             st=[graph.verCoord[graph.edgeList[i][0]][0]+vertexRad,graph.verCoord[graph.edgeList[i][0]][1]+vertexRad];
-             end=[graph.verCoord[graph.edgeList[i][1]][0]+vertexRad,graph.verCoord[graph.edgeList[i][1]][1]+vertexRad];
+             st=[graph.verCoord[graph.edgeList[i][0]][0]+graph.vertexRad,graph.verCoord[graph.edgeList[i][0]][1]+graph.vertexRad];
+             end=[graph.verCoord[graph.edgeList[i][1]][0]+graph.vertexRad,graph.verCoord[graph.edgeList[i][1]][1]+graph.vertexRad];
              edgeLen=Math.sqrt((st[0]-end[0])*(st[0]-end[0])+(st[1]-end[1])*(st[1]-end[1]));
-             if (graph.isOriented==true) quotient=(edgeLen-vertexRad-10)/edgeLen;
+             if (graph.isOriented==true) quotient=(edgeLen-graph.vertexRad-graph.vertexRad/2)/edgeLen;
              graph.edgeLines[i]=graph.s.line(st[0],st[1],st[0]+quotient*(end[0]-st[0]),st[1]+quotient*(end[1]-st[1]));
-             graph.edgeLines[i].attr({stroke: "black", "stroke-width": 1.5});
+             graph.edgeLines[i].attr({stroke: "black", "stroke-width": graph.vertexRad/20*1.5});
              if (graph.isOriented==true) {
                 var arrow=graph.s.polygon([0,10,4,10,2,0,0,10]).attr({fill: "black"}).transform('r90');
                 var marker=arrow.marker(0,0,10,10,0,5);
@@ -275,10 +279,11 @@ function draw (graph, addDraw) {
                 }
              }
          for (i=0; i<graph.n; i++) {
-             graph.verCircles[i]=graph.s.circle(graph.verCoord[i][0]+vertexRad,graph.verCoord[i][1]+vertexRad,vertexRad,vertexRad);
-             graph.verCircles[i].attr({fill: "white", stroke: "black", "stroke-width": 1.5});
-             graph.textCircles[i]=graph.s.text(graph.verCoord[i][0]+vertexRad,graph.verCoord[i][1]+vertexRad,(i+1).toString());
-             graph.textCircles[i].attr({"font-size": 25});
+             graph.verCircles[i]=graph.s.circle(graph.verCoord[i][0]+graph.vertexRad,graph.verCoord[i][1]+graph.vertexRad,graph.vertexRad,graph.vertexRad);
+             graph.verCircles[i].attr({fill: "white", stroke: "black", "stroke-width": graph.vertexRad/20*1.5});
+             if (graph.verNames.length==0) graph.textCircles[i]=graph.s.text(graph.verCoord[i][0]+graph.vertexRad,graph.verCoord[i][1]+graph.vertexRad,(i+1).toString());
+             else graph.textCircles[i]=graph.s.text(graph.verCoord[i][0]+graph.vertexRad,graph.verCoord[i][1]+graph.vertexRad,graph.verNames[i]);
+             graph.textCircles[i].attr({"font-size": graph.vertexRad*5/4 });
              graph.textCircles[i].attr({x: graph.textCircles[i].getBBox().x-graph.textCircles[i].getBBox().w/2, y:graph.textCircles[i].getBBox().y+graph.textCircles[i].getBBox().h, class: "unselectable"});
              graph.circles[i]=graph.s.group(graph.verCircles[i],graph.textCircles[i]);
              }

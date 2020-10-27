@@ -58,7 +58,7 @@ function fastPower (base, power, modulo) {
     
 }
 function calculateHashMultiSet () {
-   var s=document.getElementById("multiSet").value;
+    var s=document.getElementById("multiSet").value;
     var base=document.querySelector(".hashExample2 .base").value;
     var modulo=document.querySelector(".hashExample2 .modulo").value;
     var paragraph=document.querySelector(".hashExample2 .hash"),hash,curHash;

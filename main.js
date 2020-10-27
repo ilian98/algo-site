@@ -31,7 +31,7 @@ function isDigit (event) {
     return false;
 }
 function isDigitOrComma (event) {
-    if (isDigit(event)==true) return true;
+    if (isDigit(event)===true) return true;
     var charCode=(event.which)?event.which:event.keyCode;
     if ((charCode<=31)||(charCode==44)) return true;
     return false;
@@ -59,7 +59,7 @@ function initExamples () {
                             [0,0,0,0,1],
                             [0,0,0,0,0],
                             [0,0,0,0,0]];
-        drawGraph(example1,1,1,299,299);
+        drawGraph(example1,1,1,299,299,20);
 
         var example2 = new Graph ();
         example2.n=5; example2.isOriented=false;
@@ -71,11 +71,11 @@ function initExamples () {
                             [1,0,0,0,1],
                             [1,0,0,0,0],
                             [0,1,1,0,0]];
-        drawGraph(example2,1,1,299,299);
+        drawGraph(example2,1,1,299,299,20);
         }
     else if (page=="depth_first_search.html") {
-        var example1 = new graphExample (".graphExample1",false);
-        var example2 = new graphExample (".graphExample2",true);
+        var example1 = new graphExample (".graphExample1",false,20);
+        var example2 = new graphExample (".graphExample2",true,20);
         }
     else if (page=="hashing.html") {
         document.querySelector(".hashExample1 .base").value="307";
@@ -88,4 +88,9 @@ function initExamples () {
         document.getElementById("multiSet").value="1,2,3";
         calculateHashMultiSet();
         }
+    else if (page=="2-SAT.html") {
+        document.querySelector(".twoSATexample .formula").value="(a||b)&&(a||!c)&&(!a||!b)";
+        initExample();
+        makeImplicationGraph();
+    }
 }
