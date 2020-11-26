@@ -42,7 +42,7 @@ function isSmallLatinLetter (event) {
     return false;
 }
 
-function initExamples () {
+function initExamples (part = 1) {
     var URL=document.URL,index=-1;
     for (var i=0; i<URL.length; i++) {
         if (URL[i]=='/') index=i;
@@ -89,8 +89,15 @@ function initExamples () {
         calculateHashMultiSet();
         }
     else if (page=="2-SAT.html") {
-        document.querySelector(".twoSATexample .formula").value="(a||b)&&(a||!c)&&(!a||!b)";
-        initExample();
-        makeImplicationGraph();
+        if (part==2) {
+            document.querySelector(".twoSATexample1 .formula").value="(a||b)&&(a||!c)&&(!a||!b)";
+            initExample(1);
+            makeImplicationGraph(1);
+            }
+        else if (part==3) {
+            document.querySelector(".twoSATexample2 .formula").value="(a||b)&&(a||!c)&&(!a||!b)";
+            initExample(2);
+            showSCC();
+            }
     }
 }

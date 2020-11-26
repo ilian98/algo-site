@@ -36,7 +36,6 @@ function DFS () {
         else vertexRad=graph.vertexRad;
         this.used=[]; this.animations=[];
         this.speed=2000;
-        //console.log(vertexRad);
         drawGraph(graph,1,1,299,299,vertexRad);
         };
     
@@ -50,7 +49,7 @@ function DFS () {
         var speed = parseInt(this.speed);
         draw(graph,false);
         
-        graph.minas=[];
+        graph.minas=[]; DFSObject.currAnimation=0;
         this.used=[];
         for (var i=0; i<graph.n; i++) {
             this.used[i]=0;
@@ -63,6 +62,9 @@ function DFS () {
                 index: i,
                 func: function () {
                     var i=this.index,curAnim,animLen=animations[i].length;
+                    if ((DFSObject.currAnimation<i-1)||(DFSObject.currAnimation>i)) {
+                        return ;
+                        }
                     DFSObject.currAnimation = i;
                     for (var j=0; j<animLen; j++) {
                         curAnim=animations[i][j];
@@ -74,6 +76,7 @@ function DFS () {
                                     if (i!=animations.length-1) animFuncs[i+1].func();
                                     }
                                 });
+                            graph.minas.push(graph.verCircles[curAnim[1]].inAnim()[0].mina);
                             }
                         else if (curAnim[0]==2) {
                             graph.textCircles[curAnim[1]].isLast=(j==animLen-1);
@@ -83,6 +86,7 @@ function DFS () {
                                     if (i!=animations.length-1) animFuncs[i+1].func();
                                     }
                                 });
+                            graph.minas.push(graph.textCircles[curAnim[1]].inAnim()[0].mina);
                             }
                         else {
                             var stx,sty,endx,endy;
@@ -101,7 +105,7 @@ function DFS () {
                             graph.s.append(graph.circles[curAnim[2]]);
                             lineDraw.isLast=(j==animLen-1);
                             animText.innerText=curAnim[3];
-                            graph.minas.push([Snap.animate(length,0,
+                            graph.minas.push(Snap.animate(length,0,
                                 function (value) {
                                     lineDraw.attr({strokeDashoffset: value});
                                     },speed,
@@ -110,7 +114,7 @@ function DFS () {
                                         if (i!=animations.length-1) animFuncs[i+1].func();
                                         }
                                     lineDraw.remove();
-                                    }),lineDraw]);
+                                    }));
                             lineDraw.stop();
                             }
                         }
@@ -161,14 +165,9 @@ function DFS () {
         var graph=this.graph;
         if (graph.minas!==undefined) {
             for (var i=0; i<graph.minas.length; i++) {
-                graph.minas[i][0].stop();
-                graph.minas[i][1].remove();
+                graph.minas[i].stop();
                 }
             }
-        graph.s.selectAll("*").forEach(function (elem) {
-            if (elem.inAnim().length!=0) elem.inAnim()[0].mina.s=0;
-            elem.stop();
-            });
         if (remove==true) graph.s.selectAll("*").remove();
         }
     
@@ -295,23 +294,17 @@ function graphExample (name, isOriented, vertexRad) {
                     this.flagPause=true; this.innerText="Пусни";
                     if (DFSObject.graph.minas!==undefined) {
                         for (var i=0; i<DFSObject.graph.minas.length; i++) {
-                            DFSObject.graph.minas[i][0].pause();
+                            DFSObject.graph.minas[i].pause();
                             }
                         }
-                    DFSObject.graph.s.selectAll("*").forEach(function (element) {
-                        if (element.inAnim().length!=0) element.inAnim()[0].mina.pause();
-                        });
                     }
                 else {
                     this.flagPause=false; this.innerText="Пaуза";
                     if (DFSObject.graph.minas!==undefined) {
                         for (var i=0; i<DFSObject.graph.minas.length; i++) {
-                            DFSObject.graph.minas[i][0].resume();
+                            DFSObject.graph.minas[i].resume();
                             }
                         }
-                    DFSObject.graph.s.selectAll("*").forEach(function (element) {
-                        if (element.inAnim().length!=0) element.inAnim()[0].mina.resume();
-                        });
                     if (this.flagStep==true) DFSObject.animFuncs[DFSObject.currAnimation].func();
                     this.flagStep=false;
                     }
@@ -320,11 +313,15 @@ function graphExample (name, isOriented, vertexRad) {
             previousButton.style.display="block";
             previousButton.onclick = function () {
                 var currAnimation = DFSObject.currAnimation;
-                if ((currAnimation!==undefined)&&(currAnimation>0)) {
+                if (currAnimation!==undefined) {
                     pauseButton.flagPause=false; pauseButton.flagStep=true;
                     pauseButton.click();
                     DFSObject.clearGraph(true);
                     DFSObject.graph.drawEdges(1,1,299,299);
+                    if (DFSObject.currAnimation==0) {
+                        DFSObject.currAnimation=1;
+                        currAnimation=1;
+                        }
                     DFSObject.currAnimation--;
                     var used=[];
                     for (var i=0; i<DFSObject.graph.n; i++) used[i]=0;
