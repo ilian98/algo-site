@@ -9,13 +9,13 @@
         <script type="text/javascript" src="source_files/popper.js/dist/umd/popper.min.js"></script>
         <script type="text/javascript" src="source_files/bootstrap/dist/js/bootstrap.min.js"></script>
         <script type="text/javascript" src="main.js"></script>
-        <title>Други алгоритми</title>
+        <title>Tree data structures</title>
     </head>
     <body>
         <header>
             <div class="background"></div>
             <div id="nav-placeholder"></div>
-            <script> $.get("navigation.html", function (data) {
+            <script> $.get("navigation_en.html", function (data) {
                           $("#nav-placeholder").replaceWith(data);
                           });
             </script>
@@ -23,7 +23,7 @@
         
         <nav aria-label="breadcrumb" class="unselectable">
             <ol class="breadcrumb">
-                <li class="breadcrumb-item" style="z-index:0" aria-current="page">Други алгоритми</li>
+                <li class="breadcrumb-item" style="z-index:0" aria-current="page">Tree data structures</li>
             </ol>
         </nav>
         
@@ -34,15 +34,7 @@
                 <div class="card card-lessons">
                     <div class="card-body">
                         <h3 class="card-title text-center unselectable lesson-name">
-                            <a>Трикове</a>
-                        </h3>
-                    </div>
-                </div>
-                
-                <div class="card card-lessons">
-                    <div class="card-body">
-                        <h3 class="card-title text-center unselectable">
-                            <a href="other_lessons/brute_force.html" class="lesson-link">Пълно изчерпване</a>
+                            <a>Heap</a>
                         </h3>
                     </div>
                 </div>
@@ -50,7 +42,7 @@
                 <div class="card card-lessons">
                     <div class="card-body">
                         <h3 class="card-title text-center unselectable lesson-name">
-                            <a>Meet in the middle</a>
+                            <a>Heavy-light decomposition</a>
                         </h3>
                     </div>
                 </div>
@@ -58,15 +50,7 @@
                 <div class="card card-lessons">
                     <div class="card-body">
                         <h3 class="card-title text-center unselectable lesson-name">
-                            <a>Задачи със заявки</a>
-                        </h3>
-                    </div>
-                </div>
-            
-                <div class="card card-lessons">
-                    <div class="card-body">
-                        <h3 class="card-title text-center unselectable lesson-name">
-                            <a>Двоично търсене</a>
+                            <a>Centroid decomposition</a>
                         </h3>
                     </div>
                 </div>
@@ -74,15 +58,7 @@
                 <div class="card card-lessons">
                     <div class="card-body">
                         <h3 class="card-title text-center unselectable lesson-name">
-                            <a>Binary lifting</a>
-                        </h3>
-                    </div>
-                </div>
-            
-                <div class="card card-lessons">
-                    <div class="card-body">
-                        <h3 class="card-title text-center unselectable">
-                            <a href="other_lessons/hashing.html" class="lesson-link">Хеширане</a>
+                            <a>kd-tree</a>
                         </h3>
                     </div>
                 </div>
@@ -90,11 +66,61 @@
                 <div class="card card-lessons">
                     <div class="card-body">
                         <h3 class="card-title text-center unselectable lesson-name">
-                            <a>Разделяй и владей</a>
+                            <a>Treap</a>
                         </h3>
                     </div>
                 </div>
                 
+                <div class="card card-lessons">
+                    <div class="card-body">
+                        <h3 class="card-title text-center unselectable lesson-name">
+                            <a>Trie</a>
+                        </h3>
+                    </div>
+                </div>
+                
+                <div class="card card-lessons">
+                    <div class="card-body">
+                        <h3 class="card-title text-center lesson-name">Fenwick tree</h3>
+                        <div id="collapseFirst" class="collapse hide" aria-labelledby="headingFirst">
+                            <ul align="left">
+                                <li type="disc">
+                                    <a>Introduction</a>
+                                </li>
+                                <li type="disc">
+                                    <a>Tricks, two-dimensional tree</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="card-footer unselectable text-center arrow collapsed" id="headingFirst" data-toggle="collapse" href="#collapseFirst" aria-expanded="true" aria-controls="collapseFirst">
+                        <span class="not-collapsed">&#9660;</span>
+                        <span class="collapsed">&#9650;</span>
+                    </div>
+                </div>
+                
+                <div class="card card-lessons">
+                    <div class="card-body">
+                        <h3 class="card-title text-center lesson-name">Segment trees</h3>
+                        <div id="collapseSecond" class="collapse hide" aria-labelledby="headingSecond">
+                            <ul align="left">
+                                <li type="disc">
+                                    <a href="ds_tree_lessons/segment_trees/segment_tree_introduction.html" class="lesson-link">Introduction</a>
+                                </li>
+                                <li type="disc">
+                                    <a>Lazy propagation</a>
+                                </li>
+                                <li type="disc">
+                                    <a>Persistent trees</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="card-footer unselectable text-center arrow collapsed" id="headingSecond" data-toggle="collapse" href="#collapseSecond" aria-expanded="true" aria-controls="collapseSecond">
+                        <span class="not-collapsed">&#9660;</span>
+                        <span class="collapsed">&#9650;</span>
+                    </div>
+                </div>
             </div>
         </div>
     </body>

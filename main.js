@@ -5,7 +5,7 @@ function toggleText (name) {
          else cur.style.display="block";
 }
 function changeLanguage (object, language) {
-    var s=document.URL;
+    var s=document.URL; console.log(s);
     if (s.includes(".html")===false) {
         if (language=="en") s+="index_en.html";
         else return ;

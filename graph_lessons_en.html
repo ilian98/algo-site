@@ -12,10 +12,10 @@
     </head>
     <body>
         <header>
-            <title>Алгоритми в графи</title>
+            <title>Graph algorithms</title>
             <div class="background"></div>
             <div id="nav-placeholder"></div>
-            <script> $.get("navigation.html", function (data) {
+            <script> $.get("navigation_en.html", function (data) {
                           $("#nav-placeholder").replaceWith(data);
                           });
             </script>
@@ -23,7 +23,7 @@
         
         <nav aria-label="breadcrumb" class="unselectable">
             <ol class="breadcrumb">
-                <li class="breadcrumb-item" style="z-index:0" aria-current="page">Графи</li>
+                <li class="breadcrumb-item" style="z-index:0" aria-current="page">Graphs</li>
             </ol>
         </nav>
         
@@ -34,21 +34,21 @@
                 <div class="card card-lessons">
                     <div class="card-body">
                         <h3 class="card-title text-center unselectable">
-                            <a href="graph_lessons/introduction_to_graphs.html" class="lesson-link">Увод в графите</a>
+                            <a href="graph_lessons/introduction_to_graphs.html" class="lesson-link">Introduction to graphs</a>
                         </h3>
                     </div>
                 </div>
                 
                 <div class="card card-lessons">
                     <div class="card-body">
-                        <h3 class="card-title text-center lesson-name">Обхождане на граф</h3>
+                        <h3 class="card-title text-center lesson-name">Graph traversal</h3>
                         <div id="collapseOne" class="collapse hide" aria-labelledby="headingOne">
                             <ul align="left">
                                 <li type="disc">
-                                    <a href="graph_lessons/graph_traversal/depth_first_search.html" class="lesson-link">Търсене в дълбочина - DFS</a>
+                                    <a href="graph_lessons/graph_traversal/depth_first_search.html" class="lesson-link">Depth First Search - DFS</a>
                                 </li>
                                 <li type="disc">
-                                    <a>Търсене в ширина - BFS</a>
+                                    <a>Breadth First Search - BFS</a>
                                 </li>
                             </ul>
                         </div>
@@ -61,14 +61,14 @@
                 
                 <div class="card card-lessons">
                     <div class="card-body">
-                        <h3 class="card-title text-center lesson-name">Най-кратък път</h3>
+                        <h3 class="card-title text-center lesson-name">Shortest path</h3>
                         <div id="collapseSecond" class="collapse hide" aria-labelledby="headingSecond">
                             <ul align="left">
                                 <li type="disc">
-                                    <a>без цена на ребрата</a>
+                                    <a>without edge cost</a>
                                 </li>
                                 <li type="disc">
-                                    <a>с цена на ребрата</a>
+                                    <a>with edge cost</a>
                                 </li>
                             </ul>
                         </div>
@@ -81,17 +81,17 @@
                 
                 <div class="card card-lessons">
                     <div class="card-body">
-                        <h3 class="card-title text-center lesson-name">Дървета</h3>
+                        <h3 class="card-title text-center lesson-name">Trees</h3>
                         <div id="collapseThird" class="collapse hide" aria-labelledby="headingThird">
                             <ul align="left">
                                 <li type="disc">
-                                    <a>Увод в дърветата</a>
+                                    <a>Introduction to trees</a>
                                 </li>
                                 <li type="disc">
-                                    <a>Най-близък общ предшественик</a>
+                                    <a>Lowest common ancestor</a>
                                 </li>
-                                <li type="disc">Минимални/максимални покриващи дървета</li>
-                                <li type="disc">Центроидна декомпозиция</li>
+                                <li type="disc">Minimal/maximal spanning trees</li>
+                                <li type="disc">Centroid decomposition</li>
                             </ul>
                         </div>
                     </div>
@@ -104,21 +104,21 @@
                 <div class="card card-lessons">
                     <div class="card-body">
                         <h3 class="card-title text-center lesson-name">
-                            <a>Артикулационни върхове и ребра</a>
+                            <a>Articulation vertices and edges</a>
                         </h3>
                     </div>
                 </div>
             
                 <div class="card card-lessons">
                     <div class="card-body">
-                        <h3 class="card-title text-center lesson-name">Максимален поток</h3>
+                        <h3 class="card-title text-center lesson-name">Maximum flow</h3>
                         <div id="collapseFourth" class="collapse hide" aria-labelledby="headingFourth">
                             <ul align="left">
                                 <li type="disc">
-                                    <a>без цена на ребрата</a>
+                                    <a>without edge cost</a>
                                 </li>
                                 <li type="disc">
-                                    <a>с цена на ребрата</a>
+                                    <a>with edge cost</a>
                                 </li>
                             </ul>
                         </div>
@@ -132,21 +132,21 @@
                 <div class="card card-lessons">
                     <div class="card-body">
                         <h3 class="card-title text-center lesson-name">
-                            <a>Максимално двойкосъчетание</a>
+                            <a>Maximum matching</a>
                         </h3>
                     </div>
                 </div>
                 
                 <div class="card card-lessons">
                     <div class="card-body">
-                        <h3 class="card-title text-center lesson-name">Ойлерови и Хамилтонови цикли/пътища</h3>
+                        <h3 class="card-title text-center lesson-name">Euler and Hamilton paths/cycles</h3>
                         <div id="collapseFifth" class="collapse hide" aria-labelledby="headingFifth">
                             <ul align="left">
                                 <li type="disc">
-                                    <a>Ойлерови цикли/пътища</a>
+                                    <a>Euler paths/cycles</a>
                                 </li>
                                 <li type="disc">
-                                    <a>Хамилтонови цикли/пътища</a>
+                                    <a>Hamilton paths/cycles</a>
                                 </li>
                             </ul>
                         </div>
@@ -160,7 +160,7 @@
                 <div class="card card-lessons">
                     <div class="card-body">
                         <h3 class="card-title text-center lesson-name">
-                            <a>Силно свързани компоненти</a>
+                            <a>Strongly connected components</a>
                         </h3>
                     </div>
                 </div>
@@ -168,7 +168,7 @@
                 <div class="card card-lessons">
                     <div class="card-body">
                         <h3 class="card-title text-center lesson-name">
-                            <a>Топологично сортиране</a>
+                            <a>Topological sorting</a>
                         </h3>
                     </div>
                 </div>
@@ -176,7 +176,7 @@
                 <div class="card card-lessons">
                     <div class="card-body">
                         <h3 class="card-title text-center lesson-name">
-                            <a>Транзитивна редукция</a>
+                            <a>Transitive reduction</a>
                         </h3>
                     </div>
                 </div>

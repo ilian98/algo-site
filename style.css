@@ -207,3 +207,18 @@ pre {
   word-wrap: break-word;
   text-align: justify;
 }
+
+@media (max-width: 480px) {
+        .my-picture {
+         width: 100%;
+         }
+}
+@media (min-width: 481px) {
+        .my-picture {
+         height: 40%;
+         }
+}
+.my-picture {
+    float: left;
+    margin-right: 10px
+}
