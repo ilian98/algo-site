@@ -70,8 +70,8 @@ ul {
 }
 .dashed-list:before {
     content: '\2014';
-    position: absolute;
     margin-left: -20px;
+    margin-right: 10px;
 }
 .tilded-list:before {
     content: '\223C';
@@ -200,6 +200,7 @@ ul {
     background-color: white;
     border-radius: 5px;
     color: black;
+    cursor: pointer;
 }
 
 pre {

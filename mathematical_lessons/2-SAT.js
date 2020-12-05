@@ -1,42 +1,7 @@
 var graphs=[];
 function initExample (part) {
     graphs[part] = new Graph();
-    graphs[part].n=5; graphs[part].isOriented=true;
-    graphs[part].init(".twoSATexample"+part+" .graphExample .graph");
-    
-    var saveButton=document.querySelector(".twoSATexample"+part+" .graphExample .save");
-    saveButton.canvas=document.querySelector(".twoSATexample"+part+" .graphExample .canvas-save");
-    saveButton.canvas.style.display="none";
-    saveButton.svgSave=document.querySelector(".twoSATexample"+part+" .graphExample .svg-save");
-    saveButton.svgSave.style.display="none";
-    saveButton.onclick = function () {
-        var canvas=this.canvas;
-        var context=canvas.getContext('2d');
-        var svg=document.querySelector(".twoSATexample"+part+" .graphExample .graph");
-        var svgWidth=svg.getBoundingClientRect().width,svgHeight=svg.getBoundingClientRect().height;
-        this.svgSave.setAttribute("width",svgWidth);
-        this.svgSave.setAttribute("height",svgHeight);
-        $('.twoSATexample'+part+' .graphExample .graph').clone().appendTo($(".twoSATexample"+part+" .graphExample .svg-save"));
-        canvas.width=svgWidth;
-        canvas.height=svgHeight;
-        
-        this.svgSave.style.display="";
-        var svgString=(new XMLSerializer()).serializeToString(this.svgSave);
-        this.svgSave.style.display="none";
-        var image = new Image();
-        image.src="data:image/svg+xml; charset=utf8, "+encodeURIComponent(svgString);
-        image.onload = function () {
-            context.drawImage(image,0,0);
-            var imageURI=canvas.toDataURL('image/png').replace('image/png','image/octet-stream');
-            var event = new MouseEvent('click',{view: window, bubbles: false, cancelable: true});
-            var temp=document.createElement('a');
-            temp.setAttribute('download','graph.png');
-            temp.setAttribute('href',imageURI);
-            temp.setAttribute('target','_blank');
-            temp.dispatchEvent(event);
-            $(".twoSATexample"+part+" .graphExample .svg-save").empty();
-            }
-        }
+    graphs[part].init(".twoSATexample"+part+" .graphExample .graph",5,true,true);
 }
 
 var flag;
@@ -221,7 +186,7 @@ function dfs2 (vr, rev, used, num, comps) {
 
 function showSCC () {
     makeImplicationGraph(2);
-    var i,graph=graphs[2],used=[];
+    var i,j,graph=graphs[2],used=[];
     for (i=0; i<graph.n; i++) {
         used[i]=0;
         }
@@ -258,6 +223,13 @@ function showSCC () {
             graph.verCircles[comps[i][j]].attr({fill: colours[colour]});
             }
         colour+=jump;
+        }
+    for (i=0; i<graph.edgeList.length; i++) {
+        var from=graph.edgeList[i][0],to=graph.edgeList[i][1];
+        if (graph.verCircles[from].attr("fill")==graph.verCircles[to].attr("fill")) {
+            graph.edgeLines[i].attr({stroke: graph.verCircles[from].attr("fill")});
+            graph.markers[i].attr({fill: graph.verCircles[from].attr("fill")});
+            }
         }
     
     var solution=document.querySelector(".twoSATexample2 .solution"),text;

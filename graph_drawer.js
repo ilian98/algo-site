@@ -95,14 +95,14 @@ function lineOut (event) {
 }
 
 function Graph () {
-         this.svgName=undefined; this.s=undefined;
+         this.svgName=undefined; this.s=undefined; this.flagSave=undefined;
          this.circles=undefined; this.verCircles=undefined; this.verCoord=undefined; this.textCircles=undefined;
          this.edgeLines=undefined;
          this.n=undefined; this.verNames=undefined;
          this.edgeList=undefined; this.adjList=undefined; this.adjMatrix=undefined;
-         this.isOriented=undefined;
+         this.isOriented=undefined; this.isTree=undefined;
          this.frameX=undefined; this.frameY=undefined; this.frameW=undefined; this.frameH=undefined; this.vertexRad=undefined;
-         this.init = function (svgName) {
+         this.init = function (svgName, n, isOriented, flagSave, isTree) {
              if (this.s==undefined) {
                 this.svgName=svgName;
                 this.s=Snap(svgName);
@@ -111,9 +111,53 @@ function Graph () {
                  element.stop();
                  element.remove();
                  });
-             this.circles=[]; this.verCircles=[]; this.verCoord=[]; this.textCircles=[]; this.edgeLines=[];
-             this.verNames = [];
+             if (flagSave!==undefined) {
+                this.flagSave=flagSave;
+                if (flagSave===true) {
+                   var parentElement=document.querySelector(svgName).parentElement;
+                   var saveButton=parentElement.querySelector(".save");
+                   saveButton.canvas=parentElement.querySelector(".canvas-save");
+                   saveButton.canvas.style.display="none";
+                   saveButton.svgSave=parentElement.querySelector(".svg-save");
+                   saveButton.svgSave.style.display="none";
+                   saveButton.onclick = function () {
+                       var canvas=this.canvas;
+                       var context=canvas.getContext('2d');
+                       var svg=parentElement.querySelector(".graph");
+                       var svgWidth=svg.getBoundingClientRect().width,svgHeight=svg.getBoundingClientRect().height;
+                       this.svgSave.setAttribute("width",svgWidth);
+                       this.svgSave.setAttribute("height",svgHeight);
+                       $(svgName).clone().appendTo($(svgName).parent().children(".svg-save"));
+                       canvas.width=svgWidth;
+                       canvas.height=svgHeight;
+
+                       this.svgSave.style.display="";
+                       var svgString=(new XMLSerializer()).serializeToString(this.svgSave);
+                       this.svgSave.style.display="none";
+                       var image = new Image();
+                       image.src="data:image/svg+xml; charset=utf8, "+encodeURIComponent(svgString);
+                       image.onload = function () {
+                           context.drawImage(image,0,0);
+                           var imageURI=canvas.toDataURL('image/png').replace('image/png','image/octet-stream');
+                           var event = new MouseEvent('click',{view: window, bubbles: false, cancelable: true});
+                           var temp=document.createElement('a');
+                           temp.setAttribute('download','graph.png');
+                           temp.setAttribute('href',imageURI);
+                           temp.setAttribute('target','_blank');
+                           temp.dispatchEvent(event);
+                           $(svgName).parent().children(".svg-save").empty();
+                           }
+                       }
+                   }
+                }
+             
+             this.circles=[]; this.verCircles=[]; this.verCoord=[]; this.textCircles=[];
+             this.edgeLines=[]; this.markers=[];
+             if (n!==undefined) this.n=n; this.verNames = [];
              this.edgeList=[]; this.adjList=[]; this.adjMatrix=[];
+             if (isOriented!==undefined) this.isOriented=isOriented;
+             if (isTree!==undefined) this.isTree=isTree;
+             else this.isTree=false;
              for (var i=0; i<this.n; i++) {
                  this.adjList[i]=[]; this.adjMatrix[i]=[];
                  for (var j=0; j<this.n; j++) {
@@ -121,6 +165,30 @@ function Graph () {
                      }
                  }
              this.flagDraw=0;
+             }
+         this.fillAdjListMatrix = function () {
+             var edgeList=this.edgeList,max=0;
+             for (i=0; i<edgeList.length; i++) {
+                 if (max<edgeList[i][0]) max=edgeList[i][0];
+                 if (max<edgeList[i][1]) max=edgeList[i][1];
+                 }
+             this.n=max+1;
+             for (i=0; i<=max; i++) {
+                 this.adjMatrix[i]=[];
+                 for (j=0; j<=max; j++) {
+                     this.adjMatrix[i][j]=0;
+                     }
+                 this.adjList[i]=[];
+                 }
+             for (i=0; i<edgeList.length; i++) {
+                 var x=edgeList[i][0],y=edgeList[i][1];
+                 this.adjMatrix[x][y]=1;
+                 this.adjList[x].push(y);
+                 if (this.isOriented==0) {
+                    this.adjMatrix[y][x]=1;
+                    this.adjList[y].push(x);
+                    }
+                 }
              }
          
          this.flagDraw=undefined; this.mouseX=undefined; this.mouseY=undefined;
@@ -130,6 +198,7 @@ function Graph () {
               draw(this,false);
               this.svgPoint=this.s.paper.node.createSVGPoint(); this.flagDraw=0; this.stVer=1;
               for (i=0; i<this.n; i++) {
+                  if (this.circles[i]===undefined) continue;
                   this.circles[i].index=i; this.circles[i].graph=this;
                   this.circles[i].unmousedown(circleClick);
                   this.circles[i].mousedown(circleClick);
@@ -240,52 +309,117 @@ function placeVertex (graph, vr) {
              }
          return true;
 }
+function fillVersDepth (vr, father, dep, adjList, versDepth) {
+    versDepth[dep].push(vr);
+    for (var i=0; i<adjList[vr].length; i++) {
+        if (adjList[vr][i]!=father) fillVersDepth(adjList[vr][i],vr,dep+1,adjList,versDepth);
+        }
+}
 function drawGraph (graph, frameX, frameY, frameW, frameH, vertexRad) {
          eraseGraph(graph);
          graph.frameX=frameX; graph.frameY=frameY;
          graph.frameW=frameW; graph.frameH=frameH;
          graph.vertexRad=vertexRad;
-         var i,j,h;
-         distVertices=vertexRad*5/4+parseInt((Math.random())*vertexRad/4);
-         possiblePos=[];
-         for (i=0; i<=(frameW-2*vertexRad)/(2*vertexRad+distVertices); i++) {
-             for (j=0; j<=(frameH-2*vertexRad)/(2*vertexRad+distVertices); j++) {
-                 possiblePos.push([i*(2*vertexRad+distVertices)+frameX,j*(2*vertexRad+distVertices)+frameY]);
-                 }
-             }
-         graph.verCoord.splice(0,graph.verCoord.length);
-         for (i=0; i<graph.n; i++) {
-             if (placeVertex(graph,i)==false) {
-                drawGraph(graph,frameX,frameY,frameW,frameH,vertexRad);
-                return ;
+         var distVertices=vertexRad*5/4+parseInt((Math.random())*vertexRad/4);   
+         if (graph.isTree===false) {
+            var i,j,h;
+            possiblePos=[];
+            for (i=0; i<=(frameW-2*vertexRad)/(2*vertexRad+distVertices); i++) {
+                for (j=0; j<=(frameH-2*vertexRad)/(2*vertexRad+distVertices); j++) {
+                    possiblePos.push([i*(2*vertexRad+distVertices)+frameX,j*(2*vertexRad+distVertices)+frameY]);
+                    }
                 }
-             }
-         draw(graph,true);
+            graph.verCoord.splice(0,graph.verCoord.length);
+            for (i=0; i<graph.n; i++) {
+                if (placeVertex(graph,i)==false) {
+                   drawGraph(graph,frameX,frameY,frameW,frameH,vertexRad);
+                   return ;
+                   }
+                }
+            }
+        else {
+            var versDepth=[],inDegree=[],root=0;
+            for (i=0; i<=graph.n; i++) {
+                versDepth[i]=[];
+                inDegree[i]=0;
+                }
+            if (graph.isOriented==true) {
+               for (i=0; i<graph.edgeList.length; i++) {
+                   inDegree[graph.edgeList[i][1]]++;
+                   }
+               for (i=0; i<graph.n; i++) {
+                   if (inDegree[i]==0) {
+                      root=i;
+                      break;
+                      }
+                   }
+               }
+            fillVersDepth(root,-1,0,graph.adjList,versDepth);
+            var x,y=0;
+            for (i=0; ; i++) {
+                if (versDepth[i].length==0) break;
+                x=0;
+                for (j=0; j<versDepth[i].length; j++) {
+                    x+=Math.floor(frameW/(versDepth[i].length+1));
+                    graph.verCoord[versDepth[i][j]]=[x-vertexRad+frameX,y+frameY];
+                    }
+                y+=(2*vertexRad+distVertices);
+                }
+            }
+        draw(graph,true);
+}
+function determineDy (text) {
+    var largeLetters=['b','d','f','h','k','l','t','б','в','й','','ж','з','и','к'];
+    var lowLetters=['g','j','p','q','y','р','y','ц','щ'];
+    var flagNonLetter=false,flagLargeLetter=false,flagLowLetter=false,flagSmallLetter=false;
+    for (var i=0; i<text.length; i++) {
+        if (text[i]=='ф') return "0.255em";
+        if (largeLetters.includes(text[i])==true) flagLargeLetter=true;
+        else if (lowLetters.includes(text[i])==true) flagLowLetter=true;
+        if (((text[i]>='a')&&(text[i]<='z'))||((text[i]>='а')&&(text[i]<='я'))) flagSmallLetter=true;
+        else flagNonLetter=true;
+        }
+    if ((flagNonLetter==true)||(flagLargeLetter==true)) {
+        if (flagLowLetter==true) return "0.255em";
+        return "0.34em";
+        }
+    else {
+        if (flagLowLetter==true) return "0.18em";
+        return "0.255em";
+        }
 }
 function draw (graph, addDraw) {
-         eraseGraph(graph);
-         for (i=0; i<graph.edgeList.length; i++) {
-             var st=graph.verCoord[graph.edgeList[i][0]],end=graph.verCoord[graph.edgeList[i][1]],edgeLen,quotient=1;
-             st=[graph.verCoord[graph.edgeList[i][0]][0]+graph.vertexRad,graph.verCoord[graph.edgeList[i][0]][1]+graph.vertexRad];
-             end=[graph.verCoord[graph.edgeList[i][1]][0]+graph.vertexRad,graph.verCoord[graph.edgeList[i][1]][1]+graph.vertexRad];
-             edgeLen=Math.sqrt((st[0]-end[0])*(st[0]-end[0])+(st[1]-end[1])*(st[1]-end[1]));
-             if (graph.isOriented==true) quotient=(edgeLen-graph.vertexRad-graph.vertexRad/2)/edgeLen;
-             graph.edgeLines[i]=graph.s.line(st[0],st[1],st[0]+quotient*(end[0]-st[0]),st[1]+quotient*(end[1]-st[1]));
-             graph.edgeLines[i].attr({stroke: "black", "stroke-width": graph.vertexRad/20*1.5});
-             if (graph.isOriented==true) {
-                var arrow=graph.s.polygon([0,10,4,10,2,0,0,10]).attr({fill: "black"}).transform('r90');
-                var marker=arrow.marker(0,0,10,10,0,5);
-                graph.edgeLines[i].attr({"marker-end": marker});
-                }
-             }
-         for (i=0; i<graph.n; i++) {
-             graph.verCircles[i]=graph.s.circle(graph.verCoord[i][0]+graph.vertexRad,graph.verCoord[i][1]+graph.vertexRad,graph.vertexRad,graph.vertexRad);
-             graph.verCircles[i].attr({fill: "white", stroke: "black", "stroke-width": graph.vertexRad/20*1.5});
-             if (graph.verNames.length==0) graph.textCircles[i]=graph.s.text(graph.verCoord[i][0]+graph.vertexRad,graph.verCoord[i][1]+graph.vertexRad,(i+1).toString());
-             else graph.textCircles[i]=graph.s.text(graph.verCoord[i][0]+graph.vertexRad,graph.verCoord[i][1]+graph.vertexRad,graph.verNames[i]);
-             graph.textCircles[i].attr({"font-size": graph.vertexRad*5/4 });
-             graph.textCircles[i].attr({x: graph.textCircles[i].getBBox().x-graph.textCircles[i].getBBox().w/2, y:graph.textCircles[i].getBBox().y+graph.textCircles[i].getBBox().h, class: "unselectable"});
-             graph.circles[i]=graph.s.group(graph.verCircles[i],graph.textCircles[i]);
-             }
-         if (addDraw==true) graph.drawEdges();
+    eraseGraph(graph);
+    var fontSize=graph.vertexRad*5/4,strokeWidth=graph.vertexRad/20*1.5;
+    for (var i=0; i<graph.edgeList.length; i++) {
+        var from=graph.verCoord[graph.edgeList[i][0]],to=graph.verCoord[graph.edgeList[i][1]],edgeLen,quotient=1;
+        var st=[from[0]+graph.vertexRad,from[1]+graph.vertexRad];
+        var end=[to[0]+graph.vertexRad,to[1]+graph.vertexRad];
+        edgeLen=Math.sqrt((st[0]-end[0])*(st[0]-end[0])+(st[1]-end[1])*(st[1]-end[1]));
+        if (graph.isOriented==true) quotient=(edgeLen-graph.vertexRad-graph.vertexRad/2)/edgeLen;
+        graph.edgeLines[i]=graph.s.line(st[0],st[1],st[0]+quotient*(end[0]-st[0]),st[1]+quotient*(end[1]-st[1]));
+        graph.edgeLines[i].attr({stroke: "black", "stroke-width": strokeWidth});
+        if (graph.isOriented==true) {
+           var arrow=graph.s.polygon([0,10,4,10,2,0,0,10]).attr({fill: "black"}).transform('r90');
+           graph.markers[i]=arrow;
+           var marker=arrow.marker(0,0,10,10,0,5);
+           graph.edgeLines[i].attr({"marker-end": marker});
+           }
+        }
+    for (var i=0; i<graph.n; i++) {
+        if ((graph.verNames.length!=0)&&(graph.verNames[i]===undefined)) {
+           graph.verCircles[i]=graph.textCircles[i]=graph.circles[i]=undefined;
+           continue;
+           }
+        var x=graph.verCoord[i][0]+graph.vertexRad,y=graph.verCoord[i][1]+graph.vertexRad;
+        graph.verCircles[i]=graph.s.circle(x,y,graph.vertexRad);
+        graph.verCircles[i].attr({fill: "white", stroke: "black", "stroke-width": strokeWidth});
+        var text;
+        if (graph.verNames.length==0) text=(i+1).toString();
+        else text=graph.verNames[i];
+        graph.textCircles[i]=graph.s.text(x,y,text);
+        graph.textCircles[i].attr({"font-size": fontSize, dy: determineDy(text), "text-anchor": "middle", class: "unselectable"});
+        graph.circles[i]=graph.s.group(graph.verCircles[i],graph.textCircles[i]);
+        }
+    if (addDraw==true) graph.drawEdges();
 }

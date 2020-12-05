@@ -8,7 +8,7 @@ function DFS () {
     this.speed=undefined;
     this.init = function (firstTime, name, svgName, isOriented, vertexRad) {
         var graph=this.graph;
-        graph.init(svgName);
+        graph.init(svgName,undefined,isOriented,true);
         if (firstTime==true) {
             this.name=name;
             if (isOriented==false) {
@@ -352,39 +352,6 @@ function graphExample (name, isOriented, vertexRad) {
             this.flag=false; this.innerText="Старт!";
             DFSObject.clear();
             DFSObject.graph.drawEdges(1,1,299,299);
-            }
-        }
-    
-    var saveButton=document.querySelector(name+" .save");
-    saveButton.canvas=document.querySelector(name+" .canvas-save");
-    saveButton.canvas.style.display="none";
-    saveButton.svgSave=document.querySelector(name+" .svg-save");
-    saveButton.svgSave.style.display="none";
-    saveButton.onclick = function () {
-        var canvas=this.canvas;
-        var context=canvas.getContext('2d');
-        var svg=document.querySelector(DFSObject.graph.svgName);
-        this.svgSave.setAttribute("width",svg.getBoundingClientRect().width);
-        this.svgSave.setAttribute("height",svg.getBoundingClientRect().height);
-        $(name+' .graph').clone().appendTo($(name+" .svg-save"));
-        canvas.width=svg.getBoundingClientRect().width;
-        canvas.height=svg.getBoundingClientRect().height;
-        
-        this.svgSave.style.display="";
-        var svgString=(new XMLSerializer()).serializeToString(this.svgSave);
-        this.svgSave.style.display="none";
-        var image = new Image();
-        image.src="data:image/svg+xml; charset=utf8, "+encodeURIComponent(svgString);
-        image.onload = function () {
-            context.drawImage(image,0,0);
-            var imageURI=canvas.toDataURL('image/png').replace('image/png','image/octet-stream');
-            var event = new MouseEvent('click',{view: window, bubbles: false, cancelable: true});
-            var temp=document.createElement('a');
-            temp.setAttribute('download','graph.png');
-            temp.setAttribute('href',imageURI);
-            temp.setAttribute('target','_blank');
-            temp.dispatchEvent(event);
-            $(name+" .svg-save").empty();
             }
         }
 }

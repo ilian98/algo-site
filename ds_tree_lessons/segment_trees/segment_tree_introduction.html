@@ -12,6 +12,8 @@
         <script type="text/javascript" src="/algo-site/source_files/Snap.svg/dist/snap.svg-min.js"></script>
         <script id="MathJax-script" async src="/algo-site/source_files/mathjax/es5/tex-chtml.js"></script>
         <script type="text/javascript" src="/algo-site/main.js"></script>
+        <script type="text/javascript" src="/algo-site/graph_drawer.js"></script>
+        <script type="text/javascript" src="/algo-site/ds_tree_lessons/segment_trees/segment_tree_introduction.js"></script>
         <title>Увод в сегментните дървета</title>
     </head>
     <body>
@@ -30,20 +32,21 @@
                           $("#nav-placeholder").replaceWith(data);
                           });
             </script>
+            <nav aria-label="breadcrumb" class="unselectable">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item" style="z-index:0">
+                        <a href="/algo-site/ds_tree_lessons.html" class="text-danger">Структури от данни</a>
+                    </li>
+                    <li class="breadcrumb-item" style="z-index:0">
+                        <a href="#" class="text-danger">Сегментни дървета</a>
+                    </li>
+                    <li class="breadcrumb-item active" style="z-index:0" aria-current="page">Увод</li>
+                    <li class="ml-auto">Последна промяна: 05.12.2020</li>
+                </ol>
+            </nav>
         </header>
         
-        <nav aria-label="breadcrumb" class="unselectable">
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item" style="z-index:0">
-                    <a href="/algo-site/ds_tree_lessons.html" class="text-danger">Структури от данни</a>
-                </li>
-                <li class="breadcrumb-item" style="z-index:0">
-                    <a href="#" class="text-danger">Сегментни дървета</a>
-                </li>
-                <li class="breadcrumb-item active" style="z-index:0" aria-current="page">Увод</li>
-                <li class="ml-auto">Последна промяна: 28.11.2020</li>
-            </ol>
-        </nav>
+        
         
         <div class="content">            
             <h1 align="center">Увод в сегментните дървета</h1>
@@ -51,14 +54,39 @@
             <div class="lesson-part-position">
                 <button class="btn btn-secondary" onclick="toggleText('firstPart')">1. За какво се използват?</button>
                 <div id="firstPart">
-                    
+                    <p class="text-format">Това е една от най-използваните и гъвкави структури от данни в състезателната информатика. Обикновено сегментното дърво се построява върху някакъв масив и поддържа бързо два типа заявки - за намиране на някаква информация за подмасив (така наречените заявки за търсене) и за промяна на един елемент или подмасив (заявки за обновяване). Много често се среща в задачи със заявки. В по-сложни задачи понякога част от задачата се свежда до някакви заявки и съответно за тях се използва сегментно дърво за бърза работа. Един минус, който имат е, че като цяло не могат да се поддържат добавяне на елемент или премахване освен в редки случаи. Така че обикновено си мислим за масива като с фиксиран брой елементи, който не се променя по време на заявките.</p>
                 </div>
             </div>
             
             <div class="lesson-part-position">
-                <button class="btn btn-secondary" onclick="toggleText('secondPart'); initExamples(2)">2. Построяване на сегментно дръво</button>
+                <button class="btn btn-secondary" onclick="toggleText('secondPart'); initExamples(2)">2. Построяване на сегментно дърво</button>
                 <div id="secondPart">
-                    
+                    <p class="text-format">Сегметното дърво е двоично кореново дърво (<a class="info" onclick="triggerInfo(1)" id="trigger1">...</a><a class="info" onclick="triggerInfo(1)" id="info1" style="display: none">за повече разбиране на тези понятия, вижте темата за дървета в графи</a>). Всеки връх на сегментното дърво отговаря за някакъв <i>сегмент</i> от масива, като сегментите на различни върхове не се пресичат. Затова се наричат и сегментни дървета :) Листата на дървото отговарят за единични сегменти - различните елементи на масива. Това, което се пази за всеки връх, винаги е свързано с конкретната цел, заради която построяваме сегментното. Така че, за да покажем как се построява и какво се пази във върховете, ще разгледаме следната стандартна задача. Нека имаме масив \(A\) от \(n\) числа. Заявките, които искаме да обработваме са следните:</p>
+                    <ul style="margin-top: -10px">
+                        <li class="dashed-list">заявки за търсене с параметри \(l\) и \(r\) - сумата на подмасив \(\sum\limits_{i=l}^r A[i]\)</li>
+                        <li class="dashed-list">заявки за обновяване с параметри \(pos\) и \(val\) - променяме стойността на някой елемент \(A[pos]=val\)</li>
+                    </ul>
+                    <p class="text-format">Може да разгледате интерактивния пример, където е построено сегментно дърво по масив, по него ще обясним цялостната концепция.</p>
+                    <div class="segTreeExample1 row">
+                        <div class="form-group col-lg-5">
+                            <form>
+                                <label for="array" class="label-input" style="float: left">Масив:</label>
+                                <input class="form-control col-9 col-md-6 col-lg-9 array" maxLength="47"/>
+                            </form><br>
+                            <button class="btn btn-primary make" onclick="makeSegTree(1)">Направи графа!</button><br>
+                            <button class="btn btn-primary default" onclick="defaultExample()" style="margin-top: 2%">Върни примера по подразбиране</button>
+                        </div>
+                        <div class="treeExample col-lg-7">
+                            <svg class="graph" width="100%" viewBox="0 0 300 150" style="margin-top: 2%" onmousedown="return false"></svg>
+                            <svg class="svg-save" width="100" height="100" viewBox="0 0 300 150" style="margin-top: 2%"></svg>
+                            <button class="btn btn-primary save" style="float: right">
+                                <svg class="bi" width="24px" height="24px" fill="currentColor">
+                                    <use xlink:href="/algo-site/source_files/bootstrap-icons/bootstrap-icons.svg#download"/>
+                                </svg>
+                            </button>
+                            <canvas class="canvas-save"></canvas>
+                        </div>
+                    </div>
                 </div>
             </div>
             
