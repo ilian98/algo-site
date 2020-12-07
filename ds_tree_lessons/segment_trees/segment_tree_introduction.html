@@ -41,7 +41,7 @@
                         <a href="#" class="text-danger">Сегментни дървета</a>
                     </li>
                     <li class="breadcrumb-item active" style="z-index:0" aria-current="page">Увод</li>
-                    <li class="ml-auto">Последна промяна: 05.12.2020</li>
+                    <li class="ml-auto">Последна промяна: 07.12.2020</li>
                 </ol>
             </nav>
         </header>
@@ -66,14 +66,14 @@
                         <li class="dashed-list">заявки за търсене с параметри \(l\) и \(r\) - сумата на подмасив \(\sum\limits_{i=l}^r A[i]\)</li>
                         <li class="dashed-list">заявки за обновяване с параметри \(pos\) и \(val\) - променяме стойността на някой елемент \(A[pos]=val\)</li>
                     </ul>
-                    <p class="text-format">Може да разгледате интерактивния пример, където е построено сегментно дърво по масив, по него ще обясним цялостната концепция.</p>
+                    <p class="text-format">Може да разгледате интерактивния пример, където е построено сегментно дърво по масив, по него ще обясним цялостната концепция. Във върховете на дървото е записана сумата на числата в масива, за които отговаря съответният връх, а до всеки връх в червено е сложен и самият сегмент.</p>
                     <div class="segTreeExample1 row">
                         <div class="form-group col-lg-5">
                             <form>
                                 <label for="array" class="label-input" style="float: left">Масив:</label>
                                 <input class="form-control col-9 col-md-6 col-lg-9 array" maxLength="47"/>
                             </form><br>
-                            <button class="btn btn-primary make" onclick="makeSegTree(1)">Направи графа!</button><br>
+                            <button class="btn btn-primary make" onclick="makeSegTree(1)">Направи дървото!</button><br>
                             <button class="btn btn-primary default" onclick="defaultExample()" style="margin-top: 2%">Върни примера по подразбиране</button>
                         </div>
                         <div class="treeExample col-lg-7">

@@ -75,7 +75,7 @@ function circleEnd (event) {
          graph.flagDraw=0;
 }
 function lineOut (event) {
-         var graph=this; console.log(graph);
+         var graph=this;
          if (window.isMobile==true) return ;
          var boundBox = {
              top: $(graph.svgName)[0].getBoundingClientRect().top+window.scrollY,
@@ -86,7 +86,6 @@ function lineOut (event) {
          if (window.isMobile==false) var point=[event.pageX,event.pageY];
          else if (event.changeTouches!=undefined) var point=[event.changedTouches[0].pageX,event.changedTouches[0].pageY];
          else var point=[event.touches[0].pageX,event.touches[0].pageY];
-          console.log(point);
          if ((point[0]<boundBox.left)||(point[0]>boundBox.right)||
              (point[1]<boundBox.top)||(point[1]>boundBox.bottom)) {
             if (graph.curEdgeDraw!=null) graph.curEdgeDraw.remove();
@@ -311,62 +310,102 @@ function placeVertex (graph, vr) {
 }
 function fillVersDepth (vr, father, dep, adjList, versDepth) {
     versDepth[dep].push(vr);
+    var max=dep;
     for (var i=0; i<adjList[vr].length; i++) {
-        if (adjList[vr][i]!=father) fillVersDepth(adjList[vr][i],vr,dep+1,adjList,versDepth);
+        if (adjList[vr][i]!=father) {
+            var value=fillVersDepth(adjList[vr][i],vr,dep+1,adjList,versDepth);
+            if (max<value) max=value;
+            }
         }
+    return max;
 }
 function drawGraph (graph, frameX, frameY, frameW, frameH, vertexRad) {
-         eraseGraph(graph);
-         graph.frameX=frameX; graph.frameY=frameY;
-         graph.frameW=frameW; graph.frameH=frameH;
-         graph.vertexRad=vertexRad;
-         var distVertices=vertexRad*5/4+parseInt((Math.random())*vertexRad/4);   
-         if (graph.isTree===false) {
-            var i,j,h;
-            possiblePos=[];
-            for (i=0; i<=(frameW-2*vertexRad)/(2*vertexRad+distVertices); i++) {
-                for (j=0; j<=(frameH-2*vertexRad)/(2*vertexRad+distVertices); j++) {
-                    possiblePos.push([i*(2*vertexRad+distVertices)+frameX,j*(2*vertexRad+distVertices)+frameY]);
-                    }
-                }
-            graph.verCoord.splice(0,graph.verCoord.length);
-            for (i=0; i<graph.n; i++) {
-                if (placeVertex(graph,i)==false) {
-                   drawGraph(graph,frameX,frameY,frameW,frameH,vertexRad);
-                   return ;
-                   }
-                }
-            }
-        else {
-            var versDepth=[],inDegree=[],root=0;
-            for (i=0; i<=graph.n; i++) {
-                versDepth[i]=[];
-                inDegree[i]=0;
-                }
-            if (graph.isOriented==true) {
-               for (i=0; i<graph.edgeList.length; i++) {
-                   inDegree[graph.edgeList[i][1]]++;
-                   }
-               for (i=0; i<graph.n; i++) {
-                   if (inDegree[i]==0) {
-                      root=i;
-                      break;
-                      }
-                   }
+    eraseGraph(graph);
+    graph.frameX=frameX; graph.frameY=frameY;
+    graph.frameW=frameW; graph.frameH=frameH;
+    graph.vertexRad=vertexRad;
+    var distVertices=vertexRad*5/4+parseInt((Math.random())*vertexRad/4);
+    var i,j,h;   
+    if (graph.isTree===false) {
+       possiblePos=[];
+       for (i=0; i<=(frameW-2*vertexRad)/(2*vertexRad+distVertices); i++) {
+           for (j=0; j<=(frameH-2*vertexRad)/(2*vertexRad+distVertices); j++) {
+               possiblePos.push([i*(2*vertexRad+distVertices)+frameX,j*(2*vertexRad+distVertices)+frameY]);
                }
-            fillVersDepth(root,-1,0,graph.adjList,versDepth);
-            var x,y=0;
-            for (i=0; ; i++) {
-                if (versDepth[i].length==0) break;
-                x=0;
-                for (j=0; j<versDepth[i].length; j++) {
-                    x+=Math.floor(frameW/(versDepth[i].length+1));
-                    graph.verCoord[versDepth[i][j]]=[x-vertexRad+frameX,y+frameY];
+           }
+       graph.verCoord.splice(0,graph.verCoord.length);
+       for (i=0; i<graph.n; i++) {
+           if (placeVertex(graph,i)==false) {
+              drawGraph(graph,frameX,frameY,frameW,frameH,vertexRad);
+              return ;
+              }
+           }
+       }
+    else {
+        var versDepth=[],inDegree=[],root=0;
+        for (i=0; i<=graph.n; i++) {
+            versDepth[i]=[];
+            inDegree[i]=0;
+            }
+        if (graph.isOriented==true) {
+           for (i=0; i<graph.edgeList.length; i++) {
+               inDegree[graph.edgeList[i][1]]++;
+               }
+           for (i=0; i<graph.n; i++) {
+               if (inDegree[i]==0) {
+                  root=i;
+                  break;
+                  }
+               }
+           }
+        var maxDepth=fillVersDepth(root,-1,0,graph.adjList,versDepth);
+        var x,y=(2*vertexRad+distVertices)*maxDepth+vertexRad,distX;
+        x=0; distX=(frameW-2*vertexRad-1)/(versDepth[maxDepth].length-1);
+        for (vertex of versDepth[maxDepth]) {
+            graph.verCoord[vertex]=[x+frameX,y+frameY];
+            x+=distX;
+            }
+        for (i=maxDepth-1; i>=0; i--) {
+            y-=(2*vertexRad+distVertices);
+            var ind=0;
+            for (vertex of versDepth[i]) {
+                if ((ind==versDepth[i+1].length)||(graph.adjMatrix[versDepth[i+1][ind]][vertex]==0)) {
+                   graph.verCoord[vertex]=undefined;
+                   continue;
+                   }
+                var sum=0,cnt=0;
+                for (; ind<versDepth[i+1].length; ind++) {
+                    if (graph.adjMatrix[versDepth[i+1][ind]][vertex]==0) break;
+                    sum+=graph.verCoord[versDepth[i+1][ind]][0];
+                    cnt++;
                     }
-                y+=(2*vertexRad+distVertices);
+                graph.verCoord[vertex]=[sum/cnt,y+frameY];
+                }
+            var prevX=0;
+            for (j=0; j<versDepth[i].length; j++) {
+                if (graph.verCoord[versDepth[i][j]]!==undefined) {
+                   prevX=graph.verCoord[versDepth[i][j]][0];
+                   continue;
+                   }
+                var cnt=1,nextX=frameX+frameW;
+                for (h=j; h<versDepth[i].length; h++) {
+                    if (graph.verCoord[versDepth[i][h]]!==undefined) {
+                       nextX=graph.verCoord[versDepth[i][h]][0];
+                       break;
+                       }
+                    cnt++;
+                    }
+                var x=prevX;
+                for (h=j; h<versDepth[i].length; h++) {
+                    if (graph.verCoord[versDepth[i][h]]!==undefined) break;
+                    x+=(nextX-prevX)/cnt;
+                    graph.verCoord[versDepth[i][h]]=[x,y+frameY];
+                    }
+                j=h-1;
                 }
             }
-        draw(graph,true);
+        }
+    draw(graph,true);
 }
 function determineDy (text) {
     var largeLetters=['b','d','f','h','k','l','t','б','в','й','','ж','з','и','к'];
