@@ -308,16 +308,24 @@ function placeVertex (graph, vr) {
              }
          return true;
 }
-function fillVersDepth (vr, father, dep, adjList, versDepth) {
-    versDepth[dep].push(vr);
+function findMaxDepth (vr, father, dep, adjList) {
     var max=dep;
     for (var i=0; i<adjList[vr].length; i++) {
         if (adjList[vr][i]!=father) {
-            var value=fillVersDepth(adjList[vr][i],vr,dep+1,adjList,versDepth);
+            var value=findMaxDepth(adjList[vr][i],vr,dep+1,adjList);
             if (max<value) max=value;
             }
         }
     return max;
+}
+function fillVersDepth (vr, father, dep, maxDepth, adjList, versDepth) {
+    if ((dep==maxDepth)||(vr!=-1)) versDepth[dep].push(vr);
+    if ((vr!=-1)&&(adjList[vr].length!=1)) {
+        for (var i=0; i<adjList[vr].length; i++) {
+            if (adjList[vr][i]!=father) fillVersDepth(adjList[vr][i],vr,dep+1,maxDepth,adjList,versDepth);
+            }
+        }
+    else if (dep<maxDepth) fillVersDepth(-1,-2,dep+1,maxDepth,adjList,versDepth);
 }
 function drawGraph (graph, frameX, frameY, frameW, frameH, vertexRad) {
     eraseGraph(graph);
@@ -358,16 +366,21 @@ function drawGraph (graph, frameX, frameY, frameW, frameH, vertexRad) {
                   }
                }
            }
-        var maxDepth=fillVersDepth(root,-1,0,graph.adjList,versDepth);
+        var maxDepth=findMaxDepth(root,-1,0,graph.adjList);
+        fillVersDepth(root,-1,0,maxDepth,graph.adjList,versDepth);
         var x,y=(2*vertexRad+distVertices)*maxDepth+vertexRad,distX;
         x=0; distX=(frameW-2*vertexRad-1)/(versDepth[maxDepth].length-1);
         for (vertex of versDepth[maxDepth]) {
-            graph.verCoord[vertex]=[x+frameX,y+frameY];
+            if (vertex!=-1) graph.verCoord[vertex]=[x+frameX,y+frameY];
             x+=distX;
             }
         for (i=maxDepth-1; i>=0; i--) {
             y-=(2*vertexRad+distVertices);
             var ind=0;
+            for (;;) {
+                if (versDepth[i+1][ind]!=-1) break;
+                ind++;
+                }
             for (vertex of versDepth[i]) {
                 if ((ind==versDepth[i+1].length)||(graph.adjMatrix[versDepth[i+1][ind]][vertex]==0)) {
                    graph.verCoord[vertex]=undefined;
@@ -375,6 +388,7 @@ function drawGraph (graph, frameX, frameY, frameW, frameH, vertexRad) {
                    }
                 var sum=0,cnt=0;
                 for (; ind<versDepth[i+1].length; ind++) {
+                    if (versDepth[i+1][ind]==-1) continue;
                     if (graph.adjMatrix[versDepth[i+1][ind]][vertex]==0) break;
                     sum+=graph.verCoord[versDepth[i+1][ind]][0];
                     cnt++;
