@@ -2,6 +2,7 @@
     <head>
         <link type="text/css" rel="stylesheet" href="/algo-site/source_files/bootstrap/dist/css/bootstrap.min.css"  media="screen,projection"/>
         <link type="text/css" rel="stylesheet" href="/algo-site/style.css"  media="screen,projection"/>
+        <link type="text/css" rel="stylesheet" href="/algo-site/lesson.css"  media="screen,projection"/>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
         <script type="text/javascript" src="/algo-site/source_files/jquery/dist/jquery.slim.min.js"></script>
@@ -25,8 +26,14 @@
             <div class="background"></div>
             <div id="nav-placeholder"></div>
             <script> $.get("/algo-site/navigation.html", function (data) {
-                          $("#nav-placeholder").replaceWith(data);
-                          });
+                    $("#nav-placeholder").replaceWith(data);
+               
+                    $(document).ready(function () {
+                        $(".content").css("min-height",$("body").outerHeight()-$(".navbar").outerHeight()-$("nav.unselectable").outerHeight()-$("footer").outerHeight());
+                    
+                        $(".wrapper").css("max-height",$("body").outerHeight()-$(".navbar").outerHeight()-$("nav.unselectable").outerHeight());
+                        });
+                    });
             </script>
         </header>
         
@@ -38,41 +45,52 @@
             </ol>
         </nav>
         
-        <div class="content">            
-            <h1 align="center">Увод в графите</h1>
+        <div class="wrapper">
+            <div class="content">            
+                <h1 align="center">Увод в графите</h1>
 
-            <div class="lesson-part-position">
-                <button class="btn btn-secondary" onclick="toggleText('firstPart')">1. Какво представляват графите?</button>
-                <div id="firstPart">
-                    <p class="text-format">Най-просто казано това са някакви неща, между които има някакви връзки. Например маршрутна мрежа, където „нещата“ са градове, а тези „връзки“ са пътни връзки. Има множество други примери, които могат да се моделират по такъв начин (приятелства, йерархия във фирма, ...).</p>
-                    <p class="text-format bold">Формална дефиниция и стандартни означения: Граф G е наредена двойка от множество от елементи (наречени върхове) V и множество от наредени/ненаредени двойки (наречени ребра) E между тях. Накратко: G (V,E).</p>
-                    <p class="text-format">Тази тема е много важна в състезателната (и практическата) информатика. Има разнообразни алгоритми, които могат да се прилагат в графи. Понятията в тази тема са изключително много, затова ще ги въвеждаме малко, по-малка, когато ни трябват.</p>
+                <div class="lesson-part-position">
+                    <button class="btn btn-secondary" onclick="toggleText('firstPart')">1. Какво представляват графите?</button>
+                    <div id="firstPart">
+                        <p class="text-format">Най-просто казано това са някакви неща, между които има някакви връзки. Например маршрутна мрежа, където „нещата“ са градове, а тези „връзки“ са пътни връзки. Има множество други примери, които могат да се моделират по такъв начин (приятелства, йерархия във фирма, ...).</p>
+                        <p class="text-format bold">Формална дефиниция и стандартни означения: Граф G е наредена двойка от множество от елементи (наречени върхове) V и множество от наредени/ненаредени двойки (наречени ребра) E между тях. Накратко: G (V,E).</p>
+                        <p class="text-format">Тази тема е много важна в състезателната (и практическата) информатика. Има разнообразни алгоритми, които могат да се прилагат в графи. Понятията в тази тема са изключително много, затова ще ги въвеждаме малко, по-малка, когато ни трябват.</p>
+                    </div>
                 </div>
-            </div>
-            <div class="lesson-part-position">
-                <button class="btn btn-secondary" onclick="toggleText('secondPart'); initExamples(0);">2. Видове графи.</button>
-                <div id="secondPart">
-                    <ul>
-                        <li class="dashed-list">според ребрата
-                            <ul>
-                                <svg class="graphExample1" width="30%" viewBox="0 0 300 300" style="float:right" onmousedown="return false"></svg>
-                                <li class="tilded-list" align="justify">
-                                ориентирани – както казахме ребрата могат да представляват наредени двойки (при тях редът ИМА значение), т.е. връзката има посока. Например ако графът моделира йерархията във фирма е важно дали връзката е шеф-подчинен или подчинен-шеф. Ето един пример. Тази „картинка“ с кръгчета и насочени отсечки е стандартен начин за изобразяване на граф от човек (а не от компютър). Множеството от върховете е V = { 1, 2, 3, 4, 5 }, а E = { (1,2), (1,3), (2,4), (2,5), (3,5) }. Забележете, че за всяка двойка в множеството E, на първо място седи върхът, от който излиза реброто, а на второ, върхът, в който влиза реброто. В случая графът може да моделира йерархията във фирма, като човекът под номер 1 е най-големият шеф, а например човекът под номер 5 има двама преки началници. Понеже графът е ориентиран, то би могло да съществува и реброто (2,1) ≠ (1,2). Но то няма смисъл, ако графът представя йерархията във фирма. Тогава може този граф да показва познанствата на хора (ако приемем, че познанството не е двустранно). Обърнете внимание, че един и същ граф може да изобразява различни неща.
-                                </li>
-                                <div style="clear: both">
-                                    <svg class="graphExample2" width="30%" viewBox="0 0 300 300" style="float:right" onmousedown="return false"></svg>
-                                    <li class="tilded-list" align="justify"> неориентирани – ребрата в тези графи са ненаредени двойки. Забележете, че тук отсечките са ненасочени. Множеството от върховете е отново V = { 1, 2, 3, 4, 5 }, а E = { (1,2), (1,3), (2,4), (2,5), (3,5) }. Тук за двойка в множеството E няма значение разположението на върховете, а само кои са. (това стандартно означение не е много коректно, защото обикновено с () се означават наредени двойки и би трябвало тук вместо това да се използват {}).
+                <div class="lesson-part-position">
+                    <button class="btn btn-secondary" onclick="toggleText('secondPart'); initExamples(0);">2. Видове графи.</button>
+                    <div id="secondPart">
+                        <ul>
+                            <li class="dashed-list">според ребрата
+                                <ul>
+                                    <svg class="graphExample1" width="30%" viewBox="0 0 300 300" style="float:right" onmousedown="return false"></svg>
+                                    <li class="tilded-list" align="justify">
+                                    ориентирани – както казахме ребрата могат да представляват наредени двойки (при тях редът ИМА значение), т.е. връзката има посока. Например ако графът моделира йерархията във фирма е важно дали връзката е шеф-подчинен или подчинен-шеф. Ето един пример. Тази „картинка“ с кръгчета и насочени отсечки е стандартен начин за изобразяване на граф от човек (а не от компютър). Множеството от върховете е V = { 1, 2, 3, 4, 5 }, а E = { (1,2), (1,3), (2,4), (2,5), (3,5) }. Забележете, че за всяка двойка в множеството E, на първо място седи върхът, от който излиза реброто, а на второ, върхът, в който влиза реброто. В случая графът може да моделира йерархията във фирма, като човекът под номер 1 е най-големият шеф, а например човекът под номер 5 има двама преки началници. Понеже графът е ориентиран, то би могло да съществува и реброто (2,1) ≠ (1,2). Но то няма смисъл, ако графът представя йерархията във фирма. Тогава може този граф да показва познанствата на хора (ако приемем, че познанството не е двустранно). Обърнете внимание, че един и същ граф може да изобразява различни неща.
                                     </li>
-                                </div>
-                            </ul>
-                        </li>
-                    </ul>
+                                    <div style="clear: both">
+                                        <svg class="graphExample2" width="30%" viewBox="0 0 300 300" style="float:right" onmousedown="return false"></svg>
+                                        <li class="tilded-list" align="justify"> неориентирани – ребрата в тези графи са ненаредени двойки. Забележете, че тук отсечките са ненасочени. Множеството от върховете е отново V = { 1, 2, 3, 4, 5 }, а E = { (1,2), (1,3), (2,4), (2,5), (3,5) }. Тук за двойка в множеството E няма значение разположението на върховете, а само кои са. (това стандартно означение не е много коректно, защото обикновено с () се означават наредени двойки и би трябвало тук вместо това да се използват {}).
+                                        </li>
+                                    </div>
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="lesson-part-position">
+                    <button class="btn btn-secondary" onclick="toggleText('thirdPart')">3. Представяне в паметта.</button>
                 </div>
             </div>
-
-            <div class="lesson-part-position">
-                <button class="btn btn-secondary" onclick="toggleText('thirdPart')">3. Представяне в паметта.</button>
-            </div>
+                
+            <footer class="unselectable">
+                © 2018-2020, разработено от <a href="/algo-site/about_me.html" class="about-me">Илиян Йорданов</a>
+                <div style="float: right">
+                    <a href="https://github.com/ilian98/algo-site" target="_blank">
+                        <svg color="black" xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" class="bi bi-github" viewBox="0 0 30 30"><use xlink:href="/algo-site/source_files/bootstrap-icons/bootstrap-icons.svg#github"/></svg>
+                    </a>
+                </div>
+            </footer>
         </div>
     </body>
 </html>

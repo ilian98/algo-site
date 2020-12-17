@@ -2,6 +2,7 @@
     <head>
         <link type="text/css" rel="stylesheet" href="source_files/bootstrap/dist/css/bootstrap.min.css"  media="screen,projection"/>
         <link type="text/css" rel="stylesheet" href="style.css"  media="screen,projection"/>
+        <link type="text/css" rel="stylesheet" href="about_me.css"  media="screen,projection"/>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
         <script type="text/javascript" src="source_files/jquery/dist/jquery.slim.min.js"></script>
@@ -15,21 +16,37 @@
         <header>
             <div class="background"></div>
             <div id="nav-placeholder"></div>
-            <script> $.get("navigation_en.html", function (data) {
-                          $("#nav-placeholder").replaceWith(data);
-                          });
+            <script> $.get("/algo-site/navigation_en.html", function (data) {
+                    $("#nav-placeholder").replaceWith(data);
+               
+                    $(document).ready(function () {
+                        $(".content").css("min-height",$("body").outerHeight()-$(".navbar").outerHeight()-$("footer").outerHeight());
+                    
+                        $(".wrapper").css("max-height",$("body").outerHeight()-$(".navbar").outerHeight());
+                        });
+                    });
             </script>
         </header>
         
-        <div class="content unselectable">
-            <h1 align="center">About me</h1>
+        <div class="wrapper">
+            <div class="content unselectable">
+                <h1 align="center">About me</h1>
             
-            <div id="firstPart" style="display: block">
-                <img src="my_picture.jpg" altext="Моя снимка" class="my-picture">
-                <p style="font-family: Lobster; font-size: 20px; text-align: justify">This site is developed by Iliyan Yordanov to help people in learning different algorithms in computer science. I'm former competitor in informatics and mathematics, former member of the national teams of Bulgaria in informatics junior and senior age. I'm author of many tasks and deputy leader of the national teams of Bulgaria, member of the national commitee. This year I teach lessons in competitive programming to students 8 and 9 grade in private school "Olimpiici" (Olympians).</p>
-                <p style="font-family: Lobster; font-size: 20px; text-align: justify">I hope that this site can really help you. :)</p>
+                <div class="text">
+                    <img src="my_picture.jpg" altext="Моя снимка" class="my-picture">
+                    <p style="font-family: Lobster; font-size: 20px; text-align: justify">This site is developed by Iliyan Yordanov to help people in learning different algorithms in computer science. I'm former competitor in informatics and mathematics, former member of the national teams of Bulgaria in informatics junior and senior age. I'm author of many tasks and deputy leader of the national teams of Bulgaria, member of the national commitee. This year I teach lessons in competitive programming to students 8 and 9 grade in private school "Olimpiici" (Olympians).</p>
+                    <p style="font-family: Lobster; font-size: 20px; text-align: justify">I hope that this site can really help you. :)</p>
+                </div>
             </div>
-            
+                
+            <footer class="unselectable">
+                © 2018-2020, developed by <a href="/algo-site/about_me_en.html" class="about-me">Iliyan Yordanov</a>
+                <div style="float: right">
+                    <a href="https://github.com/ilian98/algo-site" target="_blank">
+                        <svg color="black" xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" class="bi bi-github" viewBox="0 0 30 30"><use xlink:href="/algo-site/source_files/bootstrap-icons/bootstrap-icons.svg#github"/></svg>
+                    </a>
+                </div>
+            </footer>
         </div>
     </body>
 </html>

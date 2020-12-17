@@ -267,7 +267,7 @@ function graphExample (name, isOriented, vertexRad) {
         DFSObject.clear();
         output.innerHTML=this.value;
         DFSObject.graph.n=this.value;
-        DFSObject.init(false);
+        DFSObject.init(false,name,name+" .graph",isOriented,vertexRad);
         }
     
     var speed=document.querySelector(name+" .form-group");

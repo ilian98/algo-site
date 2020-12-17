@@ -2,6 +2,7 @@
     <head>
         <link type="text/css" rel="stylesheet" href="source_files/bootstrap/dist/css/bootstrap.min.css"  media="screen,projection"/>
         <link type="text/css" rel="stylesheet" href="style.css"  media="screen,projection"/>
+        <link type="text/css" rel="stylesheet" href="lessons_list.css"  media="screen,projection"/>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
         <script type="text/javascript" src="source_files/jquery/dist/jquery.slim.min.js"></script>
@@ -15,9 +16,15 @@
         <header>
             <div class="background"></div>
             <div id="nav-placeholder"></div>
-            <script> $.get("navigation.html", function (data) {
-                          $("#nav-placeholder").replaceWith(data);
-                          });
+            <script> $.get("/algo-site/navigation.html", function (data) {
+                    $("#nav-placeholder").replaceWith(data);
+               
+                    $(document).ready(function () {
+                        $(".content").css("min-height",$("body").outerHeight()-$(".navbar").outerHeight()-$("nav.unselectable").outerHeight()-$("footer").outerHeight());
+                    
+                        $(".wrapper").css("max-height",$("body").outerHeight()-$(".navbar").outerHeight()-$("nav.unselectable").outerHeight());
+                        });
+                    });
             </script>
         </header>
         
@@ -27,105 +34,116 @@
             </ol>
         </nav>
         
-        <div class="content">
-            <div style="height: 40px"></div>
-            
-            <div class="card-columns">
-                <div class="card card-lessons">
-                    <div class="card-body">
-                        <h3 class="card-title text-center unselectable">
-                            <a href="mathematical_lessons/2-SAT.html" class="lesson-link">2-SAT</a>
-                        </h3>
-                    </div>
-                </div>
-                
-                <div class="card card-lessons">
-                    <div class="card-body">
-                        <h3 class="card-title text-center unselectable lesson-name">
-                            <a>FFT</a>
-                        </h3>
-                    </div>
-                </div>
-            
-                <div class="card card-lessons">
-                    <div class="card-body">
-                        <h3 class="card-title text-center unselectable lesson-name">
-                            <a>Игри</a>
-                        </h3>
-                    </div>
-                </div>
-                
-                <div class="card card-lessons">
-                    <div class="card-body">
-                        <h3 class="card-title text-center unselectable lesson-name">
-                            <a>Комбинаторика</a>
-                        </h3>
-                    </div>
-                </div>
-                
-                <div class="card card-lessons">
-                    <div class="card-body">
-                        <h3 class="card-title text-center unselectable lesson-name">
-                            <a>Пресмятане на аритметични изрази</a>
-                        </h3>
-                    </div>
-                </div>
-                
-                <div class="card card-lessons">
-                    <div class="card-body">
-                        <h3 class="card-title text-center unselectable lesson-name">
-                            <a>Разширен алгоритъм на Евклид</a>
-                        </h3>
-                    </div>
-                </div>
-                
-                <div class="card card-lessons">
-                    <div class="card-body">
-                        <h3 class="card-title text-center unselectable lesson-name">
-                            <a>Редици</a>
-                        </h3>
-                    </div>
-                </div>
-                
-                <div class="card card-lessons">
-                    <div class="card-body">
-                        <h3 class="card-title text-center unselectable lesson-name">
-                            <a>Решето на Ератостен</a>
-                        </h3>
-                    </div>
-                </div>
-                
-                <div class="card card-lessons">
-                    <div class="card-body">
-                        <h3 class="card-title text-center unselectable lesson-name">
-                            <a>Системи линейни уравнения</a>
-                        </h3>
-                    </div>
-                </div>
-                
-                <div class="card card-lessons">
-                    <div class="card-body">
-                        <h3 class="card-title text-center lesson-name">Други</h3>
-                        <div id="collapseFirst" class="collapse hide" aria-labelledby="headingFirst">
-                            <ul align="left">
-                                <li type="disc">
-                                    <a>Брой делители на число</a>
-                                </li>
-                                <li type="disc">
-                                    <a>Нули на полином</a>
-                                </li>
-                                <li type="disc">
-                                    <a>Проверка за просто число</a>
-                                </li>
-                            </ul>
+        <div class="wrapper">
+            <div class="content">
+                <div style="height: 40px"></div>
+
+                <div class="card-columns">
+                    <div class="card card-lessons">
+                        <div class="card-body">
+                            <h3 class="card-title text-center unselectable">
+                                <a href="mathematical_lessons/2-SAT.html" class="lesson-link">2-SAT</a>
+                            </h3>
                         </div>
                     </div>
-                    <div class="card-footer unselectable text-center arrow collapsed" id="headingFirst" data-toggle="collapse" href="#collapseFirst" aria-expanded="true" aria-controls="collapseFirst">
-                        <span class="not-collapsed">&#9660;</span>
-                        <span class="collapsed">&#9650;</span>
+
+                    <div class="card card-lessons">
+                        <div class="card-body">
+                            <h3 class="card-title text-center unselectable lesson-name">
+                                <a>FFT</a>
+                            </h3>
+                        </div>
+                    </div>
+
+                    <div class="card card-lessons">
+                        <div class="card-body">
+                            <h3 class="card-title text-center unselectable lesson-name">
+                                <a>Игри</a>
+                            </h3>
+                        </div>
+                    </div>
+
+                    <div class="card card-lessons">
+                        <div class="card-body">
+                            <h3 class="card-title text-center unselectable lesson-name">
+                                <a>Комбинаторика</a>
+                            </h3>
+                        </div>
+                    </div>
+
+                    <div class="card card-lessons">
+                        <div class="card-body">
+                            <h3 class="card-title text-center unselectable lesson-name">
+                                <a>Пресмятане на аритметични изрази</a>
+                            </h3>
+                        </div>
+                    </div>
+
+                    <div class="card card-lessons">
+                        <div class="card-body">
+                            <h3 class="card-title text-center unselectable lesson-name">
+                                <a>Разширен алгоритъм на Евклид</a>
+                            </h3>
+                        </div>
+                    </div>
+
+                    <div class="card card-lessons">
+                        <div class="card-body">
+                            <h3 class="card-title text-center unselectable lesson-name">
+                                <a>Редици</a>
+                            </h3>
+                        </div>
+                    </div>
+
+                    <div class="card card-lessons">
+                        <div class="card-body">
+                            <h3 class="card-title text-center unselectable lesson-name">
+                                <a>Решето на Ератостен</a>
+                            </h3>
+                        </div>
+                    </div>
+
+                    <div class="card card-lessons">
+                        <div class="card-body">
+                            <h3 class="card-title text-center unselectable lesson-name">
+                                <a>Системи линейни уравнения</a>
+                            </h3>
+                        </div>
+                    </div>
+
+                    <div class="card card-lessons">
+                        <div class="card-body">
+                            <h3 class="card-title text-center lesson-name">Други</h3>
+                            <div id="collapseFirst" class="collapse hide" aria-labelledby="headingFirst">
+                                <ul align="left">
+                                    <li type="disc">
+                                        <a>Брой делители на число</a>
+                                    </li>
+                                    <li type="disc">
+                                        <a>Нули на полином</a>
+                                    </li>
+                                    <li type="disc">
+                                        <a>Проверка за просто число</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="card-footer unselectable text-center arrow collapsed" id="headingFirst" data-toggle="collapse" href="#collapseFirst" aria-expanded="true" aria-controls="collapseFirst">
+                            <span class="not-collapsed">&#9660;</span>
+                            <span class="collapsed">&#9650;</span>
+                        </div>
                     </div>
                 </div>
             </div>
+            
+            <footer class="unselectable">
+                © 2018-2020, разработено от <a href="/algo-site/about_me.html" class="about-me">Илиян Йорданов</a>
+                <div style="float: right">
+                    <a href="https://github.com/ilian98/algo-site" target="_blank">
+                        <svg color="black" xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" class="bi bi-github" viewBox="0 0 30 30"><use xlink:href="/algo-site/source_files/bootstrap-icons/bootstrap-icons.svg#github"/></svg>
+                    </a>
+                </div>
+            </footer>
         </div>
     </body>
 </html>

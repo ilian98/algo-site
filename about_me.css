@@ -1,0 +1,19 @@
+@media (max-width: 480px) {
+        .my-picture {
+         width: 100%;
+         }
+}
+@media (min-width: 481px) {
+        .my-picture {
+         height: 40%;
+         }
+}
+.text {
+    background-color: rgba(255,255,255,0.5);
+    border-radius: 10px;
+    float: left;
+}
+.my-picture {
+    float: left;
+    margin-right: 10px
+}

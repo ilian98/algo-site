@@ -14,17 +14,21 @@
     <body>
         <header>
             <div id="nav-placeholder"></div>
-            <script> $.get("navigation_en.html", function (data) {
-                          $("#nav-placeholder").replaceWith(data);
-                          });
+            <script> $.get("/algo-site/navigation_en.html", function (data) {
+                    $("#nav-placeholder").replaceWith(data);
+               
+                    $(document).ready(function () {
+                        $(".content").css("max-height",$("body").outerHeight()-$(".navbar").outerHeight()-$("footer").outerHeight());
+                        });
+                    });
             </script>
 
             <div class="background"></div>
         </header>
         
-        <div class="site-heading unselectable">Algorithms for competitive programming</div>
+        <div class="content" style="overflow-y: auto">
+            <div class="site-heading unselectable">Algorithms for competitive programming</div>
         
-        <div class="content">
             <div class="card flex-md-row mb-4 box-shadow h-md-250 card-news">
                 <div class="card-body d-flex flex-column align-items-start">
                     <h3 class="mb-0 unselectable">New lesson</h3>
@@ -33,9 +37,7 @@
                     <a href="/algo-site/ds_tree_lessons/segment_trees/segment_tree_introduction.html" class="news-link unselectable">Go to the lesson</a>
                 </div>
             </div>
-        </div>
         
-        <div class="content">
             <div class="card flex-md-row mb-4 box-shadow h-md-250 card-news">
                 <div class="card-body d-flex flex-column align-items-start">
                     <h3 class="mb-0 unselectable">New lesson</h3>
@@ -44,9 +46,7 @@
                     <a href="/algo-site/mathematical_lessons/2-SAT.html" class="news-link unselectable">Go to the lesson</a>
                 </div>
             </div>
-        </div>
         
-        <div class="content">
             <div class="card flex-md-row mb-4 box-shadow h-md-250 card-news">
                 <div class="card-body d-flex flex-column align-items-start">
                     <h3 class="mb-0 unselectable">New lesson</h3>
@@ -55,9 +55,7 @@
                     <a href="/algo-site/other_lessons/brute_force.html" class="news-link unselectable">Go to the lesson</a>
                 </div>
             </div>
-        </div>
         
-        <div class="content">
             <div class="card flex-md-row mb-4 box-shadow h-md-250 card-news">
                 <div class="card-body d-flex flex-column align-items-start">
                     <h3 class="mb-0 unselectable">New functionality for interactive samples</h3>
@@ -66,9 +64,7 @@
                     <a href="/algo-site/graph_lessons/graph_traversal/depth_first_search.html" class="news-link unselectable">Go to the lesson</a>
                 </div>
             </div>
-        </div>
         
-        <div class="content">
             <div class="card flex-md-row mb-4 box-shadow h-md-250 card-news">
                 <div class="card-body d-flex flex-column align-items-start">
                     <h3 class="mb-0 unselectable">New lesson</h3>
@@ -77,6 +73,16 @@
                     <a href="/algo-site/other_lessons/hashing.html" class="news-link unselectable">Go to the lesson</a>
                 </div>
             </div>
+            
         </div>
+        
+        <footer class="fixed-bottom unselectable">
+            © 2018-2020, developed by <a href="/algo-site/about_me_en.html" class="about-me">Iliyan Yordanov</a>
+            <div style="float: right">
+                <a href="https://github.com/ilian98/algo-site" target="_blank">
+                    <svg color="black" xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" class="bi bi-github" viewBox="0 0 30 30"><use xlink:href="/algo-site/source_files/bootstrap-icons/bootstrap-icons.svg#github"/></svg>
+                </a>
+            </div>
+        </footer>
     </body>
 </html>

@@ -3,6 +3,7 @@
     <head>
         <link type="text/css" rel="stylesheet" href="/algo-site/source_files/bootstrap/dist/css/bootstrap.min.css"  media="screen,projection"/>
         <link type="text/css" rel="stylesheet" href="/algo-site/style.css"  media="screen,projection"/>
+        <link type="text/css" rel="stylesheet" href="/algo-site/lesson.css"  media="screen,projection"/>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
         <script type="text/javascript" src="/algo-site/source_files/jquery/dist/jquery.slim.min.js"></script>
@@ -29,8 +30,14 @@
             <div class="background"></div>
             <div id="nav-placeholder"></div>
             <script> $.get("/algo-site/navigation.html", function (data) {
-                          $("#nav-placeholder").replaceWith(data);
-                          });
+                    $("#nav-placeholder").replaceWith(data);
+               
+                    $(document).ready(function () {
+                        $(".content").css("min-height",$("body").outerHeight()-$(".navbar").outerHeight()-$("nav.unselectable").outerHeight()-$("footer").outerHeight());
+                    
+                        $(".wrapper").css("max-height",$("body").outerHeight()-$(".navbar").outerHeight()-$("nav.unselectable").outerHeight());
+                        });
+                    });
             </script>
             <nav aria-label="breadcrumb" class="unselectable">
                 <ol class="breadcrumb">
@@ -47,63 +54,74 @@
         </header>
         
         
-        
-        <div class="content">            
-            <h1 align="center">Увод в сегментните дървета</h1>
+        <div class="wrapper">
+            <div class="content">            
+                <h1 align="center">Увод в сегментните дървета</h1>
 
-            <div class="lesson-part-position">
-                <button class="btn btn-secondary" onclick="toggleText('firstPart')">1. За какво се използват?</button>
-                <div id="firstPart">
-                    <p class="text-format">Това е една от най-използваните и гъвкави структури от данни в състезателната информатика. Обикновено сегментното дърво се построява върху някакъв масив и поддържа бързо два типа заявки - за намиране на някаква информация за подмасив (така наречените заявки за търсене) и за промяна на един елемент или подмасив (заявки за обновяване). Много често се среща в задачи със заявки. В по-сложни задачи понякога част от задачата се свежда до някакви заявки и съответно за тях се използва сегментно дърво за бърза работа. Един минус, който имат е, че като цяло не могат да се поддържат добавяне на елемент или премахване освен в редки случаи. Така че обикновено си мислим за масива като с фиксиран брой елементи, който не се променя по време на заявките.</p>
+                <div class="lesson-part-position">
+                    <button class="btn btn-secondary" onclick="toggleText('firstPart')">1. За какво се използват?</button>
+                    <div id="firstPart">
+                        <p class="text-format">Това е една от най-използваните и гъвкави структури от данни в състезателната информатика. Обикновено сегментното дърво се построява върху някакъв масив и поддържа бързо два типа заявки - за намиране на някаква информация за подмасив (така наречените заявки за търсене) и за промяна на един елемент или подмасив (заявки за обновяване). Много често се среща в задачи със заявки. В по-сложни задачи понякога част от задачата се свежда до някакви заявки и съответно за тях се използва сегментно дърво за бърза работа. Един минус, който имат е, че като цяло не могат да се поддържат добавяне на елемент или премахване освен в редки случаи. Така че обикновено си мислим за масива като с фиксиран брой елементи, който не се променя по време на заявките.</p>
+                    </div>
                 </div>
-            </div>
-            
-            <div class="lesson-part-position">
-                <button class="btn btn-secondary" onclick="toggleText('secondPart'); initExamples(2)">2. Построяване на сегментно дърво</button>
-                <div id="secondPart">
-                    <p class="text-format">Сегметното дърво е двоично кореново дърво (<a class="info" onclick="triggerInfo(1)" id="trigger1">...</a><a class="info" onclick="triggerInfo(1)" id="info1" style="display: none">за повече разбиране на тези понятия, вижте темата за дървета в графи</a>). Всеки връх на сегментното дърво отговаря за някакъв <i>сегмент</i> от масива, като сегментите на различни върхове не се пресичат. Затова се наричат и сегментни дървета :) Листата на дървото отговарят за единични сегменти - различните елементи на масива. Това, което се пази за всеки връх, винаги е свързано с конкретната цел, заради която построяваме сегментното. Така че, за да покажем как се построява и какво се пази във върховете, ще разгледаме следната стандартна задача. Нека имаме масив \(A\) от \(n\) числа. Заявките, които искаме да обработваме са следните:</p>
-                    <ul style="margin-top: -10px">
-                        <li class="dashed-list">заявки за търсене с параметри \(l\) и \(r\) - сумата на подмасив \(\sum\limits_{i=l}^r A[i]\)</li>
-                        <li class="dashed-list">заявки за обновяване с параметри \(pos\) и \(val\) - променяме стойността на някой елемент \(A[pos]=val\)</li>
-                    </ul>
-                    <p class="text-format">Може да разгледате интерактивния пример, където е построено сегментно дърво по масив, по него ще обясним цялостната концепция. Във върховете на дървото е записана сумата на числата в масива, за които отговаря съответният връх, а до всеки връх в червено е сложен и самият сегмент.</p>
-                    <div class="segTreeExample1 row">
-                        <div class="form-group col-lg-5">
-                            <form>
-                                <label for="array" class="label-input" style="float: left">Масив:</label>
-                                <input class="form-control col-9 col-md-6 col-lg-9 array" maxLength="47"/>
-                            </form><br>
-                            <button class="btn btn-primary make" onclick="makeSegTree(1)">Направи дървото!</button><br>
-                            <button class="btn btn-primary default" onclick="defaultExample()" style="margin-top: 2%">Върни началния пример</button>
+
+                <div class="lesson-part-position">
+                    <button class="btn btn-secondary" onclick="toggleText('secondPart'); initExamples(2)">2. Построяване на сегментно дърво</button>
+                    <div id="secondPart">
+                        <p class="text-format">Сегметното дърво е двоично кореново дърво (<a class="info" onclick="triggerInfo(1)" id="trigger1">...</a><a class="info" onclick="triggerInfo(1)" id="info1" style="display: none">за повече разбиране на тези понятия, вижте темата за дървета в графи</a>). Всеки връх на сегментното дърво отговаря за някакъв <i>сегмент</i> от масива, като сегментите на различни върхове не се пресичат. Затова се наричат и сегментни дървета :) Листата на дървото отговарят за единични сегменти - различните елементи на масива. Това, което се пази за всеки връх, винаги е свързано с конкретната цел, заради която построяваме сегментното. Така че, за да покажем как се построява и какво се пази във върховете, ще разгледаме следната стандартна задача. Нека имаме масив \(A\) от \(n\) числа. Заявките, които искаме да обработваме са следните:</p>
+                        <ul style="margin-top: -10px">
+                            <li class="dashed-list">заявки за търсене с параметри \(l\) и \(r\) - сумата на подмасив \(\sum\limits_{i=l}^r A[i]\)</li>
+                            <li class="dashed-list">заявки за обновяване с параметри \(pos\) и \(val\) - променяме стойността на някой елемент \(A[pos]=val\)</li>
+                        </ul>
+                        <p class="text-format">Може да разгледате интерактивния пример, където е построено сегментно дърво по масив, по него ще обясним цялостната концепция. Във върховете на дървото е записана сумата на числата в масива, за които отговаря съответният връх, а до всеки връх в червено е сложен и самият сегмент.</p>
+                        <div class="segTreeExample1 row">
+                            <div class="form-group col-lg-5">
+                                <form>
+                                    <label for="array" class="label-input" style="float: left">Масив:</label>
+                                    <input class="form-control col-9 col-md-6 col-lg-9 array" maxLength="47"/>
+                                </form><br>
+                                <button class="btn btn-primary make" onclick="makeSegTree(1)">Направи дървото!</button><br>
+                                <button class="btn btn-primary default" onclick="defaultExample()" style="margin-top: 2%">Върни началния пример</button>
+                            </div>
+                            <div class="treeExample col-lg-7">
+                                <svg class="graph" width="100%" viewBox="0 0 300 150" style="margin-top: 2%" onmousedown="return false"></svg>
+                                <svg class="svg-save" width="100" height="100" viewBox="0 0 300 150" style="margin-top: 2%"></svg>
+                                <button class="btn btn-primary save" style="float: right">
+                                    <svg class="bi" width="24px" height="24px" fill="currentColor">
+                                        <use xlink:href="/algo-site/source_files/bootstrap-icons/bootstrap-icons.svg#download"/>
+                                    </svg>
+                                </button>
+                                <canvas class="canvas-save"></canvas>
+                            </div>
                         </div>
-                        <div class="treeExample col-lg-7">
-                            <svg class="graph" width="100%" viewBox="0 0 300 150" style="margin-top: 2%" onmousedown="return false"></svg>
-                            <svg class="svg-save" width="100" height="100" viewBox="0 0 300 150" style="margin-top: 2%"></svg>
-                            <button class="btn btn-primary save" style="float: right">
-                                <svg class="bi" width="24px" height="24px" fill="currentColor">
-                                    <use xlink:href="/algo-site/source_files/bootstrap-icons/bootstrap-icons.svg#download"/>
-                                </svg>
-                            </button>
-                            <canvas class="canvas-save"></canvas>
-                        </div>
+                    </div>
+                </div>
+
+                <div class="lesson-part-position">
+                    <button class="btn btn-secondary" onclick="toggleText('thirdPart'); initExamples(3)">3. Обработка на заявки</button>
+                    <div id="thirdPart">
+
+                    </div>
+                </div>
+
+                <div class="lesson-part-position">
+                    <button class="btn btn-secondary" onclick="toggleText('thirdPart'); initExamples(3)">4. Динамични сегментни дървета</button>
+                    <div id="fourthPart">
+
                     </div>
                 </div>
             </div>
             
-            <div class="lesson-part-position">
-                <button class="btn btn-secondary" onclick="toggleText('thirdPart'); initExamples(3)">3. Обработка на заявки</button>
-                <div id="thirdPart">
-                    
+            <footer class="unselectable">
+                © 2018-2020, разработено от <a href="/algo-site/about_me.html" class="about-me">Илиян Йорданов</a>
+                <div style="float: right">
+                    <a href="https://github.com/ilian98/algo-site" target="_blank">
+                        <svg color="black" xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" class="bi bi-github" viewBox="0 0 30 30"><use xlink:href="/algo-site/source_files/bootstrap-icons/bootstrap-icons.svg#github"/></svg>
+                    </a>
                 </div>
-            </div>
-            
-            <div class="lesson-part-position">
-                <button class="btn btn-secondary" onclick="toggleText('thirdPart'); initExamples(3)">4. Динамични сегментни дървета</button>
-                <div id="fourthPart">
-                    
-                </div>
-            </div>
-            
+            </footer>
         </div>
+        
+        
     </body>
 </html>

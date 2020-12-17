@@ -2,6 +2,7 @@
     <head>
         <link type="text/css" rel="stylesheet" href="source_files/bootstrap/dist/css/bootstrap.min.css"  media="screen,projection"/>
         <link type="text/css" rel="stylesheet" href="style.css"  media="screen,projection"/>
+        <link type="text/css" rel="stylesheet" href="lessons_list.css"  media="screen,projection"/>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
         <script type="text/javascript" src="source_files/jquery/dist/jquery.slim.min.js"></script>
@@ -15,9 +16,15 @@
         <header>
             <div class="background"></div>
             <div id="nav-placeholder"></div>
-            <script> $.get("navigation_en.html", function (data) {
-                          $("#nav-placeholder").replaceWith(data);
-                          });
+            <script> $.get("/algo-site/navigation_en.html", function (data) {
+                    $("#nav-placeholder").replaceWith(data);
+               
+                    $(document).ready(function () {
+                        $(".content").css("min-height",$("body").outerHeight()-$(".navbar").outerHeight()-$("nav.unselectable").outerHeight()-$("footer").outerHeight());
+                    
+                        $(".wrapper").css("max-height",$("body").outerHeight()-$(".navbar").outerHeight()-$("nav.unselectable").outerHeight());
+                        });
+                    });
             </script>
         </header>
         
@@ -27,75 +34,86 @@
             </ol>
         </nav>
         
-        <div class="content">
-            <div style="height: 40px"></div>
-            
-            <div class="card-columns">
-                <div class="card card-lessons">
-                    <div class="card-body">
-                        <h3 class="card-title text-center unselectable lesson-name">
-                            <a>Tricks</a>
-                        </h3>
+        <div class="wrapper">
+            <div class="content">
+                <div style="height: 40px"></div>
+
+                <div class="card-columns">
+                    <div class="card card-lessons">
+                        <div class="card-body">
+                            <h3 class="card-title text-center unselectable lesson-name">
+                                <a>Tricks</a>
+                            </h3>
+                        </div>
                     </div>
-                </div>
-                
-                <div class="card card-lessons">
-                    <div class="card-body">
-                        <h3 class="card-title text-center unselectable">
-                            <a href="other_lessons/brute_force.html" class="lesson-link">Brute force</a>
-                        </h3>
+
+                    <div class="card card-lessons">
+                        <div class="card-body">
+                            <h3 class="card-title text-center unselectable">
+                                <a href="other_lessons/brute_force.html" class="lesson-link">Brute force</a>
+                            </h3>
+                        </div>
                     </div>
-                </div>
-                
-                <div class="card card-lessons">
-                    <div class="card-body">
-                        <h3 class="card-title text-center unselectable lesson-name">
-                            <a>Meet in the middle</a>
-                        </h3>
+
+                    <div class="card card-lessons">
+                        <div class="card-body">
+                            <h3 class="card-title text-center unselectable lesson-name">
+                                <a>Meet in the middle</a>
+                            </h3>
+                        </div>
                     </div>
-                </div>
-                
-                <div class="card card-lessons">
-                    <div class="card-body">
-                        <h3 class="card-title text-center unselectable lesson-name">
-                            <a>Tasks with queries</a>
-                        </h3>
+
+                    <div class="card card-lessons">
+                        <div class="card-body">
+                            <h3 class="card-title text-center unselectable lesson-name">
+                                <a>Tasks with queries</a>
+                            </h3>
+                        </div>
                     </div>
-                </div>
-            
-                <div class="card card-lessons">
-                    <div class="card-body">
-                        <h3 class="card-title text-center unselectable lesson-name">
-                            <a>Binary search</a>
-                        </h3>
+
+                    <div class="card card-lessons">
+                        <div class="card-body">
+                            <h3 class="card-title text-center unselectable lesson-name">
+                                <a>Binary search</a>
+                            </h3>
+                        </div>
                     </div>
-                </div>
-                
-                <div class="card card-lessons">
-                    <div class="card-body">
-                        <h3 class="card-title text-center unselectable lesson-name">
-                            <a>Binary lifting</a>
-                        </h3>
+
+                    <div class="card card-lessons">
+                        <div class="card-body">
+                            <h3 class="card-title text-center unselectable lesson-name">
+                                <a>Binary lifting</a>
+                            </h3>
+                        </div>
                     </div>
-                </div>
-            
-                <div class="card card-lessons">
-                    <div class="card-body">
-                        <h3 class="card-title text-center unselectable">
-                            <a href="other_lessons/hashing.html" class="lesson-link">Hashing</a>
-                        </h3>
+
+                    <div class="card card-lessons">
+                        <div class="card-body">
+                            <h3 class="card-title text-center unselectable">
+                                <a href="other_lessons/hashing.html" class="lesson-link">Hashing</a>
+                            </h3>
+                        </div>
                     </div>
-                </div>
-                
-                <div class="card card-lessons">
-                    <div class="card-body">
-                        <h3 class="card-title text-center unselectable lesson-name">
-                            <a>Divide and conquer</a>
-                        </h3>
+
+                    <div class="card card-lessons">
+                        <div class="card-body">
+                            <h3 class="card-title text-center unselectable lesson-name">
+                                <a>Divide and conquer</a>
+                            </h3>
+                        </div>
                     </div>
+
                 </div>
-                
             </div>
+            
+            <footer class="unselectable">
+                © 2018-2020, developed by <a href="/algo-site/about_me_en.html" class="about-me">Iliyan Yordanov</a>
+                <div style="float: right">
+                    <a href="https://github.com/ilian98/algo-site" target="_blank">
+                        <svg color="black" xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" class="bi bi-github" viewBox="0 0 30 30"><use xlink:href="/algo-site/source_files/bootstrap-icons/bootstrap-icons.svg#github"/></svg>
+                    </a>
+                </div>
+            </footer>
         </div>
     </body>
 </html>

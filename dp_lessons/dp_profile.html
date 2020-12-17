@@ -3,6 +3,7 @@
     <head>
         <link type="text/css" rel="stylesheet" href="/algo-site/source_files/bootstrap/dist/css/bootstrap.min.css"  media="screen,projection"/>
         <link type="text/css" rel="stylesheet" href="/algo-site/style.css"  media="screen,projection"/>
+        <link type="text/css" rel="stylesheet" href="/algo-site/lesson.css"  media="screen,projection"/>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
         <script type="text/javascript" src="/algo-site/source_files/jquery/dist/jquery.slim.min.js"></script>
@@ -27,8 +28,14 @@
             <div class="background"></div>
             <div id="nav-placeholder"></div>
             <script> $.get("/algo-site/navigation.html", function (data) {
-                          $("#nav-placeholder").replaceWith(data);
-                          });
+                    $("#nav-placeholder").replaceWith(data);
+               
+                    $(document).ready(function () {
+                        $(".content").css("min-height",$("body").outerHeight()-$(".navbar").outerHeight()-$("nav.unselectable").outerHeight()-$("footer").outerHeight());
+                    
+                        $(".wrapper").css("max-height",$("body").outerHeight()-$(".navbar").outerHeight()-$("nav.unselectable").outerHeight());
+                        });
+                    });
             </script>
         </header>
         
@@ -42,37 +49,48 @@
             </ol>
         </nav>
         
-        <div class="content">            
-            <h1 align="center">Динамично по профил</h1>
+        <div class="wrapper">
+            <div class="content">            
+                <h1 align="center">Динамично по профил</h1>
 
-            <div class="lesson-part-position">
-                <button class="btn btn-secondary" onclick="toggleText('firstPart')">1. Какво представлява динамичното по профил?</button>
-                <div id="firstPart">
-                    
+                <div class="lesson-part-position">
+                    <button class="btn btn-secondary" onclick="toggleText('firstPart')">1. Какво представлява динамичното по профил?</button>
+                    <div id="firstPart">
+
+                    </div>
                 </div>
+
+                <div class="lesson-part-position">
+                    <button class="btn btn-secondary" onclick="toggleText('secondPart'); initExamples(2)">2. Получаване на матрицата на преходите</button>
+                    <div id="secondPart">
+
+                    </div>
+                </div>
+
+                <div class="lesson-part-position">
+                    <button class="btn btn-secondary" onclick="toggleText('thirdPart'); initExamples(3)">3. Свеждане до бързо повдигане на матрица в степен</button>
+                    <div id="thirdPart">
+
+                    </div>
+                </div>
+
+                <div class="lesson-part-position">
+                    <button class="btn btn-secondary" onclick="toggleText('thirdPart'); initExamples(3)">4. Задачата за покритието с домина</button>
+                    <div id="fourthPart">
+
+                    </div>
+                </div>
+
             </div>
             
-            <div class="lesson-part-position">
-                <button class="btn btn-secondary" onclick="toggleText('secondPart'); initExamples(2)">2. Получаване на матрицата на преходите</button>
-                <div id="secondPart">
-                    
+            <footer class="unselectable">
+                © 2018-2020, разработено от <a href="/algo-site/about_me.html" class="about-me">Илиян Йорданов</a>
+                <div style="float: right">
+                    <a href="https://github.com/ilian98/algo-site" target="_blank">
+                        <svg color="black" xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" class="bi bi-github" viewBox="0 0 30 30"><use xlink:href="/algo-site/source_files/bootstrap-icons/bootstrap-icons.svg#github"/></svg>
+                    </a>
                 </div>
-            </div>
-            
-            <div class="lesson-part-position">
-                <button class="btn btn-secondary" onclick="toggleText('thirdPart'); initExamples(3)">3. Свеждане до бързо повдигане на матрица в степен</button>
-                <div id="thirdPart">
-                    
-                </div>
-            </div>
-            
-            <div class="lesson-part-position">
-                <button class="btn btn-secondary" onclick="toggleText('thirdPart'); initExamples(3)">4. Задачата за покритието с домина</button>
-                <div id="fourthPart">
-                    
-                </div>
-            </div>
-            
+            </footer>
         </div>
     </body>
 </html>

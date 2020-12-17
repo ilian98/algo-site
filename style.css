@@ -1,4 +1,4 @@
-@media (min-width: 1200px) {
+@media (min-width: 992px) {
         .navbar-nav > li{
          margin-left: 4%;
          margin-right: 4%;
@@ -18,9 +18,16 @@
        url('fonts/lobster-v23-latin-ext_latin_cyrillic-ext_cyrillic-regular.svg#Lobster') format('svg'); /* Legacy iOS */
 }
 
-
+html {
+    height: 100%;
+}
 body {
-    z-index:0;
+    z-index: 0;
+    height: 100%;
+    overflow-y: hidden;
+}
+.wrapper {
+    overflow-y: auto;
 }
 .content {
     padding-left: 5%;
@@ -41,6 +48,43 @@ body {
     opacity: 0.2;
     z-index: -1;
 }
+footer {
+    background: #696969;
+    padding-top: 0.5%;
+    padding-bottom: 0.5%;
+    padding-left: 1%;
+    padding-right: 1%;
+    clear: both;
+}
+.about-me:link {
+    color: firebrick;
+    text-decoration: underline;
+}
+.about-me:visited {
+    color: firebrick;
+    text-decoration: underline;
+}
+.about-me:hover {
+    color: white;
+    text-decoration: none;
+}
+.bi-github:hover {
+    background-color: #696969;
+    color: white;
+}
+.breadcrumb {
+    padding-top: 7px;
+    padding-bottom: 7px;
+    margin-bottom: 0px;
+}
+.unselectable {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+
 .site-heading {
     font-family: "Lobster";
     font-size: 45px;
@@ -63,163 +107,4 @@ body {
 }
 .news-link:hover {
     color: brown;
-}
-
-ul {
-    list-style-type: none;
-}
-.dashed-list:before {
-    content: '\2014';
-    margin-left: -20px;
-    margin-right: 10px;
-}
-.tilded-list:before {
-    content: '\223C';
-    position: absolute;
-    margin-left: -40px;
-}
-
-
-.text-format {
-    text-indent: 50px;
-    text-align: justify;
-}
-.bold {
-    font-weight: bold;
-}
-.unselectable {
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
-}
-
-.lesson-part-position {
-    margin-top: 1%;
-    margin-bottom: 1%;
-    clear: both;
-}
-
-.card-lessons {
-    background-color: mediumaquamarine;
-}
-
-.breadcrumb {
-    padding-top: 7px;
-    padding-bottom: 7px;
-}
-
-.arrow .not-collapsed {
-    display:inline;
-}
-.arrow:not(.collapsed) .not-collapsed {
-    display:none;
-}
-.arrow.collapsed .collapsed {
-    display:none;
-}
-[data-toggle~="collapse"] {
-    cursor: pointer;
-}
-
-.card-footer {
-    padding-top: 2px;
-    padding-bottom: 2px;
-}
-
-#firstPart, #secondPart, #thirdPart, #fourthPart {
-    background-color: rgba(255,255,255,0.5);
-    border-radius: 10px;
-    float: left;
-    display: none;
-}
-
-.slidecontainer {
-    width: 100%;
-}
-.slider {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 100%;
-    height: 5px;
-    background: grey;
-    outline: none;
-    opacity: 0.5;
-    -webkit-transition: .1s;
-    transition: opacity .1s;
-}
-.slider:hover {
-    opacity: 0.7;
-}
-.slider::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    background: green;
-    cursor: pointer;
-}
-.slider::-moz-range-thumb {
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    background: green;
-    cursor: pointer;
-}
-
-.lesson-name {
-    color: black;
-    opacity: 0.7;
-}
-.lesson-link:link {
-    color: black;
-}
-.lesson-link:visited {
-    color: black;
-}
-.lesson-link:hover {
-    color: black;
-}
-
-.label-input {
-    margin-top: 7px;
-    margin-right: 5px;
-}
-
-.info {
-    text-decoration: none;
-    color: black;
-}
-.info:visited {
-    text-decoration: none;
-    color: black;
-}
-.info:hover {
-    text-decoration: none;
-    background-color: white;
-    border-radius: 5px;
-    color: black;
-    cursor: pointer;
-}
-
-pre {
-  white-space: pre-wrap;
-  word-wrap: break-word;
-  text-align: justify;
-}
-
-@media (max-width: 480px) {
-        .my-picture {
-         width: 100%;
-         }
-}
-@media (min-width: 481px) {
-        .my-picture {
-         height: 40%;
-         }
-}
-.my-picture {
-    float: left;
-    margin-right: 10px
 }
