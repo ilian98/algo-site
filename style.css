@@ -4,6 +4,16 @@
          margin-right: 4%;
          }
 }
+@media (min-width: 401px) {
+        .navbar-toggler {
+         margin-bottom: 0px;
+         }
+}
+@media (max-width: 400px) {
+        .navbar-toggler {
+         margin-bottom: 10px;
+         }
+}
 
 @font-face {
   font-family: 'Lobster';
