@@ -1,3 +1,45 @@
+function get_page (URL) {
+    var URL=document.URL,index=-1;
+    for (var i=0; i<URL.length; i++) {
+        if (URL[i]=='/') index=i;
+        }
+    return URL.slice(index+1,URL.length);
+}
+(function () {
+    var page=get_page(),home_page=false;
+    if ((page=="")||(page=="index.html")||(page=="index_en.html")) {
+        home_page=true;
+    }
+    else {
+        window.isMobile=false;
+        window.addEventListener("touchstart",function onFirstTouch() {
+            window.isMobile=true;
+            window.removeEventListener("touchstart",onFirstTouch,false);
+        },false);
+    }
+        
+    function set_heights () {
+        var min_height=$("body").outerHeight();
+        if ($(".navbar").length) min_height-=$(".navbar").outerHeight();
+        if ($("nav.unselectable").length) min_height-=$("nav.unselectable").outerHeight();
+        min_height-=$("footer").outerHeight();
+        if (home_page===false) {
+            $(".content").css("min-height",min_height);
+            $(".wrapper").css("max-height",min_height+$("footer").outerHeight());
+        }
+        else $(".content").css("max-height",min_height);
+    }
+    var navigation_page="/algo-site/navigation.html";
+    if (page.endsWith("_en.html")===true) navigation_page="/algo-site/navigation_en.html";
+    $.get(navigation_page, function (data) {
+        $("#nav-placeholder").replaceWith(data);
+        
+        $(document).ready(function () {
+            set_heights();
+            $(window).resize(set_heights);
+        });
+    });
+})();
 function toggleText (name) {
          if (cur===null) return 0;
          var cur=document.getElementById(name);
@@ -5,7 +47,7 @@ function toggleText (name) {
          else cur.style.display="block";
 }
 function changeLanguage (object, language) {
-    var s=document.URL; console.log(s);
+    var s=document.URL;
     if (s.includes(".html")===false) {
         if (language=="en") s+="index_en.html";
         else return ;
@@ -43,11 +85,7 @@ function isSmallLatinLetter (event) {
 }
 
 function initExamples (part = 1) {
-    var URL=document.URL,index=-1;
-    for (var i=0; i<URL.length; i++) {
-        if (URL[i]=='/') index=i;
-        }
-    var page=URL.slice(index+1,URL.length);
+    var page=get_page();
     if (page=="introduction_to_graphs.html") {
         var example1 = new Graph ();
         example1.n=5; example1.isOriented=true;

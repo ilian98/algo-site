@@ -16,16 +16,6 @@
         <header>
             <div class="background"></div>
             <div id="nav-placeholder"></div>
-            <script> $.get("/algo-site/navigation_en.html", function (data) {
-                    $("#nav-placeholder").replaceWith(data);
-               
-                    $(document).ready(function () {
-                        $(".content").css("min-height",$("body").outerHeight()-$(".navbar").outerHeight()-$("footer").outerHeight());
-                    
-                        $(".wrapper").css("max-height",$("body").outerHeight()-$(".navbar").outerHeight());
-                        });
-                    });
-            </script>
         </header>
         
         <div class="wrapper">

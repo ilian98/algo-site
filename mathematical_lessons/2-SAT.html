@@ -18,38 +18,19 @@
         <title>2-SAT</title>
     </head>
     <body>
-        <script type="text/javascript">
-            window.isMobile=false;
-            window.addEventListener("touchstart",function onFirstTouch() {
-                window.isMobile=true;
-                window.removeEventListener("touchstart",onFirstTouch,false);
-                },false);
-            
-        </script>
         <header>
             <div class="background"></div>
             <div id="nav-placeholder"></div>
-            <script> $.get("/algo-site/navigation.html", function (data) {
-                    $("#nav-placeholder").replaceWith(data);
-               
-                    $(document).ready(function () {
-                        $(".content").css("min-height",$("body").outerHeight()-$(".navbar").outerHeight()-$("nav.unselectable").outerHeight()-$("footer").outerHeight());
-                    
-                        $(".wrapper").css("max-height",$("body").outerHeight()-$(".navbar").outerHeight()-$("nav.unselectable").outerHeight());
-                        });
-                    });
-            </script>
+            <nav aria-label="breadcrumb" class="unselectable">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item" style="z-index:0">
+                        <a href="/algo-site/mathematical_lessons.html" class="text-danger">Математични</a>
+                    </li>
+                    <li class="breadcrumb-item active" style="z-index:0" aria-current="page">2-SAT</li>
+                    <li class="ml-auto">Последна промяна: 26.11.2020</li>
+                </ol>
+            </nav>
         </header>
-        
-        <nav aria-label="breadcrumb" class="unselectable">
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item" style="z-index:0">
-                    <a href="/algo-site/mathematical_lessons.html" class="text-danger">Математични</a>
-                </li>
-                <li class="breadcrumb-item active" style="z-index:0" aria-current="page">2-SAT</li>
-                <li class="ml-auto">Последна промяна: 26.11.2020</li>
-            </ol>
-        </nav>
         
         <div class="wrapper">
             <div class="content">            

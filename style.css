@@ -30,18 +30,22 @@
 
 html {
     height: 100%;
+    width: 100%;
 }
 body {
     z-index: 0;
     height: 100%;
+    width: 100%;
     overflow-y: hidden;
 }
 .wrapper {
     overflow-y: auto;
+    width: 100%;
 }
 .content {
     padding-left: 5%;
     padding-right: 5%;
+    width: 100%;
 }
 .bg-navbar-color {
     background-color: lightgreen;
