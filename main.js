@@ -31,12 +31,18 @@ function get_page (URL) {
     }
     var navigation_page="/algo-site/navigation.html";
     if (page.endsWith("_en.html")===true) navigation_page="/algo-site/navigation_en.html";
-    $.get(navigation_page, function (data) {
+    $(document).ready(function () {
+        $.get(navigation_page, function (data) {
         $("#nav-placeholder").replaceWith(data);
         
-        $(document).ready(function () {
+        var footer_page="/algo-site/footer.html";
+        if (page.endsWith("_en.html")===true) footer_page="/algo-site/footer_en.html";
+        $.get(footer_page, function (data) {
+            $("#footer-placeholder").replaceWith(data);
+            
             set_heights();
             $(window).resize(set_heights);
+            });
         });
     });
 })();
