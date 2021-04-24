@@ -103,7 +103,7 @@ function initExamples (part = 1) {
                             [0,0,0,0,1],
                             [0,0,0,0,0],
                             [0,0,0,0,0]];
-        drawGraph(example1,1,1,299,299,20);
+        example1.drawNewGraph(1,1,299,299,20,true);
 
         var example2 = new Graph ();
         example2.n=5; example2.isOriented=false;
@@ -115,12 +115,12 @@ function initExamples (part = 1) {
                             [1,0,0,0,1],
                             [1,0,0,0,0],
                             [0,1,1,0,0]];
-        drawGraph(example2,1,1,299,299,20);
-        }
+        example2.drawNewGraph(1,1,299,299,20,true);
+    }
     else if (page=="depth_first_search.html") {
-        var example1 = new graphExample (".graphExample1",false,20);
-        var example2 = new graphExample (".graphExample2",true,20);
-        }
+        let example1 = new graphExample (".graphExample1",false,20);
+        let example2 = new graphExample (".graphExample2",true,20);
+    }
     else if (page=="hashing.html") {
         document.querySelector(".hashExample1 .base").value="307";
         document.querySelector(".hashExample1 .modulo").value="1009";
@@ -131,22 +131,22 @@ function initExamples (part = 1) {
         document.querySelector(".hashExample2 .modulo").value="1009";
         document.getElementById("multiSet").value="1,2,3";
         calculateHashMultiSet();
-        }
+    }
     else if (page=="2-SAT.html") {
         if (part==2) {
             document.querySelector(".twoSATexample1 .formula").value="(a||b)&&(a||!c)&&(!a||!b)";
             initExample(1);
             makeImplicationGraph(1);
-            }
+        }
         else if (part==3) {
             document.querySelector(".twoSATexample2 .formula").value="(a||b)&&(a||!c)&&(!a||!b)";
             initExample(2);
             showSCC();
-            }
         }
+    }
     else if (page=="segment_tree_introduction.html") {
         document.querySelector(".segTreeExample1 .array").value="9,5,3,2,1,7,8,6";
         initExample(1);
         makeSegTree(1);
-        }
+    }
 }

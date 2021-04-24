@@ -123,33 +123,35 @@ function findImplications (implications, formula) {
 }
 function makeImplicationGraph (part) {
     graph=graphs[part];
-    eraseGraph(graph);
+    graph.erase();
     var formula=document.querySelector(".twoSATexample"+part+" .formula").value;
     var implications = [];
     flag = false;
     findImplications(implications,formula);
-    //console.log(flag,implications);
     if (flag==true) return ;
     var variables = new Map(),x,y;
-    graph.n=0; graph.edgeList=[]; graph.adjList=[];
+    let ind=0;
+    graph.edgeList=[]; graph.adjList=[];
+    graph.initVertices(2*implications.length);
     for (i=0; i<implications.length; i++) {
         if (variables.has(implications[i][0])===false) {
-            variables.set(implications[i][0],graph.n);
-            graph.verNames[graph.n]=implications[i][0];
-            graph.adjList[graph.n]=[];
-            graph.n++;
+            variables.set(implications[i][0],ind);
+            graph.vertices[ind].name=implications[i][0];
+            graph.adjList[ind]=[];
+            ind++;
             }
         x=variables.get(implications[i][0]);
         if (variables.has(implications[i][1])===false) {
-            variables.set(implications[i][1],graph.n);
-            graph.verNames[graph.n]=implications[i][1];
-            graph.adjList[graph.n]=[];
-            graph.n++;
+            variables.set(implications[i][1],ind);
+            graph.vertices[ind].name=implications[i][1];
+            graph.adjList[ind]=[];
+            ind++;
             }
         y=variables.get(implications[i][1]);
         graph.edgeList.push([x,y]);
         graph.adjList[x].push(y);
         }
+    graph.n=ind;
     graph.adjMatrix=[];
     for (i=0; i<graph.n; i++) {
         graph.adjMatrix[i]=[];
@@ -163,8 +165,7 @@ function makeImplicationGraph (part) {
             }
         }
     
-    drawGraph(graph,1,1,299,149,10);
-    draw(graph,false);
+    graph.drawNewGraph(1,1,299,149,10,false);
 }
 
 function dfs1 (vr, adjList, used, order) {
@@ -220,35 +221,35 @@ function showSCC () {
     var jump=Math.floor(46/num),colour=0;
     for (i=0; i<num; i++) {
         for (j=0; j<comps[i].length; j++) {
-            graph.verCircles[comps[i][j]].attr({fill: colours[colour]});
-            }
-        colour+=jump;
+            graph.svgVertices[comps[i][j]].circle.attr({fill: colours[colour]});
         }
+        colour+=jump;
+    }
     for (i=0; i<graph.edgeList.length; i++) {
         var from=graph.edgeList[i][0],to=graph.edgeList[i][1];
-        if (graph.verCircles[from].attr("fill")==graph.verCircles[to].attr("fill")) {
-            graph.edgeLines[i].attr({stroke: graph.verCircles[from].attr("fill")});
-            graph.markers[i].attr({fill: graph.verCircles[from].attr("fill")});
-            }
+        if (graph.svgVertices[from].circle.attr("fill")==graph.svgVertices[to].circle.attr("fill")) {
+            graph.edgeLines[i].attr({stroke: graph.svgVertices[from].circle.attr("fill")});
+            graph.edgeLines[i].marker.attr({fill: graph.svgVertices[from].circle.attr("fill")});
         }
+    }
     
     var solution=document.querySelector(".twoSATexample2 .solution"),text;
     text="";
     for (i=0; i<graph.n; i++) {
-        if (graph.verNames[i][0]=='!') continue;
+        if (graph.vertices[i].name[0]=='!') continue;
         var comp=[];
         for (j=0; j<num; j++) {
             for (h=0; h<comps[j].length; h++) {
-                if (graph.verNames[comps[j][h]]==graph.verNames[i]) comp[0]=j;
-                else if (graph.verNames[comps[j][h]]=="!"+graph.verNames[i]) comp[1]=j;
+                if (graph.vertices[comps[j][h]].name==graph.vertices[i].name) comp[0]=j;
+                else if (graph.vertices[comps[j][h]].name=="!"+graph.vertices[i].name) comp[1]=j;
                 }
             }
         if (comp[0]==comp[1]) {
-            text="Няма решение, защото в силно-свързаната компонента на връх \\("+graph.verNames[i]+"\\) има и неговото отрицание!";
+            text="Няма решение, защото в силно-свързаната компонента на връх \\("+graph.vertices[i].name+"\\) има и неговото отрицание!";
             break;
             }
         if (text!="") text+=", ";
-        text+=graph.verNames[i];
+        text+=graph.vertices[i].name;
         if (comp[0]>comp[1]) text+=" = 1";
         else text+=" = 0";
         }

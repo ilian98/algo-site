@@ -4,26 +4,32 @@ function initExample (part) {
     trees[part].init(".segTreeExample"+part+" .treeExample .graph",8,false,true,true);
 }
 
-function makeEdges (index, l, r, edges, verNames, elements) {
+function makeEdges (index, l, r, edges, vertices, elements) {
     if (l==r) {
-       verNames[index]=elements[l].toString();
+       vertices[index].name=elements[l].toString();
        return ;
        }
     var mid=Math.floor((l+r)/2);
-    edges.push([index,2*index+1]); makeEdges(2*index+1,l,mid,edges,verNames,elements);
-    edges.push([index,2*index+2]); makeEdges(2*index+2,mid+1,r,edges,verNames,elements);
-    verNames[index]=(parseInt(verNames[2*index+1])+parseInt(verNames[2*index+2])).toString();
+    edges.push([index,2*index+1]); makeEdges(2*index+1,l,mid,edges,vertices,elements);
+    edges.push([index,2*index+2]); makeEdges(2*index+2,mid+1,r,edges,vertices,elements);
+    vertices[index].name=(parseInt(vertices[2*index+1].name)+parseInt(vertices[2*index+2].name)).toString();
 }
 function addSegmentsLabels (index, l, r, tree) {
     var text=tree.s.text(0,0,"["+l+";"+r+"]");
-    tree.circles[index]=tree.s.group(tree.circles[index],text);
-    text.attr({"font-size": tree.vertexRad*5/6, "text-align": "center", class: "unselectable", fill: "#B22222"});
+    tree.svgVertices[index].text=tree.s.group(tree.svgVertices[index].text,text);
+    text.attr({"font-size": tree.vertexRad*5/6, "font-family": "Times New Roman", "text-align": "center", class: "unselectable", fill: "#B22222"});
     if (l==r) {
-       text.attr({x: tree.verCoord[index][0]+tree.vertexRad, y: tree.verCoord[index][1]+2*tree.vertexRad+text.getBBox().h/2});
+       text.attr({
+           x: tree.svgVertices[index].coord[0]+tree.vertexRad, 
+           y: tree.svgVertices[index].coord[1]+2*tree.vertexRad+text.getBBox().h/2
+       });
        text.attr({dy: "0.34em", "text-anchor": "middle"});
        return ;
        }
-    text.attr({x: tree.verCoord[index][0]+tree.vertexRad, y: tree.verCoord[index][1]-text.getBBox().h/2});
+    text.attr({
+        x: tree.svgVertices[index].coord[0]+tree.vertexRad, 
+        y: tree.svgVertices[index].coord[1]-text.getBBox().h/2
+    });
     text.attr({dy: "0.34em", "text-anchor": "middle"});
     var mid=Math.floor((l+r)/2);
     addSegmentsLabels(2*index+1,l,mid,tree);
@@ -31,7 +37,7 @@ function addSegmentsLabels (index, l, r, tree) {
 }
 function makeSegTree (part) {
     tree=trees[part];
-    eraseGraph(tree);
+    tree.erase();
     var s=document.querySelector(".segTreeExample"+part+" .array").value;
     var elements=[],num=0,digs=0,i;
     for (i=0; i<s.length; i++) {
@@ -67,12 +73,11 @@ function makeSegTree (part) {
             return ;
             }
         }
-    tree.edgeList=[]; tree.verNames=[];
-    makeEdges(0,0,elements.length-1,tree.edgeList,tree.verNames,elements);
+    tree.edgeList=[]; tree.initVertices(4*elements.length);
+    makeEdges(0,0,elements.length-1,tree.edgeList,tree.vertices,elements);
     tree.fillAdjListMatrix();
-    if (elements.length<=8) drawGraph(tree,1,1,299,149,10);
-    else drawGraph(tree,1,1,299,149,7);
-    draw(tree,false);
+    if (elements.length<=8) tree.drawNewGraph(1,1,299,149,10,false);
+    else tree.drawNewGraph(1,1,299,149,7,false);
     
     addSegmentsLabels(0,1,elements.length,tree);
 }

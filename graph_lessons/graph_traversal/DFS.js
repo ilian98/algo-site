@@ -36,7 +36,7 @@ function DFS () {
         else vertexRad=graph.vertexRad;
         this.used=[]; this.animations=[];
         this.speed=2000;
-        drawGraph(graph,1,1,299,299,vertexRad);
+        graph.drawNewGraph(1,1,299,299,vertexRad,true);
         };
     
     this.start = function () {
@@ -47,7 +47,7 @@ function DFS () {
         var animText = this.animText;
         var DFSObject = this;
         var speed = parseInt(this.speed);
-        draw(graph,false);
+        graph.draw(graph,false);
         
         graph.minas=[]; DFSObject.currAnimation=0;
         this.used=[];
@@ -69,31 +69,31 @@ function DFS () {
                     for (var j=0; j<animLen; j++) {
                         curAnim=animations[i][j];
                         if (curAnim[0]==0) {
-                            graph.verCircles[curAnim[1]].isLast=(j==animLen-1);
+                            graph.svgVertices[curAnim[1]].circle.isLast=(j==animLen-1);
                             animText.innerText=curAnim[3];
-                            graph.verCircles[curAnim[1]].animate({fill: curAnim[2]},speed,function () {
+                            graph.svgVertices[curAnim[1]].circle.animate({fill: curAnim[2]},speed,function () {
                                 if (this.isLast==true) {
                                     if (i!=animations.length-1) animFuncs[i+1].func();
                                     }
                                 });
-                            graph.minas.push(graph.verCircles[curAnim[1]].inAnim()[0].mina);
+                            graph.minas.push(graph.svgVertices[curAnim[1]].circle.inAnim()[0].mina);
                             }
                         else if (curAnim[0]==2) {
-                            graph.textCircles[curAnim[1]].isLast=(j==animLen-1);
+                            graph.svgVertices[curAnim[1]].text.isLast=(j==animLen-1);
                             animText.innerText=curAnim[3];
-                            graph.textCircles[curAnim[1]].animate({fill: curAnim[2]},speed,function () {
+                            graph.svgVertices[curAnim[1]].text.animate({fill: curAnim[2]},speed,function () {
                                 if (this.isLast==true) {
                                     if (i!=animations.length-1) animFuncs[i+1].func();
                                     }
                                 });
-                            graph.minas.push(graph.textCircles[curAnim[1]].inAnim()[0].mina);
+                            graph.minas.push(graph.svgVertices[curAnim[1]].text.inAnim()[0].mina);
                             }
                         else {
                             var stx,sty,endx,endy;
-                            stx=graph.verCoord[curAnim[1]][0]+vertexRad;
-                            sty=graph.verCoord[curAnim[1]][1]+vertexRad;
-                            endx=graph.verCoord[curAnim[2]][0]+vertexRad;
-                            endy=graph.verCoord[curAnim[2]][1]+vertexRad;
+                            stx=graph.svgVertices[curAnim[1]].coord[0]+graph.vertexRad;
+                            sty=graph.svgVertices[curAnim[1]].coord[1]+graph.vertexRad;
+                            endx=graph.svgVertices[curAnim[2]].coord[0]+graph.vertexRad;
+                            endy=graph.svgVertices[curAnim[2]].coord[1]+graph.vertexRad;
                             var path="M "+stx.toString()+","+sty.toString()+" L"+endx.toString()+","+endy.toString();
                             var length=Snap.path.getTotalLength(path);
                             var lineDraw=graph.s.path(path);
@@ -101,8 +101,8 @@ function DFS () {
                                            "stroke-dasharray": length.toString()+" "+length.toString(),
                                            "stroke-dashoffset": length, "stroke-linecap": "round",
                                            "stroke-linejoin": "round", "stroke-miterlimit": 10});
-                            graph.s.append(graph.circles[curAnim[1]]);
-                            graph.s.append(graph.circles[curAnim[2]]);
+                            graph.s.append(graph.svgVertices[curAnim[1]].group);
+                            graph.s.append(graph.svgVertices[curAnim[2]].group);
                             lineDraw.isLast=(j==animLen-1);
                             animText.innerText=curAnim[3];
                             graph.minas.push(Snap.animate(length,0,
@@ -177,7 +177,6 @@ function DFS () {
         this.previousButton.style.display="none"; this.nextButton.style.display="none";
         this.animText.innerText="";
         this.clearGraph(true);
-        this.graph.drawEdges(1,1,299,299);
     }
         
 }
@@ -189,19 +188,19 @@ function dfsUntilStep (graph, used, vr, curStep, step) {
     for (var i=0; i<graph.adjList[vr].length; i++) {
         if (used[graph.adjList[vr][i]]==0) {
             if (verColour!=0) {
-                graph.verCircles[vr].attr("fill","red");
-                graph.textCircles[vr].attr("fill","black");
+                graph.svgVertices[vr].circle.attr("fill","red");
+                graph.svgVertices[vr].text.attr("fill","black");
                 curStep++;
                 if (curStep==step) return curStep;
                 verColour=0;
                 }
-            graph.verCircles[vr].attr("fill","grey");
-            graph.textCircles[vr].attr("fill","white");
+            graph.svgVertices[vr].circle.attr("fill","grey");
+            graph.svgVertices[vr].text.attr("fill","white");
             curStep++;
             if (curStep==step) return curStep;
             
-            graph.verCircles[graph.adjList[vr][i]].attr("fill","red");
-            graph.textCircles[graph.adjList[vr][i]].attr("fill","black");
+            graph.svgVertices[graph.adjList[vr][i]].circle.attr("fill","red");
+            graph.svgVertices[graph.adjList[vr][i]].text.attr("fill","black");
             curStep++;
             if (curStep==step) return curStep;
             
@@ -211,8 +210,8 @@ function dfsUntilStep (graph, used, vr, curStep, step) {
             }
         else {
             if (verColour!=0) {
-                graph.verCircles[vr].attr("fill","red");
-                graph.textCircles[vr].attr("fill","black");
+                graph.svgVertices[vr].circle.attr("fill","red");
+                graph.svgVertices[vr].text.attr("fill","black");
                 curStep++;
                 if (curStep==step) return curStep;
                 verColour=0;
@@ -222,13 +221,13 @@ function dfsUntilStep (graph, used, vr, curStep, step) {
             }
         }
     if (verColour==1) {
-        graph.verCircles[vr].attr("fill","red");
-        graph.textCircles[vr].attr("fill","black");
+        graph.svgVertices[vr].circle.attr("fill","red");
+        graph.svgVertices[vr].text.attr("fill","black");
         curStep++;
         if (curStep==step) return curStep;
         }
-    graph.verCircles[vr].attr("fill","black");
-    graph.textCircles[vr].attr("fill","white");
+    graph.svgVertices[vr].circle.attr("fill","black");
+    graph.svgVertices[vr].text.attr("fill","white");
     curStep++;
     return curStep;
 }
@@ -256,7 +255,6 @@ function graphExample (name, isOriented, vertexRad) {
     var previousButton = DFSObject.previousButton = document.querySelector(name+" .previous");
     var nextButton = DFSObject.nextButton = document.querySelector(name+" .next");
     var animText = DFSObject.animText = document.querySelector(name+" .anim-text");
-    DFSObject.clear();
     
     var slider=document.querySelector(name+" .range");
     var output=document.querySelector(name+" .slider-value");
@@ -317,7 +315,7 @@ function graphExample (name, isOriented, vertexRad) {
                     pauseButton.flagPause=false; pauseButton.flagStep=true;
                     pauseButton.click();
                     DFSObject.clearGraph(true);
-                    DFSObject.graph.drawEdges(1,1,299,299);
+                    DFSObject.graph.draw(false);
                     if (DFSObject.currAnimation==0) {
                         DFSObject.currAnimation=1;
                         currAnimation=1;
@@ -337,7 +335,7 @@ function graphExample (name, isOriented, vertexRad) {
                     pauseButton.flagPause=false; pauseButton.flagStep=true;
                     pauseButton.click();
                     DFSObject.clearGraph(true);
-                    DFSObject.graph.drawEdges(1,1,299,299);
+                    DFSObject.graph.draw(false);
                     DFSObject.currAnimation++;
                     var used=[];
                     for (var i=0; i<DFSObject.graph.n; i++) used[i]=0;
@@ -351,7 +349,7 @@ function graphExample (name, isOriented, vertexRad) {
             if (speedInput.value==="") speedInput.value="2";
             this.flag=false; this.innerText="Старт!";
             DFSObject.clear();
-            DFSObject.graph.drawEdges(1,1,299,299);
+            DFSObject.graph.draw(true);
             }
         }
 }
