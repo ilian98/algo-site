@@ -1,0 +1,186 @@
+<html>
+    <head>
+        <link type="text/css" rel="stylesheet" href="/algo-site/libs/bootstrap/dist/css/bootstrap.min.css"  media="screen,projection"/>
+        <link type="text/css" rel="stylesheet" href="/algo-site/styles/style.css"  media="screen,projection"/>
+        <link type="text/css" rel="stylesheet" href="/algo-site/styles/lessons_list.css"  media="screen,projection"/>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+        <script type="text/javascript" src="/algo-site/libs/jquery/dist/jquery.slim.min.js"></script>
+        <script type="text/javascript" src="/algo-site/libs/jquery/dist/jquery.min.js"></script>
+        <script type="text/javascript" src="/algo-site/libs/popper.js/dist/umd/popper.min.js"></script>
+        <script type="text/javascript" src="/algo-site/libs/bootstrap/dist/js/bootstrap.min.js"></script>
+        <script type="text/javascript" src="/algo-site/js/main.js"></script>
+    </head>
+    <body>
+        <header>
+            <title>Graph algorithms</title>
+            <div class="background"></div>
+            <div id="nav-placeholder"></div>
+            <nav aria-label="breadcrumb" class="unselectable">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item" style="z-index:0" aria-current="page">Graphs</li>
+                </ol>
+            </nav>
+        </header>
+        
+        <div class="wrapper">
+            <div class="content">
+                <div style="height: 40px"></div>
+
+                <div class="card-columns">
+                    <div class="card card-lessons">
+                        <div class="card-body">
+                            <h3 class="card-title text-center unselectable">
+                                <a href="graph_lessons/introduction_to_graphs.html" class="lesson-link">Introduction to graphs</a>
+                            </h3>
+                        </div>
+                    </div>
+
+                    <div class="card card-lessons">
+                        <div class="card-body">
+                            <h3 class="card-title text-center lesson-name">Graph traversal</h3>
+                            <div id="collapseOne" class="collapse hide" aria-labelledby="headingOne">
+                                <ul align="left">
+                                    <li type="disc">
+                                        <a href="graph_lessons/graph_traversal/depth_first_search.html" class="lesson-link">Depth First Search - DFS</a>
+                                    </li>
+                                    <li type="disc">
+                                        <a>Breadth First Search - BFS</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="card-footer unselectable text-center arrow collapsed" id="headingOne" data-toggle="collapse" href="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                            <span class="not-collapsed">&#9660;</span>
+                            <span class="collapsed">&#9650;</span>
+                        </div>
+                    </div>
+
+                    <div class="card card-lessons">
+                        <div class="card-body">
+                            <h3 class="card-title text-center lesson-name">Shortest path</h3>
+                            <div id="collapseSecond" class="collapse hide" aria-labelledby="headingSecond">
+                                <ul align="left">
+                                    <li type="disc">
+                                        <a>without edge cost</a>
+                                    </li>
+                                    <li type="disc">
+                                        <a>with edge cost</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="card-footer unselectable text-center arrow collapsed" id="headingSecond" data-toggle="collapse" href="#collapseSecond" aria-expanded="true" aria-controls="collapseSecond">
+                            <span class="not-collapsed">&#9660;</span>
+                            <span class="collapsed">&#9650;</span>
+                        </div>
+                    </div>
+
+                    <div class="card card-lessons">
+                        <div class="card-body">
+                            <h3 class="card-title text-center lesson-name">Trees</h3>
+                            <div id="collapseThird" class="collapse hide" aria-labelledby="headingThird">
+                                <ul align="left">
+                                    <li type="disc">
+                                        <a>Introduction to trees</a>
+                                    </li>
+                                    <li type="disc">
+                                        <a>Lowest common ancestor</a>
+                                    </li>
+                                    <li type="disc">Minimal/maximal spanning trees</li>
+                                    <li type="disc">Centroid decomposition</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="card-footer unselectable text-center arrow collapsed" id="headingThird" data-toggle="collapse" href="#collapseThird" aria-expanded="true" aria-controls="collapseThird">
+                            <span class="not-collapsed">&#9660;</span>
+                            <span class="collapsed">&#9650;</span>
+                        </div>
+                    </div>
+
+                    <div class="card card-lessons">
+                        <div class="card-body">
+                            <h3 class="card-title text-center lesson-name">
+                                <a>Articulation vertices and edges</a>
+                            </h3>
+                        </div>
+                    </div>
+
+                    <div class="card card-lessons">
+                        <div class="card-body">
+                            <h3 class="card-title text-center lesson-name">Maximum flow</h3>
+                            <div id="collapseFourth" class="collapse hide" aria-labelledby="headingFourth">
+                                <ul align="left">
+                                    <li type="disc">
+                                        <a>without edge cost</a>
+                                    </li>
+                                    <li type="disc">
+                                        <a>with edge cost</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="card-footer unselectable text-center arrow collapsed" id="headingFourth" data-toggle="collapse" href="#collapseFourth" aria-expanded="true" aria-controls="collapseFourth">
+                            <span class="not-collapsed">&#9660;</span>
+                            <span class="collapsed">&#9650;</span>
+                        </div>
+                    </div>
+
+                    <div class="card card-lessons">
+                        <div class="card-body">
+                            <h3 class="card-title text-center lesson-name">
+                                <a>Maximum matching</a>
+                            </h3>
+                        </div>
+                    </div>
+
+                    <div class="card card-lessons">
+                        <div class="card-body">
+                            <h3 class="card-title text-center lesson-name">Euler and Hamilton paths/cycles</h3>
+                            <div id="collapseFifth" class="collapse hide" aria-labelledby="headingFifth">
+                                <ul align="left">
+                                    <li type="disc">
+                                        <a>Euler paths/cycles</a>
+                                    </li>
+                                    <li type="disc">
+                                        <a>Hamilton paths/cycles</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="card-footer unselectable text-center arrow collapsed" id="headingFifth" data-toggle="collapse" href="#collapseFifth" aria-expanded="true" aria-controls="collapseFifth">
+                            <span class="not-collapsed">&#9660;</span>
+                            <span class="collapsed">&#9650;</span>
+                        </div>
+                    </div>
+
+                    <div class="card card-lessons">
+                        <div class="card-body">
+                            <h3 class="card-title text-center lesson-name">
+                                <a>Strongly connected components</a>
+                            </h3>
+                        </div>
+                    </div>
+
+                    <div class="card card-lessons">
+                        <div class="card-body">
+                            <h3 class="card-title text-center lesson-name">
+                                <a>Topological sorting</a>
+                            </h3>
+                        </div>
+                    </div>
+
+                    <div class="card card-lessons">
+                        <div class="card-body">
+                            <h3 class="card-title text-center lesson-name">
+                                <a>Transitive reduction</a>
+                            </h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="footer-placeholder"></div>
+        </div>
+    </body>
+</html>
