@@ -1,74 +1,63 @@
-var possiblePos=[];
-
-function getCoordinates (event, graph) {
-         if (window.isMobile==false) {
-            graph.svgPoint.x=event.clientX; graph.svgPoint.y=event.clientY;
-            }
-         else if (event.changedTouches!=undefined) {
-                 graph.svgPoint.x=event.changedTouches[0].clientX;
-                 graph.svgPoint.y=event.changedTouches[0].clientY;
-                 }
-         else if (event.touches!=undefined) {
-                 graph.svgPoint.x=event.touches[0].clientX;
-                 graph.svgPoint.y=event.touches[0].clientY;
-                 }
+function getObjectForCoordinates (event) {
+    if (window.isMobile===false) return event;
+    else if (event.changedTouches!==undefined) return event.changedTouches[0];
+    else if (event.touches!==undefined) return event.touches[0];
+}
+function setSvgPoint (event, graph) {
+     let obj=getObjectForCoordinates(event);
+     graph.svgPoint.x=obj.clientX;
+     graph.svgPoint.y=obj.clientY;
+     graph.svgPoint=graph.svgPoint.matrixTransform(graph.s.paper.node.getScreenCTM().inverse());
  }
-function circleClick (event) {
-    let index=this.index,graph=this.graph;
-    getCoordinates(event,graph);
-    graph.svgPoint=graph.svgPoint.matrixTransform(graph.s.paper.node.getScreenCTM().inverse());
-    graph.mouseX=graph.svgPoint.x; graph.mouseY=graph.svgPoint.y;
+function vertexClick (index, event) {
+    let graph=this;
+    setSvgPoint(event,graph);
+    graph.startX=graph.svgPoint.x; graph.startY=graph.svgPoint.y;
     graph.flagDraw=1;
     graph.stVerDraw=index;
 }
 function trackMouse (event) {
-    let i,graph=this.graph;
-    getCoordinates(event,graph);
-    graph.svgPoint=graph.svgPoint.matrixTransform(graph.s.paper.node.getScreenCTM().inverse());
+    let graph=this;
+    setSvgPoint(event,graph);
     if (graph.flagDraw==0) return ;
-    if ((Math.abs(graph.mouseX-graph.svgPoint.x)>=1)||(Math.abs(graph.mouseY-graph.svgPoint.y)>=1)) {
-        if (graph.curEdgeDraw!==undefined) graph.curEdgeDraw.remove();
-        var st,end,edgeLen,quotient=1;
-        st=[
+    if ((Math.abs(graph.startX-graph.svgPoint.x)>=1)||(Math.abs(graph.startY-graph.svgPoint.y)>=1)) {
+        if (graph.currEdgeDraw!==undefined) graph.currEdgeDraw.remove();
+        let st=[
             graph.svgVertices[graph.stVerDraw].coord[0]+graph.vertexRad,
             graph.svgVertices[graph.stVerDraw].coord[1]+graph.vertexRad
         ];
-        end=[graph.svgPoint.x,graph.svgPoint.y];
-        edgeLen=Math.sqrt((st[0]-end[0])*(st[0]-end[0])+(st[1]-end[1])*(st[1]-end[1]));
-        if (graph.isOriented==true) quotient=(edgeLen-10)/edgeLen;
-        if (graph.curEdgeDraw!==undefined) graph.curEdgeDraw.remove();
-        graph.curEdgeDraw=graph.s.line(st[0],st[1],st[0]+quotient*(end[0]-st[0]),st[1]+quotient*(end[1]-st[1]));
-        graph.curEdgeDraw.attr({stroke: "black", "stroke-width": graph.vertexRad/20*1.5});
-        graph.curEdgeDraw.prependTo(graph.s);
-        if (graph.isOriented===true) {
-            var arrow=graph.s.polygon([0,10,4,10,2,0,0,10]).attr({fill: "black"}).transform('r90');
-            var marker=arrow.marker(0,0,10,10,0,5);
-            graph.curEdgeDraw.attr({"marker-end": marker});
-        }
+        let end=[graph.svgPoint.x, graph.svgPoint.y];
+        let vertexRad=graph.vertexRad;
+        graph.vertexRad=0;
+        graph.currEdgeDraw=drawEdge(st,end,graph,vertexRad/20*1.5);
+        graph.vertexRad=vertexRad;
+        graph.currEdgeDraw.prependTo(graph.s);
     }
 }
-function circleEnd (event) {
-    let i,j,h,len;
-    let graph=this.graph;
-    for (i=0; i<graph.n; i++) { 
+function edgeDrawEnd (event) {
+    let graph=this;
+    if (graph.flagDraw==0) return ;
+    graph.flagDraw=0;
+    if (graph.currEdgeDraw!==undefined) graph.currEdgeDraw.remove();
+    
+    for (let i=0; i<graph.n; i++) { 
         if ((graph.svgPoint.x>=graph.svgVertices[i].group.getBBox().x)&&
             (graph.svgPoint.x<=graph.svgVertices[i].group.getBBox().x2)&&
             (graph.svgPoint.y>=graph.svgVertices[i].group.getBBox().y)&&
             (graph.svgPoint.y<=graph.svgVertices[i].group.getBBox().y2)) {
-            if (graph.flagDraw==0) return ;
-            graph.flagDraw=0; graph.curEdgeDraw.remove();
             if (graph.stVerDraw==i) return ;
             if (graph.adjMatrix[graph.stVerDraw][i]==1) return ;
-            len=graph.edgeList.length;
+            
+            let len=graph.edgeList.length;
             graph.edgeList.push([graph.stVerDraw,i]);
             graph.adjList[graph.stVerDraw].push(i);
             if (graph.isOriented===false) graph.adjList[i].push(graph.stVerDraw);
             graph.adjMatrix[graph.stVerDraw][i]=1;
             if (graph.isOriented===false) graph.adjMatrix[i][graph.stVerDraw]=1;
-            for (j=0; j<graph.n; j++) {
+            for (let j=0; j<graph.n; j++) {
                 if ((j==graph.stVerDraw)||(j==i)) continue;
                 if (circleSegment(graph.svgVertices[graph.stVerDraw].coord,graph.svgVertices[i].coord,graph.svgVertices[j].coord,graph.vertexRad)===true) {
-                    possiblePos.push(graph.svgVertices[i].coord);
+                    graph.possiblePos.push(graph.svgVertices[i].coord);
                     if (placeVertex(graph,i)===false) calcPositions(graph);
                     break;
                 }
@@ -76,26 +65,21 @@ function circleEnd (event) {
             graph.draw(true);
         }
     }
-    if (graph.curEdgeDraw!==undefined) graph.curEdgeDraw.remove();
-    graph.flagDraw=0;
 }
-function lineOut (event) {
-         var graph=this;
-         if (window.isMobile===true) return ;
-         var boundBox = {
-             top: $(graph.svgName)[0].getBoundingClientRect().top+window.scrollY,
-             bottom: $(graph.svgName)[0].getBoundingClientRect().bottom+window.scrollY,
-             left: $(graph.svgName)[0].getBoundingClientRect().left+window.scrollX,
-             right: $(graph.svgName)[0].getBoundingClientRect().right+window.scrollX
-             };
-         if (window.isMobile===false) var point=[event.pageX,event.pageY];
-         else if (event.changeTouches!==undefined) var point=[event.changedTouches[0].pageX,event.changedTouches[0].pageY];
-         else var point=[event.touches[0].pageX,event.touches[0].pageY];
-         if ((point[0]<boundBox.left)||(point[0]>boundBox.right)||
-             (point[1]<boundBox.top)||(point[1]>boundBox.bottom)) {
-            if (graph.curEdgeDraw!==undefined) graph.curEdgeDraw.remove();
-            graph.flagDraw=0;
-            }
+
+function drawEdge (st, end, graph, strokeWidth) {
+    let edgeLen=Math.sqrt((st[0]-end[0])*(st[0]-end[0])+(st[1]-end[1])*(st[1]-end[1]));
+    let quotient=1;
+    if (graph.isOriented==true) quotient=(edgeLen-graph.vertexRad-10)/edgeLen;
+    let edge=graph.s.line(st[0],st[1],st[0]+quotient*(end[0]-st[0]),st[1]+quotient*(end[1]-st[1]));
+    edge.attr({stroke: "black", "stroke-width": strokeWidth});
+    if (graph.isOriented==true) {
+        let arrow=graph.s.polygon([0,10,4,10,2,0,0,10]).attr({fill: "black"}).transform('r90');
+        edge.marker=arrow;
+        let marker=arrow.marker(0,0,10,10,0,5);
+        edge.attr({"marker-end": marker});
+    }
+    return edge;
 }
 
 function Vertex () {
@@ -183,50 +167,52 @@ function Graph () {
         }
     }
          
-    this.flagDraw=undefined; this.mouseX=undefined; this.mouseY=undefined;
-    this.stVerDraw=undefined; this.curEdgeDraw=undefined; this.svgPoint=undefined;
+    this.flagDraw=undefined; this.startX=undefined; this.startY=undefined;
+    this.stVerDraw=undefined; this.currEdgeDraw=undefined; this.svgPoint=undefined;
     this.drawableEdges = function () {
-        let graph=this;
         this.svgPoint=this.s.paper.node.createSVGPoint(); this.flagDraw=0; this.stVer=1;
+        let graph=this;
         for (let i=0; i<this.n; i++) {
             if (this.svgVertices[i].group===undefined) continue;
-            this.svgVertices[i].group.index=i; this.svgVertices[i].group.graph=this;
-            this.svgVertices[i].group.unmousedown(circleClick);
-            this.svgVertices[i].group.mousedown(circleClick);
-            this.svgVertices[i].group.untouchstart(circleClick);
-            this.svgVertices[i].group.touchstart(circleClick);
+            if (window.isMobile===false) {
+                this.svgVertices[i].group.unmousedown(vertexClick);
+                this.svgVertices[i].group.mousedown(vertexClick.bind(graph,i));
+            }
+            else {
+                this.svgVertices[i].group.untouchstart(vertexClick);
+                this.svgVertices[i].group.touchstart(vertexClick.bind(graph,i));
+            }
         }
                 
-        this.s.graph=this;
-        this.s.unmousemove(trackMouse);
-        this.s.mousemove(trackMouse);
-        this.s.untouchmove(trackMouse);
-        this.s.touchmove(trackMouse);
-
-        this.s.graph=this;
-        this.s.unmouseup(circleEnd);
-        this.s.mouseup(circleEnd);
-        this.s.untouchend(circleEnd);
-        this.s.touchend(circleEnd);
-             
+        if (window.isMobile===false) {
+            this.s.unmousemove(trackMouse);
+            this.s.mousemove(trackMouse.bind(graph));
+            this.s.unmouseup(edgeDrawEnd);
+            this.s.mouseup(edgeDrawEnd.bind(graph));
+        }
+        else {
+            this.s.untouchmove(trackMouse);
+            this.s.touchmove(trackMouse.bind(graph));
+            this.s.untouchend(edgeDrawEnd);
+            this.s.touchend(edgeDrawEnd.bind(graph));
+        }
+        
         if (graph.hasOwnProperty("lineOut")==true) window.removeEventListener("mousemove",graph.lineOut,false);
         if (graph.hasOwnProperty("lineOut")==true) window.removeEventListener("touchmove",graph.lineOut,false);
         graph.lineOut = function (event) {
             if (event===undefined) return ;
-            var graph=this;
-            if (window.isMobile===true) return ;
-            var boundBox = {
+            let graph=this;
+            let boundBox = {
                 top: $(graph.svgName)[0].getBoundingClientRect().top+window.scrollY,
                 bottom: $(graph.svgName)[0].getBoundingClientRect().bottom+window.scrollY,
                 left: $(graph.svgName)[0].getBoundingClientRect().left+window.scrollX,
                 right: $(graph.svgName)[0].getBoundingClientRect().right+window.scrollX
             };
-            if (window.isMobile===false) var point=[event.pageX,event.pageY];
-            else if (event.changeTouches!==undefined) var point=[event.changedTouches[0].pageX,event.changedTouches[0].pageY];
-            else var point=[event.touches[0].pageX,event.touches[0].pageY];
+            let obj=getObjectForCoordinates(event);
+            let point=[obj.pageX, obj.pageY];
             if ((point[0]<boundBox.left)||(point[0]>boundBox.right)||
                 (point[1]<boundBox.top)||(point[1]>boundBox.bottom)) {
-                if (graph.curEdgeDraw!==undefined) graph.curEdgeDraw.remove();
+                if (graph.currEdgeDraw!==undefined) graph.currEdgeDraw.remove();
                 graph.flagDraw=0;
             }
         }.bind(graph);
@@ -245,6 +231,7 @@ function Graph () {
         }
     }
     
+    this.possiblePos=undefined;
     this.drawNewGraph = function (frameX, frameY, frameW, frameH, vertexRad, addDrawableEdges) {
         this.erase();
         
@@ -265,22 +252,11 @@ function Graph () {
         
         let fontSize=this.vertexRad*5/4,strokeWidth=this.vertexRad/20*1.5;
 		for (let i=0; i<this.edgeList.length; i++) {
-			let x=this.edgeList[i][0],y=this.edgeList[i][1];
-			let from=this.svgVertices[x].coord,to=this.svgVertices[y].coord;
-			let st=[from[0]+this.vertexRad,from[1]+this.vertexRad];
-            let end=[to[0]+this.vertexRad,to[1]+this.vertexRad];
-            
-            let edgeLen=Math.sqrt((st[0]-end[0])*(st[0]-end[0])+(st[1]-end[1])*(st[1]-end[1]));
-            let quotient=1;
-            if (this.isOriented==true) quotient=(edgeLen-this.vertexRad-this.vertexRad/2)/edgeLen;
-            this.edgeLines[i]=this.s.line(st[0],st[1],st[0]+quotient*(end[0]-st[0]),st[1]+quotient*(end[1]-st[1]));
-            this.edgeLines[i].attr({stroke: "black", "stroke-width": strokeWidth});
-            if (this.isOriented==true) {
-                let arrow=this.s.polygon([0,10,4,10,2,0,0,10]).attr({fill: "black"}).transform('r90');
-                this.edgeLines[i].marker=arrow;
-                let marker=arrow.marker(0,0,10,10,0,5);
-                this.edgeLines[i].attr({"marker-end": marker});
-            }
+            let x=this.edgeList[i][0],y=this.edgeList[i][1];
+            let from=this.svgVertices[x].coord,to=this.svgVertices[y].coord;
+            let st=[from[0]+this.vertexRad, from[1]+this.vertexRad];
+            let end=[to[0]+this.vertexRad, to[1]+this.vertexRad];
+			this.edgeLines[i]=drawEdge(st,end,this,strokeWidth);
         }
         
         for (let i=0; i<this.n; i++) {
@@ -365,36 +341,36 @@ function checkVertex (graph, vr) {
         if ((i==vr)||(graph.svgVertices[i].coord===undefined)) continue;
         if ((graph.adjMatrix[vr][i]==0)&&(graph.adjMatrix[i][vr]==0)) continue;
         for (j=0; j<graph.n; j++) {
-            if ((j==vr)||(j==i)||(graph.svgVertices[j].coord==null)) continue;
+            if ((j==vr)||(j==i)||(graph.svgVertices[j].coord===undefined)) continue;
             if (circleSegment(graph.svgVertices[vr].coord,graph.svgVertices[i].coord,graph.svgVertices[j].coord,graph.vertexRad)==true) return false;
         }
     }
     return true;
 }
-function placeVertex (graph, vr) {
-    let i,j,h,ind,curpossiblePos=[];
-    curpossiblePos=possiblePos.slice();
+function placeVertex (graph, vr,possiblePos) {
+    let i,j,h,ind,currPossiblePos=[];
+    currPossiblePos=graph.possiblePos.slice();
     for (i=0; i<graph.n; i++) {
         if ((i==vr)||(graph.svgVertices[i].coord===undefined)) continue;
         for (j=0; j<graph.n; j++) {
             if ((j==vr)||(graph.svgVertices[j].coord===undefined)||((graph.adjMatrix[i][j]==0)&&(graph.adjMatrix[j][i]==0))) continue;
-            for (h=0; h<curpossiblePos.length; h++) {
-                if (circleSegment(graph.svgVertices[i].coord,graph.svgVertices[j].coord,curpossiblePos[h],graph.vertexRad)==true) {
-                    curpossiblePos.splice(h,1); h--;
+            for (h=0; h<currPossiblePos.length; h++) {
+                if (circleSegment(graph.svgVertices[i].coord,graph.svgVertices[j].coord,currPossiblePos[h],graph.vertexRad)==true) {
+                    currPossiblePos.splice(h,1); h--;
                 }
             }
         }
     }
     
     for (;;) {
-        if (curpossiblePos.length==0) return false;
-        ind=parseInt(Math.random()*(10*curpossiblePos.length))%curpossiblePos.length;
-        graph.svgVertices[vr].coord=curpossiblePos[ind];
+        if (currPossiblePos.length==0) return false;
+        ind=parseInt(Math.random()*(10*currPossiblePos.length))%currPossiblePos.length;
+        graph.svgVertices[vr].coord=currPossiblePos[ind];
         if (checkVertex(graph,vr)==false) {
-            curpossiblePos.splice(ind,1);
+            currPossiblePos.splice(ind,1);
             continue;
         }
-        possiblePos.splice(possiblePos.findIndex(function (elem) {
+        graph.possiblePos.splice(graph.possiblePos.findIndex(function (elem) {
             return (elem==graph.svgVertices[vr].coord);
         }),1);
         break;
@@ -427,10 +403,10 @@ function fillVersDepth (vr, father, dep, maxDepth, adjList, versDepth) {
 function calcPositions (graph) {
     let distVertices=graph.vertexRad*5/4+parseInt((Math.random())*graph.vertexRad/4);
     if (graph.isTree===false) {
-        possiblePos=[];
+        graph.possiblePos=[];
         for (let i=0; i<=(graph.frameW-2*graph.vertexRad)/(2*graph.vertexRad+distVertices); i++) {
             for (let j=0; j<=(graph.frameH-2*graph.vertexRad)/(2*graph.vertexRad+distVertices); j++) {
-                possiblePos.push([
+                graph.possiblePos.push([
                     i*(2*graph.vertexRad+distVertices)+graph.frameX,
                     j*(2*graph.vertexRad+distVertices)+graph.frameY
                 ]);
