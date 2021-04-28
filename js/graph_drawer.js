@@ -180,7 +180,7 @@ function Graph () {
             let x=edgeList[i][0],y=edgeList[i][1];
             this.adjMatrix[x][y]=1;
             this.adjList[x].push(y);
-            if (this.isOriented==0) {
+            if (this.isOriented===false) {
                 this.adjMatrix[y][x]=1;
                 this.adjList[y].push(x);
             }
