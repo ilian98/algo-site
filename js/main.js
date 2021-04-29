@@ -145,8 +145,7 @@ function initExamples (part = 1) {
         }
     }
     else if (page=="segment_tree_introduction.html") {
-        document.querySelector(".segTreeExample1 .array").value="9,5,3,2,1,7,8,6";
-        initExample(1);
-        makeSegTree(1);
+        initExample(part);
+        defaultExample(part);
     }
 }

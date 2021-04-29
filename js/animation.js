@@ -21,6 +21,7 @@ function pauseButtonFunc (globalObj) {
 
 function animationsUntilStep (animations, step) {
     for (let i=0; i<step; i++) {
+        if (animations[i].hasOwnProperty("startFunction")) animations[i].startFunction();
         for (let animation of animations[i].animFunctions) {
             animation(() => {},0);
         }
@@ -118,6 +119,7 @@ function Animation () {
                 }
                 globalObj.currAnimation=i;
                 globalObj.animText.innerText=animations[i].animText;
+                if (animations[i].hasOwnProperty("startFunction")) animations[i].startFunction();
                 for (let j=0; j<animations[i].animFunctions.length; j++) {
                     let isLast=(j==animations[i].animFunctions.length-1);
                     globalObj.minas.push(animations[i].animFunctions[j](function () {

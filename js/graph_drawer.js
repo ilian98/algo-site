@@ -241,14 +241,7 @@ function Graph () {
     }
         
     this.erase = function () {
-        for (let i=0; i<this.edgeLines.length; i++) {
-            if (this.edgeLines[i]!==undefined) this.edgeLines[i].remove();
-        }
-        for (let i=0; i<this.n; i++) {
-			if (this.svgVertices[i]===undefined) continue;
-            if (this.svgVertices[i].text!==undefined) this.svgVertices[i].text.remove();
-            if (this.svgVertices[i].circle!==undefined) this.svgVertices[i].circle.remove();
-        }
+        this.s.selectAll("*").remove();
     }
     
     this.possiblePos=undefined;
@@ -267,6 +260,22 @@ function Graph () {
 		this.draw(addDrawableEdges);
 	}
     
+    this.drawVertexText = function (i, text) {
+        let x=this.svgVertices[i].coord[0]+this.vertexRad;
+        let y=this.svgVertices[i].coord[1]+this.vertexRad;
+        if (this.svgVertices[i].text!==undefined) this.svgVertices[i].text.remove();
+        this.vertices[i].name=text;
+        this.svgVertices[i].text=this.s.text(x,y,this.vertices[i].name);
+        this.svgVertices[i].text.attr({
+            "font-size": this.vertexRad*5/4, 
+            "font-family": "Consolas",
+            dy: determineDy(this.vertices[i].name), 
+            "text-anchor": "middle", 
+            class: "unselectable"
+        });
+        this.svgVertices[i].group=this.s.group(this.svgVertices[i].circle,this.svgVertices[i].text);
+    }
+
     this.draw = function (addDrawableEdges) { /// this functions expects that coordinates are already calculated
         this.erase();
         
@@ -288,15 +297,7 @@ function Graph () {
             let y=this.svgVertices[i].coord[1]+this.vertexRad;
             this.svgVertices[i].circle=this.s.circle(x,y,this.vertexRad);
             this.svgVertices[i].circle.attr({fill: "white", stroke: "black", "stroke-width": strokeWidth});
-            this.svgVertices[i].text=this.s.text(x,y,this.vertices[i].name);
-            this.svgVertices[i].text.attr({
-                "font-size": fontSize, 
-                "font-family": "Consolas",
-                dy: determineDy(this.vertices[i].name), 
-                "text-anchor": "middle", 
-                class: "unselectable"
-            });
-            this.svgVertices[i].group=this.s.group(this.svgVertices[i].circle,this.svgVertices[i].text);
+            this.drawVertexText(i,this.vertices[i].name);
         }
 
         if (addDrawableEdges===true) this.drawableEdges();
