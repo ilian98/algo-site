@@ -1,3 +1,4 @@
+'use strict';
 function getObjectForCoordinates (event) {
     if (window.isMobile===false) return event;
     else if (event.changedTouches!==undefined) return event.changedTouches[0];
@@ -305,42 +306,38 @@ function Graph () {
 }
 
 function addSaveFunctionality (svgName) {
-    let parentElement=document.querySelector(svgName).parentElement;
-    let saveButton=parentElement.querySelector(".save");
-    let canvas=parentElement.querySelector(".canvas-save");
-    canvas.style.display="none";
-    let svgSave=parentElement.querySelector(".svg-save");
-    svgSave.style.display="none";
+    let parentElement=$(svgName).parent();
+    let saveButton=parentElement.children(".save");
+    let canvas=parentElement.children(".canvas-save");
+    canvas.hide();
+    let svgSave=parentElement.children(".svg-save");
+    svgSave.hide();
     
-    saveButton.onclick = function () {
-        let context=canvas.getContext('2d');
-        let svg=parentElement.querySelector(".graph");
-        let svgWidth=svg.getBoundingClientRect().width,svgHeight=svg.getBoundingClientRect().height;
-        svgSave.setAttribute("width",svgWidth);
-        svgSave.setAttribute("height",svgHeight);
+    saveButton.on("click",function () {
+        let context=canvas[0].getContext('2d');
+        let svg=parentElement.children(".graph");
+        let svgWidth=svg.width(),svgHeight=svg.height();
+        svgSave.attr("width",svgWidth);
+        svgSave.attr("height",svgHeight);
         
         $(svgName).clone().appendTo(svgSave);
-        canvas.width=svgWidth;
-        canvas.height=svgHeight;
+        canvas.prop("width",svgWidth);
+        canvas.prop("height",svgHeight);
 
-        svgSave.style.display="";
-        let svgString=(new XMLSerializer()).serializeToString(svgSave);
-        svgSave.style.display="none";
+        svgSave.show();
+        let svgString=(new XMLSerializer()).serializeToString(svgSave[0]);
+        svgSave.hide();
         
-        let image = new Image();
-        image.src="data:image/svg+xml; charset=utf8, "+encodeURIComponent(svgString);
-        image.onload = function () {
-            context.drawImage(image,0,0);
-            let imageURI=canvas.toDataURL('image/png').replace('image/png','image/octet-stream');
-            let event = new MouseEvent('click',{view: window, bubbles: false, cancelable: true});
-            let temp=document.createElement('a');
-            temp.setAttribute('download','graph.png');
-            temp.setAttribute('href',imageURI);
-            temp.setAttribute('target','_blank');
-            temp.dispatchEvent(event);
+        let image=$("<img>").prop("src","data:image/svg+xml; charset=utf8, "+encodeURIComponent(svgString));
+        image.on("load", function () {
+            context.drawImage(image[0],0,0);
+            let imageURI=canvas[0].toDataURL('image/png').replace('image/png','image/octet-stream');
+            $("<a>").prop("download","graph.png")
+                .prop("href",imageURI)
+                .prop("target",'_blank')[0].click();
             $(svgSave).empty();
-        }
-    }
+        });
+    });
 }
 
 function circleSegment (segPoint1, segPoint2, center, vertexRad) {
@@ -400,7 +397,7 @@ function placeVertex (graph, vr,possiblePos) {
 }
 function findMaxDepth (vr, father, dep, adjList) {
     let max=dep;
-    for (child of adjList[vr]) {
+    for (let child of adjList[vr]) {
         if (child!=father) {
             let value=findMaxDepth(child,vr,dep+1,adjList);
             if (max<value) max=value;
@@ -509,6 +506,7 @@ function calcPositions (graph) {
                     }
                     cnt++;
                 }
+                let h;
                 if ((nextX==graph.frameW)||(2*graph.vertexRad+distVertices<=(nextX-(prevX-distVertices))/(cnt+1))) {
                     prevX-=distVertices;
                     let x=prevX;

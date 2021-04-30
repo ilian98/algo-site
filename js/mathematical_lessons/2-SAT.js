@@ -1,3 +1,4 @@
+'use strict';
 var graphs=[];
 function initExample (part) {
     graphs[part] = new Graph();
@@ -36,7 +37,7 @@ function findImplications (implications, formula) {
         return ;
         }
     
-    for (i=0; i<n; i++) {
+    for (let i=0; i<n; i++) {
         if (formula[i]=='&') {
             if ((i==n-1)||(formula[i+1]!='&')) {
                 flag=true;
@@ -122,7 +123,7 @@ function findImplications (implications, formula) {
         }
 }
 function makeImplicationGraph (part) {
-    graph=graphs[part];
+    let graph=graphs[part];
     graph.erase();
     var formula=document.querySelector(".twoSATexample"+part+" .formula").value;
     var implications = [];
@@ -133,7 +134,7 @@ function makeImplicationGraph (part) {
     let ind=0;
     graph.edgeList=[]; graph.adjList=[];
     graph.initVertices(2*implications.length);
-    for (i=0; i<implications.length; i++) {
+    for (let i=0; i<implications.length; i++) {
         if (variables.has(implications[i][0])===false) {
             variables.set(implications[i][0],ind);
             graph.vertices[ind].name=implications[i][0];
@@ -153,14 +154,14 @@ function makeImplicationGraph (part) {
         }
     graph.n=ind;
     graph.adjMatrix=[];
-    for (i=0; i<graph.n; i++) {
+    for (let i=0; i<graph.n; i++) {
         graph.adjMatrix[i]=[];
-        for (j=0; j<graph.n; j++) {
+        for (let j=0; j<graph.n; j++) {
             graph.adjMatrix[i].push(0);
             }
         }
-    for (i=0; i<graph.n; i++) {
-        for (j=0; j<graph.adjList[i].length; j++) {
+    for (let i=0; i<graph.n; i++) {
+        for (let j=0; j<graph.adjList[i].length; j++) {
             graph.adjMatrix[i][graph.adjList[i][j]]=1;
             }
         }
@@ -239,7 +240,7 @@ function showSCC () {
         if (graph.vertices[i].name[0]=='!') continue;
         var comp=[];
         for (j=0; j<num; j++) {
-            for (h=0; h<comps[j].length; h++) {
+            for (let h=0; h<comps[j].length; h++) {
                 if (graph.vertices[comps[j][h]].name==graph.vertices[i].name) comp[0]=j;
                 else if (graph.vertices[comps[j][h]].name=="!"+graph.vertices[i].name) comp[1]=j;
                 }

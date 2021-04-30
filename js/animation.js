@@ -1,6 +1,43 @@
+'use strict';
+function startButtonFunc (globalObj, name, findAnimations, initialState) {
+    globalObj.stopAnimations();
+    initialState(true);
+    
+    let speed=$(name+" .form-group");
+    let speedInput=$(name+" .speed");
+    
+    if (this.flag===false) {
+        this.flag=true; this.html("Стоп");
+                
+        speed.hide();
+        if (speedInput.val()=="") globalObj.speed=4000/2;
+        else globalObj.speed=4000/speedInput.val();
+            
+        globalObj.pauseButton.show();
+        globalObj.pauseButton.flagPause=false; globalObj.pauseButton.flagStep=false;
+        globalObj.pauseButton.html("Пауза");
+        
+        globalObj.previousButton.show();
+        globalObj.nextButton.show();
+        
+        globalObj.animations=findAnimations();
+        globalObj.animations.push({
+            animFunctions: [],
+            animText: ""
+        });
+        globalObj.start();
+    }
+    else {
+        this.flag=false; this.html("Старт!");
+        speed.show();
+        if (speedInput.val()==="") speedInput.val("2");
+                
+        globalObj.clear();
+    }
+}
 function pauseButtonFunc (globalObj) {
     if (this.flagPause===false) {
-        this.flagPause=true; this.innerText="Пусни";
+        this.flagPause=true; this.html("Пусни");
         if (globalObj.minas!==undefined) {
             for (let mina of globalObj.minas) {
                 mina.pause();
@@ -8,7 +45,7 @@ function pauseButtonFunc (globalObj) {
         }
     }
     else {
-        this.flagPause=false; this.innerText="Пaуза";
+        this.flagPause=false; this.html("Пaуза");
         if (globalObj.minas!==undefined) {
             for (let mina of globalObj.minas) {
                 mina.resume();
@@ -31,15 +68,19 @@ function stepButtonFunc (globalObj, initialState, step) {
     let currAnimation=globalObj.currAnimation;
     if (currAnimation!==undefined) {
         globalObj.pauseButton.flagPause=false; globalObj.pauseButton.flagStep=true;
-        globalObj.pauseButton.click();
+        globalObj.pauseButton[0].click();
         globalObj.stopAnimations();
         initialState(false);
         let animLen=globalObj.animations.length;
         if ((step==-1)&&(globalObj.currAnimation==0)) globalObj.currAnimation=currAnimation=1;
         else if ((step==+1)&&(globalObj.currAnimation==animLen-1)) globalObj.currAnimation=animLen-2;
+        
         globalObj.currAnimation+=step;
+        if (globalObj.currAnimation==animLen-1) globalObj.pauseButton.hide();
+        else globalObj.pauseButton.show();
+    
         animationsUntilStep(globalObj.animations,currAnimation+step);
-        if (currAnimation+step<animLen) globalObj.animText.innerText=globalObj.animations[currAnimation+step].animText;
+        if (currAnimation+step<animLen) globalObj.animText.text(globalObj.animations[currAnimation+step].animText);
     }
 }
 
@@ -54,52 +95,18 @@ function Animation () {
     this.init = function (name, findAnimations, initialState) {
         this.speed=2000;
         
-        let startButton=this.startButton=document.querySelector(name+" .start");
-        let pauseButton=this.pauseButton=document.querySelector(name+" .pause");
-        let previousButton=this.previousButton=document.querySelector(name+" .previous");
-        let nextButton=this.nextButton=document.querySelector(name+" .next");
-        let animText=this.animText=document.querySelector(name+" .anim-text");
-    
-        let speed=document.querySelector(name+" .form-group");
-        let speedInput=document.querySelector(name+" .speed");
-        speedInput.value="2";
+        let startButton=this.startButton=$(name+" .start");
+        let pauseButton=this.pauseButton=$(name+" .pause");
+        let previousButton=this.previousButton=$(name+" .previous");
+        let nextButton=this.nextButton=$(name+" .next");
+        let animText=this.animText=$(name+" .anim-text");
     
         this.clear();
-        let globalObj=this;
-        startButton.flag=false;
-        startButton.onclick = function () {
-            globalObj.stopAnimations();
-            initialState(true);
-            
-            if (this.flag===false) {
-                this.flag=true; this.innerText="Стоп";
-                
-                speed.style.display="none";
-                if (speedInput.value==="") globalObj.speed=4000/2;
-                else globalObj.speed=4000/speedInput.value;
-            
-                pauseButton.style.display="block";
-                pauseButton.flagPause=false; pauseButton.flagStep=false;
-                pauseButton.innerText="Пауза";
-                pauseButton.onclick=pauseButtonFunc.bind(pauseButton,globalObj);
-            
-                previousButton.style.display="block";
-                previousButton.onclick=stepButtonFunc.bind(previousButton,globalObj,initialState,-1);
-            
-                nextButton.style.display="block";
-                nextButton.onclick=stepButtonFunc.bind(nextButton,globalObj,initialState,+1);
-                
-                globalObj.animations=findAnimations();
-                globalObj.start();
-            }
-            else {
-                this.flag=false; this.innerText="Старт!";
-                speed.style.display="block";
-                if (speedInput.value==="") speedInput.value="2";
-                
-                globalObj.clear();
-            }
-        }
+        $(name+" .speed").val("2");
+        startButton.flag=false; startButton.off("click.start").on("click.start",startButtonFunc.bind(startButton,this,name,findAnimations,initialState));
+        pauseButton.off("click.pause").on("click.pause",pauseButtonFunc.bind(pauseButton,this));
+        previousButton.off("click.prev").on("click.prev",stepButtonFunc.bind(previousButton,this,initialState,-1));
+        nextButton.off("click.next").on("click.next",stepButtonFunc.bind(nextButton,this,initialState,+1));
     }
     
     this.minas=undefined; this.currAnimation=undefined;
@@ -118,7 +125,9 @@ function Animation () {
                     return ;
                 }
                 globalObj.currAnimation=i;
-                globalObj.animText.innerText=animations[i].animText;
+                globalObj.animText.text(animations[i].animText);
+                if (i===animations.length-1) globalObj.pauseButton.hide();
+                
                 if (animations[i].hasOwnProperty("startFunction")) animations[i].startFunction();
                 for (let j=0; j<animations[i].animFunctions.length; j++) {
                     let isLast=(j==animations[i].animFunctions.length-1);
@@ -145,9 +154,13 @@ function Animation () {
         this.stopAnimations();
         this.animations=[];
         this.minas=[]; this.animFuncs=[];
-        this.startButton.flag=false; this.startButton.innerText="Старт!";
-        this.pauseButton.style.display="none";
-        this.previousButton.style.display="none"; this.nextButton.style.display="none";
-        this.animText.innerText="";
+        if (this.startButton!==undefined) {
+            this.startButton.flag=false;
+            this.startButton.html("Старт!");
+        }
+        if (this.pauseButton!==undefined) this.pauseButton.hide();
+        if (this.previousButton!==undefined) this.previousButton.hide();
+        if (this.nextButton!==undefined) this.nextButton.hide();
+        if (this.animText!==undefined) this.animText.text("");
     }
 }

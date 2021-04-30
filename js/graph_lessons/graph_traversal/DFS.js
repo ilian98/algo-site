@@ -1,3 +1,4 @@
+'use strict';
 function vertexAnimation (graph, vr, colour, type) {
     return function(callback, speed) {
         let obj;
