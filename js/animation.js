@@ -7,8 +7,14 @@ function startButtonFunc (globalObj, name, findAnimations, initialState) {
     let speedInput=$(name+" .speed");
     
     if (this.flag===false) {
-        this.flag=true; this.html("Стоп");
-                
+        globalObj.animations=findAnimations();
+        if (globalObj.animations.length===0) return ;
+        globalObj.animations.push({
+            animFunctions: [],
+            animText: ""
+        });
+        
+        this.flag=true; this.html("Стоп");        
         speed.hide();
         if (speedInput.val()=="") globalObj.speed=4000/2;
         else globalObj.speed=4000/speedInput.val();
@@ -20,11 +26,6 @@ function startButtonFunc (globalObj, name, findAnimations, initialState) {
         globalObj.previousButton.show();
         globalObj.nextButton.show();
         
-        globalObj.animations=findAnimations();
-        globalObj.animations.push({
-            animFunctions: [],
-            animText: ""
-        });
         globalObj.start();
     }
     else {
@@ -62,6 +63,7 @@ function animationsUntilStep (animations, step) {
         for (let animation of animations[i].animFunctions) {
             animation(() => {},0);
         }
+        if (animations[i].hasOwnProperty("endFunction")) animations[i].endFunction();
     }
 }
 function stepButtonFunc (globalObj, initialState, step) {
@@ -133,7 +135,10 @@ function Animation () {
                     let isLast=(j==animations[i].animFunctions.length-1);
                     globalObj.minas.push(animations[i].animFunctions[j](function () {
                         if (isLast==true) {
-                            if (i<animations.length-1) animFuncs[i+1]();
+                            if (i<animations.length-1) {
+                                if (animations[i].hasOwnProperty("endFunction")) animations[i].endFunction();
+                                animFuncs[i+1]();
+                            }
                         }
                     },speed));
                 }

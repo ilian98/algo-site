@@ -41,7 +41,7 @@ function addSegmentsLabels (index, l, r, tree, flagIndex) {
        });
        segment.attr({dy: "0.34em", "text-anchor": "middle"});
        return ;
-       }
+    }
     segment.attr({
         x: tree.svgVertices[index].coord[0]+tree.vertexRad, 
         y: tree.svgVertices[index].coord[1]-segment.getBBox().h/2
@@ -122,25 +122,57 @@ function defaultExample (exampleName, tree, elements, animationObj) {
         $(exampleName+" .array").val("9,5,3,2,1,7,8,6");
         makeSegTree(exampleName,tree,elements);
     }
-    else if (exampleName==".segTreeExample2") {
+    else if ((exampleName==".segTreeExample2")||(exampleName==".segTreeExample3")) {
         $(exampleName+" .array").val("9,5,3,2,1,7,8,6");
-        $(exampleName+" .pos").val("3");
-        $(exampleName+" .val").val("10");
+        let extraInfo;
+        if (exampleName==".segTreeExample2") {
+            $(exampleName+" .pos").val("3");
+            $(exampleName+" .val").val("10");
+        }
+        else {
+            $(exampleName+" .ql").val("2");
+            $(exampleName+" .qr").val("7");
+            extraInfo=$(exampleName+" .extra-info");
+            extraInfo.text("");
+        }
+        
         let pos,val;
+        let ql,qr;
         makeSegTree(exampleName,tree,elements,animationObj);
         
         animationObj.init(exampleName+" .treeExample",function () {
             let animations=[];
-            animations.push({
-                startFunction: tree.drawVertexText.bind(tree,0,tree.vertices[0].name),
-                animFunctions: [vertexAnimation(tree,0,"red","circle")],
-                animText: "Започваме обхождането от корена на върховете с промяна."
-            });
-            pos=parseInt($(exampleName+" .pos").val());
-            val=parseInt($(exampleName+" .val").val());
-            query(0,1,elements.length,pos,val,tree,animations);
+            if (exampleName==".segTreeExample2") {
+                pos=parseInt($(exampleName+" .pos").val());
+                val=parseInt($(exampleName+" .val").val());
+                if ((Number.isNaN(pos))||(Number.isNaN(val))||(pos<1)||(pos>elements.length)) {
+                    alert("Невалидна позиция");
+                    return animations;
+                }
+                animations.push({
+                    startFunction: tree.drawVertexText.bind(tree,0,tree.vertices[0].name),
+                    animFunctions: [vertexAnimation(tree,0,"red","circle")],
+                    animText: "Започваме обхождането от корена на върховете за промяна."
+                });
+                update(0,1,elements.length,pos,val,tree,animations);
+            }
+            else {
+                ql=parseInt($(exampleName+" .ql").val());
+                qr=parseInt($(exampleName+" .qr").val());
+                if ((Number.isNaN(ql))||(Number.isNaN(qr))||(ql<1)||(qr<ql)||(qr>elements.length)) {
+                    alert("Невалидни позиции");
+                    return animations;
+                }
+                animations.push({
+                    startFunction: addExtraInfo.bind(extraInfo,ql,qr),
+                    animFunctions: [vertexAnimation(tree,0,"red","circle")],
+                    animText: "Започваме обхождането от корена на върховете за включване в сумата."
+                });
+                sumQuery(0,1,elements.length,ql,qr,tree,animations,extraInfo);
+            }
             return animations;
         },function (flag) {
+            if (exampleName==".segTreeExample3") extraInfo.text("");
             tree.s.selectAll("*").remove();
             makeEdges(0,0,elements.length-1,[],tree.vertices,elements);
             tree.draw(false);
@@ -148,13 +180,15 @@ function defaultExample (exampleName, tree, elements, animationObj) {
         });
         let endButton=$(".treeExample .end");
         endButton.hide();
-        animationObj.startButton.on("click.bonus", function () {
-            if (animationObj.startButton.flag===true) {
-                endButton.show();
-                endButton.on("click",endAnimation.bind(endButton,tree,animationObj,elements,pos,val));
-            }
-            else endButton.hide();
-        });
+        if (exampleName==".segTreeExample2") {
+            animationObj.startButton.on("click.bonus", function () {
+                if (animationObj.startButton.flag===true) {
+                    endButton.show();
+                    endButton.on("click",endAnimation.bind(endButton,tree,animationObj,elements,pos,val));
+                }
+                else endButton.hide();
+            });
+        }
     }
 }
 function initExample (part) {
@@ -170,14 +204,23 @@ function initExample (part) {
         defaultExample(exampleName,tree,elements);
     }
     else if (part==3) {
-        let tree = new Graph();
-        let exampleName=".segTreeExample2";
-        tree.init(exampleName+" .treeExample .graph",8,false,true,true);
-        let animationObj = new Animation();
-        let elements=[];
-        $(exampleName+" .default").off("click").on("click",defaultExample.bind(this,exampleName,tree,elements,animationObj));
-        $(exampleName+" .make").off("click").on("click",makeSegTree.bind(this,exampleName,tree,elements,animationObj));
-        defaultExample(exampleName,tree,elements,animationObj);
+        let tree1 = new Graph();
+        let exampleName1=".segTreeExample2";
+        tree1.init(exampleName1+" .treeExample .graph",8,false,true,true);
+        let animationObj1 = new Animation();
+        let elements1=[];
+        $(exampleName1+" .default").off("click").on("click",defaultExample.bind(this,exampleName1,tree1,elements1,animationObj1));
+        $(exampleName1+" .make").off("click").on("click",makeSegTree.bind(this,exampleName1,tree1,elements1,animationObj1));
+        defaultExample(exampleName1,tree1,elements1,animationObj1);
+        
+        let tree2 = new Graph();
+        let exampleName2=".segTreeExample3";
+        tree2.init(exampleName2+" .treeExample .graph",8,false,true,true);
+        let animationObj2 = new Animation();
+        let elements2=[];
+        $(exampleName2+" .default").off("click").on("click",defaultExample.bind(this,exampleName2,tree2,elements2,animationObj2));
+        $(exampleName2+" .make").off("click").on("click",makeSegTree.bind(this,exampleName2,tree2,elements2,animationObj2));
+        defaultExample(exampleName2,tree2,elements2,animationObj2);
     }
 }
 
@@ -216,7 +259,7 @@ function edgeAnimation (graph, vr1, vr2, slowSpeed) {
         }
     }
 }
-function query (index, l, r, pos, val, tree, animations) {
+function update (index, l, r, pos, val, tree, animations) {
     let text;
     if (l==r) {
         text="Променяме стойността на листото на "+val+", след което го напускаме.";
@@ -233,8 +276,8 @@ function query (index, l, r, pos, val, tree, animations) {
     if (pos<=mid) {
         text="Понеже "+pos+" е <= от средата на интервала ["+l+"; "+r+"], то отиваме на лявото дете.";
         animations.push({
-            animFunctions: [vertexAnimation(tree,index,"grey","circle"),
-                            vertexAnimation(tree,index,"white","text"),
+            animFunctions: [vertexAnimation(tree,index,"grey","circle",2),
+                            vertexAnimation(tree,index,"white","text",2),
                             edgeAnimation(tree,index,2*index+1,2)],
             animText: text
         });
@@ -244,14 +287,14 @@ function query (index, l, r, pos, val, tree, animations) {
                             vertexAnimation(tree,2*index+1,"black","text")],
             animText: text
         });
-        suml=query(2*index+1,l,mid,pos,val,tree,animations);
+        suml=update(2*index+1,l,mid,pos,val,tree,animations);
         sumr=parseInt(tree.vertices[2*index+2].name);
     }
     else {
         text="Понеже "+pos+" е > от средата на интервала ["+l+"; "+r+"], то отиваме на дясното дете.";
         animations.push({
-            animFunctions: [vertexAnimation(tree,index,"grey","circle"),
-                            vertexAnimation(tree,index,"white","text"),
+            animFunctions: [vertexAnimation(tree,index,"grey","circle",2),
+                            vertexAnimation(tree,index,"white","text",2),
                             edgeAnimation(tree,index,2*index+2,2)],
             animText: text
         });
@@ -262,7 +305,7 @@ function query (index, l, r, pos, val, tree, animations) {
             animText: text
         });
         suml=parseInt(tree.vertices[2*index+1].name);
-        sumr=query(2*index+2,mid+1,r,pos,val,tree,animations);
+        sumr=update(2*index+2,mid+1,r,pos,val,tree,animations);
     }
     
     text="Връщаме се на върха, който отговаря за интервала ["+l+"; "+r+"].";
@@ -278,5 +321,104 @@ function query (index, l, r, pos, val, tree, animations) {
                         vertexAnimation(tree,index,"white","text",1.5)],
         animText: text
     });
+    return suml+sumr;
+}
+
+function addSumText (tree, index, isLeaf, sum) {
+    let text=tree.s.text(0,0,sum);
+    text.attr({"font-size": tree.vertexRad*5/6, "font-family": "Arial", "text-align": "center", class: "unselectable", fill: "orange"});
+    if (isLeaf===true) {
+        text.attr({
+            x: tree.svgVertices[index].coord[0]+tree.vertexRad, 
+            y: tree.svgVertices[index].coord[1]-text.getBBox().h/2
+        });
+        text.attr({dy: "0.34em", "text-anchor": "middle"});
+        return ;
+    }
+    text.attr({
+        x: tree.svgVertices[index].coord[0]+2*tree.vertexRad+text.getBBox().w/2, 
+        y: tree.svgVertices[index].coord[1]+tree.vertexRad
+    });
+    text.attr({dy: "0.34em", "text-anchor": "middle"});
+}
+function addExtraInfo (ql, qr) {
+    this.text("Текуща заявка: ["+ql+"; "+qr+"]");
+}
+function sumQuery (index, l, r, ql, qr, tree, animations, extraInfo) {
+    let text;
+    if ((ql<=l)&&(r<=qr)) {
+        text="Интервалът на текущия връх се съдържа в нашата заявка. Отчитаме стойността, записана в него, и го напускаме.";
+        let isLeaf=false;
+        if (l==r) isLeaf=true;
+        animations.push({
+            startFunction: addSumText.bind(this,tree,index,isLeaf,tree.vertices[index].name),
+            animFunctions: [vertexAnimation(tree,index,"orange","circle",2),
+                            vertexAnimation(tree,index,"black","text",2)],
+            animText: text
+        });
+        return parseInt(tree.vertices[index].name);
+    }
+    let mid=Math.floor((l+r)/2);
+    let suml=0,sumr=0;
+    if (ql<=mid) {
+        text="Понеже ql<=mid ("+ql+"<="+mid+"), то трябва да отидем в лявото дете.";
+        animations.push({
+            animFunctions: [vertexAnimation(tree,index,"grey","circle",2),
+                            vertexAnimation(tree,index,"white","text",2),
+                            edgeAnimation(tree,index,2*index+1,2.5)],
+            endFunction: addExtraInfo.bind(extraInfo,ql,mid),
+            animText: text
+        });
+        text="Стигнахме до върха, който отговаря за интервала ["+l+"; "+mid+"].";
+        animations.push({
+            animFunctions: [vertexAnimation(tree,2*index+1,"red","circle",1),
+                            vertexAnimation(tree,2*index+1,"black","text",1)],
+            animText: text
+        });
+        suml=sumQuery(2*index+1,l,mid,ql,mid,tree,animations,extraInfo);
+        text="Връщаме се на върха, който отговаря за интервала ["+l+"; "+r+"].";
+        animations.push({
+            startFunction: addExtraInfo.bind(extraInfo,ql,qr),
+            animFunctions: [vertexAnimation(tree,index,"red","circle",1),
+                            vertexAnimation(tree,index,"black","text",1)],
+            animText: text
+        });
+    }
+    if (qr>mid) {
+        text="Понеже qr>mid ("+qr+">"+mid+"), то отиваме ";
+        if (ql<=mid) text+="и в дясното дете.";
+        else text+="в дясното дете.";
+        animations.push({
+            animFunctions: [vertexAnimation(tree,index,"grey","circle",2),
+                            vertexAnimation(tree,index,"white","text",2),
+                            edgeAnimation(tree,index,2*index+2,2.5)],
+            endFunction: addExtraInfo.bind(extraInfo,mid+1,qr),
+            animText: text
+        });
+        text="Стигнахме до върха, който отговаря за интервала ["+(mid+1)+"; "+r+"].";
+        animations.push({
+            animFunctions: [vertexAnimation(tree,2*index+2,"red","circle",1),
+                            vertexAnimation(tree,2*index+2,"black","text",1)],
+            animText: text
+        });
+        sumr=sumQuery(2*index+2,mid+1,r,mid+1,qr,tree,animations,extraInfo);
+        text="Връщаме се на върха, който отговаря за интервала ["+l+"; "+r+"]";
+        animations.push({
+            startFunction: addExtraInfo.bind(extraInfo,ql,qr),
+            animFunctions: [vertexAnimation(tree,index,"red","circle",1),
+                            vertexAnimation(tree,index,"black","text",1)],
+            animText: text
+        });
+    }
+    
+    text="Сумата на елементите от заявката, които се съдържат в текущия интервал е "+suml+"+"+sumr+"="+(suml+sumr)+". След това напускаме върха.";
+    let animation={
+        startFunction: addSumText.bind(this,tree,index,false,suml+sumr),
+        animFunctions: [vertexAnimation(tree,index,"black","circle",2),
+                        vertexAnimation(tree,index,"white","text",2)],
+        animText: text
+    };
+    if (index===0) animation.endFunction=() => { extraInfo.text(""); };
+    animations.push(animation);
     return suml+sumr;
 }
