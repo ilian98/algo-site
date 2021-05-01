@@ -118,12 +118,11 @@ function makeSegTree (exampleName, tree, elements, animationObj) {
     else addSegmentsLabels(0,1,elements.length,tree,false);
 }
 function defaultExample (exampleName, tree, elements, animationObj) {
+    $(exampleName+" .array").val("7,9,1,2,4,8,5,16");
     if (exampleName==".segTreeExample1") {
-        $(exampleName+" .array").val("9,5,3,2,1,7,8,6");
         makeSegTree(exampleName,tree,elements);
     }
     else if ((exampleName==".segTreeExample2")||(exampleName==".segTreeExample3")) {
-        $(exampleName+" .array").val("9,5,3,2,1,7,8,6");
         let extraInfo;
         if (exampleName==".segTreeExample2") {
             $(exampleName+" .pos").val("3");
