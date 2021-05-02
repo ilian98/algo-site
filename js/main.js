@@ -66,8 +66,13 @@
         
         let info=$(".info");
         for (let i=0; i<info.length; i+=2) {
-            $(info[i]).on("click",triggerInfo.bind(info[i],$(info[i]),$(info[i+1])));
-            $(info[i+1]).on("click",triggerInfo.bind(info[i+1],$(info[i]),$(info[i+1])));
+            $(info[i]).on("click",triggerInfo.bind(info[i],$(info[i]),$(info[i+1]),page+"info"+i));
+            $(info[i+1]).on("click",triggerInfo.bind(info[i+1],$(info[i]),$(info[i+1]),page+"info"+i));
+            let state=sessionStorage.getItem(page+"info"+i);
+            if ((state!==null)&&(state=="1")) {
+                $(info[i+1]).show();
+                $(info[i]).hide();
+            }
         }
         
         for (let div of $("div")) {
@@ -109,12 +114,14 @@ function checkForAnchor ()  {
     if (index===-1) return "";
     return URL.slice(index+1,URL.length);
 }
-function triggerInfo (trigger, info) {
+function triggerInfo (trigger, info, name) {
     if (trigger.is(":hidden")===false) {
+        sessionStorage.setItem(name,1);
         trigger.hide();
         info.show();
     }
     else {
+        sessionStorage.setItem(name,0);
         trigger.show();
         info.hide();
     }

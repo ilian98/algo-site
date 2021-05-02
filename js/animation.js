@@ -105,6 +105,7 @@ function Animation () {
     
         this.clear();
         $(name+" .speed").val("2");
+        $(name+" .speed").on("keypress",isDigit);
         startButton.flag=false; startButton.off("click.start").on("click.start",startButtonFunc.bind(startButton,this,name,findAnimations,initialState));
         pauseButton.off("click.pause").on("click.pause",pauseButtonFunc.bind(pauseButton,this));
         previousButton.off("click.prev").on("click.prev",stepButtonFunc.bind(previousButton,this,initialState,-1));

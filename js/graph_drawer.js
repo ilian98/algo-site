@@ -121,6 +121,7 @@ function Graph () {
     this.isOriented=undefined; this.isTree=undefined;
     this.frameX=undefined; this.frameY=undefined; this.frameW=undefined; this.frameH=undefined; this.vertexRad=20;
     this.init = function (svgName, n, isOriented, flagSave, isTree) {
+        $(svgName).on("mousedown", () => { return false; });
         if (this.s===undefined) {
             this.svgName=svgName;
             this.s=Snap(svgName);
@@ -297,8 +298,9 @@ function Graph () {
             let x=this.svgVertices[i].coord[0]+this.vertexRad;
             let y=this.svgVertices[i].coord[1]+this.vertexRad;
             this.svgVertices[i].circle=this.s.circle(x,y,this.vertexRad);
-            this.svgVertices[i].circle.attr({fill: "white", stroke: "black", "stroke-width": strokeWidth});
+            this.svgVertices[i].circle.attr({fill: "white", stroke: "black", "stroke-width": strokeWidth})
             this.drawVertexText(i,this.vertices[i].name);
+            if (addDrawableEdges===true) this.svgVertices[i].group.attr({cursor: "pointer"});
         }
 
         if (addDrawableEdges===true) this.drawableEdges();

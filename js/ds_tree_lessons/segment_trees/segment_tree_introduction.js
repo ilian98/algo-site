@@ -280,6 +280,9 @@ function initExample (part) {
         $(exampleName+" .make").off("click").on("click",makeSegTree.bind(this,exampleName,tree,elements,undefined));
         $(exampleName+" .indexes").text("Покажи номерата");
         $(exampleName+" .indexes").off("click").on("click",toggleIndexes.bind($(exampleName+" .indexes"),tree,elements,false));
+        
+        $(exampleName+" .array").on("keypress",isDigitOrComma);
+        
         defaultExample(exampleName,tree,elements);
     }
     else if (part==3) {
@@ -290,7 +293,13 @@ function initExample (part) {
         let elements1=[];
         $(exampleName1+" .default").off("click").on("click",defaultExample.bind(this,exampleName1,tree1,elements1,animationObj1));
         $(exampleName1+" .make").off("click").on("click",makeSegTree.bind(this,exampleName1,tree1,elements1,animationObj1));
+        
+        $(exampleName1+" .array").on("keypress",isDigitOrComma);
+        $(exampleName1+" .pos").on("keypress",isDigit);
+        $(exampleName1+" .val").on("keypress",isDigit);
+        
         defaultExample(exampleName1,tree1,elements1,animationObj1);
+        
         
         let tree2 = new Graph();
         let exampleName2=".segTreeExample3";
@@ -299,6 +308,11 @@ function initExample (part) {
         let elements2=[];
         $(exampleName2+" .default").off("click").on("click",defaultExample.bind(this,exampleName2,tree2,elements2,animationObj2));
         $(exampleName2+" .make").off("click").on("click",makeSegTree.bind(this,exampleName2,tree2,elements2,animationObj2));
+        
+        $(exampleName2+" .array").on("keypress",isDigitOrComma);
+        $(exampleName2+" .ql").on("keypress",isDigit);
+        $(exampleName2+" .qr").on("keypress",isDigit);
+        
         defaultExample(exampleName2,tree2,elements2,animationObj2);
     }
     else if (part==4) {
@@ -310,6 +324,9 @@ function initExample (part) {
         $(exampleName+" .add").off("click").on("click",addPoint.bind(this,exampleName,tree));
         $(exampleName+" .indexes").text("Скрий номерата");
         $(exampleName+" .indexes").off("click").on("click",toggleIndexes.bind($(exampleName+" .indexes"),tree,elements,true));
+        
+        $(exampleName+" .c").on("keypress",isDigit);
+        
         defaultExample(exampleName,tree,elements);
     }
 }
