@@ -54,6 +54,17 @@
             $(info[i]).on("click",triggerInfo.bind(info[i],$(info[i]),$(info[i+1])));
             $(info[i+1]).on("click",triggerInfo.bind(info[i+1],$(info[i]),$(info[i+1])));
         }
+        
+        for (let div of $("div")) {
+            let id=$(div).prop("id");
+            if (!id.endsWith("-placeholder")) continue;
+            if ((id=="nav-placeholder")||(id=="footer-placeholder")) continue;
+            let name=id.substring(0,id.length-("-placeholder").length);
+            let codeHTML=document.URL.substring(0,document.URL.length-get_page().length)+name+".html";
+            $.get(codeHTML, function (data) {
+                $(div).replaceWith(data);
+            });
+        }
     });
     
 })();

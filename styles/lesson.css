@@ -49,6 +49,7 @@ ul {
 pre {
     overflow-x: auto;
     max-width: 100%;
+    background: #343a40 !important;
 }
 
 .label-input {

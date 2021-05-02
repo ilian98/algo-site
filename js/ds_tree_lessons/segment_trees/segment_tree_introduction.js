@@ -5,23 +5,25 @@ function endAnimation (tree, animationObj, elements, pos, val) {
     animationObj.clear();
     elements[pos-1]=val;
     tree.s.selectAll("*").remove();
-    makeEdges(0,0,elements.length-1,[],tree.vertices,elements);
+    makeEdges(0,0,elements.length-1,[],tree.vertices,elements,false);
     tree.draw(false);
-    addSegmentsLabels(0,1,elements.length,tree,false);
+    addSegmentsLabels(0,1,elements.length,tree,false,false);
 }
-function toggleIndexes (tree, elements) {
-    if (elements===[]) return ;
+function toggleIndexes (tree, elements, isDynamic) {
+    if ((isDynamic===false)&&(elements.length===0)) return ;
     tree.draw(false);
     if (this.text()=="Покажи номерата") {
         this.text("Скрий номерата");
-        addSegmentsLabels(0,1,elements.length,tree,true);
+        if (isDynamic===false) addSegmentsLabels(0,1,elements.length,tree,true,isDynamic);
+        else addSegmentsLabels(0,1,64,tree,true,isDynamic);
     }
     else {
         this.text("Покажи номерата");
-        addSegmentsLabels(0,1,elements.length,tree,false);
+        if (isDynamic===false) addSegmentsLabels(0,1,elements.length,tree,false,isDynamic);
+        else addSegmentsLabels(0,1,64,tree,false,isDynamic);
     }
 }
-function addSegmentsLabels (index, l, r, tree, flagIndex) {
+function addSegmentsLabels (index, l, r, tree, flagIndex, isDynamic) {
     if (flagIndex===true) {
         let textIndex=tree.s.text(0,0,index+1);
         textIndex.attr({"font-size": tree.vertexRad*4/6, "font-family": "Times New Roman", "font-weight": "bold", "text-align": "center", class: "unselectable", fill: "blue"});
@@ -48,18 +50,40 @@ function addSegmentsLabels (index, l, r, tree, flagIndex) {
     });
     segment.attr({dy: "0.34em", "text-anchor": "middle"});
     let mid=Math.floor((l+r)/2);
-    addSegmentsLabels(2*index+1,l,mid,tree,flagIndex);
-    addSegmentsLabels(2*index+2,mid+1,r,tree,flagIndex);
+    if (isDynamic===false) {
+        addSegmentsLabels(2*index+1,l,mid,tree,flagIndex,isDynamic);
+        addSegmentsLabels(2*index+2,mid+1,r,tree,flagIndex,isDynamic);
+    }
+    else {
+        if (tree.vertices[index].hasOwnProperty("lind")===true) {
+            addSegmentsLabels(tree.vertices[index].lind,l,mid,tree,flagIndex,isDynamic);
+        }
+        if (tree.vertices[index].hasOwnProperty("rind")===true) {
+            addSegmentsLabels(tree.vertices[index].rind,mid+1,r,tree,flagIndex,isDynamic);
+        }
+    }
 }
-function makeEdges (index, l, r, edges, vertices, elements) {
+function makeEdges (index, l, r, edges, vertices, elements, isDynamic) {
     if (l==r) {
-       vertices[index].name=elements[l].toString();
+       if (isDynamic===false) vertices[index].name=elements[l].toString();
        return ;
        }
     let mid=Math.floor((l+r)/2);
-    edges.push([index,2*index+1]); makeEdges(2*index+1,l,mid,edges,vertices,elements);
-    edges.push([index,2*index+2]); makeEdges(2*index+2,mid+1,r,edges,vertices,elements);
-    vertices[index].name=(parseInt(vertices[2*index+1].name)+parseInt(vertices[2*index+2].name)).toString();
+    if (isDynamic===false) {
+        edges.push([index,2*index+1]); makeEdges(2*index+1,l,mid,edges,vertices,elements,isDynamic);
+        edges.push([index,2*index+2]); makeEdges(2*index+2,mid+1,r,edges,vertices,elements,isDynamic);
+        vertices[index].name=(parseInt(vertices[2*index+1].name)+parseInt(vertices[2*index+2].name)).toString();
+    }
+    else {
+        if (vertices[index].hasOwnProperty("lind")===true) {
+            edges.push([index,vertices[index].lind]);
+            makeEdges(vertices[index].lind,l,mid,edges,vertices,elements,isDynamic);
+        }
+        if (vertices[index].hasOwnProperty("rind")===true) {
+            edges.push([index,vertices[index].rind]);
+            makeEdges(vertices[index].rind,mid+1,r,edges,vertices,elements,isDynamic);
+        }
+    }
 }
 function findElements (s, elements) {
     elements.splice(0,elements.length);
@@ -68,36 +92,40 @@ function findElements (s, elements) {
         if (s[i]==',') {
             if (digs==0) {
                 alert("Невалиден масив!");
-                return [];
+                elements.splice(0,elements.length);
+                return ;
             }
             elements.push(num);
             num=0; digs=0;
         }
         else {
             if ((s[i]<'0')||(s[i]>'9')) {
-               alert("Невалиден масив!");
-               return [];
+                alert("Невалиден масив!");
+                elements.splice(0,elements.length);
+                return ;
             }
             num*=10; num+=s[i]-'0';
             digs++;
         }
     }
     if (digs==0) {
-       alert("Невалиден масив!");
-       return [];
+        alert("Невалиден масив!");
+        elements.splice(0,elements.length);
+        return ;
     }
     elements.push(num);
     if (elements.length>16) {
         alert("Позволяват се най-много до 16 числа! Въвели сте "+elements.length+" на брой числа.");
-        return [];
+        elements.splice(0,elements.length);
+        return ;
     }
     for (let i=0; i<elements.length; i++) {
         if (elements[i]>99) {
             alert("Най-голямото позволено число е 99!");
-            return [];
+            elements.splice(0,elements.length);
+            return ;
         }
     }
-    return elements;
 }
 function makeSegTree (exampleName, tree, elements, animationObj) {
     if (animationObj!==undefined) animationObj.clear();
@@ -109,20 +137,68 @@ function makeSegTree (exampleName, tree, elements, animationObj) {
     }
     
     tree.edgeList=[]; tree.initVertices(4*elements.length);
-    makeEdges(0,0,elements.length-1,tree.edgeList,tree.vertices,elements);
+    makeEdges(0,0,elements.length-1,tree.edgeList,tree.vertices,elements,false);
     tree.fillAdjListMatrix();
     if (elements.length<=8) tree.drawNewGraph(1,1,299,149,10,false);
     else tree.drawNewGraph(1,1,299,149,7,false);
     
-    if ($(exampleName+" .indexes").text()=="Скрий номерата") addSegmentsLabels(0,1,elements.length,tree,true);
-    else addSegmentsLabels(0,1,elements.length,tree,false);
+    if ($(exampleName+" .indexes").text()=="Скрий номерата") addSegmentsLabels(0,1,elements.length,tree,true,false);
+    else addSegmentsLabels(0,1,elements.length,tree,false,false);
+}
+function makeDynSegTree (exampleName, tree) {
+    tree.erase();
+    
+    tree.edgeList=[]; tree.initVertices(1);
+    tree.vertices[0].name="0";
+    tree.fillAdjListMatrix();
+    tree.drawNewGraph(2,1,297,199,8,false);
+    
+    if ($(exampleName+" .indexes").text()=="Скрий номерата") addSegmentsLabels(0,1,64,tree,true,true);
+    else addSegmentsLabels(0,1,64,tree,false,true);
+}
+function updateDyn (index, l, r, c, tree) {
+    tree.vertices[index].name=(parseInt(tree.vertices[index].name)+1).toString();
+    if (l==r) return ;
+    let mid=Math.floor((l+r)/2);
+    if (c<=mid) {
+        if (tree.vertices[index].hasOwnProperty("lind")===false) {
+            tree.vertices[index].lind=tree.n++;
+            tree.vertices.push(new Vertex());
+            tree.vertices[tree.n-1].name="0";
+        }
+        updateDyn(tree.vertices[index].lind,l,mid,c,tree);
+    }
+    else {
+        if (tree.vertices[index].hasOwnProperty("rind")===false) {
+            tree.vertices[index].rind=tree.n++;
+            tree.vertices.push(new Vertex());
+            tree.vertices[tree.n-1].name="0";
+        }
+        updateDyn(tree.vertices[index].rind,mid+1,r,c,tree);
+    }
+}
+function addPoint (exampleName, tree) {
+    let c=$(exampleName+" .c").val();
+    if ((c<1)||(c>64)) {
+        alert("Невалидна координата");
+        return ;
+    }
+    updateDyn(0,1,64,c,tree);
+    tree.edgeList=[];
+    makeEdges(0,1,64,tree.edgeList,tree.vertices,[],true);
+    tree.fillAdjListMatrix();
+    tree.drawNewGraph(2,1,297,199,8,false);
+    
+    if ($(exampleName+" .indexes").text()=="Скрий номерата") addSegmentsLabels(0,1,64,tree,true,true);
+    else addSegmentsLabels(0,1,64,tree,false,true);
 }
 function defaultExample (exampleName, tree, elements, animationObj) {
-    $(exampleName+" .array").val("7,9,1,2,4,8,5,16");
     if (exampleName==".segTreeExample1") {
+        $(exampleName+" .array").val("7,9,1,2,4,8,5,16");
         makeSegTree(exampleName,tree,elements);
     }
     else if ((exampleName==".segTreeExample2")||(exampleName==".segTreeExample3")) {
+        $(exampleName+" .array").val("7,9,1,2,4,8,5,16");
         let extraInfo;
         if (exampleName==".segTreeExample2") {
             $(exampleName+" .pos").val("3");
@@ -139,7 +215,7 @@ function defaultExample (exampleName, tree, elements, animationObj) {
         let ql,qr;
         makeSegTree(exampleName,tree,elements,animationObj);
         
-        animationObj.init(exampleName+" .treeExample",function () {
+        animationObj.init(exampleName+" .treeExample",function findAnimations () {
             let animations=[];
             if (exampleName==".segTreeExample2") {
                 pos=parseInt($(exampleName+" .pos").val());
@@ -170,12 +246,12 @@ function defaultExample (exampleName, tree, elements, animationObj) {
                 sumQuery(0,1,elements.length,ql,qr,tree,animations,extraInfo);
             }
             return animations;
-        },function (flag) {
+        },function initialState (flag) {
             if (exampleName==".segTreeExample3") extraInfo.text("");
             tree.s.selectAll("*").remove();
-            makeEdges(0,0,elements.length-1,[],tree.vertices,elements);
+            makeEdges(0,0,elements.length-1,[],tree.vertices,elements,false);
             tree.draw(false);
-            addSegmentsLabels(0,1,elements.length,tree,false);
+            addSegmentsLabels(0,1,elements.length,tree,false,false);
         });
         let endButton=$(".treeExample .end");
         endButton.hide();
@@ -189,6 +265,10 @@ function defaultExample (exampleName, tree, elements, animationObj) {
             });
         }
     }
+    else if (exampleName==".segTreeExample4") {
+        $(exampleName+" .c").val("42");
+        makeDynSegTree(exampleName,tree);
+    }
 }
 function initExample (part) {
     if (part==2) {
@@ -199,7 +279,7 @@ function initExample (part) {
         $(exampleName+" .default").off("click").on("click",defaultExample.bind(this,exampleName,tree,elements));
         $(exampleName+" .make").off("click").on("click",makeSegTree.bind(this,exampleName,tree,elements,undefined));
         $(exampleName+" .indexes").text("Покажи номерата");
-        $(exampleName+" .indexes").off("click").on("click",toggleIndexes.bind($(exampleName+" .indexes"),tree,elements));
+        $(exampleName+" .indexes").off("click").on("click",toggleIndexes.bind($(exampleName+" .indexes"),tree,elements,false));
         defaultExample(exampleName,tree,elements);
     }
     else if (part==3) {
@@ -220,6 +300,17 @@ function initExample (part) {
         $(exampleName2+" .default").off("click").on("click",defaultExample.bind(this,exampleName2,tree2,elements2,animationObj2));
         $(exampleName2+" .make").off("click").on("click",makeSegTree.bind(this,exampleName2,tree2,elements2,animationObj2));
         defaultExample(exampleName2,tree2,elements2,animationObj2);
+    }
+    else if (part==4) {
+        let tree = new Graph();
+        let exampleName=".segTreeExample4";
+        tree.init(exampleName+" .treeExample .graph",1,false,true,true);
+        let elements=[];
+        $(exampleName+" .default").off("click").on("click",defaultExample.bind(this,exampleName,tree,elements));
+        $(exampleName+" .add").off("click").on("click",addPoint.bind(this,exampleName,tree));
+        $(exampleName+" .indexes").text("Скрий номерата");
+        $(exampleName+" .indexes").off("click").on("click",toggleIndexes.bind($(exampleName+" .indexes"),tree,elements,true));
+        defaultExample(exampleName,tree,elements);
     }
 }
 
