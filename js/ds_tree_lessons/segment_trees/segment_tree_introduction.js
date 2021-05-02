@@ -199,7 +199,6 @@ function defaultExample (exampleName, tree, elements, animationObj) {
     }
     else if ((exampleName==".segTreeExample2")||(exampleName==".segTreeExample3")) {
         $(exampleName+" .array").val("7,9,1,2,4,8,5,16");
-        let extraInfo;
         if (exampleName==".segTreeExample2") {
             $(exampleName+" .pos").val("3");
             $(exampleName+" .val").val("10");
@@ -207,8 +206,6 @@ function defaultExample (exampleName, tree, elements, animationObj) {
         else {
             $(exampleName+" .ql").val("2");
             $(exampleName+" .qr").val("7");
-            extraInfo=$(exampleName+" .extra-info");
-            extraInfo.text("");
         }
         
         let pos,val;
@@ -239,15 +236,13 @@ function defaultExample (exampleName, tree, elements, animationObj) {
                     return animations;
                 }
                 animations.push({
-                    startFunction: addExtraInfo.bind(extraInfo,ql,qr),
                     animFunctions: [vertexAnimation(tree,0,"red","circle")],
                     animText: "Започваме обхождането от корена на върховете за включване в сумата."
                 });
-                sumQuery(0,1,elements.length,ql,qr,tree,animations,extraInfo);
+                sumQuery(0,1,elements.length,ql,qr,tree,animations);
             }
             return animations;
         },function initialState (flag) {
-            if (exampleName==".segTreeExample3") extraInfo.text("");
             tree.s.selectAll("*").remove();
             makeEdges(0,0,elements.length-1,[],tree.vertices,elements,false);
             tree.draw(false);
@@ -448,10 +443,7 @@ function addSumText (tree, index, isLeaf, sum) {
     });
     text.attr({dy: "0.34em", "text-anchor": "middle"});
 }
-function addExtraInfo (ql, qr) {
-    this.text("Текуща заявка: ["+ql+"; "+qr+"]");
-}
-function sumQuery (index, l, r, ql, qr, tree, animations, extraInfo) {
+function sumQuery (index, l, r, ql, qr, tree, animations) {
     let text;
     if ((ql<=l)&&(r<=qr)) {
         text="Интервалът на текущия връх се съдържа в нашата заявка. Отчитаме стойността, записана в него, и го напускаме.";
@@ -473,7 +465,6 @@ function sumQuery (index, l, r, ql, qr, tree, animations, extraInfo) {
             animFunctions: [vertexAnimation(tree,index,"grey","circle",2),
                             vertexAnimation(tree,index,"white","text",2),
                             edgeAnimation(tree,index,2*index+1,2.5)],
-            endFunction: addExtraInfo.bind(extraInfo,ql,mid),
             animText: text
         });
         text="Стигнахме до върха, който отговаря за интервала ["+l+"; "+mid+"].";
@@ -482,10 +473,9 @@ function sumQuery (index, l, r, ql, qr, tree, animations, extraInfo) {
                             vertexAnimation(tree,2*index+1,"black","text",1)],
             animText: text
         });
-        suml=sumQuery(2*index+1,l,mid,ql,mid,tree,animations,extraInfo);
+        suml=sumQuery(2*index+1,l,mid,ql,qr,tree,animations);
         text="Връщаме се на върха, който отговаря за интервала ["+l+"; "+r+"].";
         animations.push({
-            startFunction: addExtraInfo.bind(extraInfo,ql,qr),
             animFunctions: [vertexAnimation(tree,index,"red","circle",1),
                             vertexAnimation(tree,index,"black","text",1)],
             animText: text
@@ -499,7 +489,6 @@ function sumQuery (index, l, r, ql, qr, tree, animations, extraInfo) {
             animFunctions: [vertexAnimation(tree,index,"grey","circle",2),
                             vertexAnimation(tree,index,"white","text",2),
                             edgeAnimation(tree,index,2*index+2,2.5)],
-            endFunction: addExtraInfo.bind(extraInfo,mid+1,qr),
             animText: text
         });
         text="Стигнахме до върха, който отговаря за интервала ["+(mid+1)+"; "+r+"].";
@@ -508,10 +497,9 @@ function sumQuery (index, l, r, ql, qr, tree, animations, extraInfo) {
                             vertexAnimation(tree,2*index+2,"black","text",1)],
             animText: text
         });
-        sumr=sumQuery(2*index+2,mid+1,r,mid+1,qr,tree,animations,extraInfo);
+        sumr=sumQuery(2*index+2,mid+1,r,ql,qr,tree,animations);
         text="Връщаме се на върха, който отговаря за интервала ["+l+"; "+r+"]";
         animations.push({
-            startFunction: addExtraInfo.bind(extraInfo,ql,qr),
             animFunctions: [vertexAnimation(tree,index,"red","circle",1),
                             vertexAnimation(tree,index,"black","text",1)],
             animText: text
@@ -525,7 +513,6 @@ function sumQuery (index, l, r, ql, qr, tree, animations, extraInfo) {
                         vertexAnimation(tree,index,"white","text",2)],
         animText: text
     };
-    if (index===0) animation.endFunction=() => { extraInfo.text(""); };
     animations.push(animation);
     return suml+sumr;
 }
