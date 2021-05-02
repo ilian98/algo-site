@@ -26,26 +26,41 @@
     if (page.endsWith("_en.html")===true) navigation_page="/algo-site/navigation_en.html";
     $(document).ready(function () {
         $.get(navigation_page, function (data) {
-        $("#nav-placeholder").replaceWith(data);
-        $("#nav-placeholder").ready(function () {
-            let dropdown=$('[aria-labelledby="languages"]').children();
-            $(dropdown[0]).on("click",changeLanguage.bind(dropdown[0],"bg"));
-            $(dropdown[1]).on("click",changeLanguage.bind(dropdown[1],"en"));
-        });
+            $("#nav-placeholder").replaceWith(data);
+            $("#nav-placeholder").ready(function () {
+                let dropdown=$('[aria-labelledby="languages"]').children();
+                $(dropdown[0]).on("click",changeLanguage.bind(dropdown[0],"bg"));
+                $(dropdown[1]).on("click",changeLanguage.bind(dropdown[1],"en"));
+            });
         
-        let footer_page="/algo-site/footer.html";
-        if (page.endsWith("_en.html")===true) footer_page="/algo-site/footer_en.html";
-        $.get(footer_page, function (data) {
-            $("#footer-placeholder").replaceWith(data);
+            let footer_page="/algo-site/footer.html";
+            if (page.endsWith("_en.html")===true) footer_page="/algo-site/footer_en.html";
+            $.get(footer_page, function (data) {
+                $("#footer-placeholder").replaceWith(data);
             
-            set_heights();
-            $(window).resize(set_heights);
+                set_heights();
+                $(window).resize(set_heights);
+                let scrollTop=sessionStorage.getItem(get_page()+"scrollTop");
+                if (home_page===true) $(".content").scrollTop(scrollTop);
+                else $(".wrapper").scrollTop(scrollTop);
             });
         });
         
         let ind=0;
+        let anchorBtn=checkForAnchor();
         for (let btn of $(".lesson-part-position >.btn")) {
-            $(btn).on("click",toggleText.bind(btn,ind));
+            let ordinals=["first","second","third","fourth"];
+            let name="#"+ordinals[ind]+"Part";
+            $(btn).on("click",toggleText.bind($(btn),ind,name,page));
+            $(btn).prop("id","part"+(ind+1));
+            $(btn).append('<a class="show-anchor" href="#part'+(ind+1)+'"></a>');
+            $(btn).append('<a class="hide-anchor" href="#"></a>');
+            let state=sessionStorage.getItem(page+name);
+            if (((state!==null)&&(state=="1"))||
+                ($(btn).prop("id")==anchorBtn)) {
+                showText(ind,name,page);
+            }
+            
             ind++;
         }
         
@@ -59,31 +74,40 @@
             let id=$(div).prop("id");
             if (!id.endsWith("-placeholder")) continue;
             if ((id=="nav-placeholder")||(id=="footer-placeholder")) continue;
-            let name=id.substring(0,id.length-("-placeholder").length);
-            let codeHTML=document.URL.substring(0,document.URL.length-get_page().length)+name+".html";
-            $.get(codeHTML, function (data) {
+            let codeName=id.substring(0,id.length-("-placeholder").length)+".html";
+            $.get(codeName, function (data) {
                 $(div).replaceWith(data);
             });
         }
     });
     
+    $(window).on("beforeunload", function() {
+        if (home_page===true) sessionStorage.setItem(page+"scrollTop",$(".content").scrollTop());
+        else sessionStorage.setItem(page+"scrollTop",$(".wrapper").scrollTop());
+        return ;
+    });
+    
 })();
 
+
 function get_page () {
-    let URL=document.URL,index=-1;
+    let URL=document.URL,index=-1,endIndex=URL.length;
     for (let i=0; i<URL.length; i++) {
         if (URL[i]=='/') index=i;
+        if (URL[i]=='#') {
+            endIndex=i;
+            break;
         }
-    return URL.slice(index+1,URL.length);
-}
-function toggleText (index) {
-    let ordinals=["first","second","third","fourth"];
-    let name="#"+ordinals[index]+"Part";
-    if ($(name).is(":hidden")===false) $(name).hide();
-    else {
-        $(name).show();
-        if (typeof initExamples==="function") initExamples(index+1);
     }
+    return URL.slice(index+1,endIndex);
+}
+function checkForAnchor ()  {
+    let URL=document.URL,index=-1;
+    for (let i=0; i<URL.length; i++) {
+        if (URL[i]=='#') index=i;
+    }
+    if (index===-1) return "";
+    return URL.slice(index+1,URL.length);
 }
 function triggerInfo (trigger, info) {
     if (trigger.is(":hidden")===false) {
@@ -106,6 +130,24 @@ function changeLanguage (language) {
     this.setAttribute("href",s);
 }
 
+function showText (index, name, page) {
+    sessionStorage.setItem(page+name,1);
+    $(name).show();
+    if (typeof initExamples==="function") initExamples(index+1);
+}
+function toggleText (index, name, page) {
+    if ($(name).is(":hidden")===false) {
+        sessionStorage.setItem(page+name,0);
+        this.children(".hide-anchor")[0].click();
+        $(name).hide();
+    }
+    else {
+        this.children(".show-anchor")[0].click();
+        showText(index,name,page);
+    }
+}
+
+
 function isDigit (event) {
     let charCode=(event.which)?event.which:event.keyCode;
     if ((charCode<=31)||((charCode>=48)&&(charCode<=57))) return true;
@@ -122,6 +164,7 @@ function isSmallLatinLetter (event) {
     if ((charCode>=97)&&(charCode<=122)) return true;
     return false;
 }
+
 
 function initExamples (part = 1) {
     let page=get_page();
