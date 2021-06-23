@@ -1,0 +1,32 @@
+<pre style='color:#d1d1d1;background:#000000;'><span style='color:#e66170; font-weight:bold; '>vector</span> <span style='color:#b060b0; '>&lt;</span><span style='color:#e66170; font-weight:bold; '>int</span><span style='color:#b060b0; '>></span> a<span style='color:#d2cd86; '>[</span>MAXN<span style='color:#d2cd86; '>]</span><span style='color:#b060b0; '>;</span>
+<span style='color:#e66170; font-weight:bold; '>bool</span> visited<span style='color:#d2cd86; '>[</span>MAXN<span style='color:#d2cd86; '>]</span><span style='color:#b060b0; '>;</span>
+<span style='color:#e66170; font-weight:bold; '>stack</span> <span style='color:#b060b0; '>&lt;</span><span style='color:#e66170; font-weight:bold; '>int</span><span style='color:#b060b0; '>></span> path<span style='color:#b060b0; '>;</span>
+<span style='color:#e66170; font-weight:bold; '>bool</span> dfs <span style='color:#d2cd86; '>(</span><span style='color:#e66170; font-weight:bold; '>int</span> vr<span style='color:#d2cd86; '>,</span> <span style='color:#e66170; font-weight:bold; '>int</span> fin<span style='color:#d2cd86; '>)</span> <span style='color:#b060b0; '>{</span>
+    visited<span style='color:#d2cd86; '>[</span>vr<span style='color:#d2cd86; '>]</span><span style='color:#d2cd86; '>=</span><span style='color:#e66170; font-weight:bold; '>true</span><span style='color:#b060b0; '>;</span>
+    <span style='color:#e66170; font-weight:bold; '>if</span> <span style='color:#d2cd86; '>(</span>vr<span style='color:#d2cd86; '>=</span><span style='color:#d2cd86; '>=</span>fin<span style='color:#d2cd86; '>)</span> <span style='color:#b060b0; '>{</span>
+        path<span style='color:#d2cd86; '>.</span>push<span style='color:#d2cd86; '>(</span>vr<span style='color:#d2cd86; '>)</span><span style='color:#b060b0; '>;</span>
+        <span style='color:#e66170; font-weight:bold; '>return</span> <span style='color:#e66170; font-weight:bold; '>true</span><span style='color:#b060b0; '>;</span>
+    <span style='color:#b060b0; '>}</span>
+    <span style='color:#e66170; font-weight:bold; '>for</span> <span style='color:#d2cd86; '>(</span><span style='color:#e66170; font-weight:bold; '>auto</span> to <span style='color:#b060b0; '>:</span> a<span style='color:#d2cd86; '>[</span>vr<span style='color:#d2cd86; '>]</span><span style='color:#d2cd86; '>)</span> <span style='color:#b060b0; '>{</span>
+        <span style='color:#e66170; font-weight:bold; '>if</span> <span style='color:#d2cd86; '>(</span>visited<span style='color:#d2cd86; '>[</span>to<span style='color:#d2cd86; '>]</span><span style='color:#d2cd86; '>=</span><span style='color:#d2cd86; '>=</span><span style='color:#e66170; font-weight:bold; '>false</span><span style='color:#d2cd86; '>)</span> <span style='color:#b060b0; '>{</span>
+            <span style='color:#e66170; font-weight:bold; '>if</span> <span style='color:#d2cd86; '>(</span>dfs<span style='color:#d2cd86; '>(</span>to<span style='color:#d2cd86; '>,</span>fin<span style='color:#d2cd86; '>)</span><span style='color:#d2cd86; '>=</span><span style='color:#d2cd86; '>=</span><span style='color:#e66170; font-weight:bold; '>true</span><span style='color:#d2cd86; '>)</span> <span style='color:#b060b0; '>{</span>
+                path<span style='color:#d2cd86; '>.</span>push<span style='color:#d2cd86; '>(</span>vr<span style='color:#d2cd86; '>)</span><span style='color:#b060b0; '>;</span>
+                <span style='color:#e66170; font-weight:bold; '>return</span> <span style='color:#e66170; font-weight:bold; '>true</span><span style='color:#b060b0; '>;</span>
+            <span style='color:#b060b0; '>}</span>
+        <span style='color:#b060b0; '>}</span>
+    <span style='color:#b060b0; '>}</span>
+    <span style='color:#e66170; font-weight:bold; '>return</span> <span style='color:#e66170; font-weight:bold; '>false</span><span style='color:#b060b0; '>;</span>
+<span style='color:#b060b0; '>}</span>
+<span style='color:#e66170; font-weight:bold; '>int</span> <span style='color:#e66170; font-weight:bold; '>main</span> <span style='color:#d2cd86; '>(</span><span style='color:#d2cd86; '>)</span> <span style='color:#b060b0; '>{</span>
+    <span style='color:#90b0e0; '>/// Въвеждаме графа и попълваме списъка на съседите</span>
+    <span style='color:#e66170; font-weight:bold; '>int</span> x<span style='color:#d2cd86; '>,</span>y<span style='color:#b060b0; '>;</span>
+    <span style='color:#e66170; font-weight:bold; '>cin</span> <span style='color:#d2cd86; '>></span><span style='color:#d2cd86; '>></span> x <span style='color:#d2cd86; '>></span><span style='color:#d2cd86; '>></span> y <span style='color:#b060b0; '>;</span>
+    dfs<span style='color:#d2cd86; '>(</span>x<span style='color:#d2cd86; '>,</span>y<span style='color:#d2cd86; '>)</span><span style='color:#b060b0; '>;</span>
+    <span style='color:#e66170; font-weight:bold; '>while</span> <span style='color:#d2cd86; '>(</span><span style='color:#d2cd86; '>!</span>path<span style='color:#d2cd86; '>.</span>empty<span style='color:#d2cd86; '>(</span><span style='color:#d2cd86; '>)</span><span style='color:#d2cd86; '>)</span> <span style='color:#b060b0; '>{</span>
+        <span style='color:#e66170; font-weight:bold; '>cout</span> <span style='color:#d2cd86; '>&lt;</span><span style='color:#d2cd86; '>&lt;</span> path<span style='color:#d2cd86; '>.</span>top<span style='color:#d2cd86; '>(</span><span style='color:#d2cd86; '>)</span> <span style='color:#d2cd86; '>&lt;</span><span style='color:#d2cd86; '>&lt;</span> <span style='color:#02d045; '>"</span><span style='color:#00c4c4; '> </span><span style='color:#02d045; '>"</span><span style='color:#b060b0; '>;</span>
+        path<span style='color:#d2cd86; '>.</span>pop<span style='color:#d2cd86; '>(</span><span style='color:#d2cd86; '>)</span><span style='color:#b060b0; '>;</span>
+    <span style='color:#b060b0; '>}</span>
+    <span style='color:#e66170; font-weight:bold; '>cout</span> <span style='color:#d2cd86; '>&lt;</span><span style='color:#d2cd86; '>&lt;</span> <span style='color:#e66170; font-weight:bold; '>endl</span> <span style='color:#b060b0; '>;</span>
+<span style='color:#b060b0; '>}</span>
+</pre>
+<!--Created using ToHtml.com on 2021-06-23 15:01:25 UTC -->

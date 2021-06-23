@@ -1,4 +1,4 @@
-'use strict';
+"use strict";
 function vertexAnimation (graph, vr, colour, type) {
     return function(callback, speed) {
         let obj;
@@ -78,15 +78,13 @@ function dfs (vr, used, graph, animations) {
     });
 }
 
-function graphExample (name, isOriented, vertexRad) {
-    let graph = new Graph();
+function defaultExample (name, graph, animationObj, isOriented, vertexRad) {
     graph.init(name+" .graph",5,isOriented,true);
-    if (isOriented==false) graph.edgeList=[[0,1],[0,2],[0,3],[0,4],[1,2]];
-    else graph.edgeList=[[0,1],[1,0],[0,2],[2,0],[0,3],[3,0],[0,4],[4,0],[1,2],[2,1]];
+    if (isOriented===false) graph.edgeList=[[0,1],[0,2],[0,3],[0,4],[1,2]];
+    else graph.edgeList=[[0,1],[0,2],[0,3],[0,4],[1,2],[1,4],[2,3],[3,1]];
     graph.fillAdjListMatrix();
     graph.drawNewGraph(1,1,299,299,vertexRad,true);
         
-    let animationObj = new Animation();
     animationObj.init(name,function () {
         let animations=[];
         let used=[];
@@ -125,5 +123,37 @@ function graphExample (name, isOriented, vertexRad) {
         output.innerHTML=this.value;
         graph.init(name+" .graph",this.value,isOriented,true);
         graph.drawNewGraph(1,1,299,299,vertexRad,true);
+    }
+    
+    animationObj.startButton.off("click.bonus").on("click.bonus", function () {
+        if ($(name+" .default").is(":hidden")===false) {
+            $(name+" .default").hide();
+        }
+        else {
+            $(name+" .default").show();
+        }
+    });
+}
+
+function initExample (part) {
+    if (part==1) {
+        let graphUndirected = new Graph();
+        let animationObjUndirected = new Animation();
+        let exampleName1=".graphExample1";
+        defaultExample(exampleName1,graphUndirected,animationObjUndirected,false,20);
+        $(exampleName1+" .default").off("click").on("click",defaultExample.bind(this,exampleName1,graphUndirected,animationObjUndirected,false,20));
+        
+        let graphDirected = new Graph();
+        let animationObjDirected = new Animation();
+        let exampleName2=".graphExample2";
+        defaultExample(exampleName2,graphDirected,animationObjDirected,true,20);
+        $(exampleName2+" .default").off("click").on("click",defaultExample.bind(this,exampleName2,graphDirected,animationObjDirected,true,20));
+    }
+    else if (part==3) {
+        let graph = new Graph();
+        graph.init(".graphExample3",4,true,true);
+        graph.edgeList=[[0,1],[0,2],[1,3],[2,3]];
+        graph.fillAdjListMatrix();
+        graph.drawNewGraph(1,1,299,299,40,false);
     }
 }

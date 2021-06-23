@@ -201,8 +201,8 @@ function initExamples (part = 1) {
         example2.drawNewGraph(1,1,299,299,20,true);
     }
     else if (page=="depth_first_search.html") {
-        let example1 = new graphExample (".graphExample1",false,20);
-        let example2 = new graphExample (".graphExample2",true,20);
+        if (part==1) initExample(1);
+        else if (part==3) initExample(3); 
     }
     else if (page=="hashing.html") {
         document.querySelector(".hashExample1 .base").value="307";
