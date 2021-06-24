@@ -49,6 +49,8 @@ ul {
 pre {
     overflow-x: auto;
     max-width: 100%;
+}
+code {
     background: #343a40 !important;
 }
 

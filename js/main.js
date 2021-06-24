@@ -79,9 +79,10 @@
             let id=$(div).prop("id");
             if (!id.endsWith("-placeholder")) continue;
             if ((id=="nav-placeholder")||(id=="footer-placeholder")) continue;
-            let codeName=id.substring(0,id.length-("-placeholder").length)+".html";
-            $.get(codeName, function (data) {
-                $(div).replaceWith(data);
+            let codeName=id.substring(0,id.length-("-placeholder").length)+".cpp";
+            $.get(codeName, function (code) {
+                let data=hljs.highlight(code,{language: "cpp"}).value;
+                $(div).replaceWith('<pre><code class="language-cpp hljs">'+data+'</code></pre>');
             });
         }
     });
@@ -91,7 +92,6 @@
         else sessionStorage.setItem(page+"scrollTop",$(".wrapper").scrollTop());
         return ;
     });
-    
 })();
 
 
