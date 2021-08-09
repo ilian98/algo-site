@@ -12,8 +12,10 @@
         
         <link rel="shortcut icon" href="/algo-site/images/favicon.ico">
         <link type="text/css" rel="stylesheet" href="/algo-site/libs/bootstrap/dist/css/bootstrap.min.css"  media="screen,projection"/>
+        <link type="text/css" rel="stylesheet" href="/algo-site/libs/highlight/styles/github-dark.min.css">
         <link type="text/css" rel="stylesheet" href="/algo-site/styles/style.css"  media="screen,projection"/>
         <link type="text/css" rel="stylesheet" href="/algo-site/styles/lesson.css"  media="screen,projection"/>
+        <link type="text/css" rel="stylesheet" href="/algo-site/styles/dp_profile.css"  media="screen,projection"/>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
         <script type="text/javascript" src="/algo-site/libs/jquery/dist/jquery.slim.min.js"></script>
@@ -35,7 +37,7 @@
                         <a href="/algo-site/pages/dp_lessons.html" class="text-danger">Динамично програмиране</a>
                     </li>
                     <li class="breadcrumb-item active" style="z-index:0" aria-current="page">Динамично по профил</li>
-                    <li class="ml-auto">Последна промяна: 28.11.2020</li>
+                    <li class="ml-auto">Последна промяна: 09.08.2021</li>
                 </ol>
             </nav>
         </header>
@@ -47,14 +49,96 @@
                 <div class="lesson-part-position">
                     <button class="btn btn-secondary">1. Какво представлява динамичното по профил?</button>
                     <div id="firstPart">
-
+                        <p class="text-format">Това понятие обикновено се използва при динамични за някакъв тип броене в таблица \(n\)x\(m\), където едното измерение е малко, а другото е огромно (например от порядъка на \(10^9\) или даже \(10^{18}\). Нека за улеснение на обяснението и конкретика, приемем, че броят редове \(n\) е малък, а броят колони \(m\) е голям. Тогава трябва по подходящ начин да намерим подробно и еднотипно описание на колоната, което ще наричаме профил на колоната (по принцип то не трябва да зависи от конкретния номер на колоната). Понеже броят редове е малък в една колона, то различните профили на колоната трябва да са достатъчно малко, за да приложим техниката динамично по профил. Динамичното се състои в това, че приемаме, че сме намерили цялата информация до \(i-\)та колона, това включва и подробна информация за всеки възможен профил на тази колона. След което искаме да намерим същата информация за \((i+1)-\)ва колона. Същността на техниката е, като имаме подходящ профил, да намерим как преминаваме от един профил до друг (дали можем, по колко начина и т.н.) и така да направим този преход от \(i-\)та в \((i+1)-\)ва колона "автоматизирано" чрез умножение с матрица. По този начин намирането на целия отговор за таблицата с \(m\) колони ще става с повдигане на матрица в степен.</p>
                     </div>
                 </div>
 
                 <div class="lesson-part-position">
                     <button class="btn btn-secondary">2. Получаване на матрицата на преходите</button>
                     <div id="secondPart">
-
+                        <p class="text-format">Ще разгледаме една лесна задача, с която ще покажем нагледно техниката. Нека имаме таблица \(n\)x\(m\), която искаме да оцветим в черно и бяло, така че да няма две съседни (по страна) черни клетки. Търсим по колко начина може да стане това. Нека фиксираме конкретни стойности: \(n=m=2\). Тогава имаме следните 7 възможности:</p>
+                        <div class="row justify-content-center" style="margin-top: -2%">
+                            <table class="table">
+                                <tbody>
+                                    <tr><td class="white"></td><td class="white"></td></tr>
+                                    <tr><td class="white"></td><td class="white"></td></tr>
+                                </tbody>
+                            </table>
+                            <table class="table">
+                                <tbody>
+                                    <tr><td class="white"></td><td class="white"></td></tr>
+                                    <tr><td class="black"></td><td class="white"></td></tr>
+                                </tbody>
+                            </table>
+                            <table class="table">
+                                <tbody>
+                                    <tr><td class="black"></td><td class="white"></td></tr>
+                                    <tr><td class="white"></td><td class="white"></td></tr>
+                                </tbody>
+                            </table>
+                            <table class="table">
+                                <tbody>
+                                    <tr><td class="white"></td><td class="white"></td></tr>
+                                    <tr><td class="white"></td><td class="black"></td></tr>
+                                </tbody>
+                            </table>
+                            <table class="table">
+                                <tbody>
+                                    <tr><td class="black"></td><td class="white"></td></tr>
+                                    <tr><td class="white"></td><td class="black"></td></tr>
+                                </tbody>
+                            </table>
+                            <table class="table">
+                                <tbody>
+                                    <tr><td class="white"></td><td class="black"></td></tr>
+                                    <tr><td class="white"></td><td class="white"></td></tr>
+                                </tbody>
+                            </table>
+                            <table class="table">
+                                <tbody>
+                                    <tr><td class="white"></td><td class="black"></td></tr>
+                                    <tr><td class="black"></td><td class="white"></td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <p class="text-format">За да подходим в стила на динамичното програмиране, идеята ще е да намерим броя начини за оцветяване на първите \(i+1\) колони, след като вече знаем броя начини за първите \(i\) колони. В общия случай няма как директно да го направим. Затова трябва да намерим необходимата информация, която да ни позволи това. В тази задача профилът е ясен - за всяка колона е достатъчно да знаем кои клетки сме оцветили в бяло и кои в черно, т.е. профилът е просто битова маска на оцветяването на дадена колона. Тази информация е еднотипна за всяка колона. Очевидно като знаем оцветяването на последната колона, знаем какви са валидните възможности за оцветяването на следващата колона. Това показва, че избраният профил е подходящ за задачата - можем да минаваме от един профил към друг. Всъщност така направихме първата стъпка за тази техника - да намерим подходящ профил. Един профил е подходящ, ако в него се включват всички възможности и може да се минава от един профил в друг без значение за кой номер на колона става дума. След като намерим подходящ профил намираме валидните профили при два реда, които са три на брой и ги номерираме:
+                        <div class="row justify-content-center" style="margin-top: -2%">
+                            <table class="table table-borderless profile">
+                                <thead><tr><th class="text-center">0</th></tr></thead>
+                                <tbody>
+                                    <tr><td class="white"></td></tr>
+                                    <tr><td class="white"></td></tr>
+                                </tbody>
+                            </table>
+                            <table class="table table-borderless profile">
+                                <thead><tr><th class="text-center">1</th></tr></thead>
+                                <tbody>
+                                    <tr><td class="white"></td></tr>
+                                    <tr><td class="black"></td></tr>
+                                </tbody>
+                            </table>
+                            <table class="table table-borderless profile">
+                                <thead><tr><th class="text-center">2</th></tr></thead>
+                                <tbody>
+                                    <tr><td class="black"></td></tr>
+                                    <tr><td class="white"></td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <p class="text-format">Стейтът на динамичното е \(dp[\)брой колони\(][\)профил на последната колона\(]\), като в него пазим броя валидни оцветявания. Базовите стойности са: \(dp[1][0]=dp[1][1]=dp[1][2]=1\) (<a class="info">...</a><a class="info" style="display: none">понякога не всички профили са валидни за начални</a>). За да сметнем стойностите при две колони е достатъчно да видим кои профили са съвместими. Написано подробно:<p>
+                        <ul>
+                            <li class="dashed-list">\(dp[2][0]=1*dp[1][0]+\) \(1*dp[1][1]+1*dp[1][2]=3\)</li>
+                            <li class="dashed-list">\(dp[2][1]=1*dp[1][0]+\) \(0*dp[1][1]+1*dp[1][2]=2\)</li>
+                            <li class="dashed-list">\(dp[2][0]=1*dp[1][0]+\) \(1*dp[1][1]+0*dp[1][2]=2\)</li>
+                        </ul>
+                        <p class="text-format">Всъщност едниствените несъвместими профили като ляв и десен са номер 1 със себе си и номер 2 със себе си. Може да се провери, че тези числа съответстват на разписването в случая \(2\)x\(2\) по-горе. От друга страна горните формули са същите за получаване на бройките при 3 колони от тези за 2, при 4 колони от тези за 3 и т.н. Така в общия случай за \(m\) колони при два реда е вярно:</p>
+                        <ul>
+                            <li class="dashed-list">\(dp[m][0]=1*dp[m-1][0]+\) \(1*dp[m-1][1]+1*dp[m-1][2]\)</li>
+                            <li class="dashed-list">\(dp[m][1]=1*dp[m-1][0]+\) \(0*dp[m-1][1]+1*dp[m-1][2]\)</li>
+                            <li class="dashed-list">\(dp[m][0]=1*dp[m-1][0]+\) \(1*dp[m-1][1]+0*dp[m-1][2]\)</li>
+                        </ul>
+                        <p class="text-format">Тази сметка може да се изрази и чрез матрично умножениe по следния начин: \(\begin{bmatrix}dp[m-1][0] & dp[m-1][1] & dp[m-1][2]\end{bmatrix}*T=\) \(\begin{bmatrix}dp[m][0] & dp[m][1] & dp[m][2]\end{bmatrix}\), където T се нарича матрица на прехода между профилите. В нашия случай при два реда - \(T=\begin{bmatrix}1 & 1 & 1 \\ 1 & 0 & 1 \\ 1 & 1 & 0\end{bmatrix}\).</p>
+                        <p class="text-format">Забележете, че матрицата на прехода зависи от броя редове в задачата. Горна оценка за големината на \(T\) е \(2^n\)x\(2^n\). При малко по-точен анализ, лесно може да се забележи, че броят валидни профили в зависимост от броя редове образуват редицата на Фибоначи или при \(n\) реда, броят е \(F_{n+2}\). Като вземем предвид, че \(F_{n} \approx \varphi^n\), то големината на \(T\) пак е експоненциална спрямо \(n\): \(\varphi^{n+2}\)x\(\varphi^{n+2}\) (<a class="info">...</a><a class="info" style="display: none">(известно още и като златното сечение - \(\varphi \approx 1.618\)</a>). Затова искаме малък брой на редовете, иначе този подход е неприложим.</p>
                     </div>
                 </div>
 
