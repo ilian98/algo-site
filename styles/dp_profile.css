@@ -22,3 +22,7 @@ td {
 th {
     padding: 0 !important;
 }
+
+.transition td {
+    height: 4rem;
+}

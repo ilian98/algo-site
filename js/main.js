@@ -233,4 +233,7 @@ function initExamples (part = 1) {
             defaultExample(part);
         }
     }
+    else if (page=="dp_profile.html") {
+        if (part==3) initExample();
+    }
 }
