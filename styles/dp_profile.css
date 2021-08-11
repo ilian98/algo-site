@@ -26,3 +26,16 @@ th {
 .transition td {
     height: 4rem;
 }
+
+.l-hole {
+    border-left: none !important;
+}
+.u-hole {
+    border-top: none !important;
+}
+.r-hole {
+    border-right: none !important;
+}
+.d-hole {
+    border-bottom: none !important;
+}

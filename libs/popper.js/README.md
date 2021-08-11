@@ -1,220 +1,362 @@
-<!-- IGNORE THE HTML BLOCK BELOW, THE INTERESTING PART IS AFTER IT -->
-
-<h1 align="center">Popper.js</h1>
-
+<!-- <HEADER> // IGNORE IT -->
 <p align="center">
-    <strong>A library used to position poppers in web applications.</strong>
+  <img src="https://rawcdn.githack.com/popperjs/popper-core/8805a5d7599e14619c9e7ac19a3713285d8e5d7f/docs/src/images/popper-logo-outlined.svg" alt="Popper" height="300px"/>
 </p>
 
+<div align="center">
+  <h1>Tooltip & Popover Positioning Engine</h1>
+</div>
+
 <p align="center">
-    <img src="http://badge-size.now.sh/https://unpkg.com/popper.js/dist/popper.min.js?compression=brotli" alt="Stable Release Size"/>
-  <img src="http://badge-size.now.sh/https://unpkg.com/popper.js/dist/popper.min.js?compression=gzip" alt="Stable Release Size"/>
-    <a href="https://codeclimate.com/github/FezVrasta/popper.js/coverage"><img src="https://codeclimate.com/github/FezVrasta/popper.js/badges/coverage.svg" alt="Istanbul Code Coverage"/></a>
-    <a href="https://www.npmjs.com/browse/depended/popper.js"><img src="https://badgen.net/npm/dependents/popper.js" alt="Dependents packages" /></a>
-    <a href="https://spectrum.chat/popper-js" target="_blank"><img src="https://img.shields.io/badge/chat-on_spectrum-6833F9.svg?logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyBpZD0iTGl2ZWxsb18xIiBkYXRhLW5hbWU9IkxpdmVsbG8gMSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB2aWV3Qm94PSIwIDAgMTAgOCI%2BPGRlZnM%2BPHN0eWxlPi5jbHMtMXtmaWxsOiNmZmY7fTwvc3R5bGU%2BPC9kZWZzPjx0aXRsZT5zcGVjdHJ1bTwvdGl0bGU%2BPHBhdGggY2xhc3M9ImNscy0xIiBkPSJNNSwwQy40MiwwLDAsLjYzLDAsMy4zNGMwLDEuODQuMTksMi43MiwxLjc0LDMuMWgwVjcuNThhLjQ0LjQ0LDAsMCwwLC42OC4zNUw0LjM1LDYuNjlINWM0LjU4LDAsNS0uNjMsNS0zLjM1UzkuNTgsMCw1LDBaTTIuODMsNC4xOGEuNjMuNjMsMCwxLDEsLjY1LS42M0EuNjQuNjQsMCwwLDEsMi44Myw0LjE4Wk01LDQuMThhLjYzLjYzLDAsMSwxLC42NS0uNjNBLjY0LjY0LDAsMCwxLDUsNC4xOFptMi4xNywwYS42My42MywwLDEsMSwuNjUtLjYzQS42NC42NCwwLDAsMSw3LjE3LDQuMThaIi8%2BPC9zdmc%2B" alt="Get support or discuss"/></a>
-    <br />
-    <a href="https://travis-ci.org/FezVrasta/popper.js/branches" target="_blank"><img src="https://travis-ci.org/FezVrasta/popper.js.svg?branch=master" alt="Build Status"/></a>
-    <a href="https://saucelabs.com/u/popperjs" target="_blank"><img src="https://badges.herokuapp.com/browsers?labels=none&googlechrome=latest&firefox=latest&microsoftedge=latest&iexplore=11,10&safari=latest" alt="SauceLabs Reports"/></a>
+  <a href="https://www.npmjs.com/package/@popperjs/core">
+    <img src="https://img.shields.io/npm/v/@popperjs/core?style=for-the-badge" alt="npm version" />
+  </a>
+  <a href="https://www.npmjs.com/package/@popperjs/core">
+    <img src="https://img.shields.io/endpoint?style=for-the-badge&url=https://runkit.io/fezvrasta/combined-npm-downloads/1.0.0?packages=popper.js,@popperjs/core" alt="npm downloads per month (popper.js + @popperjs/core)" />
+  </a>
+  <a href="https://rollingversions.com/popperjs/popper-core">
+    <img src="https://img.shields.io/badge/Rolling%20Versions-Enabled-brightgreen?style=for-the-badge" alt="Rolling Versions" />
+  </a>
 </p>
 
-<img src="https://raw.githubusercontent.com/FezVrasta/popper.js/master/popperjs.png" align="right" width=250 />
+<br />
+<!-- </HEADER> // NOW BEGINS THE README -->
 
-<!-- 🚨 HEY! HERE BEGINS THE INTERESTING STUFF 🚨 -->
+**Positioning tooltips and popovers is difficult. Popper is here to help!**
 
-## Wut? Poppers?
+Given an element, such as a button, and a tooltip element describing it, Popper
+will automatically put the tooltip in the right place near the button.
 
-A popper is an element on the screen which "pops out" from the natural flow of your application.  
-Common examples of poppers are tooltips, popovers and drop-downs.
+It will position _any_ UI element that "pops out" from the flow of your document
+and floats near a target element. The most common example is a tooltip, but it
+also includes popovers, drop-downs, and more. All of these can be generically
+described as a "popper" element.
 
+## Demo
 
-## So, yet another tooltip library?
+[![Popper visualized](https://i.imgur.com/F7qWsmV.jpg)](https://popper.js.org)
 
-Well, basically, **no**.  
-Popper.js is a **positioning engine**, its purpose is to calculate the position of an element
-to make it possible to position it near a given reference element.  
+## Docs
 
-The engine is completely modular and most of its features are implemented as **modifiers**
-(similar to middlewares or plugins).  
-The whole code base is written in ES2015 and its features are automatically tested on real browsers thanks to [SauceLabs](https://saucelabs.com/) and [TravisCI](https://travis-ci.org/).
+- [v2.x (latest)](https://popper.js.org/docs/v2/)
+- [v1.x](https://popper.js.org/docs/v1/)
 
-Popper.js has zero dependencies. No jQuery, no LoDash, nothing.  
-It's used by big companies like [Twitter in Bootstrap v4](https://getbootstrap.com/), [Microsoft in WebClipper](https://github.com/OneNoteDev/WebClipper) and [Atlassian in AtlasKit](https://aui-cdn.atlassian.com/atlaskit/registry/).
+We've created a
+[Migration Guide](https://popper.js.org/docs/v2/migration-guide/) to help you
+migrate from Popper 1 to Popper 2.
 
-### Popper.js
+To contribute to the Popper website and documentation, please visit the [dedicated repository](https://github.com/popperjs/website).
 
-This is the engine, the library that computes and, optionally, applies the styles to
-the poppers.
+## Why not use pure CSS?
 
-Some of the key points are:
+CSS tooltips have accessibility and usability problems:
 
-- Position elements keeping them in their original DOM context (doesn't mess with your DOM!);
-- Allows to export the computed informations to integrate with React and other view libraries;
-- Supports Shadow DOM elements;
-- Completely customizable thanks to the modifiers based structure;
+- **Clipping and overflow issues**: CSS tooltips will not be prevented from
+  overflowing clipping boundaries, such as the viewport. The tooltip gets
+  partially cut off or overflows if it's near the edge since there is no dynamic
+  positioning logic. When using Popper, your tooltip will always be positioned
+  in the right place.
+- **No flipping**: CSS tooltips will not flip to a different placement to fit
+  better in view if necessary. Popper automatically flips the tooltip to make it
+  fit in view as best as possible for the user.
+- **Using HTML**: Popovers containing interactive HTML are difficult or not
+  possible to create without UX issues using pure CSS. Popper positions any HTML
+  element – no pseudo-elements are used.
+- **No virtual positioning**: CSS tooltips cannot follow the mouse cursor or be
+  used as a context menu. Popper allows you to position your tooltip relative to
+  any coordinates you desire.
+- **Lack of extensibility**: CSS tooltips cannot be easily extended to fit any
+  arbitrary use case you may need to adjust for. Popper is built with
+  extensibility in mind.
 
-Visit our [project page](https://fezvrasta.github.io/popper.js) to see a lot of examples of what you can do with Popper.js!
+## Why Popper?
 
-Find [the documentation here](/docs/_includes/popper-documentation.md).
+With the CSS drawbacks out of the way, we now move on to Popper in the
+JavaScript space itself.
 
+Naive JavaScript tooltip implementations usually have the following problems:
 
-### Tooltip.js
+- **Scrolling containers**: They don't ensure the tooltip stays with the
+  reference element while scrolling when inside any number of scrolling
+  containers.
+- **DOM context**: They often require the tooltip move outside of its original
+  DOM context because they don't handle `offsetParent` contexts.
+- **Configurability**: They often lack advanced configurability to suit any
+  possible use case.
+- **Size**: They are usually relatively large in size, or require an ancient
+  jQuery dependency.
+- **Performance**: They often have runtime performance issues and update the
+  tooltip position too slowly.
 
-Since lots of users just need a simple way to integrate powerful tooltips in their projects,
-we created **Tooltip.js**.  
-It's a small library that makes it easy to automatically create tooltips using as engine Popper.js.  
-Its API is almost identical to the famous tooltip system of Bootstrap, in this way it will be
-easy to integrate it in your projects.  
-The tooltips generated by Tooltip.js are accessible thanks to the `aria` tags.
+**Popper solves all of these key problems in an elegant, performant manner.** It
+is a lightweight ~3 kB library that aims to provide a reliable and extensible
+positioning engine you can use to ensure all your popper elements are positioned
+in the right place.
 
-Find [the documentation here](/docs/_includes/tooltip-documentation.md).
+When you start writing your own popper implementation, you'll quickly run into
+all of the problems mentioned above. These widgets are incredibly common in our
+UIs; we've done the hard work figuring this out so you don't need to spend hours
+fixing and handling numerous edge cases that we already ran into while building
+the library!
 
+Popper is used in popular libraries like Bootstrap, Foundation, Material UI, and
+more. It's likely you've already used popper elements on the web positioned by
+Popper at some point in the past few years.
+
+Since we write UIs using powerful abstraction libraries such as React or Angular
+nowadays, you'll also be glad to know Popper can fully integrate with them and
+be a good citizen together with your other components. Check out `react-popper`
+for the official Popper wrapper for React.
 
 ## Installation
-Popper.js is available on the following package managers and CDNs:
 
-| Source |                                                                                  |
-|:-------|:---------------------------------------------------------------------------------|
-| npm    | `npm install popper.js --save`                                                   |
-| yarn   | `yarn add popper.js`                                                             |
-| NuGet  | `PM> Install-Package popper.js`                                                  |
-| Bower  | `bower install popper.js --save`                     |
-| unpkg  | [`https://unpkg.com/popper.js`](https://unpkg.com/popper.js)                     |
-| cdnjs  | [`https://cdnjs.com/libraries/popper.js`](https://cdnjs.com/libraries/popper.js) |
+### 1. Package Manager
 
-Tooltip.js as well:
+```bash
+# With npm
+npm i @popperjs/core
 
-| Source |                                                                                  |
-|:-------|:---------------------------------------------------------------------------------|
-| npm    | `npm install tooltip.js --save`                                                  |
-| yarn   | `yarn add tooltip.js`                                                            |
-| Bower* | `bower install tooltip.js=https://unpkg.com/tooltip.js --save`                   |
-| unpkg  | [`https://unpkg.com/tooltip.js`](https://unpkg.com/tooltip.js)                   |
-| cdnjs  | [`https://cdnjs.com/libraries/popper.js`](https://cdnjs.com/libraries/popper.js) |
+# With Yarn
+yarn add @popperjs/core
+```
 
-\*: Bower isn't officially supported, it can be used to install Tooltip.js only trough the unpkg.com CDN. This method has the limitation of not being able to define a specific version of the library. Bower and Popper.js suggests to use npm or Yarn for your projects.  
-For more info, [read the related issue](https://github.com/FezVrasta/popper.js/issues/390).
+### 2. CDN
 
-### Dist targets
+```html
+<!-- Development version -->
+<script src="https://unpkg.com/@popperjs/core@2/dist/umd/popper.js"></script>
 
-Popper.js is currently shipped with 3 targets in mind: UMD, ESM and ESNext.
+<!-- Production version -->
+<script src="https://unpkg.com/@popperjs/core@2"></script>
+```
 
-- UMD - Universal Module Definition: AMD, RequireJS and globals;
-- ESM - ES Modules: For webpack/Rollup or browser supporting the spec;
-- ESNext: Available in `dist/`, can be used with webpack and `babel-preset-env`;
+### 3. Direct Download?
 
-Make sure to use the right one for your needs. If you want to import it with a `<script>` tag, use UMD.
+Managing dependencies by "directly downloading" them and placing them into your
+source code is not recommended for a variety of reasons, including missing out
+on feat/fix updates easily. Please use a versioning management system like a CDN
+or npm/Yarn.
 
 ## Usage
 
-Given an existing popper DOM node, ask Popper.js to position it near its button
+The most straightforward way to get started is to import Popper from the `unpkg`
+CDN, which includes all of its features. You can call the `Popper.createPopper`
+constructor to create new popper instances.
 
-```js
-var reference = document.querySelector('.my-button');
-var popper = document.querySelector('.my-popper');
-var anotherPopper = new Popper(
-    reference,
-    popper,
-    {
-        // popper options here
-    }
-);
+Here is a complete example:
+
+```html
+<!DOCTYPE html>
+<title>Popper example</title>
+
+<style>
+  #tooltip {
+    background-color: #333;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 13px;
+  }
+</style>
+
+<button id="button" aria-describedby="tooltip">I'm a button</button>
+<div id="tooltip" role="tooltip">I'm a tooltip</div>
+
+<script src="https://unpkg.com/@popperjs/core@^2.0.0"></script>
+<script>
+  const button = document.querySelector('#button');
+  const tooltip = document.querySelector('#tooltip');
+
+  // Pass the button, the tooltip, and some options, and Popper will do the
+  // magic positioning for you:
+  Popper.createPopper(button, tooltip, {
+    placement: 'right',
+  });
+</script>
 ```
 
-### Callbacks
+Visit the [tutorial](https://popper.js.org/docs/v2/tutorial/) for an example of
+how to build your own tooltip from scratch using Popper.
 
-Popper.js supports two kinds of callbacks, the `onCreate` callback is called after
-the popper has been initialized. The `onUpdate` one is called on any subsequent update.
+### Module bundlers
+
+You can import the `createPopper` constructor from the fully-featured file:
 
 ```js
-const reference = document.querySelector('.my-button');
-const popper = document.querySelector('.my-popper');
-new Popper(reference, popper, {
-    onCreate: (data) => {
-        // data is an object containing all the informations computed
-        // by Popper.js and used to style the popper and its arrow
-        // The complete description is available in Popper.js documentation
-    },
-    onUpdate: (data) => {
-        // same as `onCreate` but called on subsequent updates
-    }
+import { createPopper } from '@popperjs/core';
+
+const button = document.querySelector('#button');
+const tooltip = document.querySelector('#tooltip');
+
+// Pass the button, the tooltip, and some options, and Popper will do the
+// magic positioning for you:
+createPopper(button, tooltip, {
+  placement: 'right',
 });
 ```
 
-### Writing your own modifiers
+All the modifiers listed in the docs menu will be enabled and "just work", so
+you don't need to think about setting Popper up. The size of Popper including
+all of its features is about 5 kB minzipped, but it may grow a bit in the
+future.
 
-Popper.js is based on a "plugin-like" architecture, most of its features are fully encapsulated "modifiers".  
-A modifier is a function that is called each time Popper.js needs to compute the position of the popper. For this reason, modifiers should be very performant to avoid bottlenecks.  
+#### Popper Lite (tree-shaking)
 
-To learn how to create a modifier, [read the modifiers documentation](docs/_includes/popper-documentation.md#modifiers--object)
-
-
-### React, Vue.js, Angular, AngularJS, Ember.js (etc...) integration
-
-Integrating 3rd party libraries in React or other libraries can be a pain because
-they usually alter the DOM and drive the libraries crazy.  
-Popper.js limits all its DOM modifications inside the `applyStyle` modifier,
-you can simply disable it and manually apply the popper coordinates using
-your library of choice.  
-
-For a comprehensive list of libraries that let you use Popper.js into existing
-frameworks, visit the [MENTIONS](/MENTIONS.md) page.
-
-Alternatively, you may even override your own `applyStyles` with your custom one and
-integrate Popper.js by yourself!
+If bundle size is important, you'll want to take advantage of tree-shaking. The
+library is built in a modular way to allow to import only the parts you really
+need.
 
 ```js
-function applyReactStyle(data) {
-    // export data in your framework and use its content to apply the style to your popper
-};
-
-const reference = document.querySelector('.my-button');
-const popper = document.querySelector('.my-popper');
-new Popper(reference, popper, {
-    modifiers: {
-        applyStyle: { enabled: false },
-        applyReactStyle: {
-            enabled: true,
-            fn: applyReactStyle,
-            order: 800,
-        },
-    },
-});
-
+import { createPopperLite as createPopper } from "@popperjs/core";
 ```
 
-### Migration from Popper.js v0
+The Lite version includes the most necessary modifiers that will compute the
+offsets of the popper, compute and add the positioning styles, and add event
+listeners. This is close in bundle size to pure CSS tooltip libraries, and
+behaves somewhat similarly.
 
-Since the API changed, we prepared some migration instructions to make it easy to upgrade to
-Popper.js v1.  
+However, this does not include the features that makes Popper truly useful.
 
-https://github.com/FezVrasta/popper.js/issues/62
+The two most useful modifiers not included in Lite are `preventOverflow` and
+`flip`:
 
-Feel free to comment inside the issue if you have any questions.
+```js
+import { createPopperLite as createPopper, preventOverflow, flip } from "@popperjs/core";
 
-### Performances
+const button = document.querySelector('#button');
+const tooltip = document.querySelector('#tooltip');
 
-Popper.js is very performant. It usually takes 0.5ms to compute a popper's position (on an iMac with 3.5G GHz Intel Core i5).  
-This means that it will not cause any [jank](https://www.chromium.org/developers/how-tos/trace-event-profiling-tool/anatomy-of-jank), leading to a smooth user experience.
+createPopper(button, tooltip, {
+  modifiers: [preventOverflow, flip],
+});
+```
 
-## Notes
+As you make more poppers, you may be finding yourself needing other modifiers
+provided by the library.
 
-### Libraries using Popper.js
+See [tree-shaking](https://popper.js.org/docs/v2/tree-shaking/) for more
+information.
 
-The aim of Popper.js is to provide a stable and powerful positioning engine ready to
-be used in 3rd party libraries.  
+## Distribution targets
 
-Visit the [MENTIONS](/MENTIONS.md) page for an updated list of projects.
+Popper is distributed in 3 different versions, in 3 different file formats.
 
+The 3 file formats are:
 
-### Credits
-I want to thank some friends and projects for the work they did:
+- `esm` (works with `import` syntax — **recommended**)
+- `umd` (works with `<script>` tags or RequireJS)
+- `cjs` (works with `require()` syntax)
 
-- [@AndreaScn](https://github.com/AndreaScn) for his work on the GitHub Page and the manual testing he did during the development;
-- [@vampolo](https://github.com/vampolo) for the original idea and for the name of the library;
-- [Sysdig](https://github.com/Draios) for all the awesome things I learned during these years that made it possible for me to write this library;
-- [Tether.js](http://github.hubspot.com/tether/) for having inspired me in writing a positioning library ready for the real world;
-- [The Contributors](https://github.com/FezVrasta/popper.js/graphs/contributors) for their much appreciated Pull Requests and bug reports;
-- **you** for the star you'll give to this project and for being so awesome to give this project a try 🙂
+There are two different `esm` builds, one for bundler consumers (e.g. webpack,
+Rollup, etc..), which is located under `/lib`, and one for browsers with native
+support for ES Modules, under `/dist/esm`. The only difference within the two,
+is that the browser-compatible version doesn't make use of
+`process.env.NODE_ENV` to run development checks.
 
-### Copyright and license
-Code and documentation copyright 2016 **Federico Zivolo**. Code released under the [MIT license](LICENSE.md). Docs released under Creative Commons.
+The 3 versions are:
+
+- `popper`: includes all the modifiers (features) in one file (**default**);
+- `popper-lite`: includes only the minimum amount of modifiers to provide the
+  basic functionality;
+- `popper-base`: doesn't include any modifier, you must import them separately;
+
+Below you can find the size of each version, minified and compressed with the
+[Brotli compression algorithm](https://medium.com/groww-engineering/enable-brotli-compression-in-webpack-with-fallback-to-gzip-397a57cf9fc6):
+
+<!-- Don't change the labels to use hyphens, it breaks, even when encoded -->
+
+![](https://badge-size.now.sh/https://unpkg.com/@popperjs/core/dist/umd/popper.min.js?compression=brotli&label=popper)
+![](https://badge-size.now.sh/https://unpkg.com/@popperjs/core/dist/umd/popper-lite.min.js?compression=brotli&label=popper%20lite)
+![](https://badge-size.now.sh/https://unpkg.com/@popperjs/core/dist/umd/popper-base.min.js?compression=brotli&label=popper%20base)
+
+## Hacking the library
+
+If you want to play with the library, implement new features, fix a bug you
+found, or simply experiment with it, this section is for you!
+
+First of all, make sure to have
+[Yarn installed](https://yarnpkg.com/lang/en/docs/install).
+
+Install the development dependencies:
+
+```bash
+yarn install
+```
+
+And run the development environment:
+
+```bash
+yarn dev
+```
+
+Then, simply open one the development server web page:
+
+```bash
+# macOS and Linux
+open localhost:5000
+
+# Windows
+start localhost:5000
+```
+
+From there, you can open any of the examples (`.html` files) to fiddle with
+them.
+
+Now any change you will made to the source code, will be automatically compiled,
+you just need to refresh the page.
+
+If the page is not working properly, try to go in _"Developer Tools >
+Application > Clear storage"_ and click on "_Clear site data_".  
+To run the examples you need a browser with
+[JavaScript modules via script tag support](https://caniuse.com/#feat=es6-module).
+
+## Test Suite
+
+Popper is currently tested with unit tests, and functional tests. Both of them
+are run by Jest.
+
+### Unit Tests
+
+The unit tests use JSDOM to provide a primitive document object API, they are
+used to ensure the utility functions behave as expected in isolation.
+
+### Functional Tests
+
+The functional tests run with Puppeteer, to take advantage of a complete browser
+environment. They are currently running on Chromium, and Firefox.
+
+You can run them with `yarn test:functional`. Set the `PUPPETEER_BROWSER`
+environment variable to `firefox` to run them on the Mozilla browser.
+
+The assertions are written in form of image snapshots, so that it's easy to
+assert for the correct Popper behavior without having to write a lot of offsets
+comparisons manually.
+
+You can mark a `*.test.js` file to run in the Puppeteer environment by
+prepending a `@jest-environment puppeteer` JSDoc comment to the interested file.
+
+Here's an example of a basic functional test:
+
+```js
+/**
+ * @jest-environment puppeteer
+ * @flow
+ */
+import { screenshot } from '../utils/puppeteer.js';
+
+it('should position the popper on the right', async () => {
+  const page = await browser.newPage();
+  await page.goto(`${TEST_URL}/basic.html`);
+
+  expect(await screenshot(page)).toMatchImageSnapshot();
+});
+```
+
+You can find the complete
+[`jest-puppeteer` documentation here](https://github.com/smooth-code/jest-puppeteer#api),
+and the
+[`jest-image-snapshot` documentation here](https://github.com/americanexpress/jest-image-snapshot#%EF%B8%8F-api).
+
+## License
+
+MIT

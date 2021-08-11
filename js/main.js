@@ -75,6 +75,14 @@
             }
         }
         
+        
+        let lastCode;
+        for (let div of $("div")) {
+            let id=$(div).prop("id");
+            if (!id.endsWith("-placeholder")) continue;
+            if ((id=="nav-placeholder")||(id=="footer-placeholder")) continue;
+            lastCode=id;
+        }
         for (let div of $("div")) {
             let id=$(div).prop("id");
             if (!id.endsWith("-placeholder")) continue;
@@ -83,6 +91,10 @@
             $.get(codeName, function (code) {
                 let data=hljs.highlight(code,{language: "cpp"}).value;
                 $(div).replaceWith('<pre><code class="language-cpp hljs">'+data+'</code></pre>');
+                
+                if (id===lastCode) {
+                    if (typeof MathJax!=="undefined") MathJax.typeset([".hljs-comment"]);    
+                }
             });
         }
     });
@@ -155,6 +167,11 @@ function toggleText (index, name, page) {
 }
 
 
+function isBinary (event) {
+    let charCode=(event.which)?event.which:event.keyCode;
+    if ((charCode<=31)||((charCode>=48)&&(charCode<=49))) return true;
+    return false;
+}
 function isDigit (event) {
     let charCode=(event.which)?event.which:event.keyCode;
     if ((charCode<=31)||((charCode>=48)&&(charCode<=57))) return true;
@@ -234,6 +251,6 @@ function initExamples (part = 1) {
         }
     }
     else if (page=="dp_profile.html") {
-        if (part==3) initExample();
+        if (part>=3) initExample(part);
     }
 }

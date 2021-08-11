@@ -13,6 +13,9 @@
     padding-left: 5px;
     padding-right: 5px;
 }
+.btn.btn-secondary {
+    text-align: left;
+}
 
 .text-format {
     text-indent: 50px;

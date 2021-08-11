@@ -11,9 +11,9 @@ function matrix_mult (A, B, C, k) {
         for (let col=0; col<k; col++) {
             temp[row][col]=0;
             for (let i=0; i<k; i++) {
-                temp[row][col]+=(A[row][i]*B[i][col])%97;
+                temp[row][col]+=(A[row][i]*B[i][col])%100;
             }
-            temp[row][col]%=97;
+            temp[row][col]%=100;
         }
     }
     for (let row=0; row<k; row++) {
@@ -35,7 +35,7 @@ function writeMatrix (matr, k, name, textField) {
     textField.text(text);
 }
 function calcMatrices () {
-    let n=parseInt($(".dpProfileExample .n").val()),m=$(".dpProfileExample .m").val();
+    let n=$(".dpProfileExample1 .n").val(),m=$(".dpProfileExample1 .m").val();
     if ((n<1)||(n>3)) {
         alert("Невалидна стойност за n!");
         return ;
@@ -45,7 +45,7 @@ function calcMatrices () {
         return ;
     }
     let profiles=[];
-    $(".profiles").html("");
+    $(".dpProfileExample1 .profiles").html("");
     for (let mask=0; mask<(1<<n); mask++) {
         let i;
         for (i=1; i<n; i++) {
@@ -62,7 +62,7 @@ function calcMatrices () {
                 table+='"></td></tr>';
             }
             table+='</tbody></table>';
-            $(".profiles").append(table);
+            $(".dpProfileExample1 .profiles").append(table);
             
             profiles.push(mask);
         }
@@ -101,21 +101,90 @@ function calcMatrices () {
         pow/=2;
     }
     
-    writeMatrix(T,k,"T=",$(".dpProfileExample .T"));
-    writeMatrix(R,k,"T^{"+(m-1)+"}=",$(".dpProfileExample .Tm"));
-    if (typeof MathJax!=="undefined") MathJax.typeset([".dpProfileExample .T", ".dpProfileExample .Tm"]);
+    writeMatrix(T,k,"T=",$(".dpProfileExample1 .T"));
+    writeMatrix(R,k,"T^{"+(m-1)+"}=",$(".dpProfileExample1 .Tm"));
+    if (typeof MathJax!=="undefined") MathJax.typeset([".dpProfileExample1 .T", ".dpProfileExample1 .Tm"]);
     
     let ans=0;
     for (let i=0; i<k; i++) {
         for (let j=0; j<k; j++) {
-            ans+=R[i][j]; ans%=97;
+            ans+=R[i][j]; ans%=100;
         }
     }
-    $(".answer").text("Oтговор: "+ans);
+    $(".dpProfileExample1 .answer").text("Oтговор: "+ans);
 }
-function initExample () {
-    $(".dpProfileExample .calc").off("click").on("click",calcMatrices);
-    $(".dpProfileExample .n").val("2");
-    $(".dpProfileExample .m").val("2");
-    calcMatrices();
+function checkProfiles () {
+    let table=$(".dpProfileExample2 .profiles");
+    table.hide();
+    
+    let l=Array.from($(".dpProfileExample2 .l").val()),r=Array.from($(".dpProfileExample2 .r").val());
+    if (l.length!=r.length) {
+        alert("Профилите не са с една и съща дължина!");
+        return ;
+    }
+    let n=l.length;
+    let message=$(".dpProfileExample2 .error");
+    message.show(); message.text("");
+    for (let i=0; i<n; i++) {
+        if ((l[i]==='1')&&(r[i]==='1')) {
+            message.text("Несъвместими профили - две единици една до друга!");
+            return ;
+        }
+        if (l[i]==='1') r[i]='2';
+    }
+    let cnt=0;
+    for (let i=0; i<n; i++) {
+        if (r[i]!=='0') {
+            if (cnt%2!=0) {
+                message.text("Несъвместими профили - нечетен брой клетки трябва да бъдат покрити с вертикални домина!");
+                return ;
+            }
+            cnt=0;
+        }
+        else cnt++;
+    }
+    if (cnt%2!=0) {
+        message.text("Несъвместими профили - нечетен брой клетки трябва да бъдат покрити с вертикални домина!");
+        return ;
+    }
+    message.hide();
+    
+    table.show();
+    table.html("");
+    let tableText='<tbody>';
+    cnt=0;
+    for (let i=0; i<n; i++) {
+        if (r[i]!=='0') cnt=0;
+        else cnt++;
+        
+        tableText+='<tr><td class="text-center'
+        if (l[i]==='1') tableText+=' white r-hole';
+        tableText+='" style="padding: 0; vertical-align: middle">'+l[i]+'</td>';
+        
+        tableText+='<td class="text-center white'
+        if (r[i]==='2') tableText+=' l-hole';
+        else if (r[i]==='1') tableText+=' r-hole';
+        else if (r[i]==='0') {
+            if (cnt%2==1) tableText+=' d-hole';
+            else tableText+=' u-hole';
+        }
+        tableText+='" style="padding: 0; vertical-align: middle">'+((r[i]==='1')?'1':'0')+'</td></tr>';
+    }
+    tableText+='</tbody>';
+    table.append(tableText);
+}
+function initExample (part) {
+    if (part==3) {
+        $(".dpProfileExample1 .calc").off("click").on("click",calcMatrices);
+        $(".dpProfileExample1 .n").val("2");
+        $(".dpProfileExample1 .m").val("2");
+        calcMatrices();
+    }
+    else {
+        $(".dpProfileExample2 .check").off("click").on("click",checkProfiles);
+        $(".dpProfileExample2 .error").hide();
+        $(".dpProfileExample2 .l").val("01001");
+        $(".dpProfileExample2 .r").val("10000");
+        checkProfiles();
+    }
 }
