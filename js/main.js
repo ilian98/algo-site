@@ -22,6 +22,69 @@
         }
         else $(".content").css("max-height",min_height);
     }
+    
+    function getParts (s) {
+        let nums = [];
+        for (let c of s) {
+            if ((c>='0')&&(c<='9')) nums.push(parseInt(c));
+        }
+        return nums;
+    }
+    function removePart (num, text) {
+        let res=text.replace(","+num.toString(),"").replace(num.toString(),"");
+        if (res.length===0) return "";
+        if (res.startsWith(",")) res=res.slice(1);
+        return "part"+res;
+    }
+    function addPart (num, text) {
+        if (text.length===0) return num;
+        return text+","+num;
+    }
+    function toggleParts() {
+        let anchor=checkForAnchor();
+        if (anchor.startsWith("part")) anchor=anchor.slice(4);
+        else if (anchor.length!==0) return ;
+        let parts=getParts(anchor);
+        $(".anchor").remove();
+        let ordinals=["first","second","third","fourth"];
+        let ind=0;
+        for (let btn of $(".lesson-part-position >.btn")) {
+            let name="#"+ordinals[ind]+"Part";
+            if (parts.includes(ind+1)) {
+                $(btn).append('<a class="anchor" href="#'+removePart(ind+1,anchor)+'"></a>');
+                if ($(name).is(":hidden")===true) {
+                    sessionStorage.setItem(page+name,1);
+                    $(name).show();
+                    if (typeof initExamples==="function") initExamples(ind+1);
+                }
+                if (parts[parts.length-1]!==ind+1) $(btn).prop("id","");
+            }
+            else {
+                $(btn).append('<a class="anchor" href="#part'+addPart(ind+1,anchor)+'"></a>');
+                $(btn).prop("id","part"+addPart(ind+1,anchor));
+                sessionStorage.setItem(page+name,0);
+                $(name).hide();
+            }
+            $(btn).off("click").on("click",function () {
+                $(btn).children(".anchor")[0].click();
+            });
+            
+            ind++;
+        }
+    }
+    function toggleInfos () {
+        let info=$(".info");
+        for (let i=0; i<info.length; i+=2) {
+            $(info[i]).on("click",triggerInfo.bind(info[i],$(info[i]),$(info[i+1]),page+"info"+i));
+            $(info[i+1]).on("click",triggerInfo.bind(info[i+1],$(info[i]),$(info[i+1]),page+"info"+i));
+            let state=sessionStorage.getItem(page+"info"+i);
+            if ((state!==null)&&(state=="1")) {
+                $(info[i+1]).show();
+                $(info[i]).hide();
+            }
+        }
+    }
+    
     let navigation_page="/algo-site/navigation.html";
     if (page.endsWith("_en.html")===true) navigation_page="/algo-site/navigation_en.html";
     $(document).ready(function () {
@@ -37,72 +100,48 @@
             if (page.endsWith("_en.html")===true) footer_page="/algo-site/footer_en.html";
             $.get(footer_page, function (data) {
                 $("#footer-placeholder").replaceWith(data);
-            
-                set_heights();
-                $(window).resize(set_heights);
-                let scrollTop=sessionStorage.getItem(get_page()+"scrollTop");
-                if (home_page===true) $(".content").scrollTop(scrollTop);
-                else $(".wrapper").scrollTop(scrollTop);
-            });
-        });
-        
-        let ind=0;
-        let anchorBtn=checkForAnchor();
-        for (let btn of $(".lesson-part-position >.btn")) {
-            let ordinals=["first","second","third","fourth"];
-            let name="#"+ordinals[ind]+"Part";
-            $(btn).on("click",toggleText.bind($(btn),ind,name,page));
-            $(btn).prop("id","part"+(ind+1));
-            $(btn).append('<a class="show-anchor" href="#part'+(ind+1)+'"></a>');
-            $(btn).append('<a class="hide-anchor" href="#"></a>');
-            let state=sessionStorage.getItem(page+name);
-            if (((state!==null)&&(state=="1"))||
-                ($(btn).prop("id")==anchorBtn)) {
-                showText(ind,name,page);
-            }
-            
-            ind++;
-        }
-        
-        let info=$(".info");
-        for (let i=0; i<info.length; i+=2) {
-            $(info[i]).on("click",triggerInfo.bind(info[i],$(info[i]),$(info[i+1]),page+"info"+i));
-            $(info[i+1]).on("click",triggerInfo.bind(info[i+1],$(info[i]),$(info[i+1]),page+"info"+i));
-            let state=sessionStorage.getItem(page+"info"+i);
-            if ((state!==null)&&(state=="1")) {
-                $(info[i+1]).show();
-                $(info[i]).hide();
-            }
-        }
-        
-        
-        let lastCode;
-        for (let div of $("div")) {
-            let id=$(div).prop("id");
-            if (!id.endsWith("-placeholder")) continue;
-            if ((id=="nav-placeholder")||(id=="footer-placeholder")) continue;
-            lastCode=id;
-        }
-        for (let div of $("div")) {
-            let id=$(div).prop("id");
-            if (!id.endsWith("-placeholder")) continue;
-            if ((id=="nav-placeholder")||(id=="footer-placeholder")) continue;
-            let codeName=id.substring(0,id.length-("-placeholder").length)+".cpp";
-            $.get(codeName, function (code) {
-                let data=hljs.highlight(code,{language: "cpp"}).value;
-                $(div).replaceWith('<pre><code class="language-cpp hljs">'+data+'</code></pre>');
                 
-                if (id===lastCode) {
-                    if (typeof MathJax!=="undefined") MathJax.typeset([".hljs-comment"]);    
+                toggleParts();
+                toggleInfos();
+                let lastCode;
+                for (let div of $("div")) {
+                    let id=$(div).prop("id");
+                    if (!id.endsWith("-placeholder")) continue;
+                    if ((id=="nav-placeholder")||(id=="footer-placeholder")) continue;
+                    lastCode=id;
+                }
+                for (let div of $("div")) {
+                    let id=$(div).prop("id");
+                    if (!id.endsWith("-placeholder")) continue;
+                    if ((id=="nav-placeholder")||(id=="footer-placeholder")) continue;
+                    let codeName=id.substring(0,id.length-("-placeholder").length)+".cpp";
+                    $.get(codeName, function (code) {
+                        let data=hljs.highlight(code,{language: "cpp"}).value;
+                        $(div).replaceWith('<pre><code class="language-cpp hljs">'+data+'</code></pre>');
+
+                        if (id===lastCode) {
+                            if (typeof MathJax!=="undefined") MathJax.typeset([".hljs-comment"]);  
+                            
+                            set_heights();
+                            $(window).resize(set_heights);
+                            let scrollTop=sessionStorage.getItem(get_page()+"scrollTop");
+                            if (home_page===true) $(".content").scrollTop(scrollTop);
+                            else $(".wrapper").scrollTop(scrollTop);
+                        }
+                    });
                 }
             });
-        }
+        });
     });
     
     $(window).on("beforeunload", function() {
         if (home_page===true) sessionStorage.setItem(page+"scrollTop",$(".content").scrollTop());
         else sessionStorage.setItem(page+"scrollTop",$(".wrapper").scrollTop());
         return ;
+    });
+    
+    $(window).on('popstate', function(event) {
+        toggleParts();
     });
 })();
 
@@ -147,23 +186,6 @@ function changeLanguage (language) {
     if (language=="bg") s=s.replace("_en.html",".html");
     else if (s.includes("_en")===false) s=s.replace(".html","_en.html");
     this.setAttribute("href",s);
-}
-
-function showText (index, name, page) {
-    sessionStorage.setItem(page+name,1);
-    $(name).show();
-    if (typeof initExamples==="function") initExamples(index+1);
-}
-function toggleText (index, name, page) {
-    if ($(name).is(":hidden")===false) {
-        sessionStorage.setItem(page+name,0);
-        this.children(".hide-anchor")[0].click();
-        $(name).hide();
-    }
-    else {
-        this.children(".show-anchor")[0].click();
-        showText(index,name,page);
-    }
 }
 
 
