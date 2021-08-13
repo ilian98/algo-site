@@ -116,31 +116,32 @@ function drawEdge (st, end, graph, strokeWidth, properties) {
     let edgeLen=Math.sqrt((st[0]-end[0])*(st[0]-end[0])+(st[1]-end[1])*(st[1]-end[1]));
     let edge;
     if (properties[0]===0) {
-        let quotient=(edgeLen-graph.vertexRad)/edgeLen;
+        let quotient=(edgeLen-graph.vertexRad-1.5)/edgeLen;
         end[0]=st[0]+quotient*(end[0]-st[0]);
         end[1]=st[1]+quotient*(end[1]-st[1]);
         edge=graph.s.path("M"+st[0]+","+st[1]+" "+end[0]+","+end[1]);
     }
     else {
         let bezierPoint=findPoints(st[0],st[1],end[0],end[1],properties[0])[properties[1]];
+        //graph.s.path(bezierPath(st,end,bezierPoint)).attr({fill: "none", stroke: "red"});
         let p1=Snap.path.intersection(bezierPath(st,end,bezierPoint),circlePath(st[0],st[1],graph.vertexRad))[0];
-        let p2=Snap.path.intersection(bezierPath(st,end,bezierPoint),circlePath(end[0],end[1],graph.vertexRad))[0];
+        let p2=Snap.path.intersection(bezierPath(st,end,bezierPoint),circlePath(end[0],end[1],graph.vertexRad+1.5))[0];
 
-        let quotient=graph.vertexRad/edgeLen;
+        let quotient=(graph.vertexRad+1)/edgeLen;
         let edgeCircle=[st[0]+quotient*(end[0]-st[0]),st[1]+quotient*(end[1]-st[1])];
         let dist=Math.sqrt((edgeCircle[0]-p1.x)*(edgeCircle[0]-p1.x)+(edgeCircle[1]-p1.y)*(edgeCircle[1]-p1.y));
         bezierPoint=findPoints(st[0],st[1],end[0],end[1],properties[0]-dist)[properties[1]];
-        edge=graph.s.path(bezierPath([p1.x,p1.y],[p2.x,p2.y],bezierPoint))
+        edge=graph.s.path(bezierPath([p1.x,p1.y],[p2.x,p2.y],bezierPoint));
     }
     
-    edge.attr({ fill: "none", stroke: "black", "stroke-width": strokeWidth });
+    edge.attr({fill: "none", stroke: "black", "stroke-width": strokeWidth});
     if (graph.isOriented==true) {
         let unit=5;
         let arrowEnd=[3*unit/2,unit/2];
         let arrowHeight=unit;
         let arrow=graph.s.polygon([0,0,arrowEnd[0],arrowEnd[1],0,arrowHeight,0,0]).attr({fill: "black"});
         edge.marker=arrow;
-        let marker=arrow.marker(0,0,arrowEnd[0],arrowHeight,arrowEnd[0],arrowEnd[1]);
+        let marker=arrow.marker(0,0,arrowEnd[0],arrowHeight,arrowEnd[0]-1.5,arrowEnd[1]);
         edge.attr({"marker-end": marker});
     }
     return edge;
