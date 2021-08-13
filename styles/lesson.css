@@ -21,6 +21,9 @@
     text-indent: 50px;
     text-align: justify;
 }
+.bold {
+    font-weight: bold;
+}
 ul {
     list-style-type: none;
 }

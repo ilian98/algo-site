@@ -16,20 +16,21 @@ function edgeAnimation (graph, vr1, vr2) {
         if (speed>0) {
             let obj1=graph.svgVertices[vr1];
             let obj2=graph.svgVertices[vr2];
-            let stx=obj1.coord[0]+graph.vertexRad;
-            let sty=obj1.coord[1]+graph.vertexRad;
-            let endx=obj2.coord[0]+graph.vertexRad;
-            let endy=obj2.coord[1]+graph.vertexRad;
 
-            let lineDraw=graph.s.line(stx,sty,stx,sty);
-            lineDraw.attr({stroke: "red", "stroke-width": graph.vertexRad/20*4});
+            let ind=graph.edgeList.findIndex(function (e) { return ((e[0]==vr1)&&(e[1]==vr2)); });
+            let lineDraw=graph.s.path(graph.edgeLines[ind].attr("d"));
+            lineDraw.attr({fill: "none", stroke: "red", "stroke-width": graph.vertexRad/20*4});
+            let pathLength=lineDraw.getTotalLength();
+            lineDraw.attr({"stroke-dasharray": pathLength+" 0"});
             graph.s.append(obj1.group);
             graph.s.append(obj2.group);
-            lineDraw.animate({x1: stx, y1:sty, x2: endx, y2: endy},speed,function () {
+            return Snap.animate(0,pathLength,function (t) {
+                lineDraw.attr({"stroke-dasharray": t+" "+(pathLength-t)});
+            },
+                speed,function () {
                 callback();
                 lineDraw.remove();
             });
-            return lineDraw.inAnim()[0].mina;
         }
     }
 }
@@ -137,21 +138,28 @@ function defaultExample (name, graph, animationObj, isOriented, vertexRad) {
 
 function initExample (part) {
     if (part==1) {
+        let graph = new Graph();
+        graph.init(".graphExample1",6,false,false);
+        graph.edgeList=[[0,1],[0,2],[3,4]];
+        graph.fillAdjListMatrix();
+        graph.n=6;
+        graph.drawNewGraph(1,1,299,299,30,false);
+        
         let graphUndirected = new Graph();
         let animationObjUndirected = new Animation();
-        let exampleName1=".graphExample1";
+        let exampleName1=".graphExample2";
         defaultExample(exampleName1,graphUndirected,animationObjUndirected,false,20);
         $(exampleName1+" .default").off("click").on("click",defaultExample.bind(this,exampleName1,graphUndirected,animationObjUndirected,false,20));
         
         let graphDirected = new Graph();
         let animationObjDirected = new Animation();
-        let exampleName2=".graphExample2";
+        let exampleName2=".graphExample3";
         defaultExample(exampleName2,graphDirected,animationObjDirected,true,20);
         $(exampleName2+" .default").off("click").on("click",defaultExample.bind(this,exampleName2,graphDirected,animationObjDirected,true,20));
     }
     else if (part==3) {
         let graph = new Graph();
-        graph.init(".graphExample3",4,true,true);
+        graph.init(".graphExample4",4,true,false);
         graph.edgeList=[[0,1],[0,2],[1,3],[2,3]];
         graph.fillAdjListMatrix();
         graph.drawNewGraph(1,1,299,299,40,false);

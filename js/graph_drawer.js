@@ -30,7 +30,7 @@ function trackMouse (event) {
         let end=[graph.svgPoint.x, graph.svgPoint.y];
         let vertexRad=graph.vertexRad;
         graph.vertexRad=vertexRad/3;
-        graph.currEdgeDraw=drawEdge(st,end,graph,vertexRad/20*1.5);
+        graph.currEdgeDraw=drawEdge(st,end,graph,vertexRad/20*1.5,[0,0]);
         graph.vertexRad=vertexRad;
         graph.currEdgeDraw.prependTo(graph.s);
     }
@@ -41,23 +41,28 @@ function edgeDrawEnd (event) {
     graph.flagDraw=0;
     if (graph.currEdgeDraw!==undefined) graph.currEdgeDraw.remove();
     
-    for (let i=0; i<graph.n; i++) { 
+    for (let i=0; i<graph.n; i++) {
         if ((graph.svgPoint.x>=graph.svgVertices[i].group.getBBox().x)&&
             (graph.svgPoint.x<=graph.svgVertices[i].group.getBBox().x2)&&
             (graph.svgPoint.y>=graph.svgVertices[i].group.getBBox().y)&&
             (graph.svgPoint.y<=graph.svgVertices[i].group.getBBox().y2)) {
-            if (graph.stVerDraw==i) return ;
-            if (graph.adjMatrix[graph.stVerDraw][i]==1) return ;
+            if (graph.stVerDraw===i) return ;
+            if ((graph.isMulti===false)&&(graph.adjMatrix[graph.stVerDraw][i]===1)) return ;
+            if (graph.isMulti===true) {
+                if ((graph.isOriented===false)&&(graph.adgMatrix[graph.stVerDraw][i]==5)) return ;
+                if ((graph.isOriented===true)&&
+                    (graph.adjMatrix[graph.stVerDraw][i]+graph.adjMatrix[i][graph.stVerDraw]==5)) return ;
+            }
             
             let len=graph.edgeList.length;
             graph.edgeList.push([graph.stVerDraw,i]);
             graph.adjList[graph.stVerDraw].push(i);
             if (graph.isOriented===false) graph.adjList[i].push(graph.stVerDraw);
-            graph.adjMatrix[graph.stVerDraw][i]=1;
-            if (graph.isOriented===false) graph.adjMatrix[i][graph.stVerDraw]=1;
+            graph.adjMatrix[graph.stVerDraw][i]++;
+            if (graph.isOriented===false) graph.adjMatrix[i][graph.stVerDraw]++;
             for (let j=0; j<graph.n; j++) {
                 if ((j==graph.stVerDraw)||(j==i)) continue;
-                if (circleSegment(graph.svgVertices[graph.stVerDraw].coord,graph.svgVertices[i].coord,graph.svgVertices[j].coord,graph.vertexRad)===true) {
+                if (circleSegment(graph.svgVertices[graph.stVerDraw].coord,graph.svgVertices[i].coord,graph.svgVertices[j].coord,graph.vertexRad,graph.isMulti)===true) {
                     graph.possiblePos.push(graph.svgVertices[i].coord);
                     if (placeVertex(graph,i)===false) calcPositions(graph);
                     break;
@@ -68,16 +73,74 @@ function edgeDrawEnd (event) {
     }
 }
 
-function drawEdge (st, end, graph, strokeWidth) {
+function findPoints (x1, y1, x2, y2, d) {
+    x2-=x1; y2-=y1;
+    let flag=false;
+    if (y2==0) {
+        y2+=x2; x2=y2-x2; y2=y2-x2;
+        y1+=x1; x1=y1-x1; y1=y1-x1;
+        flag=true;
+    }
+    let r=Math.sqrt((x2*x2+y2*y2)/4+d*d);
+    /* x^2+y^2=r^2
+    (x-x2)^2+(y-y2)^2=r^2
+    => -2*x2*x+x2^2-2*y2*y+y2^2=0
+    => y=(x2^2+y2^2)/(2*y2)-x2/y2*x, u=(x2^2+y2^2)/(2*y2), v=x2/y2, y=u-v*x
+    => x^2+u^2-2*u*v*x+v^2*x^2=r^2
+    (v^2+1)*x^2-2*u*v*x+u^2-r^2=0
+    D=u^2*v^2-u^2*v^2+v^2*r^2-u^2+r^2
+    D=r^2+v^2*r^2-u^2*/
+    let u=x2*x2/(2*y2)+y2/2,v=x2/y2;
+    let a=(v*v+1),k=-u*v,c=u*u-r*r;
+    let D=r*r+v*v*r*r-u*u;
+    let xs=[(-k-Math.sqrt(D))/a,(-k+Math.sqrt(D))/a];
+    let ys=[u-v*xs[0],u-v*xs[1]];
+    for (let i=0; i<2; i++) {
+        xs[i]+=x1;
+        ys[i]+=y1;
+    }
+    if (flag===false) return [[xs[0],ys[0]],[xs[1],ys[1]]];
+    else return [[ys[0],xs[0]],[ys[1],xs[1]]];
+}
+function bezierPath (st, end, q) {
+    return "M"+st[0]+","+st[1]+" Q"+q[0]+","+q[1]+" "+end[0]+","+end[1];
+}
+function circlePath (cx, cy, r) {
+    let p="M"+cx+","+cy;
+    p+="m"+(-r)+",0";
+    p+="a"+r+","+r+" 0 1,0 "+(r*2)+",0";
+    p+="a"+r+","+r+" 0 1,0 "+-(r*2)+",0";
+    return p;
+}
+function drawEdge (st, end, graph, strokeWidth, properties) {
     let edgeLen=Math.sqrt((st[0]-end[0])*(st[0]-end[0])+(st[1]-end[1])*(st[1]-end[1]));
-    let quotient=1;
-    if (graph.isOriented==true) quotient=(edgeLen-graph.vertexRad-graph.vertexRad/2)/edgeLen;
-    let edge=graph.s.line(st[0],st[1],st[0]+quotient*(end[0]-st[0]),st[1]+quotient*(end[1]-st[1]));
-    edge.attr({stroke: "black", "stroke-width": strokeWidth});
+    let edge;
+    if (properties[0]===0) {
+        let quotient=(edgeLen-graph.vertexRad)/edgeLen;
+        end[0]=st[0]+quotient*(end[0]-st[0]);
+        end[1]=st[1]+quotient*(end[1]-st[1]);
+        edge=graph.s.path("M"+st[0]+","+st[1]+" "+end[0]+","+end[1]);
+    }
+    else {
+        let bezierPoint=findPoints(st[0],st[1],end[0],end[1],properties[0])[properties[1]];
+        let p1=Snap.path.intersection(bezierPath(st,end,bezierPoint),circlePath(st[0],st[1],graph.vertexRad))[0];
+        let p2=Snap.path.intersection(bezierPath(st,end,bezierPoint),circlePath(end[0],end[1],graph.vertexRad))[0];
+
+        let quotient=graph.vertexRad/edgeLen;
+        let edgeCircle=[st[0]+quotient*(end[0]-st[0]),st[1]+quotient*(end[1]-st[1])];
+        let dist=Math.sqrt((edgeCircle[0]-p1.x)*(edgeCircle[0]-p1.x)+(edgeCircle[1]-p1.y)*(edgeCircle[1]-p1.y));
+        bezierPoint=findPoints(st[0],st[1],end[0],end[1],properties[0]-dist)[properties[1]];
+        edge=graph.s.path(bezierPath([p1.x,p1.y],[p2.x,p2.y],bezierPoint))
+    }
+    
+    edge.attr({ fill: "none", stroke: "black", "stroke-width": strokeWidth });
     if (graph.isOriented==true) {
-        let arrow=graph.s.polygon([0,10,4,10,2,0,0,10]).attr({fill: "black"}).transform('r90');
+        let unit=5;
+        let arrowEnd=[3*unit/2,unit/2];
+        let arrowHeight=unit;
+        let arrow=graph.s.polygon([0,0,arrowEnd[0],arrowEnd[1],0,arrowHeight,0,0]).attr({fill: "black"});
         edge.marker=arrow;
-        let marker=arrow.marker(0,0,10,10,0,5);
+        let marker=arrow.marker(0,0,arrowEnd[0],arrowHeight,arrowEnd[0],arrowEnd[1]);
         edge.attr({"marker-end": marker});
     }
     return edge;
@@ -118,7 +181,7 @@ function Graph () {
     this.svgVertices=undefined; this.edgeLines=undefined;
     this.n=undefined; this.vertices=undefined;
     this.edgeList=undefined; this.adjList=undefined; this.adjMatrix=undefined;
-    this.isOriented=undefined; this.isTree=undefined;
+    this.isOriented=undefined; this.isMulti=undefined; this.isTree=undefined;
     this.frameX=undefined; this.frameY=undefined; this.frameW=undefined; this.frameH=undefined; this.vertexRad=20;
     this.init = function (svgName, n, isOriented, flagSave, isTree) {
         $(svgName).on("mousedown", () => { return false; });
@@ -147,6 +210,7 @@ function Graph () {
 		}
         
         if (isOriented!==undefined) this.isOriented=isOriented;
+        this.isMulti=false;
         if (isTree!==undefined) this.isTree=isTree;
         else this.isTree=false;
         if (flagSave!==undefined) {
@@ -166,11 +230,20 @@ function Graph () {
     
     this.fillAdjListMatrix = function () {
         let edgeList=this.edgeList,max=0;
-        for (let i=0; i<edgeList.length; i++) {
-            if (max<edgeList[i][0]) max=edgeList[i][0];
-            if (max<edgeList[i][1]) max=edgeList[i][1];
+        for (let [x,y] of edgeList) {
+            if (max<x) max=x;
+            if (max<y) max=y;
         }
         this.n=max+1;
+        
+        let edgeSet = new Set();
+        for (let [x,y] of edgeList) {
+            if ((edgeSet.has(x*this.n+y))||((this.isOriented===false)&&(edgeSet.has(y*this.n+x)))) {
+                this.isMulti=true;
+            }
+            else edgeSet.add(x*this.n+y);
+        }
+        
         for (let i=0; i<=max; i++) {
             this.adjMatrix[i]=[];
             for (let j=0; j<=max; j++) {
@@ -180,10 +253,10 @@ function Graph () {
         }
         for (let i=0; i<edgeList.length; i++) {
             let x=edgeList[i][0],y=edgeList[i][1];
-            this.adjMatrix[x][y]=1;
+            this.adjMatrix[x][y]++;
             this.adjList[x].push(y);
             if (this.isOriented===false) {
-                this.adjMatrix[y][x]=1;
+                this.adjMatrix[y][x]++;
                 this.adjList[y].push(x);
             }
         }
@@ -282,12 +355,34 @@ function Graph () {
         this.erase();
         
         let fontSize=this.vertexRad*5/4,strokeWidth=this.vertexRad/20*1.5;
-		for (let i=0; i<this.edgeList.length; i++) {
-            let x=this.edgeList[i][0],y=this.edgeList[i][1];
+        let edgeMapCnt = new Map(), edgeMapCurr = new Map();
+        for (let [x, y] of this.edgeList) {
+            let code=Math.max(x,y)*this.n+Math.min(x,y);
+            if (edgeMapCnt.has(code)) {
+                let val=edgeMapCnt.get(code);
+                edgeMapCnt.set(code,val+1);
+            }
+            else {
+                edgeMapCnt.set(code,1);
+                edgeMapCurr.set(code,0);
+            }
+        }
+        let multiEdges = [[],
+                          [[0, 0]],
+                          [[this.vertexRad/2, 0], [this.vertexRad/2, 1]],
+                          [[this.vertexRad/2, 0], [this.vertexRad/2, 1], [0, 0]],
+                          [[this.vertexRad/2, 0], [this.vertexRad/2, 1], [this.vertexRad, 0], [this.vertexRad, 1]],
+                          [[this.vertexRad/2, 0], [this.vertexRad/2, 1], [this.vertexRad, 0], [this.vertexRad, 1], [0, 0]]];
+        let i=0;
+		for (let [x, y] of this.edgeList) {
+            let code=Math.max(x,y)*this.n+Math.min(x,y);
+            let val=edgeMapCurr.get(code);
             let from=this.svgVertices[x].coord,to=this.svgVertices[y].coord;
             let st=[from[0]+this.vertexRad, from[1]+this.vertexRad];
             let end=[to[0]+this.vertexRad, to[1]+this.vertexRad];
-			this.edgeLines[i]=drawEdge(st,end,this,strokeWidth);
+			this.edgeLines[i]=drawEdge(st,end,this,strokeWidth,multiEdges[edgeMapCnt.get(code)][val++]);
+            edgeMapCurr.set(code,val);
+            i++;
         }
         
         for (let i=0; i<this.n; i++) {
@@ -302,7 +397,7 @@ function Graph () {
             this.drawVertexText(i,this.vertices[i].name);
             if (addDrawableEdges===true) this.svgVertices[i].group.attr({cursor: "pointer"});
         }
-
+        
         if (addDrawableEdges===true) this.drawableEdges();
 	}
 }
@@ -342,7 +437,7 @@ function addSaveFunctionality (svgName) {
     });
 }
 
-function circleSegment (segPoint1, segPoint2, center, vertexRad) {
+function circleSegment (segPoint1, segPoint2, center, vertexRad, isMulti) {
     let area,height,sides=[];    
     area=Math.abs(segPoint1[0]*segPoint2[1]+segPoint1[1]*center[0]+segPoint2[0]*center[1]-
                   segPoint1[1]*segPoint2[0]-segPoint1[0]*center[1]-segPoint2[1]*center[0])/2;
@@ -351,7 +446,8 @@ function circleSegment (segPoint1, segPoint2, center, vertexRad) {
     sides[2]=Math.sqrt(Math.pow(segPoint2[0]-center[0],2)+Math.pow(segPoint2[1]-center[1],2));
     if ((sides[0]*sides[0]+sides[2]*sides[2]-sides[1]*sides[1]>0)&&(sides[0]*sides[0]+sides[1]*sides[1]-sides[2]*sides[2]>0)) {
         height=area*2/sides[0];
-        if (height<=1.1*vertexRad) return true;
+        if ((isMulti===true)&&(height<=2.1*vertexRad)) return true;
+        if ((isMulti===false)&&(height<=1.5*vertexRad)) return true;
     }
     return false;
 }
@@ -362,7 +458,7 @@ function checkVertex (graph, vr) {
         if ((graph.adjMatrix[vr][i]==0)&&(graph.adjMatrix[i][vr]==0)) continue;
         for (j=0; j<graph.n; j++) {
             if ((j==vr)||(j==i)||(graph.svgVertices[j].coord===undefined)) continue;
-            if (circleSegment(graph.svgVertices[vr].coord,graph.svgVertices[i].coord,graph.svgVertices[j].coord,graph.vertexRad)==true) return false;
+            if (circleSegment(graph.svgVertices[vr].coord,graph.svgVertices[i].coord,graph.svgVertices[j].coord,graph.vertexRad,graph.isMulti)==true) return false;
         }
     }
     return true;
@@ -375,7 +471,7 @@ function placeVertex (graph, vr,possiblePos) {
         for (j=0; j<graph.n; j++) {
             if ((j==vr)||(graph.svgVertices[j].coord===undefined)||((graph.adjMatrix[i][j]==0)&&(graph.adjMatrix[j][i]==0))) continue;
             for (h=0; h<currPossiblePos.length; h++) {
-                if (circleSegment(graph.svgVertices[i].coord,graph.svgVertices[j].coord,currPossiblePos[h],graph.vertexRad)==true) {
+                if (circleSegment(graph.svgVertices[i].coord,graph.svgVertices[j].coord,currPossiblePos[h],graph.vertexRad,graph.isMulti)==true) {
                     currPossiblePos.splice(h,1); h--;
                 }
             }

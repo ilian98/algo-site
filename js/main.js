@@ -11,7 +11,7 @@
         });
     }
         
-    function set_heights () {
+    function setHeights () {
         let min_height=$("body").outerHeight();
         if ($(".navbar").length) min_height-=$(".navbar").outerHeight();
         if ($("nav.unselectable").length) min_height-=$("nav.unselectable").outerHeight();
@@ -21,6 +21,13 @@
             $(".wrapper").css("max-height",min_height+$("footer").outerHeight());
         }
         else $(".content").css("max-height",min_height);
+    }
+    function pageSetup () {
+        setHeights();
+        $(window).resize(setHeights);
+        let scrollTop=sessionStorage.getItem(get_page()+"scrollTop");
+        if (home_page===true) $(".content").scrollTop(scrollTop);
+        else $(".wrapper").scrollTop(scrollTop);
     }
     
     function getParts (s) {
@@ -103,7 +110,7 @@
                 
                 toggleParts();
                 toggleInfos();
-                let lastCode;
+                let lastCode="none";
                 for (let div of $("div")) {
                     let id=$(div).prop("id");
                     if (!id.endsWith("-placeholder")) continue;
@@ -121,15 +128,11 @@
 
                         if (id===lastCode) {
                             if (typeof MathJax!=="undefined") MathJax.typeset([".hljs-comment"]);  
-                            
-                            set_heights();
-                            $(window).resize(set_heights);
-                            let scrollTop=sessionStorage.getItem(get_page()+"scrollTop");
-                            if (home_page===true) $(".content").scrollTop(scrollTop);
-                            else $(".wrapper").scrollTop(scrollTop);
+                            pageSetup();
                         }
                     });
                 }
+                if (lastCode==="none") pageSetup();
             });
         });
     });
@@ -215,29 +218,7 @@ function isSmallLatinLetter (event) {
 function initExamples (part = 1) {
     let page=get_page();
     if (page=="introduction_to_graphs.html") {
-        let example1 = new Graph ();
-        example1.n=5; example1.isOriented=true;
-        example1.init(".graphExample1");
-        example1.edgeList=[[0,1],[0,2],[0,3],[1,4],[2,4]];
-        example1.adjList=[[1,2,3],[4],[4],[],[]];
-        example1.adjMatrix=[[0,1,1,1,0],
-                            [0,0,0,0,1],
-                            [0,0,0,0,1],
-                            [0,0,0,0,0],
-                            [0,0,0,0,0]];
-        example1.drawNewGraph(1,1,299,299,20,true);
-
-        let example2 = new Graph ();
-        example2.n=5; example2.isOriented=false;
-        example2.init(".graphExample2");
-        example2.edgeList=[[0,1],[0,2],[0,3],[1,4],[2,4]];
-        example2.adjList=[[1,2,3],[0,4],[0,4],[0],[1,2]];
-        example2.adjMatrix=[[0,1,1,1,0],
-                            [1,0,0,0,1],
-                            [1,0,0,0,1],
-                            [1,0,0,0,0],
-                            [0,1,1,0,0]];
-        example2.drawNewGraph(1,1,299,299,20,true);
+        if (part>=2) initExample(part);
     }
     else if (page=="depth_first_search.html") {
         if (part==1) initExample(1);

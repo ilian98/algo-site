@@ -22,7 +22,6 @@
             for (let ind=0; ind<4; ind++) {
                 let name="#"+ordinals[ind]+"Part";
                 let state=sessionStorage.getItem(page+name);
-                console.log(page,state);
                 if ((state!==null)&&(state==="1")) {
                     console.log("tuk",page);
                     if (flag===false) URL+="#part"+(ind+1);
