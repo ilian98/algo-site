@@ -115,8 +115,10 @@ function circlePath (cx, cy, r) {
 function drawEdge (st, end, graph, strokeWidth, properties) {
     let edgeLen=Math.sqrt((st[0]-end[0])*(st[0]-end[0])+(st[1]-end[1])*(st[1]-end[1]));
     let edge;
+    let arrowDist=0;
+    if (graph.isOriented===true) arrowDist=1.5;
     if (properties[0]===0) {
-        let quotient=(edgeLen-graph.vertexRad-1.5)/edgeLen;
+        let quotient=(edgeLen-graph.vertexRad-arrowDist)/edgeLen;
         end[0]=st[0]+quotient*(end[0]-st[0]);
         end[1]=st[1]+quotient*(end[1]-st[1]);
         edge=graph.s.path("M"+st[0]+","+st[1]+" "+end[0]+","+end[1]);
@@ -125,7 +127,7 @@ function drawEdge (st, end, graph, strokeWidth, properties) {
         let bezierPoint=findPoints(st[0],st[1],end[0],end[1],properties[0])[properties[1]];
         //graph.s.path(bezierPath(st,end,bezierPoint)).attr({fill: "none", stroke: "red"});
         let p1=Snap.path.intersection(bezierPath(st,end,bezierPoint),circlePath(st[0],st[1],graph.vertexRad))[0];
-        let p2=Snap.path.intersection(bezierPath(st,end,bezierPoint),circlePath(end[0],end[1],graph.vertexRad+1.5))[0];
+        let p2=Snap.path.intersection(bezierPath(st,end,bezierPoint),circlePath(end[0],end[1],graph.vertexRad+arrowDist))[0];
 
         let quotient=(graph.vertexRad+1)/edgeLen;
         let edgeCircle=[st[0]+quotient*(end[0]-st[0]),st[1]+quotient*(end[1]-st[1])];
@@ -141,7 +143,7 @@ function drawEdge (st, end, graph, strokeWidth, properties) {
         let arrowHeight=unit;
         let arrow=graph.s.polygon([0,0,arrowEnd[0],arrowEnd[1],0,arrowHeight,0,0]).attr({fill: "black"});
         edge.marker=arrow;
-        let marker=arrow.marker(0,0,arrowEnd[0],arrowHeight,arrowEnd[0]-1.5,arrowEnd[1]);
+        let marker=arrow.marker(0,0,arrowEnd[0],arrowHeight,arrowEnd[0]-arrowDist,arrowEnd[1]);
         edge.attr({"marker-end": marker});
     }
     return edge;
