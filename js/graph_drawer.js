@@ -49,7 +49,7 @@ function edgeDrawEnd (event) {
             if (graph.stVerDraw===i) return ;
             if ((graph.isMulti===false)&&(graph.adjMatrix[graph.stVerDraw][i]===1)) return ;
             if (graph.isMulti===true) {
-                if ((graph.isOriented===false)&&(graph.adgMatrix[graph.stVerDraw][i]==5)) return ;
+                if ((graph.isOriented===false)&&(graph.adjMatrix[graph.stVerDraw][i]==5)) return ;
                 if ((graph.isOriented===true)&&
                     (graph.adjMatrix[graph.stVerDraw][i]+graph.adjMatrix[i][graph.stVerDraw]==5)) return ;
             }
@@ -68,12 +68,13 @@ function edgeDrawEnd (event) {
                     break;
                 }
             }
+            graph.graphChange();
             graph.draw(true);
         }
     }
 }
 
-function findPoints (x1, y1, x2, y2, d) {
+function circlesIntersection (x1, y1, r1, x2, y2, r2) {
     x2-=x1; y2-=y1;
     let flag=false;
     if (y2==0) {
@@ -81,18 +82,17 @@ function findPoints (x1, y1, x2, y2, d) {
         y1+=x1; x1=y1-x1; y1=y1-x1;
         flag=true;
     }
-    let r=Math.sqrt((x2*x2+y2*y2)/4+d*d);
-    /* x^2+y^2=r^2
-    (x-x2)^2+(y-y2)^2=r^2
-    => -2*x2*x+x2^2-2*y2*y+y2^2=0
-    => y=(x2^2+y2^2)/(2*y2)-x2/y2*x, u=(x2^2+y2^2)/(2*y2), v=x2/y2, y=u-v*x
-    => x^2+u^2-2*u*v*x+v^2*x^2=r^2
-    (v^2+1)*x^2-2*u*v*x+u^2-r^2=0
-    D=u^2*v^2-u^2*v^2+v^2*r^2-u^2+r^2
-    D=r^2+v^2*r^2-u^2*/
-    let u=x2*x2/(2*y2)+y2/2,v=x2/y2;
-    let a=(v*v+1),k=-u*v,c=u*u-r*r;
-    let D=r*r+v*v*r*r-u*u;
+    /* x^2+y^2=r1^2
+    (x-x2)^2+(y-y2)^2=r2^2
+    => -2*x2*x+x2^2-2*y2*y+y2^2=r2^2-r1^2
+    => y=(x2^2+y2^2+r1^2-r2^2)/(2*y2)-x2/y2*x, u=(x2^2+y2^2+r1^2-r2^2)/(2*y2), v=x2/y2, y=u-v*x
+    => x^2+u^2-2*u*v*x+v^2*x^2=r1^2
+    (v^2+1)*x^2-2*u*v*x+u^2-r1^2=0
+    D=u^2*v^2-u^2*v^2+v^2*r1^2-u^2+r1^2
+    D=r1^2+v^2*r1^2-u^2*/
+    let u=(x2*x2+r1*r1-r2*r2)/(2*y2)+y2/2,v=x2/y2;
+    let a=(v*v+1),k=-u*v,c=u*u-r1*r1;
+    let D=r1*r1+v*v*r1*r1-u*u;
     let xs=[(-k-Math.sqrt(D))/a,(-k+Math.sqrt(D))/a];
     let ys=[u-v*xs[0],u-v*xs[1]];
     for (let i=0; i<2; i++) {
@@ -101,6 +101,10 @@ function findPoints (x1, y1, x2, y2, d) {
     }
     if (flag===false) return [[xs[0],ys[0]],[xs[1],ys[1]]];
     else return [[ys[0],xs[0]],[ys[1],xs[1]]];
+}
+function findPoints (x1, y1, x2, y2, d) {
+    let r=Math.sqrt(((x1-x2)*(x1-x2)+(y1-y2)*(y1-y2))/4+d*d);
+    return circlesIntersection(x1,y1,r,x2,y2,r);
 }
 function bezierPath (st, end, q) {
     return "M"+st[0]+","+st[1]+" Q"+q[0]+","+q[1]+" "+end[0]+","+end[1];
@@ -112,8 +116,14 @@ function circlePath (cx, cy, r) {
     p+="a"+r+","+r+" 0 1,0 "+-(r*2)+",0";
     return p;
 }
+function loopPath (x, y, vertexRad, r) {
+    let points=circlesIntersection(x,y+vertexRad,vertexRad,x,y-3*r/8,r);
+    let p1=points[0],p2=points[1];
+    return "M"+p1[0]+" "+p1[1]+" A"+[r,r,0,1,1,p2[0],p2[1]].join(" ");
+}
 function drawEdge (st, end, graph, strokeWidth, properties) {
     let edgeLen=Math.sqrt((st[0]-end[0])*(st[0]-end[0])+(st[1]-end[1])*(st[1]-end[1]));
+    let isLoop=(edgeLen<graph.vertexRad)?true:false;
     let edge;
     let arrowDist=0;
     if (graph.isOriented===true) arrowDist=1.5;
@@ -124,21 +134,26 @@ function drawEdge (st, end, graph, strokeWidth, properties) {
         edge=graph.s.path("M"+st[0]+","+st[1]+" "+end[0]+","+end[1]);
     }
     else {
-        let bezierPoint=findPoints(st[0],st[1],end[0],end[1],properties[0])[properties[1]];
-        //graph.s.path(bezierPath(st,end,bezierPoint)).attr({fill: "none", stroke: "red"});
-        let p1=Snap.path.intersection(bezierPath(st,end,bezierPoint),circlePath(st[0],st[1],graph.vertexRad))[0];
-        let p2=Snap.path.intersection(bezierPath(st,end,bezierPoint),circlePath(end[0],end[1],graph.vertexRad+arrowDist))[0];
+        if (isLoop===true) { /// loop
+            edge=graph.s.path(loopPath(st[0],st[1]-graph.vertexRad,graph.vertexRad,properties[0]));
+        }
+        else { /// multiedge
+            let bezierPoint=findPoints(st[0],st[1],end[0],end[1],properties[0])[properties[1]];
+            //graph.s.path(bezierPath(st,end,bezierPoint)).attr({fill: "none", stroke: "red"});
+            let p1=Snap.path.intersection(bezierPath(st,end,bezierPoint),circlePath(st[0],st[1],graph.vertexRad))[0];
+            let p2=Snap.path.intersection(bezierPath(st,end,bezierPoint),circlePath(end[0],end[1],graph.vertexRad+arrowDist))[0];
 
-        let quotient=(graph.vertexRad+1)/edgeLen;
-        let edgeCircle=[st[0]+quotient*(end[0]-st[0]),st[1]+quotient*(end[1]-st[1])];
-        let dist=Math.sqrt((edgeCircle[0]-p1.x)*(edgeCircle[0]-p1.x)+(edgeCircle[1]-p1.y)*(edgeCircle[1]-p1.y));
-        bezierPoint=findPoints(st[0],st[1],end[0],end[1],properties[0]-dist)[properties[1]];
-        edge=graph.s.path(bezierPath([p1.x,p1.y],[p2.x,p2.y],bezierPoint));
+            let quotient=(graph.vertexRad+1)/edgeLen;
+            let edgeCircle=[st[0]+quotient*(end[0]-st[0]),st[1]+quotient*(end[1]-st[1])];
+            let dist=Math.sqrt((edgeCircle[0]-p1.x)*(edgeCircle[0]-p1.x)+(edgeCircle[1]-p1.y)*(edgeCircle[1]-p1.y));
+            bezierPoint=findPoints(st[0],st[1],end[0],end[1],properties[0]-dist)[properties[1]];
+            edge=graph.s.path(bezierPath([p1.x,p1.y],[p2.x,p2.y],bezierPoint));
+        }
     }
     
     edge.attr({fill: "none", stroke: "black", "stroke-width": strokeWidth});
     if (graph.isOriented==true) {
-        let unit=5;
+        let unit=(isLoop===true)?3:5;
         let arrowEnd=[3*unit/2,unit/2];
         let arrowHeight=unit;
         let arrow=graph.s.polygon([0,0,arrowEnd[0],arrowEnd[1],0,arrowHeight,0,0]).attr({fill: "black"});
@@ -185,8 +200,9 @@ function Graph () {
     this.n=undefined; this.vertices=undefined;
     this.edgeList=undefined; this.adjList=undefined; this.adjMatrix=undefined;
     this.isOriented=undefined; this.isMulti=undefined; this.isTree=undefined;
+    this.graphChange=undefined; // function to be called after changing the graph, for exampe adding new edge
     this.frameX=undefined; this.frameY=undefined; this.frameW=undefined; this.frameH=undefined; this.vertexRad=20;
-    this.init = function (svgName, n, isOriented, flagSave, isTree) {
+    this.init = function (svgName, n, isOriented, flagSave, isTree, graphChange = () => {}) {
         $(svgName).on("mousedown", () => { return false; });
         if (this.s===undefined) {
             this.svgName=svgName;
@@ -221,6 +237,8 @@ function Graph () {
             if (flagSave===true) addSaveFunctionality(svgName);
         }
         this.flagDraw=0;
+        
+        this.graphChange=graphChange;
     }
     
     this.initVertices = function (n) {
@@ -258,7 +276,7 @@ function Graph () {
             let x=edgeList[i][0],y=edgeList[i][1];
             this.adjMatrix[x][y]++;
             this.adjList[x].push(y);
-            if (this.isOriented===false) {
+            if ((this.isOriented===false)&&(x!==y)) {
                 this.adjMatrix[y][x]++;
                 this.adjList[y].push(x);
             }
@@ -376,6 +394,9 @@ function Graph () {
                           [[this.vertexRad/2, 0], [this.vertexRad/2, 1], [0, 0]],
                           [[this.vertexRad/2, 0], [this.vertexRad/2, 1], [this.vertexRad, 0], [this.vertexRad, 1]],
                           [[this.vertexRad/2, 0], [this.vertexRad/2, 1], [this.vertexRad, 0], [this.vertexRad, 1], [0, 0]]];
+        let loopEdges = [[],
+                         [[this.vertexRad/2, 0]],
+                         [[this.vertexRad/2, 0], [3*this.vertexRad/4, 0]]];
         let i=0;
 		for (let [x, y] of this.edgeList) {
             let code=Math.max(x,y)*this.n+Math.min(x,y);
@@ -383,7 +404,8 @@ function Graph () {
             let from=this.svgVertices[x].coord,to=this.svgVertices[y].coord;
             let st=[from[0]+this.vertexRad, from[1]+this.vertexRad];
             let end=[to[0]+this.vertexRad, to[1]+this.vertexRad];
-			this.edgeLines[i]=drawEdge(st,end,this,strokeWidth,multiEdges[edgeMapCnt.get(code)][val++]);
+            if (x!==y) this.edgeLines[i]=drawEdge(st,end,this,strokeWidth,multiEdges[edgeMapCnt.get(code)][val++]);
+            else this.edgeLines[i]=drawEdge(st,end,this,strokeWidth,loopEdges[edgeMapCnt.get(code)][val++]);
             edgeMapCurr.set(code,val);
             i++;
         }
