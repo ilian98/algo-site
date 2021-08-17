@@ -203,7 +203,6 @@ function Graph () {
     this.graphChange=undefined; // function to be called after changing the graph, for exampe adding new edge
     this.frameX=undefined; this.frameY=undefined; this.frameW=undefined; this.frameH=undefined; this.vertexRad=20;
     this.init = function (svgName, n, isOriented, flagSave, isTree, graphChange = () => {}) {
-        $(svgName).on("mousedown", () => { return false; });
         if (this.s===undefined) {
             this.svgName=svgName;
             this.s=Snap(svgName);
@@ -286,6 +285,19 @@ function Graph () {
     this.flagDraw=undefined; this.startX=undefined; this.startY=undefined;
     this.stVerDraw=undefined; this.currEdgeDraw=undefined; this.svgPoint=undefined;
     this.drawableEdges = function () {
+        //$(this.svgName).on("mousedown", () => { return false; });
+        let svgElement=document.querySelector(this.svgName);
+        svgElement.blockScroll=false;
+        svgElement.ontouchstart = function (event) {
+            this.blockScroll=true;
+        };
+        svgElement.ontouchend = function () {
+            this.blockScroll=false;
+        };
+        svgElement.ontouchmove = function (event) {
+            if (this.blockScroll===true) event.preventDefault();
+        };
+        
         this.svgPoint=this.s.paper.node.createSVGPoint(); this.flagDraw=0; this.stVer=1;
         let graph=this;
         for (let i=0; i<this.n; i++) {

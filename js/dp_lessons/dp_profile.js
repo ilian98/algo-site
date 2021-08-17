@@ -178,6 +178,12 @@ function initExample (part) {
         $(".dpProfileExample1 .calc").off("click").on("click",calcMatrices);
         $(".dpProfileExample1 .n").val("2");
         $(".dpProfileExample1 .m").val("2");
+        
+        $(".dpProfileExample1 .n").on("keypress",isDigit);
+        $(".dpProfileExample1 .m").on("keypress",isDigit);
+        $(".dpProfileExample2 .l").on("keypress",isBinary);
+        $(".dpProfileExample2 .r").on("keypress",isBinary);
+        
         calcMatrices();
     }
     else {

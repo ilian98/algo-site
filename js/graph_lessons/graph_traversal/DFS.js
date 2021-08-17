@@ -103,18 +103,6 @@ function defaultExample (name, graph, animationObj, isOriented, vertexRad) {
         graph.draw(flag);
     });
     
-    let svgElement = document.querySelector(name+" .graph");
-    svgElement.blockScroll=false;
-    svgElement.ontouchstart = function (event) {
-        this.blockScroll=true;
-    };
-    svgElement.ontouchend = function () {
-        this.blockScroll=false;
-    };
-    svgElement.ontouchmove = function (event) {
-        if (this.blockScroll==true) event.preventDefault();
-    };
-    
     let slider=document.querySelector(name+" .range");
     let output=document.querySelector(name+" .slider-value");
     slider.value=5;

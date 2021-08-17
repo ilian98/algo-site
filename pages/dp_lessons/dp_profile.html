@@ -172,11 +172,11 @@
                             <div class="row">
                                 <div class="col-md-3 col-lg-2">
                                     <div class="form-group float-right">
-                                        <input class="form-control col-4 n" style="float: right" maxLength="1" onkeypress="return isDigit(event)"/>
+                                        <input class="form-control col-4 n" style="float: right" maxLength="1"/>
                                         <label for="n" class="label-input" style="float: right">\(n\):</label>
                                     </div>
                                     <div class="form-group float-right" style="clear: both">
-                                        <input class="form-control col-5 m" style="float: right" maxLength="2" onkeypress="return isDigit(event)"/>
+                                        <input class="form-control col-5 m" style="float: right" maxLength="2"/>
                                         <label for="m" class="label-input" style="float: right">\(m\):</label>
                                     </div>
                                     <button class="btn btn-primary calc" style="clear: both; float: right">Сметни!</button>
@@ -206,18 +206,18 @@
                         <p class="text-format">Има различни начини за съставяне на профил. Най-лесният е да въведем три състояния за всяка клетка в колоната - покрита от вертикално домино, покрита от хоризонтално домино от предната колона или покрита от хоризонтално домино, отиващо в следващата колона. То обаче не е най-оптималното и ще доведе до много профили. По-оптимални варианти са следните. Един вариант е да оставяме празни клетки в колоната, които да бъдат попълнени при добавяне на следващата колона, а друг е да слагаме хоризонтални домина, които да "стърчат" от последната колона. Ще разгледаме втората възможност. Както в предната задача, ще използваме битова маска за кодиране на конфигурациите. Бит със стойност 1 ще означава, че сме поставили хоризонтално домино в тази клетка, което стърчи към следващата колона. Ако стойността е 0, това ще означава, че клетката е покрита с вертикално домино или хоризонтално, което започва от предишната колона. На пръв поглед може да изглежда, че този профил не винаги е еднозначен - когато имаме 0, не е напълно ясно дали клетката е покрита с вертикално или хоризонтално домино. Обаче ако разгледаме комбиниране на профили на лява и дясна колона, то при дясната колона нулите стават еднозначни - ако са покрити с хоризонтално домино от предишната колона, то при лявата колона, на съответното място, трябва да имаме бит 1 (за стърчащо домино), иначе са покрити с вертикално домино. За да стане по-ясна тази концепция е предоставен интерактивен пример, където могат да се въвеждат битови маски на профилите на лява и дясна колона и да се види нагледно как се покрива дясната колона, ако са съвместими профилите. Редовете са най-много 5.</p>
                         <div class="dpProfileExample2">
                             <div class="row">
-                                <div class="col-sm-6">
+                                <div class="col-sm">
                                     <div class="form-group float-right">
-                                        <input class="form-control col-6 l" style="float: right" maxLength="5" onkeypress="return isBinary(event)"/>
+                                        <input class="form-control col-6 l" style="float: right" maxLength="5"/>
                                         <label for="l" class="label-input" style="float: right">\(l\):</label>
                                     </div>
                                     <div class="form-group float-right" style="clear: both">
-                                        <input class="form-control col-6 r" style="float: right" maxLength="5" onkeypress="return isBinary(event)"/>
+                                        <input class="form-control col-6 r" style="float: right" maxLength="5"/>
                                         <label for="r" class="label-input" style="float: right">\(r\):</label>
                                     </div>
                                     <button class="btn btn-primary check" style="clear: both; float: right">Провери!</button>
                                 </div>
-                                <div class="col-sm-6">
+                                <div class="col-sm">
                                     <div class="row justify-content-center profiles-check" style="height: 100%; align-items: center">
                                         <p class="error"></p>
                                         <table class="table profiles" style="border: none"></table>
