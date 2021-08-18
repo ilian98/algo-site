@@ -309,7 +309,7 @@ function Graph () {
     this.flagDraw=undefined; this.startX=undefined; this.startY=undefined;
     this.stVerDraw=undefined; this.currEdgeDraw=undefined; this.svgPoint=undefined;
     this.drawableEdges = function () {
-        if (window.isMobile===true) {
+        if (window.isMobile==="true") {
             let svgElement=$(this.svgName);
             svgElement.blockScroll=false;
             svgElement.on("touchstart", function (event) {

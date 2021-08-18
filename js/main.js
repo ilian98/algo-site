@@ -5,9 +5,13 @@
         home_page=true;
     }
     else {
-        window.isMobile=false;
-        $(window).one("touchstart",function () {
-            window.isMobile=true;
+        window.isMobile="false";
+        if (sessionStorage.getItem("mobile")!==null) window.isMobile=sessionStorage.getItem("mobile");
+        else sessionStorage.setItem("mobile","false");
+        $(window).on("touchstart.mobile", function () {
+            sessionStorage.setItem("mobile","true");
+            window.isMobile="true";
+            $(window).off("touchstart.mobile");
         });
     }
         
