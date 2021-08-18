@@ -18,14 +18,19 @@ function edgeAnimation (graph, vr1, vr2) {
             let obj2=graph.svgVertices[vr2];
 
             let ind=graph.edgeList.findIndex(function (e) { return ((e[0]==vr1)&&(e[1]==vr2)); });
+            let reverse=false;
+            if ((ind==-1)&&(graph.isOriented===false)) {
+                reverse=true;
+                ind=graph.edgeList.findIndex(function (e) { return ((e[0]==vr2)&&(e[1]==vr1)); });
+            }
             let lineDraw=graph.s.path(graph.edgeLines[ind].attr("d"));
-            lineDraw.attr({fill: "none", stroke: "red", "stroke-width": graph.vertexRad/20*4});
             let pathLength=lineDraw.getTotalLength();
-            lineDraw.attr({"stroke-dasharray": pathLength+" 0"});
+            lineDraw.attr({fill: "none", stroke: "red", "stroke-width": graph.vertexRad/20*4});
+            lineDraw.attr({"stroke-dasharray": pathLength, "stroke-dashoffset": pathLength});
             graph.s.append(obj1.group);
             graph.s.append(obj2.group);
             return Snap.animate(0,pathLength,function (t) {
-                lineDraw.attr({"stroke-dasharray": t+" "+(pathLength-t)});
+                lineDraw.attr({"stroke-dashoffset": ((reverse===true)?(pathLength+t):(pathLength-t))});
             },
                 speed,function () {
                 callback();

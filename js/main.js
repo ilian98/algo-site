@@ -47,7 +47,25 @@
         if (text.length===0) return num;
         return text+","+num;
     }
-    function toggleParts() {
+    function toggleParts () {
+        let anchor=checkForAnchor();
+        if (anchor.startsWith("part")) anchor=anchor.slice(4);
+        else if (anchor.length!==0) return ;
+        let parts=getParts(anchor);
+        let ordinals=["first","second","third","fourth"];
+        let ind=0;
+        for (let btn of $(".lesson-part-position >.btn")) {
+            let name="#"+ordinals[ind]+"Part";
+            if (parts.includes(ind+1)) {
+                if ($(name).is(":hidden")===true) {
+                    $(name).show();
+                }
+            }
+            else $(name).hide();
+            ind++;
+        }
+    }
+    function checkLessonParts(beginning) {
         let anchor=checkForAnchor();
         if (anchor.startsWith("part")) anchor=anchor.slice(4);
         else if (anchor.length!==0) return ;
@@ -62,7 +80,6 @@
                 if ($(name).is(":hidden")===true) {
                     sessionStorage.setItem(page+name,1);
                     $(name).show();
-                    if (typeof initExamples==="function") initExamples(ind+1);
                 }
                 if (parts[parts.length-1]!==ind+1) $(btn).prop("id","");
             }
@@ -76,8 +93,10 @@
                 $(btn).children(".anchor")[0].click();
             });
             
+            if ((beginning===true)&&(typeof initExamples==="function")) initExamples(ind+1);
             ind++;
         }
+        if (beginning===true) toggleParts();
     }
     function toggleInfos () {
         let info=$(".info");
@@ -111,22 +130,16 @@
                 toggleParts();
                 toggleInfos();
                 let lastCode="none";
-                for (let div of $("div")) {
-                    let id=$(div).prop("id");
-                    if (!id.endsWith("-placeholder")) continue;
-                    if ((id=="nav-placeholder")||(id=="footer-placeholder")) continue;
-                    lastCode=id;
+                for (let elem of $(".placeholder")) {
+                    lastCode=elem;
                 }
-                for (let div of $("div")) {
-                    let id=$(div).prop("id");
-                    if (!id.endsWith("-placeholder")) continue;
-                    if ((id=="nav-placeholder")||(id=="footer-placeholder")) continue;
-                    let codeName=id.substring(0,id.length-("-placeholder").length)+".cpp";
+                for (let elem of $(".placeholder")) {
+                    let codeName=$(elem).prop("id")+".cpp";
                     $.get(codeName, function (code) {
                         let data=hljs.highlight(code,{language: "cpp"}).value;
-                        $(div).replaceWith('<pre><code class="language-cpp hljs">'+data+'</code></pre>');
+                        $(elem).replaceWith('<pre><code class="language-cpp hljs">'+data+'</code></pre>');
 
-                        if (id===lastCode) {
+                        if (elem===lastCode) {
                             if (typeof MathJax!=="undefined") MathJax.typeset([".hljs-comment"]);  
                             pageSetup();
                         }
@@ -135,6 +148,8 @@
                 if (lastCode==="none") pageSetup();
             });
         });
+        
+        checkLessonParts(true);
     });
     
     $(window).on("beforeunload", function() {
@@ -144,7 +159,7 @@
     });
     
     $(window).on('popstate', function(event) {
-        toggleParts();
+        checkLessonParts(false);
     });
 })();
 
