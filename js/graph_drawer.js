@@ -1,6 +1,6 @@
 'use strict';
 function getObjectForCoordinates (event) {
-    if (window.isMobile===false) return event;
+    if (window.isMobile==="false") return event;
     else if (event.changedTouches!==undefined) return event.changedTouches[0];
     else if (event.touches!==undefined) return event.touches[0];
 }
@@ -327,7 +327,7 @@ function Graph () {
         let graph=this;
         for (let i=0; i<this.n; i++) {
             if (this.svgVertices[i].group===undefined) continue;
-            if (window.isMobile===false) {
+            if (window.isMobile==="false") {
                 this.svgVertices[i].group.unmousedown(vertexClick);
                 this.svgVertices[i].group.mousedown(vertexClick.bind(graph,i));
             }
@@ -337,7 +337,7 @@ function Graph () {
             }
         }
                 
-        if (window.isMobile===false) {
+        if (window.isMobile==="false") {
             this.s.unmousemove(trackMouse);
             this.s.mousemove(trackMouse.bind(graph));
             this.s.unmouseup(edgeDrawEnd);
