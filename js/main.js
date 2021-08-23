@@ -4,16 +4,15 @@
     if ((page=="")||(page=="index.html")||(page=="index_en.html")) {
         home_page=true;
     }
-    else {
-        window.isMobile="false";
-        if (sessionStorage.getItem("mobile")!==null) window.isMobile=sessionStorage.getItem("mobile");
-        else sessionStorage.setItem("mobile","false");
-        $(window).on("touchstart.mobile", function () {
-            sessionStorage.setItem("mobile","true");
-            window.isMobile="true";
-            $(window).off("touchstart.mobile");
-        });
-    }
+    
+    window.isMobile="false";
+    if (sessionStorage.getItem("mobile")!==null) window.isMobile=sessionStorage.getItem("mobile");
+    else sessionStorage.setItem("mobile","false");
+    $(window).on("touchstart.mobile", function () {
+        sessionStorage.setItem("mobile","true");
+        window.isMobile="true";
+        $(window).off("touchstart.mobile");
+    });
         
     function setHeights () {
         let min_height=$("body").outerHeight();
