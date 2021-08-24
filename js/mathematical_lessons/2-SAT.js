@@ -129,51 +129,40 @@ function makeImplicationGraph (part) {
     var implications = [];
     flag = false;
     findImplications(implications,formula);
-    if (flag==true) return ;
+    if (flag==true) {
+        alert("Невалиден израз!");
+        return ;
+    }
     var variables = new Map(),x,y;
     let ind=0;
-    graph.edgeList=[]; graph.adjList=[];
+    let edgeList=[];
     graph.initVertices(2*implications.length);
     for (let i=0; i<implications.length; i++) {
         if (variables.has(implications[i][0])===false) {
             variables.set(implications[i][0],ind);
             graph.vertices[ind].name=implications[i][0];
-            graph.adjList[ind]=[];
             ind++;
-            }
+        }
         x=variables.get(implications[i][0]);
         if (variables.has(implications[i][1])===false) {
             variables.set(implications[i][1],ind);
             graph.vertices[ind].name=implications[i][1];
-            graph.adjList[ind]=[];
             ind++;
-            }
+        }
         y=variables.get(implications[i][1]);
-        graph.edgeList.push([x,y]);
-        graph.adjList[x].push(y);
-        }
+        edgeList.push([x,y]);
+    }
     graph.n=ind;
-    graph.adjMatrix=[];
-    for (let i=0; i<graph.n; i++) {
-        graph.adjMatrix[i]=[];
-        for (let j=0; j<graph.n; j++) {
-            graph.adjMatrix[i].push(0);
-            }
-        }
-    for (let i=0; i<graph.n; i++) {
-        for (let j=0; j<graph.adjList[i].length; j++) {
-            graph.adjMatrix[i][graph.adjList[i][j]]=1;
-            }
-        }
-    
+    graph.buildEdgeDataStructures(edgeList);    
     graph.drawNewGraph(1,1,299,149,10,false);
 }
 
-function dfs1 (vr, adjList, used, order) {
+function dfs1 (vr, adjList, edgeList, used, order) {
     var i;
     used[vr]=1;
-    for (i=0; i<adjList[vr].length; i++) {
-        if (used[adjList[vr][i]]==0) dfs1(adjList[vr][i],adjList,used,order);
+    for (let ind of adjList[vr]) {
+        let to=edgeList[ind].findEndPoint(vr);
+        if (used[to]==0) dfs1(to,adjList,edgeList,used,order);
         }
     order.push(vr);
 }
@@ -194,7 +183,7 @@ function showSCC () {
         }
     var order=[];
     for (i=0; i<graph.n; i++) {
-        if (used[i]==0) dfs1(i,graph.adjList,used,order);
+        if (used[i]==0) dfs1(i,graph.adjList,graph.edgeList,used,order);
         }
     
     var rev=[];
@@ -203,7 +192,7 @@ function showSCC () {
         rev[i]=[];
         }
     for (i=0; i<graph.edgeList.length; i++) {
-        rev[graph.edgeList[i][1]].push(graph.edgeList[i][0]);
+        rev[graph.edgeList[i].y].push(graph.edgeList[i].x);
         }
     var num=0,comps=[];
     for (i=graph.n-1; i>=0; i--) {
@@ -227,7 +216,7 @@ function showSCC () {
         colour+=jump;
     }
     for (i=0; i<graph.edgeList.length; i++) {
-        var from=graph.edgeList[i][0],to=graph.edgeList[i][1];
+        var from=graph.edgeList[i].x,to=graph.edgeList[i].y;
         if (graph.svgVertices[from].circle.attr("fill")==graph.svgVertices[to].circle.attr("fill")) {
             graph.edgeLines[i].attr({stroke: graph.svgVertices[from].circle.attr("fill")});
             graph.edgeLines[i].marker.attr({fill: graph.svgVertices[from].circle.attr("fill")});
@@ -255,5 +244,5 @@ function showSCC () {
         else text+=" = 0";
         }
     solution.textContent=text;
-    MathJax.typeset([".twoSATexample2 .solution"]);
+    if (typeof MathJax!=="undefined") MathJax.typeset([".twoSATexample2 .solution"]);
 }

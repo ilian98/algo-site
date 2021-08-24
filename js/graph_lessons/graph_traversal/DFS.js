@@ -17,11 +17,11 @@ function edgeAnimation (graph, vr1, vr2) {
             let obj1=graph.svgVertices[vr1];
             let obj2=graph.svgVertices[vr2];
 
-            let ind=graph.edgeList.findIndex(function (e) { return ((e[0]==vr1)&&(e[1]==vr2)); });
+            let ind=graph.edgeList.findIndex(function (e) { return ((e.x==vr1)&&(e.y==vr2)); });
             let reverse=false;
             if ((ind==-1)&&(graph.isOriented===false)) {
                 reverse=true;
-                ind=graph.edgeList.findIndex(function (e) { return ((e[0]==vr2)&&(e[1]==vr1)); });
+                ind=graph.edgeList.findIndex(function (e) { return ((e.x==vr2)&&(e.y==vr1)); });
             }
             let lineDraw=graph.s.path(graph.edgeLines[ind].attr("d"));
             let pathLength=lineDraw.getTotalLength();
@@ -42,7 +42,8 @@ function edgeAnimation (graph, vr1, vr2) {
 function dfs (vr, used, graph, animations) {
     used[vr]=1;
     let text;
-    for (let to of graph.adjList[vr]) {
+    for (let ind of graph.adjList[vr]) {
+        let to=graph.edgeList[ind].findEndPoint(vr);
         if (used[to]==0) {
             text="Напускаме връх "+(vr+1)+" и отиваме в "+(to+1)+".";
             animations.push({
@@ -86,9 +87,10 @@ function dfs (vr, used, graph, animations) {
 
 function defaultExample (name, graph, animationObj, isOriented, vertexRad) {
     graph.init(name+" .graph",5,isOriented,true);
-    if (isOriented===false) graph.edgeList=[[0,1],[0,2],[0,3],[0,4],[1,2]];
-    else graph.edgeList=[[0,1],[0,2],[0,3],[0,4],[1,2],[1,4],[2,3],[3,1]];
-    graph.fillAdjListMatrix();
+    let edgeList;
+    if (isOriented===false) edgeList=[[0,1],[0,2],[0,3],[0,4],[1,2]];
+    else edgeList=[[0,1],[0,2],[0,3],[0,4],[1,2],[1,4],[2,3],[3,1]];
+    graph.buildEdgeDataStructures(edgeList);
     graph.drawNewGraph(1,1,299,299,vertexRad,true);
         
     animationObj.init(name,function () {
@@ -133,8 +135,7 @@ function initExample (part) {
     if (part==1) {
         let graph = new Graph();
         graph.init(".graphExample1",6,false,false);
-        graph.edgeList=[[0,1],[0,2],[3,4]];
-        graph.fillAdjListMatrix();
+        graph.buildEdgeDataStructures([[0,1],[0,2],[3,4]]);
         graph.n=6;
         graph.drawNewGraph(1,1,299,299,30,false);
         
@@ -153,8 +154,7 @@ function initExample (part) {
     else if (part==3) {
         let graph = new Graph();
         graph.init(".graphExample4",4,true,false);
-        graph.edgeList=[[0,1],[0,2],[1,3],[2,3]];
-        graph.fillAdjListMatrix();
+        graph.buildEdgeDataStructures([[0,1],[0,2],[1,3],[2,3]]);
         graph.drawNewGraph(1,1,299,299,40,false);
     }
 }

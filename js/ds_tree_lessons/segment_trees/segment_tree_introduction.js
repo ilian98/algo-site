@@ -136,9 +136,10 @@ function makeSegTree (exampleName, tree, elements, animationObj) {
         return ;
     }
     
-    tree.edgeList=[]; tree.initVertices(4*elements.length);
-    makeEdges(0,0,elements.length-1,tree.edgeList,tree.vertices,elements,false);
-    tree.fillAdjListMatrix();
+    tree.initVertices(4*elements.length);
+    let edgeList=[];
+    makeEdges(0,0,elements.length-1,edgeList,tree.vertices,elements,false);
+    tree.buildEdgeDataStructures(edgeList);
     if (elements.length<=8) tree.drawNewGraph(1,1,299,149,10,false);
     else tree.drawNewGraph(1,1,299,149,7,false);
     
@@ -148,9 +149,9 @@ function makeSegTree (exampleName, tree, elements, animationObj) {
 function makeDynSegTree (exampleName, tree) {
     tree.erase();
     
-    tree.edgeList=[]; tree.initVertices(1);
+    tree.initVertices(1);
     tree.vertices[0].name="0";
-    tree.fillAdjListMatrix();
+    tree.buildEdgeDataStructures([]);
     tree.drawNewGraph(2,1,297,199,8,false);
     
     if ($(exampleName+" .indexes").text()=="Скрий номерата") addSegmentsLabels(0,1,64,tree,true,true);
@@ -184,9 +185,9 @@ function addPoint (exampleName, tree) {
         return ;
     }
     updateDyn(0,1,64,c,tree);
-    tree.edgeList=[];
-    makeEdges(0,1,64,tree.edgeList,tree.vertices,[],true);
-    tree.fillAdjListMatrix();
+    let edgeList=[];
+    makeEdges(0,1,64,edgeList,tree.vertices,[],true);
+    tree.buildEdgeDataStructures(edgeList);
     tree.drawNewGraph(2,1,297,199,8,false);
     
     if ($(exampleName+" .indexes").text()=="Скрий номерата") addSegmentsLabels(0,1,64,tree,true,true);
@@ -214,7 +215,7 @@ function defaultExample (exampleName, tree, elements, animationObj) {
         
         animationObj.init(exampleName+" .treeExample",function findAnimations () {
             let animations=[];
-            if (exampleName==".segTreeExample2") {
+            if (exampleName===".segTreeExample2") {
                 pos=parseInt($(exampleName+" .pos").val());
                 val=parseInt($(exampleName+" .val").val());
                 if ((Number.isNaN(pos))||(Number.isNaN(val))||(pos<1)||(pos>elements.length)) {

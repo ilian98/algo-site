@@ -77,9 +77,9 @@ function edgeDrawEnd (event) {
             }
             
             let len=graph.edgeList.length;
-            graph.edgeList.push([graph.stVerDraw,i]);
-            graph.adjList[graph.stVerDraw].push(i);
-            if (graph.isOriented===false) graph.adjList[i].push(graph.stVerDraw);
+            graph.edgeList.push(new Edge(graph.stVerDraw,i));
+            graph.adjList[graph.stVerDraw].push(graph.edgeList.length-1);
+            if (graph.isOriented===false) graph.adjList[i].push(graph.edgeList.length-1);
             graph.adjMatrix[graph.stVerDraw][i]++;
             if (graph.isOriented===false) graph.adjMatrix[i][graph.stVerDraw]++;
             for (let j=0; j<graph.n; j++) {
@@ -218,6 +218,17 @@ function SvgVertex () {
     this.circle=undefined; this.text=undefined;
 }
 
+function Edge (x, y, weight = "") {
+    this.x=x;
+    this.y=y;
+    this.weight=weight;
+    
+    this.findEndPoint = function (vr) {
+        if (this.x==vr) return this.y;
+        else return this.x;
+    }
+}
+
 function Graph () {
     this.svgName=undefined; this.s=undefined; this.flagSave=undefined;
     this.svgVertices=undefined; this.edgeLines=undefined;
@@ -272,16 +283,22 @@ function Graph () {
 		}
     }
     
-    this.fillAdjListMatrix = function () {
-        let edgeList=this.edgeList,max=0;
-        for (let [x,y] of edgeList) {
-            if (max<x) max=x;
-            if (max<y) max=y;
+    this.buildEdgeDataStructures = function (edges) {
+        let edgeList=this.edgeList=[];
+        for (let edge of edges) {
+            if (edge.length==2) edgeList.push(new Edge(edge[0],edge[1]));
+            else edgeList.push(new Edge(edge[0],edge[1],edge[2]));
+        }
+        let max=0;
+        for (let edge of edgeList) {
+            if (max<edge.x) max=edge.x;
+            if (max<edge.y) max=edge.y;
         }
         this.n=max+1;
         
         let edgeSet = new Set();
-        for (let [x,y] of edgeList) {
+        for (let edge of edgeList) {
+            let x=edge.x,y=edge.y;
             if ((edgeSet.has(x*this.n+y))||((this.isOriented===false)&&(edgeSet.has(y*this.n+x)))) {
                 this.isMulti=true;
             }
@@ -296,12 +313,12 @@ function Graph () {
             this.adjList[i]=[];
         }
         for (let i=0; i<edgeList.length; i++) {
-            let x=edgeList[i][0],y=edgeList[i][1];
+            let x=edgeList[i].x,y=edgeList[i].y;
             this.adjMatrix[x][y]++;
-            this.adjList[x].push(y);
+            this.adjList[x].push(i);
             if ((this.isOriented===false)&&(x!==y)) {
                 this.adjMatrix[y][x]++;
-                this.adjList[y].push(x);
+                this.adjList[y].push(i);
             }
         }
     }
@@ -392,7 +409,8 @@ function Graph () {
         
         let fontSize=this.vertexRad*5/4,strokeWidth=this.vertexRad/20*1.5;
         let edgeMapCnt = new Map(), edgeMapCurr = new Map();
-        for (let [x, y] of this.edgeList) {
+        for (let edge of this.edgeList) {
+            let x=edge.x,y=edge.y;
             let code=Math.max(x,y)*this.n+Math.min(x,y);
             if (edgeMapCnt.has(code)) {
                 let val=edgeMapCnt.get(code);
@@ -413,7 +431,8 @@ function Graph () {
                          [[this.vertexRad/2, 0]],
                          [[this.vertexRad/2, 0], [3*this.vertexRad/4, 0]]];
         let i=0;
-		for (let [x, y] of this.edgeList) {
+		for (let edge of this.edgeList) {
+            let x=edge.x,y=edge.y;
             let code=Math.max(x,y)*this.n+Math.min(x,y);
             let val=edgeMapCurr.get(code);
             let from=this.svgVertices[x].coord,to=this.svgVertices[y].coord;
@@ -512,7 +531,8 @@ function checkVertex (graph, vr, tryPlanner) {
         for (let i=0; i<graph.n; i++) {
             if ((i==vr)||(graph.svgVertices[i].coord===undefined)||
                 ((graph.adjMatrix[vr][i]==0)&&(graph.adjMatrix[i][vr]==0))) continue;
-            for (let [u,v] of graph.edgeList) {
+            for (let edge of graph.edgeList) {
+                let u=edge.x,v=edge.y;
                 if ((u==vr)||(u==i)||(v==vr)||(v==i)) continue;
                 if (u==v) continue;
                 if ((graph.svgVertices[u].coord===undefined)||(graph.svgVertices[v].coord===undefined)) continue;
@@ -578,28 +598,30 @@ function placeVertex (graph, vr, tryPlanner) {
     }
     return true;
 }
-function findMaxDepth (vr, father, dep, adjList) {
+function findMaxDepth (vr, father, dep, adjList, edgeList) {
     let max=dep;
-    for (let child of adjList[vr]) {
+    for (let ind of adjList[vr]) {
+        let child=edgeList[ind].findEndPoint(vr);
         if (child!=father) {
-            let value=findMaxDepth(child,vr,dep+1,adjList);
+            let value=findMaxDepth(child,vr,dep+1,adjList,edgeList);
             if (max<value) max=value;
         }
     }
     return max;
 }
-function fillVersDepth (vr, father, dep, maxDepth, adjList, versDepth) {
+function fillVersDepth (vr, father, dep, maxDepth, adjList, edgeList, versDepth) {
     versDepth[dep].push(vr);
 	let flagChildren=false;
     if (vr!=-1) {
-        for (let child of adjList[vr]) {
+        for (let ind of adjList[vr]) {
+            let child=edgeList[ind].findEndPoint(vr);
             if (child!==father) {
 				flagChildren=true;
-				fillVersDepth(child,vr,dep+1,maxDepth,adjList,versDepth);
+				fillVersDepth(child,vr,dep+1,maxDepth,adjList,edgeList,versDepth);
             }
         }
     }
-    if ((flagChildren===false)&&(dep<maxDepth)) fillVersDepth(-1,-2,dep+1,maxDepth,adjList,versDepth);
+    if ((flagChildren===false)&&(dep<maxDepth)) fillVersDepth(-1,-2,dep+1,maxDepth,adjList,edgeList,versDepth);
 }
 function calcPositions (graph, time = 1) {
     let maxTimes=parseInt(10000/graph.n);
@@ -642,7 +664,7 @@ function calcPositions (graph, time = 1) {
         }
         if (graph.isOriented===true) {
             for (let i=0; i<graph.edgeList.length; i++) {
-                let v=graph.edgeList[i][1];
+                let v=graph.edgeList[i].y;
                 inDegree[v]++;
             }
             for (let i=0; i<graph.n; i++) {
@@ -652,8 +674,8 @@ function calcPositions (graph, time = 1) {
                 }
             }
         }
-        let maxDepth=findMaxDepth(root,-1,0,graph.adjList);
-        fillVersDepth(root,-1,0,maxDepth,graph.adjList,versDepth);
+        let maxDepth=findMaxDepth(root,-1,0,graph.adjList,graph.edgeList);
+        fillVersDepth(root,-1,0,maxDepth,graph.adjList,graph.edgeList,versDepth);
 
         let x,y=(2*graph.vertexRad+distVertices)*maxDepth,distX;
         x=0; distX=(graph.frameW-2*graph.vertexRad-1)/(versDepth[maxDepth].length-1);

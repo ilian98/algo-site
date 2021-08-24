@@ -83,7 +83,9 @@
                 if ($(name).is(":hidden")===true) {
                     sessionStorage.setItem(page+name,1);
                     $(name).show();
+                    if ((beginning===false)&&(typeof initExamples==="function")) initExamples(ind+1);
                 }
+                if ((beginning===true)&&(typeof initExamples==="function")) initExamples(ind+1);
                 if (parts[parts.length-1]!==ind+1) $(btn).prop("id","");
             }
             else {
@@ -92,14 +94,13 @@
                 sessionStorage.setItem(page+name,0);
                 $(name).hide();
             }
+            let part=ind+1;
             $(btn).off("click").on("click",function () {
                 $(btn).children(".anchor")[0].click();
             });
             
-            if ((beginning===true)&&(typeof initExamples==="function")) initExamples(ind+1);
             ind++;
         }
-        if (beginning===true) toggleParts();
     }
     function toggleInfos () {
         let info=$(".info");
@@ -234,6 +235,11 @@ function isSmallLatinLetter (event) {
 
 
 function initExamples (part = 1) {
+    let ordinals=["","first","second","third","fourth"];
+    let name="#"+ordinals[part]+"Part";
+    if ($(name).hasClass("inited")===true) return ;
+    $(name).addClass("inited");
+        
     let page=get_page();
     if (page=="introduction_to_graphs.html") {
         if (part>=2) initExample(part);
