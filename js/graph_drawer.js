@@ -48,7 +48,7 @@ function trackMouse (event) {
         let end=[graph.svgPoint.x, graph.svgPoint.y];
         let vertexRad=graph.vertexRad;
         graph.vertexRad=vertexRad/3;
-        graph.currEdgeDraw=drawEdge(st,end,graph,vertexRad/20*1.5,[0,0]);
+        graph.currEdgeDraw=graph.drawEdge(st,end,-1,vertexRad/20*1.5,[0,0]).line;
         graph.vertexRad=vertexRad;
         graph.currEdgeDraw.prependTo(graph.s);
     }
@@ -57,6 +57,12 @@ function clearDrawParameters (graph) {
     graph.flagDraw=0;
     if (graph.currEdgeDraw!==undefined) graph.currEdgeDraw.remove();
     $(window).off("mousemove.line-out").off("touchmove.line-out");
+}
+function checkInteger (s) {
+    for (let c of s) {
+        if ((c<'0')||(c>'9')) return false;
+    }
+    return true;
 }
 function edgeDrawEnd (event) {
     let graph=this;
@@ -76,15 +82,22 @@ function edgeDrawEnd (event) {
                     (graph.adjMatrix[graph.stVerDraw][i]+graph.adjMatrix[i][graph.stVerDraw]==5)) return ;
             }
             
+            let weight="";
+            if (graph.isWeighted===true) {
+                weight=window.prompt("Въведете тегло на реброто","1");
+                if (checkInteger(weight.toString())===false) return ;
+                weight=parseInt(weight);
+                if (weight===0) return ;
+            }
             let len=graph.edgeList.length;
-            graph.edgeList.push(new Edge(graph.stVerDraw,i));
+            graph.edgeList.push(new Edge(graph.stVerDraw,i,weight));
             graph.adjList[graph.stVerDraw].push(graph.edgeList.length-1);
             if (graph.isOriented===false) graph.adjList[i].push(graph.edgeList.length-1);
             graph.adjMatrix[graph.stVerDraw][i]++;
             if (graph.isOriented===false) graph.adjMatrix[i][graph.stVerDraw]++;
             for (let j=0; j<graph.n; j++) {
                 if ((j==graph.stVerDraw)||(j==i)) continue;
-                if (circleSegment(graph.svgVertices[graph.stVerDraw].coord,graph.svgVertices[i].coord,graph.svgVertices[j].coord,graph.vertexRad,graph.isMulti)===true) {
+                if (circleSegment(graph.svgVertices[graph.stVerDraw].coord,graph.svgVertices[i].coord,graph.svgVertices[j].coord,graph.vertexRad,graph.isMulti,graph.isWeighted)===true) {
                     let oldCoords=graph.svgVertices[i].coord;
                     graph.svgVertices[i].coord=undefined;
                     calculatePossiblePos(graph);
@@ -130,6 +143,9 @@ function findPoints (x1, y1, x2, y2, d) {
     let r=Math.sqrt(((x1-x2)*(x1-x2)+(y1-y2)*(y1-y2))/4+d*d);
     return circlesIntersection(x1,y1,r,x2,y2,r);
 }
+function linePath (st, end) {
+    return "M"+st[0]+","+st[1]+" "+end[0]+","+end[1];
+}
 function bezierPath (st, end, q) {
     return "M"+st[0]+","+st[1]+" Q"+q[0]+","+q[1]+" "+end[0]+","+end[1];
 }
@@ -145,48 +161,12 @@ function loopPath (x, y, vertexRad, r) {
     let p1=points[0],p2=points[1];
     return "M"+p1[0]+" "+p1[1]+" A"+[r,r,0,1,1,p2[0],p2[1]].join(" ");
 }
-function drawEdge (st, end, graph, strokeWidth, properties) {
-    let edgeLen=Math.sqrt((st[0]-end[0])*(st[0]-end[0])+(st[1]-end[1])*(st[1]-end[1]));
-    let isLoop=(edgeLen<graph.vertexRad)?true:false;
-    let edge;
-    let arrowDist=0;
-    if (graph.isOriented===true) arrowDist=1.5;
-    if (properties[0]===0) {
-        let quotient=(edgeLen-graph.vertexRad-arrowDist)/edgeLen;
-        end[0]=st[0]+quotient*(end[0]-st[0]);
-        end[1]=st[1]+quotient*(end[1]-st[1]);
-        edge=graph.s.path("M"+st[0]+","+st[1]+" "+end[0]+","+end[1]);
-    }
-    else {
-        if (isLoop===true) { /// loop
-            edge=graph.s.path(loopPath(st[0],st[1]-graph.vertexRad,graph.vertexRad,properties[0]));
-        }
-        else { /// multiedge
-            let bezierPoint=findPoints(st[0],st[1],end[0],end[1],properties[0])[properties[1]];
-            //graph.s.path(bezierPath(st,end,bezierPoint)).attr({fill: "none", stroke: "red"});
-            let p1=Snap.path.intersection(bezierPath(st,end,bezierPoint),circlePath(st[0],st[1],graph.vertexRad))[0];
-            let p2=Snap.path.intersection(bezierPath(st,end,bezierPoint),circlePath(end[0],end[1],graph.vertexRad+arrowDist))[0];
-
-            let quotient=(graph.vertexRad+1)/edgeLen;
-            let edgeCircle=[st[0]+quotient*(end[0]-st[0]),st[1]+quotient*(end[1]-st[1])];
-            let dist=Math.sqrt((edgeCircle[0]-p1.x)*(edgeCircle[0]-p1.x)+(edgeCircle[1]-p1.y)*(edgeCircle[1]-p1.y));
-            bezierPoint=findPoints(st[0],st[1],end[0],end[1],properties[0]-dist)[properties[1]];
-            edge=graph.s.path(bezierPath([p1.x,p1.y],[p2.x,p2.y],bezierPoint));
-        }
-    }
-    
-    edge.attr({fill: "none", stroke: "black", "stroke-width": strokeWidth});
-    if (graph.isOriented==true) {
-        let unit=(isLoop===true)?3:5;
-        let arrowEnd=[3*unit/2,unit/2];
-        let arrowHeight=unit;
-        let arrow=graph.s.polygon([0,0,arrowEnd[0],arrowEnd[1],0,arrowHeight,0,0]).attr({fill: "black"});
-        edge.marker=arrow;
-        let marker=arrow.marker(0,0,arrowEnd[0],arrowHeight,arrowEnd[0]-arrowDist,arrowEnd[1]);
-        edge.attr({"marker-end": marker});
-    }
-    return edge;
+function sortPoints (p1, p2) {
+    if (p1[0]<p2[0]) return [p1,p2];
+    else if ((p1[0]==p2[0])&&(p1[1]>p2[1])) return [p1,p2];
+    else return [p2,p1];
 }
+
 function determineDy (text) {
     var largeLetters=['b','d','f','h','k','l','t','б','в','й','','ж','з','и','к'];
     var lowLetters=['g','j','p','q','y','р','y','ц','щ'];
@@ -229,12 +209,17 @@ function Edge (x, y, weight = "") {
     }
 }
 
+function SvgEdge () {
+    this.line=undefined;
+    this.weight=undefined;
+}
+
 function Graph () {
     this.svgName=undefined; this.s=undefined; this.flagSave=undefined;
-    this.svgVertices=undefined; this.edgeLines=undefined;
+    this.svgVertices=undefined; this.svgEdges=undefined;
     this.n=undefined; this.vertices=undefined;
     this.edgeList=undefined; this.adjList=undefined; this.adjMatrix=undefined;
-    this.isOriented=undefined; this.isMulti=undefined; this.isTree=undefined;
+    this.isOriented=undefined; this.isMulti=undefined; this.isWeighted=undefined; this.isTree=undefined;
     this.graphChange=undefined; // function to be called after changing the graph, for exampe adding new edge
     this.frameX=undefined; this.frameY=undefined; this.frameW=undefined; this.frameH=undefined; this.vertexRad=20;
     this.init = function (svgName, n, isOriented, flagSave, isTree, graphChange = () => {}) {
@@ -246,7 +231,7 @@ function Graph () {
             element.stop();
             element.remove();
         });
-        this.svgVertices=[]; this.edgeLines=[];
+        this.svgVertices=[]; this.svgEdges=[];
         
 		if (n!==undefined) this.n=n;
         this.initVertices(this.n);
@@ -263,7 +248,7 @@ function Graph () {
 		}
         
         if (isOriented!==undefined) this.isOriented=isOriented;
-        this.isMulti=false;
+        this.isMulti=false; this.isWeighted=false;
         if (isTree!==undefined) this.isTree=isTree;
         else this.isTree=false;
         if (flagSave!==undefined) {
@@ -287,7 +272,10 @@ function Graph () {
         let edgeList=this.edgeList=[];
         for (let edge of edges) {
             if (edge.length==2) edgeList.push(new Edge(edge[0],edge[1]));
-            else edgeList.push(new Edge(edge[0],edge[1],edge[2]));
+            else {
+                edgeList.push(new Edge(edge[0],edge[1],edge[2]));
+                this.isWeighted=true;
+            }
         }
         let max=0;
         for (let edge of edgeList) {
@@ -388,6 +376,89 @@ function Graph () {
 		this.draw(addDrawableEdges);
 	}
     
+    this.drawEdge = function (st, end, edgeInd, strokeWidth, properties) {
+        let edgeLen=Math.sqrt((st[0]-end[0])*(st[0]-end[0])+(st[1]-end[1])*(st[1]-end[1]));
+        let isLoop=(edgeLen<this.vertexRad)?true:false;
+        let edge = new SvgEdge();
+        let arrowDist=0;
+        if (this.isOriented===true) arrowDist=1.5;
+        let pathForWeight;
+        if (properties[0]===0) {
+            let quotient=(edgeLen-this.vertexRad-arrowDist)/edgeLen;
+            let diff=[end[0]-st[0],end[1]-st[1]];
+            end[0]=st[0]+quotient*diff[0];
+            end[1]=st[1]+quotient*diff[1];
+            quotient=this.vertexRad/edgeLen;
+            st[0]+=quotient*diff[0];
+            st[1]+=quotient*diff[1];
+            edge.line=this.s.path(linePath(st,end));
+            
+            let points=sortPoints(st,end);
+            pathForWeight=linePath(points[0],points[1]);
+        }
+        else {
+            if (isLoop===true) { /// loop
+                edge.line=this.s.path(loopPath(st[0],st[1]-this.vertexRad,this.vertexRad,properties[0]));
+                pathForWeight=edge.line.attr("d");
+            }
+            else { /// multiedge
+                let bezierPoint=findPoints(st[0],st[1],end[0],end[1],properties[0])[properties[1]];
+                let p1=Snap.path.intersection(bezierPath(st,end,bezierPoint),circlePath(st[0],st[1],this.vertexRad))[0];
+                let p2=Snap.path.intersection(bezierPath(st,end,bezierPoint),circlePath(end[0],end[1],this.vertexRad+arrowDist))[0];
+
+                let quotient=(this.vertexRad+1)/edgeLen;
+                let edgeCircle=[st[0]+quotient*(end[0]-st[0]),st[1]+quotient*(end[1]-st[1])];
+                let dist=Math.sqrt((edgeCircle[0]-p1.x)*(edgeCircle[0]-p1.x)+(edgeCircle[1]-p1.y)*(edgeCircle[1]-p1.y));
+                bezierPoint=findPoints(st[0],st[1],end[0],end[1],properties[0]-dist)[properties[1]];
+                edge.line=this.s.path(bezierPath([p1.x,p1.y],[p2.x,p2.y],bezierPoint));
+                
+                let points=sortPoints([p1.x,p1.y],[p2.x,p2.y]);
+                pathForWeight=bezierPath(points[0],points[1],bezierPoint);
+            }
+        }
+
+        edge.line.attr({fill: "none", stroke: "black", "stroke-width": strokeWidth});
+        if (this.isOriented==true) {
+            let unit=(isLoop===true)?3:5;
+            let arrowEnd=[3*unit/2,unit/2];
+            let arrowHeight=unit;
+            let arrow=this.s.polygon([0,0,arrowEnd[0],arrowEnd[1],0,arrowHeight,0,0]).attr({fill: "black"});
+            edge.line.marker=arrow;
+            let marker=arrow.marker(0,0,arrowEnd[0],arrowHeight,arrowEnd[0]-arrowDist,arrowEnd[1]);
+            edge.line.attr({"marker-end": marker});
+        }
+        
+        if ((edgeInd!==-1)&&(this.edgeList[edgeInd].weight!=="")) {
+            let sign=+1;
+            if (properties[1]===1) sign=-1;
+            if ((isLoop===false)&&(st[0]===end[0])) {
+                if (properties[0]!==0) console.log(properties[1]);
+                let middle=edge.line.getPointAtLength(this.s.path(pathForWeight).getTotalLength()/2);
+                edge.weight=this.s.text(middle.x,middle.y,this.edgeList[edgeInd].weight.toString());
+                edge.weight.attr({x: (middle.x-sign*edge.weight.getBBox().width/2)});
+            }
+            else edge.weight=this.s.text(0,0,this.edgeList[edgeInd].weight.toString());
+            edge.weight.attr({
+                "font-size": this.vertexRad,
+                "font-family": "Arial",
+                "text-anchor": "middle",
+                class: "unselectable"
+            });
+            if ((isLoop===false)&&(st[0]===end[0])) 
+                edge.weight.attr({
+                    dx: ((properties[0]===0)?-5:-7)*sign,
+                    dy: determineDy(this.edgeList[edgeInd].weight.toString())
+                });
+            else {
+                if ((isLoop==false)&&(properties[1]===1)) edge.weight.attr({dy: edge.weight.getBBox().height/2+14});
+                else edge.weight.attr({dy: (isLoop===false)?-7*sign:(-3*sign)});
+                edge.weight.attr({textpath: pathForWeight});
+                edge.weight.textPath.attr({"startOffset": "50%"});
+            }
+        }
+        return edge;
+    }
+    
     this.drawVertexText = function (i, text) {
         let x=this.svgVertices[i].coord[0]+this.vertexRad;
         let y=this.svgVertices[i].coord[1]+this.vertexRad;
@@ -404,8 +475,36 @@ function Graph () {
         this.svgVertices[i].group=this.s.group(this.svgVertices[i].circle,this.svgVertices[i].text);
     }
 
+    this.centerGraph = function () {
+        let minX=this.frameX+this.frameW,maxX=0;
+        let minY=this.frameY+this.frameH,maxY=0;
+        for (let i=0; i<this.n; i++) {
+            if (this.vertices[i].name===undefined) {
+                this.svgVertices[i].circle=this.svgVertices[i].text=undefined;
+                continue;
+            }
+            let x=this.svgVertices[i].coord[0],y=this.svgVertices[i].coord[1];
+            if (minX>x) minX=x;
+            if (maxX<x) maxX=x;
+            if (minY>y) minY=y;
+            if (maxY<y) maxY=y;
+        }
+        let lenX=maxX-minX,lenY=maxY-minY;
+        let addX=(this.frameW-2*this.vertexRad-this.frameX-lenX)/2+this.frameX-minX;
+        let addY=(this.frameH-2*this.vertexRad-this.frameY-lenY)/2+this.frameY-minY;
+        for (let i=0; i<this.n; i++) {
+            if (this.vertices[i].name===undefined) {
+                this.svgVertices[i].circle=this.svgVertices[i].text=undefined;
+                continue;
+            }
+            this.svgVertices[i].coord[0]+=addX;
+            this.svgVertices[i].coord[1]+=addY;
+        }
+    }
+    
     this.draw = function (addDrawableEdges) { /// this functions expects that coordinates are already calculated
         this.erase();
+        if (addDrawableEdges===false) this.centerGraph();
         
         let fontSize=this.vertexRad*5/4,strokeWidth=this.vertexRad/20*1.5;
         let edgeMapCnt = new Map(), edgeMapCurr = new Map();
@@ -438,8 +537,8 @@ function Graph () {
             let from=this.svgVertices[x].coord,to=this.svgVertices[y].coord;
             let st=[from[0]+this.vertexRad, from[1]+this.vertexRad];
             let end=[to[0]+this.vertexRad, to[1]+this.vertexRad];
-            if (x!==y) this.edgeLines[i]=drawEdge(st,end,this,strokeWidth,multiEdges[edgeMapCnt.get(code)][val++]);
-            else this.edgeLines[i]=drawEdge(st,end,this,strokeWidth,loopEdges[edgeMapCnt.get(code)][val++]);
+            if (x!==y) this.svgEdges[i]=this.drawEdge(st,end,i,strokeWidth,multiEdges[edgeMapCnt.get(code)][val++]);
+            else this.svgEdges[i]=this.drawEdge(st,end,i,strokeWidth,loopEdges[edgeMapCnt.get(code)][val++]);
             edgeMapCurr.set(code,val);
             i++;
         }
@@ -505,7 +604,7 @@ function orientation (p1, p2, p3) {
     if (area>0) return +1;
     return 0;
 }
-function circleSegment (segPoint1, segPoint2, center, vertexRad, isMulti) {
+function circleSegment (segPoint1, segPoint2, center, vertexRad, isMulti, isWeighted) {
     let area,height,sides=[];    
     area=Math.abs(orientedArea(segPoint1[0],segPoint1[1],segPoint2[0],segPoint2[1],center[0],center[1]))/2;
     sides[0]=Math.sqrt(Math.pow(segPoint1[0]-segPoint2[0],2)+Math.pow(segPoint1[1]-segPoint2[1],2));
@@ -513,8 +612,8 @@ function circleSegment (segPoint1, segPoint2, center, vertexRad, isMulti) {
     sides[2]=Math.sqrt(Math.pow(segPoint2[0]-center[0],2)+Math.pow(segPoint2[1]-center[1],2));
     if ((sides[0]*sides[0]+sides[2]*sides[2]-sides[1]*sides[1]>0)&&(sides[0]*sides[0]+sides[1]*sides[1]-sides[2]*sides[2]>0)) {
         height=area*2/sides[0];
-        if ((isMulti===true)&&(height<=2.1*vertexRad)) return true;
-        if ((isMulti===false)&&(height<=1.5*vertexRad)) return true;
+        if (((isMulti===true)||(isWeighted===true))&&(height<=2.1*vertexRad)) return true;
+        if (((isMulti===false)&&(isWeighted===false))&&(height<=1.5*vertexRad)) return true;
     }
     return false;
 }
@@ -524,7 +623,7 @@ function checkVertex (graph, vr, tryPlanner) {
             ((graph.adjMatrix[vr][i]==0)&&(graph.adjMatrix[i][vr]==0))) continue;
         for (let j=0; j<graph.n; j++) {
             if ((j==vr)||(j==i)||(graph.svgVertices[j].coord===undefined)) continue;
-            if (circleSegment(graph.svgVertices[vr].coord,graph.svgVertices[i].coord,graph.svgVertices[j].coord,graph.vertexRad,graph.isMulti)==true) return false;
+            if (circleSegment(graph.svgVertices[vr].coord,graph.svgVertices[i].coord,graph.svgVertices[j].coord,graph.vertexRad,graph.isMulti,graph.isWeighted)==true) return false;
         }
     }
     if (tryPlanner===true) {
@@ -560,7 +659,7 @@ function calculatePossiblePos (graph) {
             for (let j=0; j<graph.n; j++) {
                 if ((j==i)||(graph.svgVertices[j].coord===undefined)||
                     ((graph.adjMatrix[i][j]==0)&&(graph.adjMatrix[j][i]==0))) continue;
-                if (circleSegment(graph.svgVertices[i].coord,graph.svgVertices[j].coord,pos,graph.vertexRad,graph.isMulti)==true) {
+                if (circleSegment(graph.svgVertices[i].coord,graph.svgVertices[j].coord,pos,graph.vertexRad,graph.isMulti,graph.isWeighted)==true) {
                     flag=false;
                     break;
                 }
@@ -589,7 +688,7 @@ function placeVertex (graph, vr, tryPlanner) {
                 ((graph.adjMatrix[vr][v]==0)&&(graph.adjMatrix[v][vr]==0))) continue;
             for (let i=0; i<graph.possiblePos.length; i++) {
                 let pos=graph.possiblePos[i];
-                if (circleSegment(graph.svgVertices[vr].coord,graph.svgVertices[v].coord,pos,graph.vertexRad,graph.isMulti)==true) {
+                if (circleSegment(graph.svgVertices[vr].coord,graph.svgVertices[v].coord,pos,graph.vertexRad,graph.isMulti,graph.isWeighted)==true) {
                     graph.possiblePos.splice(i,1); i--;
                 }
             }
@@ -634,6 +733,7 @@ function calcPositions (graph, time = 1) {
     if ((time<=maxTimes/2)&&((graph.n<=2)||((graph.n>=3)&&(graph.edgeList.length<=3*graph.n-6)))) tryPlanner=true;
     
     let distVertices=graph.vertexRad*5/4+parseInt((Math.random())*graph.vertexRad/4);
+    if (graph.isWeighted===true) distVertices*=2;
     if (graph.isTree===false) {
         graph.originalPos=[];
         for (let i=0; i<=(graph.frameW-2*graph.vertexRad)/(2*graph.vertexRad+distVertices); i++) {

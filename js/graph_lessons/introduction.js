@@ -5,7 +5,8 @@ function displayDegree (graph) {
     for (let i=0; i<graph.n; i++) {
         tableText+='<tr><td>'+(i+1)+'</td>';
         let deg=0;
-        for (let u of graph.adjList[i]) {
+        for (let ind of graph.adjList[i]) {
+            let u=graph.edgeList[ind].findEndPoint(i);
             if (u==i) deg+=2;
             else deg++;
         }
@@ -14,7 +15,7 @@ function displayDegree (graph) {
     tableText+='</tbody>';
     table.html(tableText);
 }
-function BFS (n, beg, end, adjList, removedEdge) {
+function BFS (n, beg, end, adjList, edgeList, removedEdge) {
     let [x,y]=removedEdge;
     let prev=new Array(n),used=new Array(n);
     let bfs=[];
@@ -22,7 +23,8 @@ function BFS (n, beg, end, adjList, removedEdge) {
     while (bfs.length>0) {
         let curr=bfs.shift();
         if (curr===end) break;
-        for (let v of adjList[curr]) {
+        for (let ind of adjList[curr]) {
+            let v=edgeList[ind].findEndPoint(curr);
             if (used[v]===true) continue;
             if (((curr==x)&&(v==y))||((curr==y)&&(v==x))) continue;
             used[v]=true; prev[v]=curr;
@@ -52,10 +54,11 @@ function findPaths (graph) {
     beg--; end--;
     let paths=$(".graphExample5 .paths");
     paths.text("");
-    paths.append("Прост път: "+"\\("+BFS(graph.n,beg,end,graph.adjList,[-1,-1]).join(",")+"\\)<br>");
+    paths.append("Прост път: "+"\\("+BFS(graph.n,beg,end,graph.adjList,graph.edgeList,[-1,-1]).join(",")+"\\)<br>");
     let minPath=[];
-    for (let v of graph.adjList[beg]) {
-        let path=BFS(graph.n,beg,v,graph.adjList,[beg,v]);
+    for (let ind of graph.adjList[beg]) {
+        let v=graph.edgeList[ind].findEndPoint(beg);
+        let path=BFS(graph.n,beg,v,graph.adjList,graph.edgeList,[beg,v]);
         if (path.length===0) continue;
         if ((minPath.length===0)||(minPath.length>path.length)) minPath=path;
     }
@@ -98,7 +101,6 @@ function initExample (part) {
         let example6 = new Graph ();
         example6.init(".graphExample6",5,false);
         example6.buildEdgeDataStructures([[0,1,1],[0,2,2],[0,3,3],[1,4,1],[2,4,2]]);
-        example6.drawNewGraph(1,1,299,299,25,false);
-        console.log(example6.edgeList);
+        example6.drawNewGraph(1,1,299,299,25,true);
     }
 }
