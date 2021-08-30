@@ -14,7 +14,7 @@
         $(window).off("touchstart.mobile");
     });
         
-    function setHeights () { console.log("tuk");
+    function setHeights () {
         let min_height=$("body").outerHeight();
         if ($(".navbar").length) min_height-=$(".navbar").outerHeight();
         if ($("nav.unselectable").length) min_height-=$("nav.unselectable").outerHeight();
@@ -28,7 +28,7 @@
     function pageSetup () {
         setHeights();
         $(window).resize(setHeights);
-        $(window).on("orientationchange",function() { console.log("tuk2"); setHeights});
+        $(window).on("orientationchange",setHeights);
         let scrollTop=sessionStorage.getItem(get_page()+"scrollTop");
         let wrapper=$(".wrapper");
         if (home_page===true) wrapper=$(".content");
