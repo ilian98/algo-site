@@ -218,8 +218,8 @@ function showSCC () {
     for (i=0; i<graph.edgeList.length; i++) {
         var from=graph.edgeList[i].x,to=graph.edgeList[i].y;
         if (graph.svgVertices[from].circle.attr("fill")==graph.svgVertices[to].circle.attr("fill")) {
-            graph.edgeLines[i].attr({stroke: graph.svgVertices[from].circle.attr("fill")});
-            graph.edgeLines[i].marker.attr({fill: graph.svgVertices[from].circle.attr("fill")});
+            graph.svgEdges[i].line.attr({stroke: graph.svgVertices[from].circle.attr("fill")});
+            graph.svgEdges[i].line.marker.attr({fill: graph.svgVertices[from].circle.attr("fill")});
         }
     }
     

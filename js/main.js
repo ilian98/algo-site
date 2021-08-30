@@ -29,8 +29,10 @@
         setHeights();
         $(window).resize(setHeights);
         let scrollTop=sessionStorage.getItem(get_page()+"scrollTop");
-        if (home_page===true) $(".content").scrollTop(scrollTop);
-        else $(".wrapper").scrollTop(scrollTop);
+        let wrapper=$(".wrapper");
+        if (home_page===true) wrapper=$(".content");
+        wrapper.scrollTop(scrollTop);
+        wrapper.focus();
     }
     
     function getParts (s) {

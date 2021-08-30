@@ -23,7 +23,7 @@ function edgeAnimation (graph, vr1, vr2) {
                 reverse=true;
                 ind=graph.edgeList.findIndex(function (e) { return ((e.x==vr2)&&(e.y==vr1)); });
             }
-            let lineDraw=graph.s.path(graph.edgeLines[ind].attr("d"));
+            let lineDraw=graph.s.path(graph.svgEdges[ind].line.attr("d"));
             let pathLength=lineDraw.getTotalLength();
             lineDraw.attr({fill: "none", stroke: "red", "stroke-width": graph.vertexRad/20*4});
             lineDraw.attr({"stroke-dasharray": pathLength, "stroke-dashoffset": pathLength});

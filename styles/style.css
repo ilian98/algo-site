@@ -41,11 +41,14 @@ body {
 .wrapper {
     overflow-y: auto;
     width: 100%;
+    outline: none;
 }
 .content {
+    overflow-y: auto;
     padding-left: 5%;
     padding-right: 5%;
     width: 100%;
+    outline: none;
 }
 .bg-navbar-color {
     background-color: lightgreen;
