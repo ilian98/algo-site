@@ -107,7 +107,7 @@ function defaultExample (name, graph, animationObj, isOriented, vertexRad) {
         return animations;
     },function (flag) {
         graph.s.selectAll("*").remove();
-        graph.draw(flag);
+        graph.draw(false);
     });
     
     let slider=document.querySelector(name+" .range");
@@ -127,6 +127,7 @@ function defaultExample (name, graph, animationObj, isOriented, vertexRad) {
         }
         else {
             $(name+" .default").show();
+            graph.draw(true);
         }
     });
 }
