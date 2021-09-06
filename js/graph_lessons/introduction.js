@@ -66,8 +66,28 @@ function findPaths (graph) {
     else paths.append("Прост цикъл: "+"\\("+minPath.join(",")+","+(beg+1)+"\\)<br>");
     if (typeof MathJax!=="undefined") MathJax.typeset([".graphExample5 .paths"]);
 }
+function displayMatrix (graph) {
+    let table=$(".matrix");
+    let tableText="";
+    tableText+='<thead><tr style="background-color: grey"><th>\\(A\\)</th>';
+    for (let i=1; i<=graph.n; i++) {
+        tableText+='<th>\\('+i+'\\)</th>';
+    }
+    tableText+='</thead><tbody>';
+    for (let i=0; i<graph.n; i++) {
+        tableText+='<tr><td style="background-color: grey">\\('+(i+1)+'\\)</td>';
+        for (let j=0; j<graph.n; j++) {
+            tableText+='<td>'+graph.adjMatrix[i][j]+'</td>';
+        }
+        tableText+='</tr>';
+    }
+    tableText+='</tbody>';
+    table.html(tableText);
+    if (typeof MathJax!=="undefined") MathJax.typeset([".matrix"]);
+}
+
 function initExample (part) {
-    if (part==2) {
+    if (part===2) {
         let example1 = new Graph ();
         example1.init(".graphExample1",6,true);
         example1.buildEdgeDataStructures([[0,1],[0,2],[0,3],[1,4],[2,4]]);
@@ -102,5 +122,13 @@ function initExample (part) {
         example6.init(".graphExample6",5,false);
         example6.buildEdgeDataStructures([[0,1,1],[0,2,2],[0,3,3],[1,4,1],[2,4,2]]);
         example6.drawNewGraph(1,1,299,299,25,true);
+    }
+    else if (part===3) {
+        let example7 = new Graph ();
+        example7.init(".graphExample7",5,false,false,false,displayMatrix.bind(this,example7));
+        example7.isMulti=true;
+        example7.buildEdgeDataStructures([[0,0],[1,2],[1,3],[1,4],[2,3]]);
+        example7.drawNewGraph(1,22,299,279,20,true);
+        displayMatrix(example7);
     }
 }

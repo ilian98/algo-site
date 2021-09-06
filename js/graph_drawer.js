@@ -403,7 +403,7 @@ function Graph () {
         let isLoop=(edgeLen<this.vertexRad)?true:false;
         let edge = new SvgEdge();
         let arrowDist=0;
-        if (this.isOriented===true) arrowDist=1.5;
+        if (this.isOriented===true) arrowDist=this.vertexRad*3/50;
         let pathForWeight;
         if (properties===0) {
             let quotient=(edgeLen-this.vertexRad-arrowDist)/edgeLen;
@@ -436,7 +436,7 @@ function Graph () {
                     circlePath(fin[0],fin[1],(fin===st)?this.vertexRad:(this.vertexRad+arrowDist))
                 )[0];
                 
-                let quotient=(this.vertexRad+1)/edgeLen;
+                let quotient=this.vertexRad/edgeLen;
                 let edgeCircle=[st[0]+quotient*(end[0]-st[0]),st[1]+quotient*(end[1]-st[1])];
                 let dist;
                 if (beg===st) dist=segmentLength(edgeCircle[0],edgeCircle[1],p1.x,p1.y);
@@ -463,14 +463,11 @@ function Graph () {
         }
         
         if ((edgeInd!==-1)&&(this.edgeList[edgeInd].weight!=="")) {
-            let sign=+1;
-            if ((isLoop===false)&&(properties>0)) sign=-1;
             if ((isLoop===false)&&(st[0]===end[0])) {
                 let middle=edge.line.getPointAtLength(this.s.path(pathForWeight).getTotalLength()/2);
-                edge.weight=this.s.text(middle.x,middle.y,"1");//this.edgeList[edgeInd].weight.toString());
-                edge.weight.attr({x: (middle.x-sign*edge.weight.getBBox().width/2)});
+                edge.weight=this.s.text(middle.x,middle.y,this.edgeList[edgeInd].weight.toString());
             }
-            else edge.weight=this.s.text(0,0,"1");//this.edgeList[edgeInd].weight.toString());
+            else edge.weight=this.s.text(0,0,this.edgeList[edgeInd].weight.toString());
             edge.weight.attr({
                 "font-size": this.vertexRad,
                 "font-family": "Arial",
@@ -479,7 +476,7 @@ function Graph () {
             });
             if ((isLoop===false)&&(st[0]===end[0])) 
                 edge.weight.attr({
-                    dx: ((properties===0)?-5:-7)*sign,
+                    dx: (-edge.weight.getBBox().width/2-5)*((properties<=0)?1:-1),
                     dy: determineDy(this.edgeList[edgeInd].weight.toString())
                 });
             else {
@@ -523,8 +520,8 @@ function Graph () {
             if (maxY<y) maxY=y;
         }
         let lenX=maxX-minX,lenY=maxY-minY;
-        let addX=(this.frameW-2*this.vertexRad-this.frameX-lenX)/2+this.frameX-minX;
-        let addY=(this.frameH-2*this.vertexRad-this.frameY-lenY)/2+this.frameY-minY;
+        let addX=(this.frameW-2*this.vertexRad-2*this.frameX-lenX)/2+this.frameX-minX;
+        let addY=(this.frameH-2*this.vertexRad-2*this.frameY-lenY)/2+this.frameY-minY;
         for (let i=0; i<this.n; i++) {
             if (this.vertices[i].name===undefined) {
                 this.svgVertices[i].circle=this.svgVertices[i].text=undefined;
