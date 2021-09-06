@@ -5,14 +5,21 @@
         home_page=true;
     }
     
+    function cssMobile () {
+        $("body").css("overflow-y","auto");
+        $(".pre").css("overflow-x","scroll");
+        $(".pre").css("-webkit-overflow-scrolling","touch");
+    }
     window.isMobile="false";
     if (sessionStorage.getItem("mobile")!==null) window.isMobile=sessionStorage.getItem("mobile");
     else sessionStorage.setItem("mobile","false");
     $(window).on("touchstart.mobile", function () {
         sessionStorage.setItem("mobile","true");
         window.isMobile="true";
+        cssMobile();
         $(window).off("touchstart.mobile");
     });
+    if (window.isMobile==="true") cssMobile();
         
     function setHeights () {
         let min_height=$("body").outerHeight();
@@ -21,9 +28,9 @@
         min_height-=$("footer").outerHeight();
         if (home_page===false) {
             $(".content").css("min-height",min_height);
-            $(".wrapper").css("max-height",min_height+$("footer").outerHeight());
+            if (window.isMobile==="false") $(".wrapper").css("max-height",min_height+$("footer").outerHeight());
         }
-        else $(".content").css("max-height",min_height);
+        else if (window.isMobile==="false") $(".content").css("max-height",min_height);
     }
     function pageSetup () {
         setHeights();
@@ -33,7 +40,7 @@
         let wrapper=$(".wrapper");
         if (home_page===true) wrapper=$(".content");
         wrapper.scrollTop(scrollTop);
-        wrapper.focus();
+        if (window.isMobile==="false") wrapper.focus();
     }
     
     function getParts (s) {
