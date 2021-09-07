@@ -57,6 +57,7 @@ pre {
     max-width: 100%;
 }
 code {
+    word-wrap: normal !important;
     background: #343a40 !important;
 }
 

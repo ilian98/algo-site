@@ -7,8 +7,6 @@
     
     function cssMobile () {
         $("body").css("overflow-y","auto");
-        $(".pre").css("overflow-x","scroll");
-        $(".pre").css("-webkit-overflow-scrolling","touch");
     }
     window.isMobile="false";
     if (sessionStorage.getItem("mobile")!==null) window.isMobile=sessionStorage.getItem("mobile");

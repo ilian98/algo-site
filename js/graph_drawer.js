@@ -77,9 +77,10 @@ function edgeDrawEnd (event) {
             if (graph.stVerDraw===i) return ;
             if ((graph.isMulti===false)&&(graph.adjMatrix[graph.stVerDraw][i]===1)) return ;
             if (graph.isMulti===true) {
-                if ((graph.isOriented===false)&&(graph.adjMatrix[graph.stVerDraw][i]==5)) return ;
+                let maxEdges=(graph.isWeighted===true)?2:5;
+                if ((graph.isOriented===false)&&(graph.adjMatrix[graph.stVerDraw][i]==maxEdges)) return ;
                 if ((graph.isOriented===true)&&
-                    (graph.adjMatrix[graph.stVerDraw][i]+graph.adjMatrix[i][graph.stVerDraw]==5)) return ;
+                    (graph.adjMatrix[graph.stVerDraw][i]+graph.adjMatrix[i][graph.stVerDraw]==maxEdges)) return ;
             }
             
             let weight="";
@@ -464,7 +465,9 @@ function Graph () {
         
         if ((edgeInd!==-1)&&(this.edgeList[edgeInd].weight!=="")) {
             if ((isLoop===false)&&(st[0]===end[0])) {
-                let middle=edge.line.getPointAtLength(this.s.path(pathForWeight).getTotalLength()/2);
+                let tempPath=this.s.path(pathForWeight).attr({fill: "none", stroke: "black", "stroke-width": strokeWidth});
+                let middle=edge.line.getPointAtLength(tempPath.getTotalLength()/2);
+                tempPath.remove();
                 edge.weight=this.s.text(middle.x,middle.y,this.edgeList[edgeInd].weight.toString());
             }
             else edge.weight=this.s.text(0,0,this.edgeList[edgeInd].weight.toString());
@@ -472,7 +475,7 @@ function Graph () {
                 "font-size": this.vertexRad,
                 "font-family": "Arial",
                 "text-anchor": "middle",
-                class: "unselectable"
+                class: "unselectable",
             });
             if ((isLoop===false)&&(st[0]===end[0])) 
                 edge.weight.attr({
@@ -480,7 +483,7 @@ function Graph () {
                     dy: determineDy(this.edgeList[edgeInd].weight.toString())
                 });
             else {
-                if ((isLoop===false)&&(properties<0)) edge.weight.attr({dy: edge.weight.getBBox().height/2+14});
+                if ((isLoop===false)&&(properties<0)) edge.weight.attr({dy: edge.weight.getBBox().height-2});
                 else edge.weight.attr({dy: (isLoop===false)?-7:-3});
                 edge.weight.attr({textpath: pathForWeight});
                 edge.weight.textPath.attr({"startOffset": "50%"});
@@ -642,8 +645,9 @@ function circleSegment (segPoint1, segPoint2, center, vertexRad, isMulti, isWeig
     sides[2]=segmentLength(segPoint2[0],segPoint2[1],center[0],center[1],2);
     if ((sides[0]*sides[0]+sides[2]*sides[2]-sides[1]*sides[1]>0)&&(sides[0]*sides[0]+sides[1]*sides[1]-sides[2]*sides[2]>0)) {
         height=area*2/sides[0];
-        if (((isMulti===true)||(isWeighted===true))&&(height<=2.1*vertexRad)) return true;
-        if (((isMulti===false)&&(isWeighted===false))&&(height<=1.5*vertexRad)) return true;
+        if ((isWeighted===true)&&(height<=3*vertexRad)) return true;
+        else if ((isMulti===true)&&(height<=2*vertexRad)) return true;
+        else if (((isMulti===false)&&(isWeighted===false))&&(height<=1.5*vertexRad)) return true;
     }
     return false;
 }

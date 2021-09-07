@@ -85,6 +85,53 @@ function displayMatrix (graph) {
     table.html(tableText);
     if (typeof MathJax!=="undefined") MathJax.typeset([".matrix"]);
 }
+function displayAdjacencyList (graph) {
+    let table=$(".adjacency-list");
+    let tableText="";
+    tableText+='<thead><tr style="background-color: grey"><th>Връх</th><th>Списък</th>';
+    tableText+='</thead><tbody>';
+    for (let i=0; i<graph.n; i++) {
+        tableText+='<tr><td style="background-color: grey">\\('+(i+1)+'\\)</td><td>';
+        for (let ind of graph.adjList[i]) {
+            let v=graph.edgeList[ind].findEndPoint(i);
+            tableText+='('+(v+1)+', '+graph.edgeList[ind].weight+') ';
+        }
+        tableText+='</td></tr>';
+    }
+    tableText+='</tbody>';
+    table.html(tableText);
+    if (typeof MathJax!=="undefined") MathJax.typeset([".adjacency-list"]);
+}
+function displayEdgeList (graph) {
+    let table=$(".edge-list");
+    let tableText="";
+    tableText='<thead><tr style="background-color: grey"><th>Индекс</th><th>Ребро</th><th>\\(prev\\)</th>';
+    tableText+='</thead><tbody>';
+    let last=new Array(graph.n);
+    for (let i=0; i<graph.n; i++) {
+        last[i]=-1;
+    }
+    for (let i=0; i<graph.edgeList.length; i++) {
+        tableText+='<tr><td style="background-color: grey">\\('+i+'\\)</td>';
+        tableText+='<td>('+(graph.edgeList[i].x+1)+', '+(graph.edgeList[i].y+1)+')</td>';
+        tableText+='<td>'+last[graph.edgeList[i].x]+'</td></tr>';
+        last[graph.edgeList[i].x]=i;
+    }
+    tableText+='</tbody>';
+    table.html(tableText);
+    if (typeof MathJax!=="undefined") MathJax.typeset([".edge-list"]);
+    
+    table=$(".last");
+    tableText='<thead><tr style="background-color: grey"><th>Връх</th><th>\\(last\\)</th>';
+    tableText+='</thead><tbody>';
+    for (let i=0; i<graph.n; i++) {
+        tableText+='<tr><td style="background-color: grey">\\('+(i+1)+'\\)</td>';
+        tableText+='<td>'+last[i]+'</td></tr>';
+    }
+    tableText+='</tbody>';
+    table.html(tableText);
+    if (typeof MathJax!=="undefined") MathJax.typeset([".last"]);
+}
 
 function initExample (part) {
     if (part===2) {
@@ -106,7 +153,7 @@ function initExample (part) {
         let example4 = new Graph ();
         example4.init(".graphExample4",5,false,false,false,displayDegree.bind(this,example4));
         example4.buildEdgeDataStructures([[0,0],[0,0],[1,1],[1,2],[1,3],[2,4],[3,4]]);
-        example4.drawNewGraph(1,22,299,279,20,true);
+        example4.drawNewGraph(1,22,299,278,20,true);
         displayDegree(example4);  
         
         let example5 = new Graph ();
@@ -121,14 +168,26 @@ function initExample (part) {
         let example6 = new Graph ();
         example6.init(".graphExample6",5,false);
         example6.buildEdgeDataStructures([[0,1,1],[0,2,2],[0,3,3],[1,4,1],[2,4,2]]);
-        example6.drawNewGraph(1,1,299,299,25,true);
+        example6.drawNewGraph(11,11,289,289,25,true);
     }
     else if (part===3) {
         let example7 = new Graph ();
         example7.init(".graphExample7",5,false,false,false,displayMatrix.bind(this,example7));
         example7.isMulti=true;
         example7.buildEdgeDataStructures([[0,0],[1,2],[1,3],[1,4],[2,3]]);
-        example7.drawNewGraph(1,22,299,279,20,true);
+        example7.drawNewGraph(1,22,299,278,20,true);
         displayMatrix(example7);
+        
+        let example8 = new Graph ();
+        example8.init(".graphExample8",5,false,false,false,displayAdjacencyList.bind(this,example8));
+        example8.buildEdgeDataStructures([[0,1,8],[0,1,9],[1,2,6],[1,3,7],[2,4,10],[3,4,11]]);
+        example8.drawNewGraph(11,11,289,289,20,true);
+        displayAdjacencyList(example8);
+        
+        let example9 = new Graph ();
+        example9.init(".graphExample9",4,true,false,false,displayEdgeList.bind(this,example9));
+        example9.buildEdgeDataStructures([[0,1],[0,2],[1,2],[1,3],[2,1],[2,3]]);
+        example9.drawNewGraph(1,1,299,299,20,true);
+        displayEdgeList(example9);
     }
 }
