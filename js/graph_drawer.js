@@ -185,25 +185,11 @@ function sortPoints (p1, p2) {
     else return [p2,p1];
 }
 
-function determineDy (text) {
-    var largeLetters=['b','d','f','h','k','l','t','б','в','й','','ж','з','и','к'];
-    var lowLetters=['g','j','p','q','y','р','y','ц','щ'];
-    var flagNonLetter=false,flagLargeLetter=false,flagLowLetter=false,flagSmallLetter=false;
-    for (var i=0; i<text.length; i++) {
-        if (text[i]=='ф') return "0.255em";
-        if (largeLetters.includes(text[i])==true) flagLargeLetter=true;
-        else if (lowLetters.includes(text[i])==true) flagLowLetter=true;
-        if (((text[i]>='a')&&(text[i]<='z'))||((text[i]>='а')&&(text[i]<='я'))) flagSmallLetter=true;
-        else flagNonLetter=true;
-        }
-    if ((flagNonLetter==true)||(flagLargeLetter==true)) {
-        if (flagLowLetter==true) return "0.255em";
-        return "0.34em";
-        }
-    else {
-        if (flagLowLetter==true) return "0.18em";
-        return "0.255em";
-        }
+function determineDy (text, fontFamily, fontSize) {
+    let bBox=window.font[fontFamily].getPath(text,0,0,fontSize).getBoundingBox();
+    let height=bBox.y2-bBox.y1;
+    let underBaseline=bBox.y2;
+    return height/2-underBaseline;
 }
 
 function Vertex () {
@@ -480,7 +466,7 @@ function Graph () {
             if ((isLoop===false)&&(st[0]===end[0])) 
                 edge.weight.attr({
                     dx: (-edge.weight.getBBox().width/2-5)*((properties<=0)?1:-1),
-                    dy: determineDy(this.edgeList[edgeInd].weight.toString())
+                    dy: determineDy(this.edgeList[edgeInd].weight.toString(),"Arial",this.vertexRad)
                 });
             else {
                 if ((isLoop===false)&&(properties<0)) edge.weight.attr({dy: edge.weight.getBBox().height-2});
@@ -501,7 +487,7 @@ function Graph () {
         this.svgVertices[i].text.attr({
             "font-size": this.vertexRad*5/4, 
             "font-family": "Consolas",
-            dy: determineDy(this.vertices[i].name), 
+            dy: determineDy(this.vertices[i].name,"Consolas",this.vertexRad*5/4), 
             "text-anchor": "middle", 
             class: "unselectable"
         });

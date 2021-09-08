@@ -76,7 +76,7 @@
             ind++;
         }
     }
-    function checkLessonParts(beginning) {
+    function checkLessonParts (beginning) {
         let anchor=checkForAnchor();
         if (anchor.startsWith("part")) anchor=anchor.slice(4);
         else if (anchor.length!==0) return ;
@@ -161,7 +161,14 @@
             });
         });
         
-        checkLessonParts(true);
+        opentype.load("/algo-site/fonts/Consolas.woff", (error, font) => {
+            window.font=[];
+            window.font["Consolas"]=font;
+            opentype.load("/algo-site/fonts/Arial.woff", (error, font) => {
+                window.font["Arial"]=font;
+                checkLessonParts(true);
+            });
+        });
     });
     
     $(window).on("beforeunload", function() {

@@ -19,13 +19,24 @@
   font-family: 'Lobster';
   font-style: normal;
   font-weight: 400;
-  src: url('../fonts/lobster-v23-latin-ext_latin_cyrillic-ext_cyrillic-regular.eot'); /* IE9 Compat Modes */
+  src: url('/algo-site/fonts/lobster-v23-latin-ext_latin_cyrillic-ext_cyrillic-regular.eot'); /* IE9 Compat Modes */
   src: local('Lobster Regular'), local('Lobster-Regular'),
-       url('../fonts/lobster-v23-latin-ext_latin_cyrillic-ext_cyrillic-regular.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
-       url('../fonts/lobster-v23-latin-ext_latin_cyrillic-ext_cyrillic-regular.woff2') format('woff2'), /* Super Modern Browsers */
-       url('../fonts/lobster-v23-latin-ext_latin_cyrillic-ext_cyrillic-regular.woff') format('woff'), /* Modern Browsers */
-       url('../fonts/lobster-v23-latin-ext_latin_cyrillic-ext_cyrillic-regular.ttf') format('truetype'), /* Safari, Android, iOS */
-       url('../fonts/lobster-v23-latin-ext_latin_cyrillic-ext_cyrillic-regular.svg#Lobster') format('svg'); /* Legacy iOS */
+       url('/algo-site/fonts/lobster-v23-latin-ext_latin_cyrillic-ext_cyrillic-regular.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
+       url('/algo-site/fonts/lobster-v23-latin-ext_latin_cyrillic-ext_cyrillic-regular.woff2') format('woff2'), /* Super Modern Browsers */
+       url('/algo-site/fonts/lobster-v23-latin-ext_latin_cyrillic-ext_cyrillic-regular.woff') format('woff'), /* Modern Browsers */
+       url('/algo-site/fonts/lobster-v23-latin-ext_latin_cyrillic-ext_cyrillic-regular.ttf') format('truetype'), /* Safari, Android, iOS */
+       url('/algo-site/fonts/lobster-v23-latin-ext_latin_cyrillic-ext_cyrillic-regular.svg#Lobster') format('svg'); /* Legacy iOS */
+}
+@font-face {
+    font-family: 'Consolas';
+    font-style: normal;
+    font-weight: normal;
+    src: url('/algo-site/fonts/Consolas.eot');
+    src: local('Consolas'),
+        url('/algo-site/fonts/Consolas.eot?#iefix') format('embedded-opentype'),
+        url('/algo-site/fonts/Consolas.woff2') format('woff2'),
+        url('/algo-site/fonts/Consolas.woff') format('woff'),
+        url('/algo-site/fonts/Consolas.ttf') format('truetype');
 }
 
 html {
