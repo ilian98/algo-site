@@ -143,13 +143,14 @@ function circlesIntersection (x1, y1, r1, x2, y2, r2) {
 function segmentLength (x1, y1, x2, y2) {
     return Math.sqrt((x1-x2)*(x1-x2)+(y1-y2)*(y1-y2));
 }
-function findBezierPoint (x1, y1, x2, y2, d) {
+function findBezierPoint (x1, y1, x2, y2, x3, y3) {
     let t=[-x1,-y1];
     [x1,y1]=[0,0];
     [x2,y2]=[x2+t[0],y2+t[1]];
+    [x3,y3]=[x3+t[0],y3+t[1]];
     let sin=y2/segmentLength(0,0,x2,y2),cos=-x2/segmentLength(0,0,x2,y2);
     [x2,y2]=[cos*x2-sin*y2,sin*x2+cos*y2];
-    let [x3,y3]=[(x1+x2)/2,d];
+    [x3,y3]=[cos*x3-sin*y3,sin*x3+cos*y3];
     // y=a*x^2+b*x
     let a=(y2*x3-y3*x2)/(x2*x2*x3-x3*x3*x2);
     let b=(y2-a*x2*x2)/x2;
@@ -160,6 +161,10 @@ function findBezierPoint (x1, y1, x2, y2, d) {
     [x,y]=[cos*x+sin*y,-sin*x+cos*y];
     [x,y]=[x-t[0],y-t[1]];
     return [x,y];
+}
+function findPointAtDistance (x1, y1, x2, y2, d) {
+    let r=Math.sqrt(((x1-x2)*(x1-x2)+(y1-y2)*(y1-y2))/4+d*d);
+    return circlesIntersection(x1,y1,r,x2,y2,r)[(d>0)?0:1];
 }
 function linePath (st, end) {
     return "M"+st[0]+","+st[1]+" "+end[0]+","+end[1];
@@ -174,9 +179,12 @@ function circlePath (cx, cy, r) {
     p+="a"+r+","+r+" 0 1,0 "+-(r*2)+",0";
     return p;
 }
-function loopPath (x, y, vertexRad, r) {
+function loopPath (x, y, vertexRad, r, isOriented) {
     let points=circlesIntersection(x,y+vertexRad,vertexRad,x,y-3*r/8,r);
-    let p1=points[0],p2=points[1];
+    let p1=points[0];
+    let p2;
+    if (isOriented===false) p2=points[1];
+    else p2=[x+r,y-3*r/8];
     return "M"+p1[0]+" "+p1[1]+" A"+[r,r,0,1,1,p2[0],p2[1]].join(" ");
 }
 function sortPoints (p1, p2) {
@@ -388,12 +396,24 @@ function Graph () {
     this.drawEdge = function (st, end, edgeInd, strokeWidth, properties) {
         let edgeLen=segmentLength(st[0],st[1],end[0],end[1]);
         let isLoop=(edgeLen<this.vertexRad)?true:false;
-        let edge = new SvgEdge();
+        let edge=new SvgEdge();
+        
+        let arrowHeight;
+        if (isLoop===false) arrowHeight=5*(strokeWidth);
+        else {
+            let x=st[0]+properties,y=(st[1]-this.vertexRad-3*properties/8);
+            arrowHeight=((st[1]-Math.sqrt(this.vertexRad*this.vertexRad-(x-st[0])*(x-st[0])))-y)*2/3;
+            console.log(arrowHeight);
+        }
+        let arrowWidth=3*arrowHeight/2;
         let arrowDist=0;
-        if (this.isOriented===true) arrowDist=this.vertexRad*3/50;
+        if (this.isOriented===true) arrowDist=strokeWidth/arrowHeight*arrowWidth;
+        let endDist=0;
+        if (this.isOriented===true) endDist=strokeWidth/2+arrowDist;
+        
         let pathForWeight;
         if (properties===0) {
-            let quotient=(edgeLen-this.vertexRad-arrowDist)/edgeLen;
+            let quotient=(edgeLen-this.vertexRad-endDist)/edgeLen;
             let diff=[end[0]-st[0],end[1]-st[1]];
             end[0]=st[0]+quotient*diff[0];
             end[1]=st[1]+quotient*diff[1];
@@ -407,29 +427,27 @@ function Graph () {
         }
         else {
             if (isLoop===true) { /// loop
-                edge.line=this.s.path(loopPath(st[0],st[1]-this.vertexRad,this.vertexRad,properties));
-                pathForWeight=edge.line.attr("d");
+                edge.line=this.s.path(loopPath(st[0],st[1]-this.vertexRad,this.vertexRad,properties,this.isOriented));
+                pathForWeight=loopPath(st[0],st[1]-this.vertexRad,this.vertexRad,properties,false);
             }
             else { /// multiedge
                 let [beg,fin]=[st,end];
                 if ((st[1]>end[1])||((st[1]===end[1])&&(st[0]>end[0]))) [beg,fin]=[end,st];
-                let bezierPoint=findBezierPoint(beg[0],beg[1],fin[0],fin[1],properties*((beg[0]<=fin[0])?1:-1));
+                if (beg[0]===fin[0]) properties*=(-1);
+                let sign=(beg[0]<=fin[0])?-1:1;
+                if (beg[1]===fin[1]) sign*=(-1);
+                let middlePoint=findPointAtDistance(beg[0],beg[1],fin[0],fin[1],properties*sign);
+                let bezierPoint=findBezierPoint(beg[0],beg[1],fin[0],fin[1],middlePoint[0],middlePoint[1]);
                 let p1=Snap.path.intersection(
                     bezierPath(beg,fin,bezierPoint),
-                    circlePath(beg[0],beg[1],(beg===st)?this.vertexRad:(this.vertexRad+arrowDist))
+                    circlePath(beg[0],beg[1],((beg===st)?this.vertexRad:(this.vertexRad+endDist)))
                 )[0];
                 let p2=Snap.path.intersection(
                     bezierPath(beg,fin,bezierPoint),
-                    circlePath(fin[0],fin[1],(fin===st)?this.vertexRad:(this.vertexRad+arrowDist))
+                    circlePath(fin[0],fin[1],((fin===st)?this.vertexRad:(this.vertexRad+endDist)))
                 )[0];
                 
-                let quotient=this.vertexRad/edgeLen;
-                let edgeCircle=[st[0]+quotient*(end[0]-st[0]),st[1]+quotient*(end[1]-st[1])];
-                let dist;
-                if (beg===st) dist=segmentLength(edgeCircle[0],edgeCircle[1],p1.x,p1.y);
-                else dist=segmentLength(edgeCircle[0],edgeCircle[1],p2.x,p2.y);
-                if (properties<0) dist*=(-1);
-                bezierPoint=findBezierPoint(p1.x,p1.y,p2.x,p2.y,(properties-dist)*((beg[0]<=fin[0])?1:-1));
+                bezierPoint=findBezierPoint(p1.x,p1.y,p2.x,p2.y,middlePoint[0],middlePoint[1]);
                 if (beg!==st) [p1,p2]=[p2,p1];
                 edge.line=this.s.path(bezierPath([p1.x,p1.y],[p2.x,p2.y],bezierPoint));
                 
@@ -440,12 +458,10 @@ function Graph () {
 
         edge.line.attr({fill: "none", stroke: "black", "stroke-width": strokeWidth});
         if (this.isOriented==true) {
-            let unit=(isLoop===true)?3:5;
-            let arrowEnd=[3*unit/2,unit/2];
-            let arrowHeight=unit;
+            let arrowEnd=[3*arrowHeight/2,arrowHeight/2];
             let arrow=this.s.polygon([0,0,arrowEnd[0],arrowEnd[1],0,arrowHeight,0,0]).attr({fill: "black"});
             edge.line.marker=arrow;
-            let marker=arrow.marker(0,0,arrowEnd[0],arrowHeight,arrowEnd[0]-arrowDist,arrowEnd[1]);
+            let marker=arrow.marker(0,0,arrowEnd[0],arrowHeight,(isLoop===false)?arrowEnd[0]-arrowDist:0,arrowEnd[1]).attr({markerUnits: "userSpaceOnUse"});
             edge.line.attr({"marker-end": marker});
         }
         
@@ -546,8 +562,8 @@ function Graph () {
                           [height, -height, 2*height, -2*height],
                           [height, -height, 2*height, -2*height, 0]];
         let loopEdges = [[],
-                         [this.vertexRad/2],
-                         [this.vertexRad/2, 3*this.vertexRad/4]];
+                         [3*this.vertexRad/4],
+                         [3*this.vertexRad/4, this.vertexRad/2]];
         let i=0;
 		for (let edge of this.edgeList) {
             let x=edge.x,y=edge.y;
@@ -570,7 +586,7 @@ function Graph () {
             let x=this.svgVertices[i].coord[0]+this.vertexRad;
             let y=this.svgVertices[i].coord[1]+this.vertexRad;
             this.svgVertices[i].circle=this.s.circle(x,y,this.vertexRad);
-            this.svgVertices[i].circle.attr({fill: "white", stroke: "black", "stroke-width": strokeWidth})
+            this.svgVertices[i].circle.attr({fill: "white", stroke: "black", "stroke-width": strokeWidth});
             this.drawVertexText(i,this.vertices[i].name);
             if (addDrawableEdges===true) this.svgVertices[i].group.attr({cursor: "pointer"});
         }
