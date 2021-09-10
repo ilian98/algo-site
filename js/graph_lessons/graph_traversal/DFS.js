@@ -117,7 +117,7 @@ function defaultExample (name, graph, animationObj, isOriented, vertexRad) {
     slider.oninput = function() {
         animationObj.clear();
         output.innerHTML=this.value;
-        graph.init(name+" .graph",this.value,isOriented,true);
+        graph.init(name+" .graph",parseInt(this.value),isOriented,true);
         graph.drawNewGraph(1,1,299,299,vertexRad,true);
     }
     

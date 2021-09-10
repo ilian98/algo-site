@@ -168,7 +168,7 @@ function initExample (part) {
         let example6 = new Graph ();
         example6.init(".graphExample6",5,false);
         example6.buildEdgeDataStructures([[0,1,1],[0,2,2],[0,3,3],[1,4,1],[2,4,2]]);
-        example6.drawNewGraph(11,11,289,289,25,true);
+        example6.drawNewGraph(11,11,289,289,23,true);
     }
     else if (part===3) {
         let example7 = new Graph ();
