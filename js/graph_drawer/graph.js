@@ -1,4 +1,4 @@
-'use strict';
+"use strict";
 (function () {
     function circlesIntersection (x1, y1, r1, x2, y2, r2) {
         x2-=x1; y2-=y1;
@@ -121,7 +121,6 @@
         this.edgeList=undefined; this.adjList=undefined; this.adjMatrix=undefined;
         this.isOriented=undefined; this.isMulti=undefined; this.isWeighted=undefined; this.isTree=undefined;
         this.graphChange=undefined; // function to be called after changing the graph, for exampe adding new edge
-        this.frameX=undefined; this.frameY=undefined; this.frameW=undefined; this.frameH=undefined; this.vertexRad=20;
         this.init = function (svgName, n, isOriented, flagSave = false, isTree = false, graphChange = () => {}) {
             if (this.s===undefined) {
                 this.svgName=svgName;
@@ -155,7 +154,7 @@
                 this.flagSave=flagSave;
                 if (flagSave===true) addSaveFunctionality(svgName);
             }
-            this.flagDraw=0;
+            else this.flagSave=false;
 
             this.graphChange=graphChange;
         }
@@ -215,6 +214,7 @@
             this.s.selectAll("*").remove();
         }
 
+        this.frameX=undefined; this.frameY=undefined; this.frameW=undefined; this.frameH=undefined; this.vertexRad=20;
         this.isDrawable=undefined; this.calcPositions=undefined;
         this.drawNewGraph = function (frameX, frameY, frameW, frameH, vertexRad, addDrawableEdges = false) {
             this.erase();

@@ -1,5 +1,62 @@
 "use strict";
 (function () {
+    function get_page (URL = document.URL) {
+        let index=-1,endIndex=URL.length;
+        for (let i=0; i<URL.length; i++) {
+            if (URL[i]=='/') index=i;
+            if (URL[i]=='#') {
+                endIndex=i;
+                break;
+            }
+        }
+        return URL.slice(index+1,endIndex);
+    }
+    function isBinary (event) {
+        let charCode=(event.which)?event.which:event.keyCode;
+        if ((charCode<=31)||((charCode>=48)&&(charCode<=49))) return true;
+        return false;
+    }
+    function isDigit (event) {
+        let charCode=(event.which)?event.which:event.keyCode;
+        if ((charCode<=31)||((charCode>=48)&&(charCode<=57))) return true;
+        return false;
+    }
+    function isDigitOrComma (event) {
+        if (isDigit(event)===true) return true;
+        let charCode=(event.which)?event.which:event.keyCode;
+        if ((charCode<=31)||(charCode==44)) return true;
+        return false;
+    }
+    function isSmallLatinLetter (event) {
+        let charCode=(event.which)?event.which:event.keyCode;
+        if ((charCode>=97)&&(charCode<=122)) return true;
+        return false;
+    }
+    function tableHTML (table, hasHeadRow = false, hasHeadColumn = false) {
+        let tableText="";
+        for (let i=0; i<table.length; i++) {
+            let td="td";
+            if ((hasHeadRow===true)&&(i===0)) {
+                tableText+='<thead><tr style="background-color: grey">';
+                td="th";
+            }
+            else {
+                if (i===0) tableText+='<tbody>';
+                tableText+='<tr>';
+            }
+            for (let j=0; j<table[i].length; j++) {
+                if ((hasHeadColumn===true)&&(j===0)) tableText+='<'+td+' style="background-color: grey">';
+                else tableText+='<'+td+'>';
+                tableText+=table[i][j];
+                tableText+='</'+td+'>';
+            }
+            if (td==="th") tableText+='</thead><tbody>';
+            else tableText+='</tr>';
+        }
+        tableText+='</tbody>';
+        return tableText;
+    }
+
     let page=get_page(),home_page=false;
     if ((page=="")||(page=="index.html")||(page=="index_en.html")) {
         home_page=true;
@@ -34,13 +91,21 @@
         setHeights();
         $(window).resize(setHeights);
         $(window).on("orientationchange",setHeights);
-        let scrollTop=sessionStorage.getItem(get_page()+"scrollTop");
+        let scrollTop=parseInt(sessionStorage.getItem(get_page()+"scrollTop"));
         let wrapper=$(".wrapper");
         if (home_page===true) wrapper=$(".content");
         wrapper.scrollTop(scrollTop);
         if (window.isMobile==="false") wrapper.focus();
     }
     
+    function checkForAnchor ()  {
+        let URL=document.URL,index=-1;
+        for (let i=0; i<URL.length; i++) {
+            if (URL[i]=='#') index=i;
+        }
+        if (index===-1) return "";
+        return URL.slice(index+1,URL.length);
+    }
     function getParts (s) {
         let nums = [];
         for (let c of s) {
@@ -76,20 +141,20 @@
             ind++;
         }
     }
+    let ordinals=["first","second","third","fourth"];
     function checkLessonParts (beginning) {
         let anchor=checkForAnchor();
         if (anchor.startsWith("part")) anchor=anchor.slice(4);
         else if (anchor.length!==0) return ;
         let parts=getParts(anchor);
         $(".anchor").remove();
-        let ordinals=["first","second","third","fourth"];
         let ind=0;
         for (let btn of $(".lesson-part-position >.btn")) {
             let name="#"+ordinals[ind]+"Part";
             if (parts.includes(ind+1)) {
                 $(btn).append('<a class="anchor" href="#'+removePart(ind+1,anchor)+'"></a>');
                 if ($(name).is(":hidden")===true) {
-                    sessionStorage.setItem(page+name,1);
+                    sessionStorage.setItem(page+name,"1");
                     $(name).show();
                     if ((beginning===false)&&(typeof initExamples==="function")) initExamples(ind+1);
                 }
@@ -99,7 +164,7 @@
             else {
                 $(btn).append('<a class="anchor" href="#part'+addPart(ind+1,anchor)+'"></a>');
                 $(btn).prop("id","part"+addPart(ind+1,anchor));
-                sessionStorage.setItem(page+name,0);
+                sessionStorage.setItem(page+name,"0");
                 $(name).hide();
             }
             let part=ind+1;
@@ -110,13 +175,25 @@
             ind++;
         }
     }
+    function triggerInfo (trigger, info, name) {
+        if (trigger.is(":hidden")===false) {
+            sessionStorage.setItem(name,"1");
+            trigger.hide();
+            info.show();
+        }
+        else {
+            sessionStorage.setItem(name,"0");
+            trigger.show();
+            info.hide();
+        }
+    }
     function toggleInfos () {
         let info=$(".info");
         for (let i=0; i<info.length; i+=2) {
             $(info[i]).on("click",triggerInfo.bind(info[i],$(info[i]),$(info[i+1]),page+"info"+i));
             $(info[i+1]).on("click",triggerInfo.bind(info[i+1],$(info[i]),$(info[i+1]),page+"info"+i));
             let state=sessionStorage.getItem(page+"info"+i);
-            if ((state!==null)&&(state=="1")) {
+            if ((state!==null)&&(state==="1")) {
                 $(info[i+1]).show();
                 $(info[i]).hide();
             }
@@ -125,6 +202,17 @@
     
     let navigation_page="/algo-site/navigation.html";
     if (page.endsWith("_en.html")===true) navigation_page="/algo-site/navigation_en.html";
+    function changeLanguage (language) {
+        let s=document.URL;
+        if (s.includes(".html")===false) {
+            if (language=="en") s+="index_en.html";
+            else return ;
+            }
+        if (language=="bg") s=s.replace("_en.html",".html");
+        else if (s.includes("_en")===false) s=s.replace(".html","_en.html");
+        this.setAttribute("href",s);
+    }
+
     $(document).ready(function () {
         $.get(navigation_page, function (data) {
             $("#nav-placeholder").replaceWith(data);
@@ -183,119 +271,41 @@
     $(window).on("popstate", function(event) {
         checkLessonParts(false);
     });
+    
+    function initExamples (part = 1) {
+        let name="#"+ordinals[part-1]+"Part";
+        if ($(name).hasClass("inited")===true) return ;
+        $(name).addClass("inited");
+
+        if (page=="introduction_to_graphs.html") {
+            if (part>=2) initExample(part);
+        }
+        else if (page=="depth_first_search.html") {
+            if (part===1) initExample(1);
+            else if (part===3) initExample(3); 
+        }
+        else if (page=="hashing.html") {
+            if (part===2) initExample(2);
+            else initExample(4);
+        }
+        else if (page=="2-SAT.html") {
+            if (part>1) initExample(part);
+        }
+        else if (page=="segment_tree_introduction.html") {
+            if (part>1) {
+                initExample(part);
+                defaultExample(part);
+            }
+        }
+        else if (page=="dp_profile.html") {
+            if (part>=3) initExample(part);
+        }
+    }
+    
+    window.get_page = get_page;
+    window.isBinary = isBinary;
+    window.isDigit = isDigit;
+    window.isDigitOrComma = isDigitOrComma;
+    window.isSmallLatinLetter = isSmallLatinLetter;
+    window.tableHTML = tableHTML;
 })();
-
-
-function get_page () {
-    let URL=document.URL,index=-1,endIndex=URL.length;
-    for (let i=0; i<URL.length; i++) {
-        if (URL[i]=='/') index=i;
-        if (URL[i]=='#') {
-            endIndex=i;
-            break;
-        }
-    }
-    return URL.slice(index+1,endIndex);
-}
-function checkForAnchor ()  {
-    let URL=document.URL,index=-1;
-    for (let i=0; i<URL.length; i++) {
-        if (URL[i]=='#') index=i;
-    }
-    if (index===-1) return "";
-    return URL.slice(index+1,URL.length);
-}
-function triggerInfo (trigger, info, name) {
-    if (trigger.is(":hidden")===false) {
-        sessionStorage.setItem(name,1);
-        trigger.hide();
-        info.show();
-    }
-    else {
-        sessionStorage.setItem(name,0);
-        trigger.show();
-        info.hide();
-    }
-}
-function changeLanguage (language) {
-    let s=document.URL;
-    if (s.includes(".html")===false) {
-        if (language=="en") s+="index_en.html";
-        else return ;
-        }
-    if (language=="bg") s=s.replace("_en.html",".html");
-    else if (s.includes("_en")===false) s=s.replace(".html","_en.html");
-    this.setAttribute("href",s);
-}
-
-
-function isBinary (event) {
-    let charCode=(event.which)?event.which:event.keyCode;
-    if ((charCode<=31)||((charCode>=48)&&(charCode<=49))) return true;
-    return false;
-}
-function isDigit (event) {
-    let charCode=(event.which)?event.which:event.keyCode;
-    if ((charCode<=31)||((charCode>=48)&&(charCode<=57))) return true;
-    return false;
-}
-function isDigitOrComma (event) {
-    if (isDigit(event)===true) return true;
-    let charCode=(event.which)?event.which:event.keyCode;
-    if ((charCode<=31)||(charCode==44)) return true;
-    return false;
-}
-function isSmallLatinLetter (event) {
-    let charCode=(event.which)?event.which:event.keyCode;
-    if ((charCode>=97)&&(charCode<=122)) return true;
-    return false;
-}
-
-
-function initExamples (part = 1) {
-    let ordinals=["","first","second","third","fourth"];
-    let name="#"+ordinals[part]+"Part";
-    if ($(name).hasClass("inited")===true) return ;
-    $(name).addClass("inited");
-        
-    let page=get_page();
-    if (page=="introduction_to_graphs.html") {
-        if (part>=2) initExample(part);
-    }
-    else if (page=="depth_first_search.html") {
-        if (part==1) initExample(1);
-        else if (part==3) initExample(3); 
-    }
-    else if (page=="hashing.html") {
-        document.querySelector(".hashExample1 .base").value="307";
-        document.querySelector(".hashExample1 .modulo").value="1009";
-        document.getElementById("string").value="abcab";
-        calculateHashString();
-        
-        document.querySelector(".hashExample2 .base").value="7";
-        document.querySelector(".hashExample2 .modulo").value="1009";
-        document.getElementById("multiSet").value="1,2,3";
-        calculateHashMultiSet();
-    }
-    else if (page=="2-SAT.html") {
-        if (part==2) {
-            document.querySelector(".twoSATexample1 .formula").value="(a||b)&&(a||!c)&&(!a||!b)";
-            initExample(1);
-            makeImplicationGraph(1);
-        }
-        else if (part==3) {
-            document.querySelector(".twoSATexample2 .formula").value="(a||b)&&(a||!c)&&(!a||!b)";
-            initExample(2);
-            showSCC();
-        }
-    }
-    else if (page=="segment_tree_introduction.html") {
-        if (part>1) {
-            initExample(part);
-            defaultExample(part);
-        }
-    }
-    else if (page=="dp_profile.html") {
-        if (part>=3) initExample(part);
-    }
-}

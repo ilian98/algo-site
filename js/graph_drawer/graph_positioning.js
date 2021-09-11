@@ -1,4 +1,4 @@
-'use strict';
+"use strict";
 (function () {
     function orientedArea (x1, y1, x2, y2, x3, y3) {
         return x1*y2+y1*x3+x2*y3-y1*x2-x1*y3-y2*x3;
@@ -27,32 +27,35 @@
             }
             return false;
         }
+        this.checkEdge = function (x, y, tryPlanner = false) {
+            for (let i=0; i<graph.n; i++) {
+                if ((i==x)||(i==y)||(graph.svgVertices[i].coord===undefined)) continue;
+                if (this.circleSegment(graph.svgVertices[x].coord,graph.svgVertices[y].coord,graph.svgVertices[i].coord)==true) {
+                    return false;
+                }
+            }
+                
+            if (tryPlanner===true) {
+                for (let edge of graph.edgeList) {
+                    let u=edge.x,v=edge.y;
+                    if ((u===x)||(u===y)||(v===x)||(v===y)) continue;
+                    if (u===v) continue;
+                    if ((graph.svgVertices[u].coord===undefined)||(graph.svgVertices[v].coord===undefined)) continue;
+                    if ((orientation(graph.svgVertices[x].coord,graph.svgVertices[y].coord,graph.svgVertices[u].coord)!=
+                         orientation(graph.svgVertices[x].coord,graph.svgVertices[y].coord,graph.svgVertices[v].coord))&&
+                        (orientation(graph.svgVertices[u].coord,graph.svgVertices[v].coord,graph.svgVertices[x].coord)!=
+                         orientation(graph.svgVertices[u].coord,graph.svgVertices[v].coord,graph.svgVertices[y].coord))) {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
         function checkVertex (vr, tryPlanner) {
             for (let i=0; i<graph.n; i++) {
                 if ((i==vr)||(graph.svgVertices[i].coord===undefined)||
                     ((graph.adjMatrix[vr][i]==0)&&(graph.adjMatrix[i][vr]==0))) continue;
-                for (let j=0; j<graph.n; j++) {
-                    if ((j==vr)||(j==i)||(graph.svgVertices[j].coord===undefined)) continue;
-                    if (this.circleSegment(graph.svgVertices[vr].coord,graph.svgVertices[i].coord,graph.svgVertices[j].coord)==true) return false;
-                }
-            }
-            if (tryPlanner===true) {
-                for (let i=0; i<graph.n; i++) {
-                    if ((i==vr)||(graph.svgVertices[i].coord===undefined)||
-                        ((graph.adjMatrix[vr][i]==0)&&(graph.adjMatrix[i][vr]==0))) continue;
-                    for (let edge of graph.edgeList) {
-                        let u=edge.x,v=edge.y;
-                        if ((u==vr)||(u==i)||(v==vr)||(v==i)) continue;
-                        if (u==v) continue;
-                        if ((graph.svgVertices[u].coord===undefined)||(graph.svgVertices[v].coord===undefined)) continue;
-                        if ((orientation(graph.svgVertices[vr].coord,graph.svgVertices[i].coord,graph.svgVertices[u].coord)!=
-                            orientation(graph.svgVertices[vr].coord,graph.svgVertices[i].coord,graph.svgVertices[v].coord))&&
-                            (orientation(graph.svgVertices[u].coord,graph.svgVertices[v].coord,graph.svgVertices[vr].coord)!=
-                            orientation(graph.svgVertices[u].coord,graph.svgVertices[v].coord,graph.svgVertices[i].coord))) {
-                            return false;
-                        }
-                    }
-                }
+                if (this.checkEdge(vr,i,tryPlanner)===false) return false;
             }
             return true;
         }

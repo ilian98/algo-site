@@ -1,4 +1,4 @@
-'use strict';
+"use strict";
 (function () {
     function getObjectForCoordinates (event) {
         if (window.isMobile==="false") return event;
@@ -88,17 +88,10 @@
                         if (weight===0) return ;
                     }
                     graph.addEdge(stVerDraw,i,weight);
-                    for (let j=0; j<graph.n; j++) {
-                        if ((j===stVerDraw)||(j===i)) continue;
-                        if (graph.calcPositions.circleSegment(graph.svgVertices[stVerDraw].coord,
-                                                              graph.svgVertices[i].coord,
-                                                              graph.svgVertices[j].coord)===true) {
-                            let oldCoords=graph.svgVertices[i].coord;
-                            graph.svgVertices[i].coord=undefined;
-                            graph.calcPositions.calculatePossiblePos();
-                            if (graph.calcPositions.placeVertex(i,false)===false) graph.calcPositions.init();
-                            break;
-                        }
+                    if (graph.calcPositions.checkEdge(stVerDraw,i)===false) {
+                        graph.svgVertices[i].coord=undefined;
+                        graph.calcPositions.calculatePossiblePos();
+                        if (graph.calcPositions.placeVertex(i,false)===false) graph.calcPositions.init();
                     }
                     graph.graphChange();
                     graph.draw(true);

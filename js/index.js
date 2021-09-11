@@ -1,17 +1,5 @@
 "use strict";
 (function () {
-    function get_page (URL) {
-        let index=-1,endIndex=URL.length;
-        for (let i=0; i<URL.length; i++) {
-            if (URL[i]=='/') index=i;
-            if (URL[i]=='#') {
-                endIndex=i;
-                break;
-            }
-        }
-        return URL.slice(index+1,endIndex);
-    }
-    
     $(document).ready(function () {
         for (let anchor of $("a")) {
             if ($(anchor).prop("href")==="") continue;
