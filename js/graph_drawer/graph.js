@@ -336,7 +336,7 @@
             return edge;
         }
 
-        function drawVertexText (i, text) {
+        this.drawVertexText = function (i, text) {
             let x=this.svgVertices[i].coord[0]+this.vertexRad;
             let y=this.svgVertices[i].coord[1]+this.vertexRad;
             if (this.svgVertices[i].text!==undefined) this.svgVertices[i].text.remove();
@@ -430,7 +430,7 @@
                 let y=this.svgVertices[i].coord[1]+this.vertexRad;
                 this.svgVertices[i].circle=this.s.circle(x,y,this.vertexRad);
                 this.svgVertices[i].circle.attr({fill: "white", stroke: "black", "stroke-width": strokeWidth});
-                drawVertexText.call(this,i,this.vertices[i].name);
+                this.drawVertexText(i,this.vertices[i].name);
                 if (addDrawableEdges===true) this.svgVertices[i].group.attr({cursor: "pointer"});
             }
 

@@ -1,4 +1,4 @@
-'use strict';
+"use strict";
 function startButtonFunc (globalObj, name, findAnimations, initialState) {
     globalObj.stopAnimations();
     initialState(true);
@@ -168,5 +168,52 @@ function Animation () {
         if (this.previousButton!==undefined) this.previousButton.hide();
         if (this.nextButton!==undefined) this.nextButton.hide();
         if (this.animText!==undefined) this.animText.text("");
+    }
+}
+
+if (typeof Graph==="function") {
+    Graph.prototype = {
+        vertexAnimation: function (vr, colour, type, speedCoeff = 1) {
+            let graph=this;
+            return function(callback, speed) {
+                let obj;
+                if (type==="circle") obj=graph.svgVertices[vr].circle;
+                else obj=graph.svgVertices[vr].text;
+                if (speed>0) {
+                    obj.animate({fill: colour},speed*speedCoeff,callback);
+                    return obj.inAnim()[0].mina;
+                }
+                obj.attr({fill: colour});
+            }
+        },
+        edgeAnimation: function (vr1, vr2, speedCoeff = 1) {
+            let graph=this;
+            return function(callback, speed) {
+                if (speed>0) {
+                    let obj1=graph.svgVertices[vr1];
+                    let obj2=graph.svgVertices[vr2];
+
+                    let ind=graph.edgeList.findIndex(function (e) { return ((e.x==vr1)&&(e.y==vr2)); });
+                    let reverse=false;
+                    if ((ind==-1)&&(graph.isOriented===false)) {
+                        reverse=true;
+                        ind=graph.edgeList.findIndex(function (e) { return ((e.x==vr2)&&(e.y==vr1)); });
+                    }
+                    let lineDraw=graph.s.path(graph.svgEdges[ind].line.attr("d"));
+                    let pathLength=lineDraw.getTotalLength();
+                    lineDraw.attr({fill: "none", stroke: "red", "stroke-width": graph.vertexRad/20*4});
+                    lineDraw.attr({"stroke-dasharray": pathLength, "stroke-dashoffset": pathLength});
+                    graph.s.append(obj1.group);
+                    graph.s.append(obj2.group);
+                    return Snap.animate(0,pathLength,function (t) {
+                        lineDraw.attr({"stroke-dashoffset": ((reverse===true)?(pathLength+t):(pathLength-t))});
+                    },
+                        speed*speedCoeff,function () {
+                        callback();
+                        lineDraw.remove();
+                    });
+                }
+            }
+        }
     }
 }

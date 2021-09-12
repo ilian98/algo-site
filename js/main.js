@@ -85,7 +85,7 @@
             $(".content").css("min-height",min_height);
             if (window.isMobile==="false") $(".wrapper").css("max-height",min_height+$("footer").outerHeight());
         }
-        else if (window.isMobile==="false") $(".content").css("max-height",min_height);
+        else if (window.isMobile==="false") $(".wrapper").css("max-height",min_height);
     }
     function pageSetup () {
         setHeights();
@@ -93,7 +93,6 @@
         $(window).on("orientationchange",setHeights);
         let scrollTop=parseInt(sessionStorage.getItem(get_page()+"scrollTop"));
         let wrapper=$(".wrapper");
-        if (home_page===true) wrapper=$(".content");
         wrapper.scrollTop(scrollTop);
         if (window.isMobile==="false") wrapper.focus();
     }

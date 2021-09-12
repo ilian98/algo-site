@@ -1,44 +1,4 @@
 "use strict";
-function vertexAnimation (graph, vr, colour, type) {
-    return function(callback, speed) {
-        let obj;
-        if (type==="circle") obj=graph.svgVertices[vr].circle;
-        else obj=graph.svgVertices[vr].text;
-        if (speed>0) {
-            obj.animate({fill: colour},speed,callback);
-            return obj.inAnim()[0].mina;
-        }
-        obj.attr({fill: colour});
-    }
-}
-function edgeAnimation (graph, vr1, vr2) {
-    return function(callback, speed) {
-        if (speed>0) {
-            let obj1=graph.svgVertices[vr1];
-            let obj2=graph.svgVertices[vr2];
-
-            let ind=graph.edgeList.findIndex(function (e) { return ((e.x==vr1)&&(e.y==vr2)); });
-            let reverse=false;
-            if ((ind==-1)&&(graph.isOriented===false)) {
-                reverse=true;
-                ind=graph.edgeList.findIndex(function (e) { return ((e.x==vr2)&&(e.y==vr1)); });
-            }
-            let lineDraw=graph.s.path(graph.svgEdges[ind].line.attr("d"));
-            let pathLength=lineDraw.getTotalLength();
-            lineDraw.attr({fill: "none", stroke: "red", "stroke-width": graph.vertexRad/20*4});
-            lineDraw.attr({"stroke-dasharray": pathLength, "stroke-dashoffset": pathLength});
-            graph.s.append(obj1.group);
-            graph.s.append(obj2.group);
-            return Snap.animate(0,pathLength,function (t) {
-                lineDraw.attr({"stroke-dashoffset": ((reverse===true)?(pathLength+t):(pathLength-t))});
-            },
-                speed,function () {
-                callback();
-                lineDraw.remove();
-            });
-        }
-    }
-}
 function dfs (vr, used, graph, animations) {
     used[vr]=1;
     let text;
@@ -47,16 +7,16 @@ function dfs (vr, used, graph, animations) {
         if (used[to]==0) {
             text="Напускаме връх "+(vr+1)+" и отиваме в "+(to+1)+".";
             animations.push({
-                animFunctions: [vertexAnimation(graph,vr,"grey","circle"),
-                                vertexAnimation(graph,vr,"white","text"),
-                                edgeAnimation(graph,vr,to)],
+                animFunctions: [graph.vertexAnimation(vr,"grey","circle"),
+                                graph.vertexAnimation(vr,"white","text"),
+                                graph.edgeAnimation(vr,to)],
                 animText: text
             });
             
             text="Сега сме във връх "+(to+1)+".";
             animations.push({
-                animFunctions: [vertexAnimation(graph,to,"red","circle"),
-                                vertexAnimation(graph,to,"black","text")],
+                animFunctions: [graph.vertexAnimation(to,"red","circle"),
+                                graph.vertexAnimation(to,"black","text")],
                 animText: text
             });
                 
@@ -64,23 +24,23 @@ function dfs (vr, used, graph, animations) {
             
             text="Връщаме се на връх "+(vr+1)+".";
             animations.push({
-                animFunctions: [vertexAnimation(graph,vr,"red","circle"),
-                                vertexAnimation(graph,vr,"black","text")],
+                animFunctions: [graph.vertexAnimation(vr,"red","circle"),
+                                graph.vertexAnimation(vr,"black","text")],
                 animText: text
             });
         }
         else {
             text="Oказва се, че съседът с номер "+(to+1)+" вече е обходен.";
             animations.push({
-                animFunctions: [edgeAnimation(graph,vr,to)],
+                animFunctions: [graph.edgeAnimation(vr,to)],
                 animText: text
             });
         }
     }
     text="Вече проверихме всички съседи на връх "+(vr+1)+" и го напускаме.";
     animations.push({
-        animFunctions: [vertexAnimation(graph,vr,"black","circle"),
-                        vertexAnimation(graph,vr,"white","text")],
+        animFunctions: [graph.vertexAnimation(vr,"black","circle"),
+                        graph.vertexAnimation(vr,"white","text")],
         animText: text
     });
 }
@@ -100,7 +60,7 @@ function defaultExample (name, graph, animationObj, isOriented, vertexRad) {
             used[i]=0;
         }
         animations.push({
-            animFunctions: [vertexAnimation(graph,0,"red","circle")],
+            animFunctions: [graph.vertexAnimation(0,"red","circle")],
             animText: "Започваме обхождането от връх номер 1."
         });
         dfs(0,used,graph,animations);
@@ -110,16 +70,16 @@ function defaultExample (name, graph, animationObj, isOriented, vertexRad) {
         graph.draw(false);
     });
     
-    let slider=document.querySelector(name+" .range");
-    let output=document.querySelector(name+" .slider-value");
+    let slider=$(name+" .range");
+    let output=$(name+" .slider-value");
     slider.value=5;
-    output.innerHTML=slider.value;
-    slider.oninput = function() {
+    output.html(slider.value);
+    slider.on("input", function() {
         animationObj.clear();
-        output.innerHTML=this.value;
+        output.html(this.value);
         graph.init(name+" .graph",parseInt(this.value),isOriented,true);
         graph.drawNewGraph(1,1,299,299,vertexRad,true);
-    }
+    });
     
     animationObj.startButton.off("click.bonus").on("click.bonus", function () {
         if ($(name+" .default").is(":hidden")===false) {
