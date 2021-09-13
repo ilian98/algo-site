@@ -16,16 +16,16 @@
 }
 
 @font-face {
-  font-family: 'Lobster';
-  font-style: normal;
-  font-weight: 400;
-  src: url('/algo-site/fonts/lobster-v23-latin-ext_latin_cyrillic-ext_cyrillic-regular.eot'); /* IE9 Compat Modes */
-  src: local('Lobster Regular'), local('Lobster-Regular'),
-       url('/algo-site/fonts/lobster-v23-latin-ext_latin_cyrillic-ext_cyrillic-regular.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
-       url('/algo-site/fonts/lobster-v23-latin-ext_latin_cyrillic-ext_cyrillic-regular.woff2') format('woff2'), /* Super Modern Browsers */
-       url('/algo-site/fonts/lobster-v23-latin-ext_latin_cyrillic-ext_cyrillic-regular.woff') format('woff'), /* Modern Browsers */
-       url('/algo-site/fonts/lobster-v23-latin-ext_latin_cyrillic-ext_cyrillic-regular.ttf') format('truetype'), /* Safari, Android, iOS */
-       url('/algo-site/fonts/lobster-v23-latin-ext_latin_cyrillic-ext_cyrillic-regular.svg#Lobster') format('svg'); /* Legacy iOS */
+    font-family: 'Lobster';
+    font-style: normal;
+    font-weight: 400;
+    src: url('/algo-site/fonts/lobster-v23-latin-ext_latin_cyrillic-ext_cyrillic-regular.eot'); /* IE9 Compat Modes */
+    src: local('Lobster Regular'), local('Lobster-Regular'),
+        url('/algo-site/fonts/lobster-v23-latin-ext_latin_cyrillic-ext_cyrillic-regular.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
+        url('/algo-site/fonts/lobster-v23-latin-ext_latin_cyrillic-ext_cyrillic-regular.woff2') format('woff2'), /* Super Modern Browsers */
+        url('/algo-site/fonts/lobster-v23-latin-ext_latin_cyrillic-ext_cyrillic-regular.woff') format('woff'), /* Modern Browsers */
+        url('/algo-site/fonts/lobster-v23-latin-ext_latin_cyrillic-ext_cyrillic-regular.ttf') format('truetype'), /* Safari, Android, iOS */
+        url('/algo-site/fonts/lobster-v23-latin-ext_latin_cyrillic-ext_cyrillic-regular.svg#Lobster') format('svg'); /* Legacy iOS */
 }
 @font-face {
     font-family: 'Consolas';
@@ -59,7 +59,7 @@ body {
     padding-right: 5%;
     width: 100%;
 
-    background-image: url(../images/background.jpg);
+    background-image: url(/algo-site/images/background.jpg);
     background-repeat: repeat;
     background-attachment: scroll;
 }

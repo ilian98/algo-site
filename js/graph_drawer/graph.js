@@ -82,15 +82,14 @@
     }
 
     function determineDy (text, fontFamily, fontSize) {
-        let bBox=window.font[fontFamily].getPath(text,0,0,fontSize).getBoundingBox();
+        let bBox=window.font[fontFamily].getPath(text.toString(),0,0,fontSize).getBoundingBox();
         let height=bBox.y2-bBox.y1;
         let underBaseline=bBox.y2;
         return height/2-underBaseline;
     }
 
-    function Vertex () {
-        this.id=undefined;
-        this.name=undefined;
+    function Vertex (name) {
+        this.name=name;
     }
 
     function SvgVertex () {
@@ -162,8 +161,7 @@
         this.initVertices = function (n) {
             this.n=n; this.vertices=[];
             for (let i=0; i<this.n; i++) {
-                this.vertices[i] = new Vertex();
-                this.vertices[i].id=i+1;
+                this.vertices[i]=new Vertex();
             }
         }
 
@@ -236,7 +234,9 @@
             this.draw(addDrawableEdges);
         }
 
-        this.drawEdge = function (st, end, edgeInd, strokeWidth, properties) {
+        this.drawEdge = function (st, end, edgeInd, properties) {
+            let strokeWidth=this.findStrokeWidth();
+            
             let edgeLen=segmentLength(st[0],st[1],end[0],end[1]);
             let isLoop=(edgeLen<this.vertexRad)?true:false;
             let edge=new SvgEdge();
@@ -341,11 +341,12 @@
             let y=this.svgVertices[i].coord[1]+this.vertexRad;
             if (this.svgVertices[i].text!==undefined) this.svgVertices[i].text.remove();
             this.vertices[i].name=text;
+            let fontSize=this.findFontSize();
             this.svgVertices[i].text=this.s.text(x,y,this.vertices[i].name);
             this.svgVertices[i].text.attr({
-                "font-size": this.vertexRad*5/4, 
+                "font-size": fontSize, 
                 "font-family": "Consolas",
-                dy: determineDy(this.vertices[i].name,"Consolas",this.vertexRad*5/4), 
+                dy: determineDy(this.vertices[i].name,"Consolas",fontSize), 
                 "text-anchor": "middle", 
                 class: "unselectable"
             });
@@ -367,8 +368,8 @@
                 if (maxY<y) maxY=y;
             }
             let lenX=maxX-minX,lenY=maxY-minY;
-            let addX=(this.frameW-2*this.vertexRad-2*this.frameX-lenX)/2+this.frameX-minX;
-            let addY=(this.frameH-2*this.vertexRad-2*this.frameY-lenY)/2+this.frameY-minY;
+            let addX=(this.frameW-2*this.vertexRad-this.frameX-lenX)/2+this.frameX-minX;
+            let addY=(this.frameH-2*this.vertexRad-this.frameY-lenY)/2+this.frameY-minY;
             for (let i=0; i<this.n; i++) {
                 if (this.vertices[i].name===undefined) {
                     this.svgVertices[i].circle=this.svgVertices[i].text=undefined;
@@ -379,11 +380,16 @@
             }
         }
 
+        this.findFontSize = function () {
+            return this.vertexRad*5/4;
+        }
+        this.findStrokeWidth = function () {
+            return this.vertexRad/20*1.5;
+        }
         this.drawableEdges=undefined;
         this.draw = function (addDrawableEdges) { /// this functions expects that coordinates are already calculated
             this.erase();
 
-            let fontSize=this.vertexRad*5/4,strokeWidth=this.vertexRad/20*1.5;
             let edgeMapCnt = new Map(), edgeMapCurr = new Map();
             for (let edge of this.edgeList) {
                 let x=edge.x,y=edge.y;
@@ -415,8 +421,8 @@
                 let from=this.svgVertices[x].coord,to=this.svgVertices[y].coord;
                 let st=[from[0]+this.vertexRad, from[1]+this.vertexRad];
                 let end=[to[0]+this.vertexRad, to[1]+this.vertexRad];
-                if (x!==y) this.svgEdges[i]=this.drawEdge(st,end,i,strokeWidth,multiEdges[edgeMapCnt.get(code)][val++]);
-                else this.svgEdges[i]=this.drawEdge(st,end,i,strokeWidth,loopEdges[edgeMapCnt.get(code)][val++]);
+                if (x!==y) this.svgEdges[i]=this.drawEdge(st,end,i,multiEdges[edgeMapCnt.get(code)][val++]);
+                else this.svgEdges[i]=this.drawEdge(st,end,i,loopEdges[edgeMapCnt.get(code)][val++]);
                 edgeMapCurr.set(code,val);
                 i++;
             }
@@ -429,7 +435,7 @@
                 let x=this.svgVertices[i].coord[0]+this.vertexRad;
                 let y=this.svgVertices[i].coord[1]+this.vertexRad;
                 this.svgVertices[i].circle=this.s.circle(x,y,this.vertexRad);
-                this.svgVertices[i].circle.attr({fill: "white", stroke: "black", "stroke-width": strokeWidth});
+                this.svgVertices[i].circle.attr({fill: "white", stroke: "black", "stroke-width": this.findStrokeWidth()});
                 this.drawVertexText(i,this.vertices[i].name);
                 if (addDrawableEdges===true) this.svgVertices[i].group.attr({cursor: "pointer"});
             }
@@ -447,6 +453,10 @@
             if (this.isOriented===false) this.adjList[y].push(ind);
             this.adjMatrix[x][y]++;
             if (this.isOriented===false) this.adjMatrix[y][x]++;
+        }
+        this.addVertex = function (name) {
+            this.vertices.push(new Vertex(name));
+            this.n++;
         }
     }
 
@@ -488,4 +498,5 @@
     
     window.Graph = Graph;
     window.segmentLength = segmentLength;
+    window.determineDy = determineDy;
 })();

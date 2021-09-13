@@ -190,28 +190,28 @@
                 fillVersDepth(root,-1,0,maxDepth,graph.adjList,graph.edgeList,versDepth);
 
                 let x,y=(2*graph.vertexRad+distVertices)*maxDepth,distX;
-                x=0; distX=(graph.frameW-2*graph.vertexRad-1)/(versDepth[maxDepth].length-1);
+                x=0; distX=(graph.frameW-2*graph.vertexRad-graph.frameX)/(versDepth[maxDepth].length-1);
                 for (let vertex of versDepth[maxDepth]) {
-                    if (vertex!=-1) graph.svgVertices[vertex].coord=[x,y];
+                    if (vertex!==-1) graph.svgVertices[vertex].coord=[x,y];
                     x+=distX;
                 }
                 for (let i=maxDepth-1; i>=0; i--) {
                     y-=(2*graph.vertexRad+distVertices);
                     let ind=0;
-                    while (versDepth[i+1][ind]==-1) {
+                    while (versDepth[i+1][ind]===-1) {
                         ind++;
                     }
                     for (let vertex of versDepth[i]) {
-                        if (vertex==-1) continue;
-                        if ((ind==versDepth[i+1].length)||(graph.adjMatrix[vertex][versDepth[i+1][ind]]==0)) {
+                        if (vertex===-1) continue;
+                        if ((ind===versDepth[i+1].length)||(graph.adjMatrix[vertex][versDepth[i+1][ind]]===0)) {
                            graph.svgVertices[vertex].coord=undefined;
                            continue;
                         }
                         let sum=0,cnt=0;
                         for (; ind<versDepth[i+1].length; ind++) {
                             let child=versDepth[i+1][ind];
-                            if (child==-1) continue;
-                            if (graph.adjMatrix[vertex][child]==0) break;
+                            if (child===-1) continue;
+                            if (graph.adjMatrix[vertex][child]==-0) break;
                             sum+=graph.svgVertices[child].coord[0];
                             cnt++;
                         }
@@ -220,14 +220,14 @@
                     let prevX=0;
                     for (let j=0; j<versDepth[i].length; j++) {
                         let v=versDepth[i][j];
-                        if ((v!=-1)&&(graph.svgVertices[v].coord!==undefined)) {
+                        if ((v!==-1)&&(graph.svgVertices[v].coord!==undefined)) {
                            prevX=graph.svgVertices[v].coord[0]+2*graph.vertexRad+distVertices;
                            continue;
                         }
                         let nextX=graph.frameW,cnt=0;
                         for (let h=j; h<versDepth[i].length; h++) {
                             let next=versDepth[i][h];
-                            if ((next!=-1)&&(graph.svgVertices[next].coord!==undefined)) {
+                            if ((next!==-1)&&(graph.svgVertices[next].coord!==undefined)) {
                                nextX=graph.svgVertices[next].coord[0];
                                break;
                             }
@@ -239,18 +239,18 @@
                             let x=prevX;
                             for (h=j; h<versDepth[i].length; h++) {
                                 let v=versDepth[i][h];
-                                if ((v!=-1)&&(graph.svgVertices[v].coord!==undefined)) break;
+                                if ((v!==-1)&&(graph.svgVertices[v].coord!==undefined)) break;
                                 if (nextX!=graph.frameW) x+=(nextX-prevX)/(cnt+1);
                                 else x+=((nextX-graph.vertexRad-1)-prevX)/cnt;
-                                if (v!=-1) graph.svgVertices[v].coord=[x-graph.vertexRad,y];
+                                if (v!==-1) graph.svgVertices[v].coord=[x-graph.vertexRad,y];
                             }
                         }
                         else {
                             let x=prevX;
                             for (h=j; h<versDepth[i].length; h++) {
                                 let v=versDepth[i][h];
-                                if ((v!=-1)&&(graph.svgVertices[v].coord!==undefined)) break;
-                                if (v!=-1) graph.svgVertices[v].coord=[x,y];
+                                if ((v!==-1)&&(graph.svgVertices[v].coord!==undefined)) break;
+                                if (v!==-1) graph.svgVertices[v].coord=[x,y];
                                 x+=(nextX-prevX-distVertices)/cnt;
                             }
                         }
@@ -261,14 +261,14 @@
                 let minX=graph.frameW,minY=graph.frameH;
                 for (let i=0; i<=maxDepth; i++) {
                     for (let vertex of versDepth[i]) {
-                        if (vertex==-1) continue;
+                        if (vertex===-1) continue;
                         if (minX>graph.svgVertices[vertex].coord[0]) minX=graph.svgVertices[vertex].coord[0];
                         if (minY>graph.svgVertices[vertex].coord[1]) minY=graph.svgVertices[vertex].coord[1];
                     }
                 }
                 for (let i=0; i<=maxDepth; i++) {
                     for (let vertex of versDepth[i]) {
-                        if (vertex==-1) continue;
+                        if (vertex===-1) continue;
                         graph.svgVertices[vertex].coord[0]+=-minX+graph.frameX;
                         graph.svgVertices[vertex].coord[1]+=-minY+graph.frameY+distVertices;
                     }

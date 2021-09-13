@@ -1,219 +1,220 @@
 "use strict";
-function startButtonFunc (globalObj, name, findAnimations, initialState) {
-    globalObj.stopAnimations();
-    initialState(true);
-    
-    let speed=$(name+" .form-group");
-    let speedInput=$(name+" .speed");
-    
-    if (this.flag===false) {
-        globalObj.animations=findAnimations();
-        if (globalObj.animations.length===0) return ;
-        globalObj.animations.push({
-            animFunctions: [],
-            animText: ""
-        });
-        
-        this.flag=true; this.html("Стоп");        
-        speed.hide();
-        if (speedInput.val()=="") globalObj.speed=4000/2;
-        else globalObj.speed=4000/speedInput.val();
-            
-        globalObj.pauseButton.show();
-        globalObj.pauseButton.flagPause=false; globalObj.pauseButton.flagStep=false;
-        globalObj.pauseButton.html("Пауза");
-        
-        globalObj.previousButton.show();
-        globalObj.nextButton.show();
-        
-        globalObj.start();
-    }
-    else {
-        this.flag=false; this.html("Старт!");
-        speed.show();
-        if (speedInput.val()==="") speedInput.val("2");
-                
-        globalObj.clear();
-    }
-}
-function pauseButtonFunc (globalObj) {
-    if (this.flagPause===false) {
-        this.flagPause=true; this.html("Пусни");
-        if (globalObj.minas!==undefined) {
-            for (let mina of globalObj.minas) {
-                mina.pause();
+(function () {
+    function animationsUntilStep (animations, step) {
+        for (let i=0; i<step; i++) {
+            if (animations[i].hasOwnProperty("startFunction")) animations[i].startFunction();
+            for (let animation of animations[i].animFunctions) {
+                animation(() => {},0);
             }
+            if (animations[i].hasOwnProperty("endFunction")) animations[i].endFunction();
         }
     }
-    else {
-        this.flagPause=false; this.html("Пaуза");
-        if (globalObj.minas!==undefined) {
-            for (let mina of globalObj.minas) {
-                mina.resume();
-            }
-        }
-        if (this.flagStep===true) globalObj.animFuncs[globalObj.currAnimation]();
-        this.flagStep=false;
-    }
-}
 
-function animationsUntilStep (animations, step) {
-    for (let i=0; i<step; i++) {
-        if (animations[i].hasOwnProperty("startFunction")) animations[i].startFunction();
-        for (let animation of animations[i].animFunctions) {
-            animation(() => {},0);
-        }
-        if (animations[i].hasOwnProperty("endFunction")) animations[i].endFunction();
-    }
-}
-function stepButtonFunc (globalObj, initialState, step) {
-    let currAnimation=globalObj.currAnimation;
-    if (currAnimation!==undefined) {
-        globalObj.pauseButton.flagPause=false; globalObj.pauseButton.flagStep=true;
-        globalObj.pauseButton[0].click();
-        globalObj.stopAnimations();
-        initialState(false);
-        let animLen=globalObj.animations.length;
-        if ((step==-1)&&(globalObj.currAnimation==0)) globalObj.currAnimation=currAnimation=1;
-        else if ((step==+1)&&(globalObj.currAnimation==animLen-1)) globalObj.currAnimation=animLen-2;
+    function Animation () {
+        this.startButton=undefined; this.pauseButton=undefined;
+        this.previousButton=undefined; this.nextButton=undefined;
         
-        globalObj.currAnimation+=step;
-        if (globalObj.currAnimation==animLen-1) globalObj.pauseButton.hide();
-        else globalObj.pauseButton.show();
-    
-        animationsUntilStep(globalObj.animations,currAnimation+step);
-        if (currAnimation+step<animLen) globalObj.animText.text(globalObj.animations[currAnimation+step].animText);
-    }
-}
+        let flagStart,flagPause,flagStep;
+        let animations;
+        function startButtonFunc (globalObj, name, findAnimations, initialState) {
+            stopAnimations();
+            initialState();
 
-function Animation () {
-    
-    this.speed=undefined;
-    this.animText=undefined;
-    this.startButton=undefined; this.pauseButton=undefined;
-    this.previousButton=undefined; this.nextButton=undefined;
-    
-    this.animations=undefined;
-    this.init = function (name, findAnimations, initialState) {
-        this.speed=2000;
-        
-        let startButton=this.startButton=$(name+" .start");
-        let pauseButton=this.pauseButton=$(name+" .pause");
-        let previousButton=this.previousButton=$(name+" .previous");
-        let nextButton=this.nextButton=$(name+" .next");
-        let animText=this.animText=$(name+" .anim-text");
-    
-        this.clear();
-        $(name+" .speed").val("2");
-        $(name+" .speed").on("keypress",isDigit);
-        startButton.flag=false; startButton.off("click.start").on("click.start",startButtonFunc.bind(startButton,this,name,findAnimations,initialState));
-        pauseButton.off("click.pause").on("click.pause",pauseButtonFunc.bind(pauseButton,this));
-        previousButton.off("click.prev").on("click.prev",stepButtonFunc.bind(previousButton,this,initialState,-1));
-        nextButton.off("click.next").on("click.next",stepButtonFunc.bind(nextButton,this,initialState,+1));
-    }
-    
-    this.minas=undefined; this.currAnimation=undefined;
-    this.animFuncs=undefined;
-    this.start = function () {
-        let speed=parseInt(this.speed);
-        this.minas=[]; this.currAnimation=0;
-        let animations=this.animations;
-        let globalObj=this;
-        let animFuncs=this.animFuncs=[];
-        for (let i=animations.length-1; i>=0; i--) {
-            let index=i;
-            animFuncs[i] = function () {
-                let i=index;
-                if ((globalObj.currAnimation<i-1)||(globalObj.currAnimation>i)) {
-                    return ;
-                }
-                globalObj.currAnimation=i;
-                globalObj.animText.text(animations[i].animText);
-                if (i===animations.length-1) globalObj.pauseButton.hide();
-                
-                if (animations[i].hasOwnProperty("startFunction")) animations[i].startFunction();
-                for (let j=0; j<animations[i].animFunctions.length; j++) {
-                    let isLast=(j==animations[i].animFunctions.length-1);
-                    globalObj.minas.push(animations[i].animFunctions[j](function () {
-                        if (isLast==true) {
-                            if (i<animations.length-1) {
-                                if (animations[i].hasOwnProperty("endFunction")) animations[i].endFunction();
-                                animFuncs[i+1]();
-                            }
-                        }
-                    },speed));
-                }
+            let speedObj=$(name+" .form-group");
+            let speedInput=$(name+" .speed");
+
+            if (flagStart===false) {
+                animations=findAnimations();
+                if (animations.length===0) return ;
+                animations.push({
+                    animFunctions: [],
+                    animText: ""
+                });
+
+                flagStart=true; this.html("Стоп");        
+                speedObj.hide();
+                if (speedInput.val()==="") speed=4000/2;
+                else speed=4000/parseInt(speedInput.val());
+
+                globalObj.pauseButton.show();
+                flagPause=false; flagStep=false;
+                globalObj.pauseButton.html("Пауза");
+
+                globalObj.previousButton.show();
+                globalObj.nextButton.show();
+
+                globalObj.start();
+            }
+            else {
+                flagStart=false; this.html("Старт!");
+                speedObj.show();
+                if (speedInput.val()==="") speedInput.val("2");
+
+                globalObj.clear();
             }
         }
-        animFuncs[0]();
-    };
-    
-    this.stopAnimations = function () {
-        if (this.minas!==undefined) {
-            for (let mina of this.minas) {
-                mina.stop();
-            }
-        }
-    }
-    
-    this.clear = function () {
-        this.stopAnimations();
-        this.animations=[];
-        this.minas=[]; this.animFuncs=[];
-        if (this.startButton!==undefined) {
-            this.startButton.flag=false;
-            this.startButton.html("Старт!");
-        }
-        if (this.pauseButton!==undefined) this.pauseButton.hide();
-        if (this.previousButton!==undefined) this.previousButton.hide();
-        if (this.nextButton!==undefined) this.nextButton.hide();
-        if (this.animText!==undefined) this.animText.text("");
-    }
-}
-
-if (typeof Graph==="function") {
-    Graph.prototype = {
-        vertexAnimation: function (vr, colour, type, speedCoeff = 1) {
-            let graph=this;
-            return function(callback, speed) {
-                let obj;
-                if (type==="circle") obj=graph.svgVertices[vr].circle;
-                else obj=graph.svgVertices[vr].text;
-                if (speed>0) {
-                    obj.animate({fill: colour},speed*speedCoeff,callback);
-                    return obj.inAnim()[0].mina;
-                }
-                obj.attr({fill: colour});
-            }
-        },
-        edgeAnimation: function (vr1, vr2, speedCoeff = 1) {
-            let graph=this;
-            return function(callback, speed) {
-                if (speed>0) {
-                    let obj1=graph.svgVertices[vr1];
-                    let obj2=graph.svgVertices[vr2];
-
-                    let ind=graph.edgeList.findIndex(function (e) { return ((e.x==vr1)&&(e.y==vr2)); });
-                    let reverse=false;
-                    if ((ind==-1)&&(graph.isOriented===false)) {
-                        reverse=true;
-                        ind=graph.edgeList.findIndex(function (e) { return ((e.x==vr2)&&(e.y==vr1)); });
+        function pauseButtonFunc () {
+            if (flagPause===false) {
+                flagPause=true; $(this).html("Пусни");
+                if (minas!==undefined) {
+                    for (let mina of minas) {
+                        mina.pause();
                     }
-                    let lineDraw=graph.s.path(graph.svgEdges[ind].line.attr("d"));
-                    let pathLength=lineDraw.getTotalLength();
-                    lineDraw.attr({fill: "none", stroke: "red", "stroke-width": graph.vertexRad/20*4});
-                    lineDraw.attr({"stroke-dasharray": pathLength, "stroke-dashoffset": pathLength});
-                    graph.s.append(obj1.group);
-                    graph.s.append(obj2.group);
-                    return Snap.animate(0,pathLength,function (t) {
-                        lineDraw.attr({"stroke-dashoffset": ((reverse===true)?(pathLength+t):(pathLength-t))});
-                    },
-                        speed*speedCoeff,function () {
-                        callback();
-                        lineDraw.remove();
-                    });
+                }
+            }
+            else {
+                flagPause=false; $(this).html("Пaуза");
+                if (minas!==undefined) {
+                    for (let mina of minas) {
+                        mina.resume();
+                    }
+                }
+                if (flagStep===true) animFuncs[currAnimation]();
+                flagStep=false;
+            }
+        }
+        function stepButtonFunc (pauseButton, initialState, step) {
+            if (currAnimation!==undefined) {
+                flagPause=false; flagStep=true;
+                pauseButton[0].click();
+                stopAnimations();
+                initialState();
+                let animLen=animations.length;
+                if ((step===-1)&&(currAnimation===0)) currAnimation=1;
+                else if ((step===+1)&&(currAnimation===animLen-1)) currAnimation=animLen-2;
+
+                currAnimation+=step;
+                if (currAnimation==animLen-1) pauseButton.hide();
+                else pauseButton.show();
+
+                animationsUntilStep(animations,currAnimation);
+                if (currAnimation<animLen) animText.text(animations[currAnimation].animText);
+            }
+        }
+        
+        let speed,animText;
+        this.init = function (name, findAnimations, initialState) {
+            speed=2000;
+
+            let startButton=this.startButton=$(name+" .start");
+            let pauseButton=this.pauseButton=$(name+" .pause");
+            let previousButton=this.previousButton=$(name+" .previous");
+            let nextButton=this.nextButton=$(name+" .next");
+            animText=$(name+" .anim-text");
+
+            this.clear();
+            $(name+" .speed").val("2");
+            $(name+" .speed").on("keypress",isDigit);
+            startButton.flag=false; startButton.off("click.start").on("click.start",startButtonFunc.bind(startButton,this,name,findAnimations,initialState));
+            pauseButton.off("click.pause").on("click.pause",pauseButtonFunc);
+            previousButton.off("click.prev").on("click.prev",stepButtonFunc.bind(previousButton,pauseButton,initialState,-1));
+            nextButton.off("click.next").on("click.next",stepButtonFunc.bind(nextButton,pauseButton,initialState,+1));
+        }
+
+        let minas,currAnimation;
+        let animFuncs;
+        this.start = function () {
+            minas=[]; currAnimation=0;
+            let pauseButton=this.pauseButton;
+            animFuncs=[];
+            for (let i=animations.length-1; i>=0; i--) {
+                let index=i;
+                animFuncs[i] = function () {
+                    let i=index;
+                    if ((currAnimation<i-1)||(currAnimation>i)) {
+                        return ;
+                    }
+                    currAnimation=i;
+                    animText.text(animations[i].animText);
+                    if (i===animations.length-1) pauseButton.hide();
+
+                    if (animations[i].hasOwnProperty("startFunction")) animations[i].startFunction();
+                    for (let j=0; j<animations[i].animFunctions.length; j++) {
+                        let isLast=(j==animations[i].animFunctions.length-1);
+                        minas.push(animations[i].animFunctions[j](function () {
+                            if (isLast==true) {
+                                if (i<animations.length-1) {
+                                    if (animations[i].hasOwnProperty("endFunction")) animations[i].endFunction();
+                                    animFuncs[i+1]();
+                                }
+                            }
+                        },speed));
+                    }
+                }
+            }
+            animFuncs[0]();
+        };
+
+        function stopAnimations () {
+            if (minas!==undefined) {
+                for (let mina of minas) {
+                    mina.stop();
+                }
+            }
+        }
+
+        this.clear = function () {
+            stopAnimations();
+            animations=[];
+            minas=[]; animFuncs=[];
+            if (this.startButton!==undefined) {
+                flagStart=false;
+                this.startButton.html("Старт!");
+            }
+            if (this.pauseButton!==undefined) this.pauseButton.hide();
+            if (this.previousButton!==undefined) this.previousButton.hide();
+            if (this.nextButton!==undefined) this.nextButton.hide();
+            if (animText!==undefined) animText.text("");
+        }
+    }
+
+    if (typeof Graph==="function") {
+        Graph.prototype = {
+            vertexAnimation: function (vr, colour, type, speedCoeff = 1) {
+                let graph=this;
+                return function(callback, speed) {
+                    let obj;
+                    if (type==="circle") obj=graph.svgVertices[vr].circle;
+                    else obj=graph.svgVertices[vr].text;
+                    if (speed>0) {
+                        obj.animate({fill: colour},speed*speedCoeff,callback);
+                        return obj.inAnim()[0].mina;
+                    }
+                    obj.attr({fill: colour});
+                }
+            },
+            edgeAnimation: function (vr1, vr2, speedCoeff = 1) {
+                let graph=this;
+                return function(callback, speed) {
+                    if (speed>0) {
+                        let obj1=graph.svgVertices[vr1];
+                        let obj2=graph.svgVertices[vr2];
+
+                        let ind=graph.edgeList.findIndex(function (e) { return ((e.x==vr1)&&(e.y==vr2)); });
+                        let reverse=false;
+                        if ((ind==-1)&&(graph.isOriented===false)) {
+                            reverse=true;
+                            ind=graph.edgeList.findIndex(function (e) { return ((e.x==vr2)&&(e.y==vr1)); });
+                        }
+                        let lineDraw=graph.s.path(graph.svgEdges[ind].line.attr("d"));
+                        let pathLength=lineDraw.getTotalLength();
+                        lineDraw.attr({fill: "none", stroke: "red", "stroke-width": graph.vertexRad/20*4});
+                        lineDraw.attr({"stroke-dasharray": pathLength, "stroke-dashoffset": pathLength});
+                        graph.s.append(obj1.group);
+                        graph.s.append(obj2.group);
+                        return Snap.animate(0,pathLength,function (t) {
+                            lineDraw.attr({"stroke-dashoffset": ((reverse===true)?(pathLength+t):(pathLength-t))});
+                        },
+                            speed*speedCoeff,function () {
+                            callback();
+                            lineDraw.remove();
+                        });
+                    }
                 }
             }
         }
     }
-}
+    
+    
+    window.Animation = Animation;
+})();

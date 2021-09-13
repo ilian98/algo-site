@@ -55,7 +55,7 @@
             let st=[circleCoord[0]+graph.vertexRad,circleCoord[1]+graph.vertexRad];
             if (segmentLength(st[0],st[1],svgPoint.x,svgPoint.y)>=graph.vertexRad) {
                 let end=[svgPoint.x, svgPoint.y];
-                currEdgeDraw=graph.drawEdge(st,end,-1,graph.vertexRad/20*1.5,0).line;
+                currEdgeDraw=graph.drawEdge(st,end,-1,0).line;
                 currEdgeDraw.prependTo(graph.s);
             }
         }

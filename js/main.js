@@ -56,6 +56,26 @@
         tableText+='</tbody>';
         return tableText;
     }
+    function findNumbersFromText (s) {
+        if (s.length>1000) return [[],1];
+        let elements=[],num=0,digs=0;
+        for (let i=0; i<s.length; i++) {
+            if (s[i]===',') {
+                if (digs==0) return [[],2];
+                elements.push(num);
+                num=0; digs=0;
+            }
+            else {
+                if ((s[i]<'0')||(s[i]>'9')) return [[],3];
+                num*=10; num+=s[i]-'0';
+                digs++;
+            }
+        }
+        if (digs==0) return [[],4];
+            
+        elements.push(num);
+        return [elements,0];
+    }
 
     let page=get_page(),home_page=false;
     if ((page=="")||(page=="index.html")||(page=="index_en.html")) {
@@ -254,7 +274,10 @@
                 window.font["Consolas"]=font;
                 opentype.load("/algo-site/fonts/Arial.woff", (error, font) => {
                     window.font["Arial"]=font;
-                    checkLessonParts(true);
+                    opentype.load("/algo-site/fonts/TimesNewRoman.woff", (error, font) => {
+                        window.font["Times New Roman"]=font;
+                        checkLessonParts(true);
+                    });
                 });
             });
         }
@@ -307,4 +330,5 @@
     window.isDigitOrComma = isDigitOrComma;
     window.isSmallLatinLetter = isSmallLatinLetter;
     window.tableHTML = tableHTML;
+    window.findNumbersFromText = findNumbersFromText;
 })();

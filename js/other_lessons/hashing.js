@@ -66,21 +66,9 @@
         paragraph.text("");
         if ((s.length===0)||(base<2)||(modulo<2)) return ;
 
-        let elements=[],num=0,digs=0;
-        for (let i=0; i<s.length; i++) {
-            if (s[i]===',') {
-                if (digs===0) return ;
-                elements.push(num);
-                num=0; digs=0;
-            }
-            else {
-                num*=10; num+=s[i]-'0';
-                digs++;
-            }
-        }
-        if (digs===0) return ;
-        elements.push(num);
-
+        let [elements,error]=findNumbersFromText(s);
+        if (error!==0) return ;
+        
         paragraph.append("Хеш-кодът на мултимножеството е: ");
         for (let i=0; i<elements.length; i++) {
             paragraph.append(" \\(");
