@@ -64,6 +64,7 @@
             graph.s.selectAll("*").remove();
             graph.draw(false);
         });
+        $(name+" .anim-text").hide();
 
         let slider=$(name+" .range");
         let output=$(name+" .slider-value");

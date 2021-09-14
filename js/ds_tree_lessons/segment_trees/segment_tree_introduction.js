@@ -96,7 +96,10 @@
         }
     }
     function makeSegTree (exampleName, tree, elements, animationObj) {
-        if (animationObj!==undefined) animationObj.clear();
+        if (animationObj!==undefined) {
+            animationObj.clear();
+            if (exampleName===".segTreeExample2") $(".treeExample .end").hide();
+        }
         tree.erase();
         
         elements.splice(0,elements.length);

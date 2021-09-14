@@ -35,6 +35,16 @@
                 speedObj.hide();
                 if (speedInput.val()==="") speed=4000/2;
                 else speed=4000/parseInt(speedInput.val());
+                
+                animText.show();
+                animText.css("height","auto");
+                let maxH=0;
+                for (let animation of animations) {
+                    animText.text(animation.animText);
+                    if (maxH<animText.height()) maxH=animText.height();
+                }
+                animText.text("");
+                animText.height(maxH);
 
                 globalObj.pauseButton.show();
                 flagPause=false; flagStep=false;
@@ -49,6 +59,7 @@
                 flagStart=false; this.html("Старт!");
                 speedObj.show();
                 if (speedInput.val()==="") speedInput.val("2");
+                animText.hide();
 
                 globalObj.clear();
             }

@@ -1,3 +1,4 @@
+"use strict";
 (function () {
     function initExample (part) {
         if (part===2) {
