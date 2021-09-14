@@ -1,0 +1,36 @@
+{
+  "name": "algo-site",
+  "version": "0.9.0",
+  "description": "Site for learning and visualising algorithms used in competitive programming.",
+  "main": "main.js",
+  "dependencies": {
+    "@highlightjs/cdn-assets": "^11.2.0",
+    "@popperjs/core": "^2.10.1",
+    "bootstrap": "^4.6.0",
+    "bootstrap-icons": "^1.5.0",
+    "jquery": "^3.6.0",
+    "mathjax": "^3.2.0",
+    "opentype.js": "^1.3.3",
+    "snapsvg": "^0.5.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ilian98/algo-site.git"
+  },
+  "keywords": [
+    "algorithms",
+    "competitive programming",
+    "lessons",
+    "animations"
+  ],
+  "author": "Iliyan Yordanov",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ilian98/algo-site/issues"
+  },
+  "homepage": "https://github.com/ilian98/algo-site#readme"
+}
