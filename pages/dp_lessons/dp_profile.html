@@ -34,11 +34,11 @@
             <div id="nav-placeholder"></div>
             <nav aria-label="breadcrumb" class="unselectable">
                 <ol class="breadcrumb">
-                    <li class="breadcrumb-item" style="z-index:0">
-                        <a href="/algo-site/pages/dp_lessons.html" class="text-danger">Динамично програмиране</a>
+                    <li class="breadcrumb-item">
+                        <a href="/algo-site/pages/dp_lessons.html" class="link-danger">Динамично програмиране</a>
                     </li>
-                    <li class="breadcrumb-item active" style="z-index:0" aria-current="page">Динамично по профил</li>
-                    <li class="ml-auto">Последна промяна: 11.08.2021</li>
+                    <li class="breadcrumb-item active" aria-current="page">Динамично по профил</li>
+                    <li class="ms-auto">Последна промяна: 11.08.2021</li>
                 </ol>
             </nav>
         </header>
@@ -170,16 +170,24 @@
                         <div class="dpProfileExample1">
                             <div class="row">
                                 <div class="col-md-3 col-lg-2">
-                                    <div class="form-group float-right">
-                                        <input class="form-control col-4 n" style="float: right" maxLength="1"/>
-                                        <label for="n" class="label-input" style="float: right">\(n\):</label>
+                                    <div class="row justify-content-end mb-3">
+                                        <label for="n" class="col-auto col-form-label pe-0">\(n\):</label>
+                                        <div class="col-5">
+                                            <input class="form-control n" maxLength="1"/>
+                                        </div>
                                     </div>
-                                    <div class="form-group float-right" style="clear: both">
-                                        <input class="form-control col-5 m" style="float: right" maxLength="2"/>
-                                        <label for="m" class="label-input" style="float: right">\(m\):</label>
+                                    <div class="row justify-content-end mb-3">
+                                        <label for="n" class="col-auto col-form-label pe-0">\(m\):</label>
+                                        <div class="col-6">
+                                            <input class="form-control m" maxLength="2"/>
+                                        </div>
                                     </div>
-                                    <button class="btn btn-primary calc" style="clear: both; float: right">Сметни!</button>
-                                    <p class="answer" style="clear: both; float: right; margin-top: 5%; font-weight: bold"></p>
+                                    <div class="row justify-content-end">
+                                        <div class="col-auto mb-2">
+                                            <button class="btn btn-primary calc">Сметни!</button>
+                                        </div>
+                                        <p class="answer" style="text-align: right; font-weight: bold"></p>
+                                    </div>
                                 </div>
                                 <div class="col-md-9 col-lg-10">
                                     <div class="row justify-content-center profiles" style="margin-bottom: 2%"></div>
@@ -206,15 +214,23 @@
                         <div class="dpProfileExample2">
                             <div class="row">
                                 <div class="col-sm">
-                                    <div class="form-group float-right">
-                                        <input class="form-control col-6 l" style="float: right" maxLength="5"/>
-                                        <label for="l" class="label-input" style="float: right">\(l\):</label>
+                                    <div class="row justify-content-end mb-3">
+                                        <label for="l" class="col-auto col-form-label pe-0">\(l\):</label>
+                                        <div class="col-3">
+                                            <input class="form-control l" maxLength="5"/>
+                                        </div>
                                     </div>
-                                    <div class="form-group float-right" style="clear: both">
-                                        <input class="form-control col-6 r" style="float: right" maxLength="5"/>
-                                        <label for="r" class="label-input" style="float: right">\(r\):</label>
+                                    <div class="row justify-content-end mb-3">
+                                        <label for="r" class="col-auto col-form-label pe-0">\(r\):</label>
+                                        <div class="col-3">
+                                            <input class="form-control r" maxLength="5"/>
+                                        </div>
                                     </div>
-                                    <button class="btn btn-primary check" style="clear: both; float: right">Провери!</button>
+                                    <div class="row justify-content-end">
+                                        <div class="col-auto">
+                                            <button class="btn btn-primary check">Провери!</button>
+                                        </div>
+                                    </div>
                                 </div>
                                 <div class="col-sm">
                                     <div class="row justify-content-center profiles-check" style="height: 100%; align-items: center">

@@ -37,7 +37,7 @@
         for (let i=0; i<table.length; i++) {
             let td="td";
             if ((hasHeadRow===true)&&(i===0)) {
-                tableText+='<thead><tr style="background-color: grey">';
+                tableText+='<thead>';
                 td="th";
             }
             else {
@@ -45,7 +45,8 @@
                 tableText+='<tr>';
             }
             for (let j=0; j<table[i].length; j++) {
-                if ((hasHeadColumn===true)&&(j===0)) tableText+='<'+td+' style="background-color: grey">';
+                if (((hasHeadRow===true)&&(i===0))||
+                    ((hasHeadColumn===true)&&(j===0))) tableText+='<'+td+' style="background-color: grey">';
                 else tableText+='<'+td+'>';
                 tableText+=table[i][j];
                 tableText+='</'+td+'>';
@@ -149,7 +150,7 @@
         let parts=getParts(anchor);
         let ordinals=["first","second","third","fourth"];
         let ind=0;
-        for (let btn of $(".lesson-part-position >.btn")) {
+        for (let btn of $(".lesson-part-position>.btn")) {
             let name="#"+ordinals[ind]+"Part";
             if (parts.includes(ind+1)) {
                 if ($(name).is(":hidden")===true) {
@@ -168,7 +169,7 @@
         let parts=getParts(anchor);
         $(".anchor").remove();
         let ind=0;
-        for (let btn of $(".lesson-part-position >.btn")) {
+        for (let btn of $(".lesson-part-position>.btn")) {
             let name="#"+ordinals[ind]+"Part";
             if (parts.includes(ind+1)) {
                 $(btn).append('<a class="anchor" href="#'+removePart(ind+1,anchor)+'"></a>');
@@ -236,7 +237,7 @@
         $.get(navigation_page, function (data) {
             $("#nav-placeholder").replaceWith(data);
             $("#nav-placeholder").ready(function () {
-                let dropdown=$('[aria-labelledby="languages"]').children();
+                let dropdown=$('[aria-labelledby="languages"] .dropdown-item');
                 $(dropdown[0]).on("click",changeLanguage.bind(dropdown[0],"bg"));
                 $(dropdown[1]).on("click",changeLanguage.bind(dropdown[1],"en"));
             });
@@ -285,9 +286,7 @@
     });
     
     $(window).on("beforeunload", function() {
-        if (home_page===true) sessionStorage.setItem(page+"scrollTop",$(".content").scrollTop());
-        else sessionStorage.setItem(page+"scrollTop",$(".wrapper").scrollTop());
-        return ;
+        sessionStorage.setItem(page+"scrollTop",$(".wrapper").scrollTop());
     });
     
     $(window).on("popstate", function(event) {

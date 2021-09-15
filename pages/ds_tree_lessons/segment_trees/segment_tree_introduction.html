@@ -38,14 +38,14 @@
             <div id="nav-placeholder"></div>
             <nav aria-label="breadcrumb" class="unselectable">
                 <ol class="breadcrumb">
-                    <li class="breadcrumb-item" style="z-index:0">
-                        <a href="/algo-site/pages/ds_tree_lessons.html" class="text-danger">Структури от данни</a>
+                    <li class="breadcrumb-item">
+                        <a href="/algo-site/pages/ds_tree_lessons.html" class="link-danger">Структури от данни</a>
                     </li>
-                    <li class="breadcrumb-item" style="z-index:0">
-                        <a href="#" class="text-danger">Сегментни дървета</a>
+                    <li class="breadcrumb-item">
+                        <a href="#" class="link-danger">Сегментни дървета</a>
                     </li>
-                    <li class="breadcrumb-item active" style="z-index:0" aria-current="page">Увод</li>
-                    <li class="ml-auto">Последна промяна: 02.05.2021</li>
+                    <li class="breadcrumb-item active" aria-current="page">Увод</li>
+                    <li class="ms-auto">Последна промяна: 02.05.2021</li>
                 </ol>
             </nav>
         </header>
@@ -73,10 +73,12 @@
                         <p class="text-format">Може да разгледате интерактивния пример, където е построено сегментно дърво по масив, по него ще обясним цялостната концепция.</p>
                         <div class="segTreeExample1 row">
                             <div class="form-group col-lg-5">
-                                <form>
-                                    <label for="array" class="label-input" style="float: left">Масив:</label>
-                                    <input class="form-control col-9 col-md-6 col-lg-9 array" maxLength="47"/>
-                                </form><br>
+                                <div class="row mb-2">
+                                    <label for="array" class="col-auto col-form-label pe-0">Масив:</label>
+                                    <div class="col-9 col-md-6 col-lg-9">
+                                        <input class="form-control array" maxLength="47"/>
+                                    </div>
+                                </div>
                                 <button class="btn btn-primary make">Направи дървото!</button><br>
                                 <button class="btn btn-primary default" style="margin-top: 2%">Върни началния пример</button>
                                 <button class="btn btn-primary indexes" style="margin-top: 2%">Покажи номерата</button>
@@ -114,18 +116,32 @@
                         <p class="text-format">На всяка стъпка на рекурсията проверяваме дали листото, отговарящо за променения елемент е вляво или вдясно. А на обратния ход - смятаме наново сумата за всеки връх, през който сме минали, за да отразим променения елемент. Така всички върхове на сегментното дърво имат правилна стойност след изпълнение на функцията. Ясно е, че функцията работи колкото елемента се променят, т.е. със сложност \(O(\log_{2}n)\). За по-добро разбиране е предоставен интерактивен пример за работата на рекурсията при заявка за промяна.</p>
                         <div class="segTreeExample2 row">
                             <div class="form-group col-lg-5">
-                                <form>
-                                    <label for="array" class="label-input" style="float: left">Масив:</label>
-                                    <input class="form-control col-9 col-md-6 col-lg-9 array" maxLength="47"/>
-                                </form><br>
+                                <div class="row mb-2">
+                                    <label for="array" class="col-auto col-form-label pe-0">Масив:</label>
+                                    <div class="col-9 col-md-6 col-lg-9">
+                                        <input class="form-control array" maxLength="47"/>
+                                    </div>
+                                </div>
                                 <button class="btn btn-primary make">Направи дървото!</button><br>
                                 <button class="btn btn-primary default" style="margin-top: 2%">Начално състояние</button>
-                                <form style="margin-top: 5%">
-                                    <label for="array" class="label-input" style="float: left">\(pos=\)</label>
-                                    <input class="form-control col-2 col-md-1 col-lg-2 pos" style="float: left" maxLength="2"/>
-                                    <label for="array" class="label-input" style="float: left; margin-left: 2%">\(val=\)</label>
-                                    <input class="form-control col-2 col-md-1 col-lg-2 val" style="float: left" maxLength="2"/>
-                                </form><br><br>
+                                <div class="row mt-2 mb-2">
+                                    <div class="col">
+                                        <div class="row">
+                                            <label for="pos" class="col-auto col-form-label pe-0">\(pos=\)</label>
+                                            <div class="col-6 col-md-3 col-lg-5">
+                                                <input class="form-control pos" maxLength="2"/>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col">
+                                        <div class="row">
+                                            <label for="val" class="col-auto col-form-label pe-0">\(val=\)</label>
+                                            <div class="col-6 col-md-3 col-lg-5">
+                                                <input class="form-control val" maxLength="2"/>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                             <div class="treeExample col-lg-7">
                                 <button class="btn btn-primary start">Старт!</button>
@@ -150,9 +166,11 @@
                                     </svg>
                                 </button>
                                 
-                                <div class="form-group">
-                                    <label for="duration" style="float: left" class="label-input">Ускорение:</label>
-                                    <input class="form-control col-2 speed" style="float: left" maxLength="1"/>
+                                <div class="row form-group">
+                                    <label for="speed" class="col-auto col-form-label ps-0 pe-0">Ускорение:</label>
+                                    <div class="col-2">
+                                        <input class="form-control speed" maxLength="1"/>
+                                    </div>
                                 </div>
                                 <p class="anim-text"></p>
                                 <canvas class="canvas-save"></canvas>
@@ -168,18 +186,32 @@
                         <p class="text-format">Това, което получихме е силен резултат, защото показва, че използвайки рекурсивно обхождане за намиране на нужните върхове, ще стъпим най-много в \(4.\log_2{n}\) върха. При по-внимателен анализ може да се забележи, че върховете, които ще включим за сумата са малко по-малко - \(2.\log_2{n}\). Така получаваме същата сложност и на тази заявка - \(O(\log_{2}n)\), но с по-тежка константа - 4. Отново може да се направи итеративна реализация, на която няма да се спираме в детайли. На кратко идеята отново е да тръгнем от крайното ляво и дясно листо, да ги движим едновремнно нагоре и да преценяваме кои интервали се включват, дали трябва да включим и някой долен връх. За по-добро онагледяване отново има интерактивен пример, който следва рекурсивната реализация на заявката за търсене на сума. Когато напускаме връх, до него се появава сумата на елементите, които участват в интервала на заявката.</p>
                         <div class="segTreeExample3 row">
                             <div class="form-group col-lg-5">
-                                <form>
-                                    <label for="array" class="label-input" style="float: left">Масив:</label>
-                                    <input class="form-control col-9 col-md-6 col-lg-9 array" maxLength="47"/>
-                                </form><br>
+                                <div class="row mb-2">
+                                    <label for="array" class="col-auto col-form-label pe-0">Масив:</label>
+                                    <div class="col-9 col-md-6 col-lg-9">
+                                        <input class="form-control array" maxLength="47"/>
+                                    </div>
+                                </div>
                                 <button class="btn btn-primary make">Направи дървото!</button><br>
                                 <button class="btn btn-primary default" style="margin-top: 2%">Начално състояние</button>
-                                <form style="margin-top: 5%">
-                                    <label for="array" class="label-input" style="float: left">\(ql=\)</label>
-                                    <input class="form-control col-2 col-md-1 col-lg-2 ql" style="float: left" maxLength="2"/>
-                                    <label for="array" class="label-input" style="float: left; margin-left: 2%">\(qr=\)</label>
-                                    <input class="form-control col-2 col-md-1 col-lg-2 qr" style="float: left" maxLength="2"/>
-                                </form><br><br>
+                                <div class="row mt-2 mb-2">
+                                    <div class="col">
+                                        <div class="row">
+                                            <label for="ql" class="col-auto col-form-label pe-0">\(ql=\)</label>
+                                            <div class="col-6 col-md-3 col-lg-5">
+                                                <input class="form-control ql" maxLength="2"/>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col">
+                                        <div class="row">
+                                            <label for="qr" class="col-auto col-form-label pe-0">\(qr=\)</label>
+                                            <div class="col-6 col-md-3 col-lg-5">
+                                                <input class="form-control qr" maxLength="2"/>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                             <div class="treeExample col-lg-7">
                                 <button class="btn btn-primary start">Старт!</button>
@@ -204,9 +236,11 @@
                                     </svg>
                                 </button>
                                 
-                                <div class="form-group">
-                                    <label for="duration" style="float: left" class="label-input">Ускорение:</label>
-                                    <input class="form-control col-2 speed" style="float: left" maxLength="1"/>
+                                <div class="row form-group">
+                                    <label for="speed" class="col-auto col-form-label ps-0 pe-0">Ускорение:</label>
+                                    <div class="col-2">
+                                        <input class="form-control speed" maxLength="1"/>
+                                    </div>
                                 </div>
                                 <p class="anim-text"></p>
                                 <canvas class="canvas-save"></canvas>
@@ -232,11 +266,19 @@
                         <p class="text-format">Както се вижда в кода, за да е най-удобно, информацията за всеки връх на дървото е групирана в структура. Имаме глобален брояч <i>curr</i> за свободен индекс на нов връх. Смятането на <i>tree[ind].cnt</i> може да се направи като просто се увеличи старата стойност с 1. В кода е написано по по-дълъг начин, защото при по-сложна задача най-вероятно ще има нужда от такова нещо. Предоставен е интерактивен пример, където могат да се добавят нови точки и да се наблюдава как се добавят новите върхове. За да е по-плитко дървото, координатите, които се позволяват, са от 1 до 64.</p>
                         <div class="segTreeExample4 row">
                             <div class="form-group col-lg-4">
-                                <form style="margin-top: 5%">
-                                    <label for="array" class="label-input" style="float: left">\(c=\)</label>
-                                    <input class="form-control col-2 col-md-1 col-lg-2 c" style="float: left" maxLength="2"/>
-                                </form>
-                                <button class="btn btn-primary add" style="margin-left: 2%">Добави точката</button><br>
+                                <div class="row mb-2">
+                                    <div class="col-4 col-lg-5">
+                                        <div class="row">
+                                            <label for="c" class="col-auto col-form-label pe-0">\(c=\)</label>
+                                            <div class="col-8 col-md-4 col-lg-8">
+                                                <input class="form-control c" maxLength="2"/>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <button class="btn btn-primary add">Добави точката</button>
+                                    </div>
+                                </div>
                                 <button class="btn btn-primary default" style="margin-top: 2%">Начално състояние</button>
                                 <button class="btn btn-primary indexes" style="margin-top: 2%">Покажи номерата</button>
                             </div>

@@ -37,11 +37,11 @@
             <div id="nav-placeholder"></div>
             <nav aria-label="breadcrumb" class="unselectable">
                 <ol class="breadcrumb">
-                    <li class="breadcrumb-item" style="z-index:0">
-                        <a href="/algo-site/pages/mathematical_lessons.html" class="text-danger">Математични</a>
+                    <li class="breadcrumb-item">
+                        <a href="/algo-site/pages/mathematical_lessons.html" class="link-danger">Математични</a>
                     </li>
-                    <li class="breadcrumb-item active" style="z-index:0" aria-current="page">2-SAT</li>
-                    <li class="ml-auto">Последна промяна: 26.11.2020</li>
+                    <li class="breadcrumb-item active" aria-current="page">2-SAT</li>
+                    <li class="ms-auto">Последна промяна: 26.11.2020</li>
                 </ol>
             </nav>
         </header>
@@ -88,8 +88,12 @@
                         <p class="text-format">Смисълът на тази операция е като математическото следователно - искаме да кажем, че ако едно твърдение е истина (a), то друго твърдение също трябва да е истина (b). Както се вижда, при тази операция можем да получим 0, само ако първата променлива e 1, а втората е 0. Нека например имаме \(x||y\). Тогава ако \(x=1\), нямаме претенции за стойността на \(y\). Но ако \(x=0\), тогава за да удовлетворим тази формула, <b>трябва</b> \(y=1\). Това можем да запишем с импликация по следния начин: \(!x\to y\), което е напълно еквивалетно на началната формула \(x||y\). По-рано казахме, че искаме да знаем за всяка променлива какво следва, ако ѝ присвоим дадена стойност. Затова аналогично, ако разсъждаваме за \(y\) трябва да имаме импликацията \(!y\to x\), която също е еквивалентна на началната формула. Така тези две импликации ни описват точно какво трябва да се случи в зависимост от това какви стойности присвоим на \(x\) и \(y\). По този начин можем за всяко едно от логическите <b>или</b>-та да разпишем съответни импликации на това какво трябва да следва при присвояване на дадена стойност на някоя променлива. Понеже те са обединени с логическо <b>и</b>, то всички тези импликации трябва да са верни. Цялата тази информация най-компактно и приложимо можем да я запишем в граф, чиито върхове са променливите и техните отрицания, а ребрата са именно тези импликации. Следният интерактивен пример илюстрира как от формула, която е в 2-<i>SAT</i> форма, можем да получим така наречения <i>граф на импликациите</i>:</p>
                         <div class="twoSATexample1 row">
                             <div class="form-group col-lg-5">
-                                <label for="formula" class="label-input" style="float: left">Формула:</label>
-                                <input class="form-control col-9 col-md-6 col-lg-9 formula" maxLength="40"/>
+                                <div class="row">
+                                    <label for="formula" class="col-auto col-form-label pe-0">Формула:</label>
+                                    <div class="col-9 col-md-6 col-lg-9">
+                                        <input class="form-control formula" maxLength="40"/>
+                                    </div>
+                                </div>
                             </div>
                             <div class="graphExample col-lg-7">
                                 <button class="btn btn-primary make">Направи графа!</button>
@@ -114,9 +118,12 @@
                         <p class="text-format">Можем да преразкажем последното условие по следния начин. Дадена формула в 2-<i>SAT</i> форма е неудовлетворима\(\iff\) за някоя променлива \(x\) съществува цикъл в <i>графа на импликациите</i> между върха на \(x\) и върха на \(!x\). Това лесно може да се открие за ориентиран граф, какъвто е и <i>графът на импликациите</i>. Ако разглеждаме силно-свързаните му компоненти (<a class="info">...</a><a class="info" style="display: none">първо погледнете темата за силно-свързани компоненти</a>), то търсим дали има такава компонента, в която да се намира променлива и нейното отрицание. Следният интерактивен пример онагледява силно-свързаните компоненти на <i>графа на импликациите</i> за дадена формула в 2-<i>SAT</i> форма (едноцветните върхове са в една силно-свързана компонента):</p>
                         <div class="twoSATexample2 row">
                             <div class="form-group col-lg-5">
-                                <label for="formula" class="label-input" style="float: left">Формула:</label>
-                                <input class="form-control col-9 col-md-6 col-lg-9 formula" maxLength="40"/>
-                                <br>
+                                <div class="row mb-2">
+                                    <label for="formula" class="col-auto col-form-label pe-0">Формула:</label>
+                                    <div class="col-9 col-md-6 col-lg-9">
+                                        <input class="form-control formula" maxLength="40"/>
+                                    </div>
+                                </div>
                                 <label for="solution" style="float: left; margin-right: 10px; margin-bottom: 0px">Решение:</label>
                                 <p class="solution"></p>
                             </div>

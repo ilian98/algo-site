@@ -6,6 +6,11 @@
             $(".hashExample1 .modulo").val("1009");
             $("#string").val("abcab");
             $(".hashExample1 .start").on("click",calculateHashString);
+            
+            $(".hashExample1 .base").on("keypress",isDigit);
+            $(".hashExample1 .modulo").on("keypress",isDigit);
+            $("#string").on("keypress",isSmallLatinLetter);
+            
             calculateHashString();
         }
         else if (part===4) {
@@ -13,6 +18,11 @@
             $(".hashExample2 .modulo").val("1009");
             $("#multiSet").val("1,2,3");
             $(".hashExample2 .start").on("click",calculateHashMultiSet);
+            
+            $(".hashExample2 .base").on("keypress",isDigit);
+            $(".hashExample2 .modulo").on("keypress",isDigit);
+            $("#multiSet").on("keypress",isDigitOrComma);
+            
             calculateHashMultiSet();
         }
     }

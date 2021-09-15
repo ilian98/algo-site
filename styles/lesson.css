@@ -52,6 +52,13 @@ ul {
     cursor: pointer;
 }
 
+.link-danger {
+    text-decoration: none;
+}
+.link-danger:hover {
+    text-decoration: underline;
+}
+
 pre {
     overflow-x: auto;
     max-width: 100%;
@@ -59,11 +66,6 @@ pre {
 code {
     word-wrap: normal !important;
     background: #343a40 !important;
-}
-
-.label-input {
-    margin-top: 5px;
-    margin-right: 5px;
 }
 
 .slidecontainer {

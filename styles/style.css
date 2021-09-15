@@ -1,18 +1,18 @@
 @media (min-width: 992px) {
-        .navbar-nav > li{
-         margin-left: 4%;
-         margin-right: 4%;
-         }
+    .navbar-nav > li {
+        margin-left: 4%;
+        margin-right: 4%;
+    }
 }
 @media (min-width: 401px) {
-        .navbar-toggler {
-         margin-bottom: 0px;
-         }
+    .navbar-toggler {
+        margin-bottom: 0px;
+    }
 }
 @media (max-width: 400px) {
-        .navbar-toggler {
-         margin-bottom: 10px;
-         }
+    .navbar-toggler {
+        margin-bottom: 10px;
+    }
 }
 
 @font-face {
@@ -48,6 +48,22 @@ body {
     width: 100%;
     overflow-y: hidden;
 }
+
+.bg-navbar-color {
+    background-color: lightgreen;
+}
+.btn-light:hover {
+    background-color: #e2e6ea;
+}
+.btn-light:focus {
+    background-color: #e2e6ea;
+    border-color: #d3d9df;
+}
+.btn-light.show {
+    background-color: #dae0e5;
+    border-color: #d3d9df;
+}
+
 .wrapper {
     overflow-y: auto;
     width: 100%;
@@ -62,9 +78,6 @@ body {
     background-image: url(/algo-site/images/background.jpg);
     background-repeat: repeat;
     background-attachment: scroll;
-}
-.bg-navbar-color {
-    background-color: lightgreen;
 }
 footer {
     background: #696969;
@@ -112,17 +125,28 @@ footer {
     color: darkslategrey;
     margin-bottom: 40px;
 }
-.card-news {
+.card {
     background-color: ghostwhite;
     margin-top: 20px;
+    margin-bottom: 24px;
     border-radius: 10px;
+    padding: 0.25rem;
 }
-.news-link:link {
+.card-link:link {
     color: brown;
+    text-decoration: none;
 }
-.news-link:visited {
+.card-link:visited {
     color: brown;
+    text-decoration: none;
 }
-.news-link:hover {
+.card-link:hover {
     color: brown;
+    text-decoration: none;
+}
+
+.breadcrumb {
+    background-color: #e9ecef;
+    padding-left: 1rem;
+    padding-right: 1rem;
 }

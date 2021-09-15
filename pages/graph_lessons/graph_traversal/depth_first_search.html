@@ -39,11 +39,11 @@
             <div id="nav-placeholder"></div>
             <nav aria-label="breadcrumb" class="unselectable">
                 <ol class="breadcrumb">
-                    <li class="breadcrumb-item" style="z-index:0">
-                        <a href="/algo-site/pages/graph_lessons.html" class="text-danger">Графи</a>
+                    <li class="breadcrumb-item">
+                        <a href="/algo-site/pages/graph_lessons.html" class="link-danger">Графи</a>
                     </li>
-                    <li class="breadcrumb-item active" style="z-index:0" aria-current="page">Търсене в дълбочина - DFS</li>
-                    <li class="ml-auto">Последна промяна: 13.08.2021</li>
+                    <li class="breadcrumb-item active" aria-current="page">Търсене в дълбочина - DFS</li>
+                    <li class="ms-auto">Последна промяна: 13.08.2021</li>
                 </ol>
             </nav>
         </header>
@@ -91,9 +91,11 @@
                                             <use xlink:href="/algo-site/node_modules/bootstrap-icons/bootstrap-icons.svg#download"/>
                                         </svg>
                                     </button>
-                                    <div class="form-group">
-                                        <label for="duration" style="float: left" class="label-input">Ускорение:</label>
-                                        <input class="form-control col-2 speed" style="float: left" maxLength="1"/>
+                                    <div class="row form-group">
+                                        <label for="speed" class="col-auto col-form-label ps-0 pe-0">Ускорение:</label>
+                                        <div class="col-4">
+                                            <input class="form-control speed" maxLength="1"/>
+                                        </div>
                                     </div>
                                     <p class="anim-text"></p>
                                     <canvas class="canvas-save"></canvas>
@@ -128,9 +130,11 @@
                                             <use xlink:href="/algo-site/node_modules/bootstrap-icons/bootstrap-icons.svg#download"/>
                                         </svg>
                                     </button>
-                                    <div class="form-group">
-                                        <label for="duration" style="float: left" class="label-input">Ускорение:</label>
-                                        <input class="form-control col-2 speed" style="float: left" maxLength="1"/>
+                                    <div class="row form-group">
+                                        <label for="speed" class="col-auto col-form-label ps-0 pe-0">Ускорение:</label>
+                                        <div class="col-4">
+                                            <input class="form-control speed" maxLength="1"/>
+                                        </div>
                                     </div>
                                     <p class="anim-text"></p>
                                     <canvas class="canvas-save"></canvas>

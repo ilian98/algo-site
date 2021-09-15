@@ -37,9 +37,9 @@
             <div id="nav-placeholder"></div>
             <nav aria-label="breadcrumb" class="unselectable">
                 <ol class="breadcrumb">
-                    <li class="breadcrumb-item" style="z-index:0"><a href="/algo-site/pages/graph_lessons.html" class="text-danger">Графи</a></li>
-                    <li class="breadcrumb-item active" style="z-index:0" aria-current="page">Увод в графите</li>
-                    <li class="ml-auto">Последна промяна: 07.09.2021</li>
+                    <li class="breadcrumb-item"><a href="/algo-site/pages/graph_lessons.html" class="link-danger">Графи</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Увод в графите</li>
+                    <li class="ms-auto">Последна промяна: 07.09.2021</li>
                 </ol>
             </nav>
         </header>
@@ -93,16 +93,24 @@
                         <div class="graphExample5">
                             <div class="row">
                                 <div class="col-sm">
-                                    <div class="form-group float-right">
-                                        <input class="form-control col-3 col-md-2 beg" style="float: right" maxLength="1"/>
-                                        <label for="beg" class="label-input" style="float: right">Начален връх:</label>
+                                    <div class="row justify-content-end mb-3">
+                                        <label for="beg" class="col-auto col-form-label pe-0">Начален връх:</label>
+                                        <div class="col-3 col-md-2">
+                                            <input class="form-control beg" maxLength="1"/>
+                                        </div>
                                     </div>
-                                    <div class="form-group float-right" style="clear: both">
-                                        <input class="form-control col-3 col-md-2 end" style="float: right" maxLength="1"/>
-                                        <label for="end" class="label-input" style="float: right">Краен връх:</label>
+                                    <div class="row justify-content-end mb-3">
+                                        <label for="end" class="col-auto col-form-label pe-0">Краен връх:</label>
+                                        <div class="col-3 col-md-2">
+                                            <input class="form-control end" maxLength="1"/>
+                                        </div>
                                     </div>
-                                    <button class="btn btn-primary find" style="clear: both; float: right; margin-bottom: 2%">Намери!</button>
-                                    <p class="paths" style="text-align: right; clear: both; float: right"></p>
+                                    <div class="row justify-content-end">
+                                        <div class="col-auto mb-2">
+                                            <button class="btn btn-primary find">Намери!</button>
+                                        </div>
+                                        <p class="paths" style="text-align: right"></p>
+                                    </div>
                                 </div>
                                 <div class="col-sm text-center">
                                     <svg class="graph" viewBox="0 0 300 300" style="height: 40vh"></svg>
@@ -175,13 +183,13 @@
                         </ul>
                         <p class="text-format">Последно ще направим едно сравнение между показаните представяния. На следната таблица е представена информация за време на построяване, памет и времева сложност за някои основни операции при различните представяния в неориентирани графи.</p>
                         <div class="table-responsive" style="margin-bottom: 2vh">
-                            <table class="table table-dark table-bordered text-center" style="width: auto; margin: auto">
-                                <thead style="background: grey">
+                            <table class="table table-hover table-dark table-bordered text-center" style="width: auto; margin: auto">
+                                <thead>
                                     <tr>
-                                        <th>Харектеристика\Представяне</th>
-                                        <th>матрица на съседство</th>
-                                        <th>списък на съседите</th>
-                                        <th>списък на ребрата</th>
+                                        <th style="background: grey">Харектеристика\Представяне</th>
+                                        <th style="background: grey">матрица на съседство</th>
+                                        <th style="background: grey">списък на съседите</th>
+                                        <th style="background: grey">списък на ребрата</th>
                                     </tr>
                                 </thead>
                                 <tbody>
