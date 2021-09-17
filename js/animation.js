@@ -20,7 +20,6 @@
             stopAnimations();
             initialState();
 
-            let speedObj=$(name+" .form-group");
             let speedInput=$(name+" .speed");
 
             if (flagStart===false) {
@@ -103,7 +102,7 @@
             }
         }
         
-        let speed,animText;
+        let speed,speedObj,animText;
         this.init = function (name, findAnimations, initialState) {
             speed=2000;
 
@@ -111,7 +110,9 @@
             let pauseButton=this.pauseButton=$(name+" .pause");
             let previousButton=this.previousButton=$(name+" .previous");
             let nextButton=this.nextButton=$(name+" .next");
+            speedObj=$(name+" .form-group");
             animText=$(name+" .anim-text");
+            animText.hide();
 
             this.clear();
             $(name+" .speed").val("2");
@@ -175,7 +176,11 @@
             if (this.pauseButton!==undefined) this.pauseButton.hide();
             if (this.previousButton!==undefined) this.previousButton.hide();
             if (this.nextButton!==undefined) this.nextButton.hide();
-            if (animText!==undefined) animText.text("");
+            if (speedObj!==undefined) speedObj.show();
+            if (animText!==undefined) {
+                animText.text("");
+                animText.hide();
+            }
         }
     }
 

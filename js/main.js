@@ -88,12 +88,16 @@
     }
     window.isMobile="false";
     if (sessionStorage.getItem("mobile")!==null) window.isMobile=sessionStorage.getItem("mobile");
-    else sessionStorage.setItem("mobile","false");
     $(window).on("touchstart.mobile", function () {
         sessionStorage.setItem("mobile","true");
         window.isMobile="true";
         cssMobile();
         $(window).off("touchstart.mobile");
+    });
+    $(window).on("mousedown.mobile", function () {
+        sessionStorage.setItem("mobile","false");
+        window.isMobile="false";
+        $(window).off("mousedown.mobile");
     });
     if (window.isMobile==="true") cssMobile();
         
@@ -112,7 +116,7 @@
         setHeights();
         $(window).resize(setHeights);
         $(window).on("orientationchange",setHeights);
-        let scrollTop=parseInt(sessionStorage.getItem(get_page()+"scrollTop"));
+        let scrollTop=parseInt(sessionStorage.getItem(page+"scrollTop"));
         let wrapper=$(".wrapper");
         wrapper.scrollTop(scrollTop);
         if (window.isMobile==="false") wrapper.focus();
@@ -150,7 +154,7 @@
         let parts=getParts(anchor);
         let ordinals=["first","second","third","fourth"];
         let ind=0;
-        for (let btn of $(".lesson-part-position>.btn")) {
+        for (let btn of $(".lesson-part-position >.btn")) {
             let name="#"+ordinals[ind]+"Part";
             if (parts.includes(ind+1)) {
                 if ($(name).is(":hidden")===true) {
@@ -169,7 +173,7 @@
         let parts=getParts(anchor);
         $(".anchor").remove();
         let ind=0;
-        for (let btn of $(".lesson-part-position>.btn")) {
+        for (let btn of $(".lesson-part-position >.btn")) {
             let name="#"+ordinals[ind]+"Part";
             if (parts.includes(ind+1)) {
                 $(btn).append('<a class="anchor" href="#'+removePart(ind+1,anchor)+'"></a>');
@@ -285,7 +289,7 @@
         else checkLessonParts(true);
     });
     
-    $(window).on("beforeunload", function() {
+    $(window).on("pagehide visibilitychange", function() {
         sessionStorage.setItem(page+"scrollTop",$(".wrapper").scrollTop());
     });
     

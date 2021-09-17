@@ -77,11 +77,15 @@
             graph.drawNewGraph(1,1,299,299,vertexRad,true);
         });
 
+        let topSaveButton=$($(name+" .save")[0]);
+        topSaveButton.hide();
         animationObj.startButton.off("click.bonus").on("click.bonus", function () {
             if ($(name+" .default").is(":hidden")===false) {
+                topSaveButton.show();
                 $(name+" .default").hide();
             }
             else {
+                topSaveButton.hide();
                 $(name+" .default").show();
                 graph.draw(true);
             }

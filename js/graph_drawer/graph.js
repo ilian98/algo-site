@@ -462,37 +462,38 @@
 
     function addSaveFunctionality (svgName) {
         let parentElement=$(svgName).parent();
-        let saveButton=parentElement.children(".save");
         let canvas=parentElement.children(".canvas-save");
         canvas.hide();
         let svgSave=parentElement.children(".svg-save");
         svgSave.hide();
 
-        saveButton.on("click",function () {
-            let context=canvas[0].getContext('2d');
-            let svg=parentElement.children(".graph");
-            let svgWidth=svg.width(),svgHeight=svg.height();
-            svgSave.attr("width",svgWidth);
-            svgSave.attr("height",svgHeight);
+        for (let saveButton of parentElement.find(".save")) {
+            $(saveButton).on("click",function () {
+                let context=canvas[0].getContext('2d');
+                let svg=parentElement.children(".graph");
+                let svgWidth=svg.width(),svgHeight=svg.height();
+                svgSave.attr("width",svgWidth);
+                svgSave.attr("height",svgHeight);
 
-            $(svgName).clone().appendTo(svgSave);
-            canvas.prop("width",svgWidth);
-            canvas.prop("height",svgHeight);
+                $(svgName).clone().appendTo(svgSave);
+                canvas.prop("width",svgWidth);
+                canvas.prop("height",svgHeight);
 
-            svgSave.show();
-            let svgString=(new XMLSerializer()).serializeToString(svgSave[0]);
-            svgSave.hide();
+                svgSave.show();
+                let svgString=(new XMLSerializer()).serializeToString(svgSave[0]);
+                svgSave.hide();
 
-            let image=$("<img>").prop("src","data:image/svg+xml; charset=utf8, "+encodeURIComponent(svgString));
-            image.on("load", function () {
-                context.drawImage(image[0],0,0);
-                let imageURI=canvas[0].toDataURL('image/png').replace('image/png','image/octet-stream');
-                $("<a>").prop("download","graph.png")
-                    .prop("href",imageURI)
-                    .prop("target",'_blank')[0].click();
-                $(svgSave).empty();
+                let image=$("<img>").prop("src","data:image/svg+xml; charset=utf8, "+encodeURIComponent(svgString));
+                image.on("load", function () {
+                    context.drawImage(image[0],0,0);
+                    let imageURI=canvas[0].toDataURL('image/png').replace('image/png','image/octet-stream');
+                    $("<a>").prop("download","graph.png")
+                        .prop("href",imageURI)
+                        .prop("target",'_blank')[0].click();
+                    $(svgSave).empty();
+                });
             });
-        });
+        }
     }
     
     

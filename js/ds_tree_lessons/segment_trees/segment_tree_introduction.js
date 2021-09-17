@@ -5,8 +5,9 @@
         frameX: 2,
     };
     
-    function endAnimation (tree, animationObj, elements, pos, val) {
+    function endAnimation (topSaveButton, tree, animationObj, elements, pos, val) {
         this.hide();
+        topSaveButton.hide();
 
         animationObj.clear();
         elements[pos-1]=val;
@@ -232,17 +233,23 @@
             });
             let endButton=$(".treeExample .end");
             endButton.hide();
-            if (exampleName==".segTreeExample2") {
-                animationObj.startButton.on("click.bonus", function () {
-                    if (animationObj.startButton.html()==="Стоп") { // first click handler is in animationObj
+            let topSaveButton=$($(exampleName+" .save")[0]);
+            topSaveButton.hide();
+            animationObj.startButton.on("click.bonus", function () {
+                if (animationObj.startButton.html()==="Стоп") { // first click handler is in animationObj
+                    if (exampleName==".segTreeExample2") {
                         endButton.show();
-                        endButton.on("click",endAnimation.bind(endButton,tree,animationObj,elements,pos,val));
+                        endButton.on("click",endAnimation.bind(endButton,topSaveButton,tree,animationObj,elements,pos,val));
                     }
-                    else {
+                    topSaveButton.show();
+                }
+                else {
+                    if (exampleName==".segTreeExample2") {
                         endButton.hide();
                     }
-                });
-            }
+                    topSaveButton.hide();
+                }
+            });
         }
         else if (exampleName==".segTreeExample4") {
             $(exampleName+" .c").val("42");

@@ -1,7 +1,11 @@
+h1 {
+    margin-top: 3vh;
+    margin-bottom: 5vh;
+}
 .lesson-part-position {
     width: 100%;
-    margin-top: 1%;
-    margin-bottom: 1%;
+    margin-top: 2vh;
+    margin-bottom: 2vh;
     clear: both;
 }
 #firstPart, #secondPart, #thirdPart, #fourthPart {
@@ -12,6 +16,7 @@
     width: 100%;
     padding-left: 5px;
     padding-right: 5px;
+    margin-bottom: 2vh;
 }
 .btn.btn-secondary {
     text-align: left;
