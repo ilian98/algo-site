@@ -40,10 +40,10 @@
         });
     }
 
-    function defaultExample (name, graph, animationObj, isOriented, vertexRad) {
-        graph.init(name+" .graph",5,isOriented,true);
+    function defaultExample (name, graph, animationObj, isDirected, vertexRad) {
+        graph.init(name+" .graph",5,isDirected,true);
         let edgeList;
-        if (isOriented===false) edgeList=[[0,1],[0,2],[0,3],[0,4],[1,2]];
+        if (isDirected===false) edgeList=[[0,1],[0,2],[0,3],[0,4],[1,2]];
         else edgeList=[[0,1],[0,2],[0,3],[0,4],[1,2],[1,4],[2,3],[3,1]];
         graph.buildEdgeDataStructures(edgeList);
         graph.drawNewGraph(1,1,299,299,vertexRad,true);
@@ -73,7 +73,7 @@
             animationObj.clear();
             $(name+" .default").show();
             output.html($(this).val());
-            graph.init(name+" .graph",parseInt($(this).val()),isOriented,true);
+            graph.init(name+" .graph",parseInt($(this).val()),isDirected,true);
             graph.drawNewGraph(1,1,299,299,vertexRad,true);
         });
 

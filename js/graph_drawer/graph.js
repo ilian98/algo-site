@@ -67,11 +67,11 @@
         p+="a"+r+","+r+" 0 1,0 "+-(r*2)+",0";
         return p;
     }
-    function loopPath (x, y, vertexRad, r, isOriented) {
+    function loopPath (x, y, vertexRad, r, isDirected) {
         let points=circlesIntersection(x,y+vertexRad,vertexRad,x,y-3*r/8,r);
         let p1=points[0];
         let p2;
-        if (isOriented===false) p2=points[1];
+        if (isDirected===false) p2=points[1];
         else p2=[x+r,y-3*r/8];
         return "M"+p1[0]+" "+p1[1]+" A"+[r,r,0,1,1,p2[0],p2[1]].join(" ");
     }
@@ -95,6 +95,7 @@
     function SvgVertex () {
         this.coord=undefined;
         this.circle=undefined; this.text=undefined;
+        this.group=undefined;
     }
 
     function Edge (x, y, weight = "") {
@@ -118,9 +119,9 @@
         this.svgVertices=undefined; this.svgEdges=undefined;
         this.n=undefined; this.vertices=undefined;
         this.edgeList=undefined; this.adjList=undefined; this.adjMatrix=undefined;
-        this.isOriented=undefined; this.isMulti=undefined; this.isWeighted=undefined; this.isTree=undefined;
+        this.isDirected=undefined; this.isMulti=undefined; this.isWeighted=undefined; this.isTree=undefined;
         this.graphChange=undefined; // function to be called after changing the graph, for exampe adding new edge
-        this.init = function (svgName, n, isOriented, flagSave = false, isTree = false, graphChange = () => {}) {
+        this.init = function (svgName, n, isDirected, flagSave = false, isTree = false, graphChange = () => {}) {
             if (this.s===undefined) {
                 this.svgName=svgName;
                 this.s=Snap(svgName);
@@ -145,7 +146,7 @@
                 }
             }
 
-            if (isOriented!==undefined) this.isOriented=isOriented;
+            if (isDirected!==undefined) this.isDirected=isDirected;
             this.isMulti=false; this.isWeighted=false;
             if (isTree!==undefined) this.isTree=isTree;
             else this.isTree=false;
@@ -184,7 +185,7 @@
             let edgeSet = new Set();
             for (let edge of edgeList) {
                 let x=edge.x,y=edge.y;
-                if ((edgeSet.has(x*this.n+y))||((this.isOriented===false)&&(edgeSet.has(y*this.n+x)))) {
+                if ((edgeSet.has(x*this.n+y))||((this.isDirected===false)&&(edgeSet.has(y*this.n+x)))) {
                     this.isMulti=true;
                 }
                 else edgeSet.add(x*this.n+y);
@@ -201,7 +202,7 @@
                 let x=edgeList[i].x,y=edgeList[i].y;
                 this.adjMatrix[x][y]++;
                 this.adjList[x].push(i);
-                if ((this.isOriented===false)&&(x!==y)) {
+                if ((this.isDirected===false)&&(x!==y)) {
                     this.adjMatrix[y][x]++;
                     this.adjList[y].push(i);
                 }
@@ -249,9 +250,9 @@
             }
             let arrowWidth=3*arrowHeight/2;
             let arrowDist=0;
-            if (this.isOriented===true) arrowDist=strokeWidth/arrowHeight*arrowWidth;
+            if (this.isDirected===true) arrowDist=strokeWidth/arrowHeight*arrowWidth;
             let endDist=0;
-            if (this.isOriented===true) endDist=strokeWidth/2+arrowDist;
+            if (this.isDirected===true) endDist=strokeWidth/2+arrowDist;
 
             let pathForWeight;
             if (properties===0) {
@@ -269,7 +270,7 @@
             }
             else {
                 if (isLoop===true) { /// loop
-                    edge.line=this.s.path(loopPath(st[0],st[1]-this.vertexRad,this.vertexRad,properties,this.isOriented));
+                    edge.line=this.s.path(loopPath(st[0],st[1]-this.vertexRad,this.vertexRad,properties,this.isDirected));
                     pathForWeight=loopPath(st[0],st[1]-this.vertexRad,this.vertexRad,properties,false);
                 }
                 else { /// multiedge
@@ -299,7 +300,7 @@
             }
 
             edge.line.attr({fill: "none", stroke: "black", "stroke-width": strokeWidth});
-            if (this.isOriented==true) {
+            if (this.isDirected==true) {
                 let arrowEnd=[3*arrowHeight/2,arrowHeight/2];
                 let arrow=this.s.polygon([0,0,arrowEnd[0],arrowEnd[1],0,arrowHeight,0,0]).attr({fill: "black"});
                 edge.line.marker=arrow;
@@ -388,6 +389,25 @@
         }
         this.drawableEdges=undefined;
         this.draw = function (addDrawableEdges) { /// this functions expects that coordinates are already calculated
+            let oldVersCoords=[],changedVers=[],cntAnimations=0;
+            for (let i=0; i<this.n; i++) {
+                if (this.svgVertices[i].group!==undefined) {
+                    oldVersCoords[i]=this.svgVertices[i].group.getBBox();
+                    if ((oldVersCoords[i].x!=this.svgVertices[i].coord[0])||(oldVersCoords[i].y!=this.svgVertices[i].coord[1])) {
+                        changedVers[i]=true;
+                    }
+                    else changedVers[i]=false;
+                }
+                else changedVers[i]=false;
+            }
+            let oldEdgesPaths=[];
+            for (let i=0; i<this.edgeList.length; i++) {
+                if ((this.svgEdges[i]!==undefined)&&(this.svgEdges[i].line!==undefined)) {
+                    oldEdgesPaths[i]=this.svgEdges[i].line.attr("d");
+                }
+                else oldEdgesPaths[i]=undefined;
+            }
+            
             this.erase();
 
             let edgeMapCnt = new Map(), edgeMapCurr = new Map();
@@ -419,17 +439,48 @@
                 let code=Math.max(x,y)*this.n+Math.min(x,y);
                 let val=edgeMapCurr.get(code);
                 let from=this.svgVertices[x].coord,to=this.svgVertices[y].coord;
-                let st=[from[0]+this.vertexRad, from[1]+this.vertexRad];
-                let end=[to[0]+this.vertexRad, to[1]+this.vertexRad];
-                if (x!==y) this.svgEdges[i]=this.drawEdge(st,end,i,multiEdges[edgeMapCnt.get(code)][val++]);
-                else this.svgEdges[i]=this.drawEdge(st,end,i,loopEdges[edgeMapCnt.get(code)][val++]);
+                let st=[from[0]+this.vertexRad,from[1]+this.vertexRad];
+                let end=[to[0]+this.vertexRad,to[1]+this.vertexRad];
+                let properties=(x!==y)?multiEdges[edgeMapCnt.get(code)][val++]:loopEdges[edgeMapCnt.get(code)][val++];
+                this.svgEdges[i]=this.drawEdge(st,end,i,properties);
                 edgeMapCurr.set(code,val);
+                
+                if ((oldEdgesPaths[i]!==undefined)&&(oldEdgesPaths[i]!==this.svgEdges[i].line.attr("d"))) {
+                    cntAnimations++;
+                    let currPath=this.svgEdges[i].line.attr("d");
+                    this.svgEdges[i].line.attr({d: oldEdgesPaths[i]});
+                    let weight=this.svgEdges[i].weight;
+                    if (weight!==undefined) weight.attr("opacity",0);
+                    this.svgEdges[i].line.animate({d: currPath},500,function (graph) {
+                        if (weight!==undefined) weight.attr("opacity",1);
+                        this.attr({d: currPath});
+                        animationsEnd.call(graph);
+                    }.bind(this.svgEdges[i].line,this));
+                }
+                else if ((oldEdgesPaths[i]===undefined)&&((changedVers[x]===true)||(changedVers[y]===true))) {
+                    cntAnimations++;
+                    let currPath=this.svgEdges[i].line.attr("d"),weight=this.svgEdges[i].weight;
+                    this.svgEdges[i].line.remove();
+                    st=[oldVersCoords[x].x+this.vertexRad,oldVersCoords[x].y+this.vertexRad];
+                    end=[oldVersCoords[y].x+this.vertexRad,oldVersCoords[y].y+this.vertexRad];
+                    this.svgEdges[i]=this.drawEdge(st,end,i,properties);
+                    if (this.svgEdges[i].weight!==undefined) this.svgEdges[i].weight.remove();
+                    this.svgEdges[i].weight=weight;
+                    if (weight!==undefined) weight.attr("opacity",0);
+                    this.svgEdges[i].line.animate({d: currPath},500,function (graph) {
+                        if (weight!==undefined) weight.attr("opacity",1);
+                        this.attr({d: currPath});
+                        animationsEnd.call(graph);
+                    }.bind(this.svgEdges[i].line,this));
+                }
+                
                 i++;
             }
 
             for (let i=0; i<this.n; i++) {
                 if (this.vertices[i].name===undefined) {
                     this.svgVertices[i].circle=this.svgVertices[i].text=undefined;
+                    this.svgVertices[i].group=undefined;
                     continue;
                 }
                 let x=this.svgVertices[i].coord[0]+this.vertexRad;
@@ -437,22 +488,36 @@
                 this.svgVertices[i].circle=this.s.circle(x,y,this.vertexRad);
                 this.svgVertices[i].circle.attr({fill: "white", stroke: "black", "stroke-width": this.findStrokeWidth()});
                 this.drawVertexText(i,this.vertices[i].name);
-                if (addDrawableEdges===true) this.svgVertices[i].group.attr({cursor: "pointer"});
+                
+                if (changedVers[i]===true) {
+                    cntAnimations++;
+                    this.svgVertices[i].group.transform("t "+(oldVersCoords[i].x-this.svgVertices[i].coord[0])+" "+(oldVersCoords[i].y-this.svgVertices[i].coord[1]));
+                    this.svgVertices[i].group.animate({transform: "t 0 0"},500,animationsEnd.bind(this));
+                }
             }
-
-            if (addDrawableEdges===true) {
-                if (this.drawableEdges===undefined) this.drawableEdges=new DrawableEdges(this);
-                this.drawableEdges.init();
+            
+            function animationsEnd () {
+                cntAnimations--;
+                if (cntAnimations<=0) {
+                    for (let i=0; i<this.n; i++) {
+                        if (addDrawableEdges===true) this.svgVertices[i].group.attr({cursor: "pointer"});
+                    }
+                    if (addDrawableEdges===true) {
+                        if (this.drawableEdges===undefined) this.drawableEdges=new DrawableEdges(this);
+                        this.drawableEdges.init();
+                    }
+                }
             }
+            if (cntAnimations===0) animationsEnd.call(this);
         }
         
         this.addEdge = function (x, y, weight) {
             let ind=this.edgeList.length;
             this.edgeList.push(new Edge(x,y,weight));
             this.adjList[x].push(ind);
-            if (this.isOriented===false) this.adjList[y].push(ind);
+            if (this.isDirected===false) this.adjList[y].push(ind);
             this.adjMatrix[x][y]++;
-            if (this.isOriented===false) this.adjMatrix[y][x]++;
+            if (this.isDirected===false) this.adjMatrix[y][x]++;
         }
         this.addVertex = function (name) {
             this.vertices.push(new Vertex(name));

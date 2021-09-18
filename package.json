@@ -1,6 +1,6 @@
 {
   "name": "algo-site",
-  "version": "0.9.0",
+  "version": "0.9.5",
   "description": "Site for learning and visualising algorithms used in competitive programming.",
   "main": "main.js",
   "dependencies": {

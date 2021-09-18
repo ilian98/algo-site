@@ -94,11 +94,6 @@
         cssMobile();
         $(window).off("touchstart.mobile");
     });
-    $(window).on("mousedown.mobile", function () {
-        sessionStorage.setItem("mobile","false");
-        window.isMobile="false";
-        $(window).off("mousedown.mobile");
-    });
     if (window.isMobile==="true") cssMobile();
         
     function setHeights () {
@@ -282,6 +277,7 @@
                     opentype.load("/algo-site/fonts/TimesNewRoman.woff", (error, font) => {
                         window.font["Times New Roman"]=font;
                         checkLessonParts(true);
+                        if (page==="graph_drawer.html") init();
                     });
                 });
             });
@@ -302,27 +298,27 @@
         if ($(name).hasClass("inited")===true) return ;
         $(name).addClass("inited");
 
-        if (page=="introduction_to_graphs.html") {
+        if (page==="introduction_to_graphs.html") {
             if (part>=2) initExample(part);
         }
-        else if (page=="depth_first_search.html") {
+        else if (page==="depth_first_search.html") {
             if (part===1) initExample(1);
             else if (part===3) initExample(3); 
         }
-        else if (page=="hashing.html") {
+        else if (page==="hashing.html") {
             if (part===2) initExample(2);
             else initExample(4);
         }
-        else if (page=="2-SAT.html") {
+        else if (page==="2-SAT.html") {
             if (part>1) initExample(part);
         }
-        else if (page=="segment_tree_introduction.html") {
+        else if (page==="segment_tree_introduction.html") {
             if (part>1) {
                 initExample(part);
                 defaultExample(part);
             }
         }
-        else if (page=="dp_profile.html") {
+        else if (page==="dp_profile.html") {
             if (part>=3) initExample(part);
         }
     }

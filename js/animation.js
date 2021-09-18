@@ -208,7 +208,7 @@
 
                         let ind=graph.edgeList.findIndex(function (e) { return ((e.x==vr1)&&(e.y==vr2)); });
                         let reverse=false;
-                        if ((ind==-1)&&(graph.isOriented===false)) {
+                        if ((ind==-1)&&(graph.isDirected===false)) {
                             reverse=true;
                             ind=graph.edgeList.findIndex(function (e) { return ((e.x==vr2)&&(e.y==vr1)); });
                         }

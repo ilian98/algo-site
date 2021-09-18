@@ -174,7 +174,7 @@
                     inDegree[i]=0;
                     graph.svgVertices[i].coord=undefined;
                 }
-                if (graph.isOriented===true) {
+                if (graph.isDirected===true) {
                     for (let i=0; i<graph.edgeList.length; i++) {
                         let v=graph.edgeList[i].y;
                         inDegree[v]++;

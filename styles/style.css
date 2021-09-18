@@ -1,20 +1,12 @@
-@media (min-width: 992px) {
+@media (min-width: 1140px) {
     .navbar-nav > li {
         margin-left: 4%;
         margin-right: 4%;
     }
 }
-@media (min-width: 401px) {
-    .navbar-toggler {
-        margin-bottom: 0px;
-    }
+.navbar-collapse.show, .navbar-collapse.collapsing {
+    margin-top: 0.5rem;
 }
-@media (max-width: 400px) {
-    .navbar-toggler {
-        margin-bottom: 10px;
-    }
-}
-
 @font-face {
     font-family: 'Lobster';
     font-style: normal;

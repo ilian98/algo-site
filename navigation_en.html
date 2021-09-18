@@ -1,4 +1,4 @@
-<nav class="navbar navbar-expand-lg navbar-light bg-navbar-color">
+<nav class="navbar navbar-expand-xl navbar-light bg-navbar-color">
     <div class="container-fluid">
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-bs-target="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
             <svg class="bi" width="24px" height="24px" fill="currentColor">
@@ -6,61 +6,60 @@
             </svg>
         </button>
 
-        <div class="d-flex flex-row order-2 order-lg-3">
-            <div class="input-group">
-                <input class="form-control unselectable" type="search" placeholder="Search" aria-label="Search">
-                <div class="input-group-btn">
-                    <button class="btn btn-outline-dark" type="submit">
-                        <svg class="bi" width="24px" height="24px" fill="currentColor">
-                            <use xlink:href="/algo-site/node_modules/bootstrap-icons/bootstrap-icons.svg#search"/>
-                        </svg>
-                    </button>
-                </div>
-            </div>
-            <div class="dropdown">
-                <button class="btn shadow-none dropdown-toggle" type="button" id="languages" data-bs-toggle="dropdown" aria-expanded="false">
-                    <svg class="bi" width="24px" height="24px" fill="currentColor">
-                        <use xlink:href="/algo-site/node_modules/bootstrap-icons/bootstrap-icons.svg#globe"/>
-                    </svg>
-                </button>
-                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="languages">
-                    <li><a class="dropdown-item unselectable" href="#">Български</a></li>
-                    <li><a class="dropdown-item unselectable" href="#">English</a></li>
-                </ul>
-            </div>
-        </div>
-
-        <div class="collapse navbar-collapse order-3 order-lg-2" id="navbarSupportedContent">
-            <ul class="navbar-nav mr-auto">
-                <li class="nav-item active">
-                    <a class="nav-link active unselectable" href="/algo-site/index.html">Home</a>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav mb-2 mb-xl-0">
+                <li class="nav-item">
+                    <a class="nav-link unselectable" href="/algo-site/index_en.html">Home</a>
                 </li>
                 <li class="nav-item dropdown">
-                    <button class="btn btn-light dropdown-toggle" type="button" id="navbarDropdownAlg" data-bs-toggle="dropdown" aria-expanded="false">Algorithms</button>
+                    <button class="btn btn-light dropdown-toggle mt-1 mt-xl-0 mb-2 mb-xl-0" type="button" id="navbarDropdownAlg" data-bs-toggle="dropdown" aria-expanded="false">Algorithms</button>
                     <ul class="dropdown-menu" aria-labelledby="navbarDropdownAlg">
                         <li><a class="dropdown-item unselectable" href="#">1. For beginners</a></li>
-                        <li><a class="dropdown-item unselectable" href="/algo-site/pages/graph_lessons.html">2. In graphs</a></li>
-                        <li><a class="dropdown-item unselectable" href="/algo-site/pages/dp_lessons.html">3. Dynamic programming</a></li>
-                        <li><a class="dropdown-item unselectable" href="/algo-site/pages/mathematical_lessons.html">4. Mathematical</a></li>
+                        <li><a class="dropdown-item unselectable" href="/algo-site/pages/graph_lessons_en.html">2. In graphs</a></li>
+                        <li><a class="dropdown-item unselectable" href="/algo-site/pages/dp_lessons_en.html">3. Dynamic programming</a></li>
+                        <li><a class="dropdown-item unselectable" href="/algo-site/pages/mathematical_lessons_en.html">4. Mathematical</a></li>
                         <li><a class="dropdown-item unselectable" href="#">5. Greedy</a></li>
                         <li><a class="dropdown-item unselectable" href="#">6. In strings</a></li>
                         <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item unselectable" href="/algo-site/pages/other_lessons.html">Other</a></li>
+                        <li><a class="dropdown-item unselectable" href="/algo-site/pages/other_lessons_en.html">Other</a></li>
                     </ul>
                 </li>
-                <div class="d-xl-none" style="height: 10px"></div>
                 <li class="nav-item dropdown">
-                    <button class="btn btn-light dropdown-toggle" type="button" id="navbarDropdownDS" data-bs-toggle="dropdown" aria-expanded="false">Data structures</button>
+                    <button class="btn btn-light dropdown-toggle mt-2 mt-xl-0 mb-1 mb-xl-0" type="button" id="navbarDropdownDS" data-bs-toggle="dropdown" aria-expanded="false">Data structures</button>
                     <ul class="dropdown-menu" aria-labelledby="navbarDropdownDS">
                         <li><a class="dropdown-item unselectable" href="#">1. STL-ски</a></li>
-                        <li><a class="dropdown-item unselectable" href="/algo-site/pages/ds_tree_lessons.html">2. Trees</a></li>
+                        <li><a class="dropdown-item unselectable" href="/algo-site/pages/ds_tree_lessons_en.html">2. Trees</a></li>
                         <li><a class="dropdown-item unselectable" href="#">3. Disjoint-sets</a></li>
                         <li><a class="dropdown-item unselectable" href="#">4. Envelope</a></li>
                     </ul>
                 </li>
                 <li class="nav-item">
+                    <a class="nav-link unselectable text-nowrap" href="/algo-site/pages/graph_drawer.html">Graph drawer</a>
+                </li>
+                <li class="nav-item">
                     <a class="nav-link unselectable" href="#">Tasks</a>
                 </li>
+            </ul>
+        </div>
+        
+        <form class="d-flex">
+            <input class="form-control unselectable" type="search" placeholder="Search" aria-label="Search" style="border-right: 0; border-top-right-radius: 0; border-bottom-right-radius: 0">
+            <button class="btn btn-outline-dark" type="submit" style="border-top-left-radius: 0; border-bottom-left-radius: 0">
+                <svg class="bi" width="24px" height="24px" fill="currentColor">
+                    <use xlink:href="/algo-site/node_modules/bootstrap-icons/bootstrap-icons.svg#search"/>
+                </svg>
+            </button>
+        </form>
+        
+        <div class="dropdown">
+            <button class="btn shadow-none dropdown-toggle" type="button" id="languages" data-bs-toggle="dropdown" aria-expanded="false">
+                <svg class="bi" width="24px" height="24px" fill="currentColor">
+                    <use xlink:href="/algo-site/node_modules/bootstrap-icons/bootstrap-icons.svg#globe"/>
+                </svg>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="languages">
+                <li><a class="dropdown-item unselectable" href="#">Български</a></li>
+                <li><a class="dropdown-item unselectable" href="#">English</a></li>
             </ul>
         </div>
     </div>

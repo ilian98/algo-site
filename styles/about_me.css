@@ -1,12 +1,12 @@
 @media (max-width: 480px) {
-        .my-picture {
-         width: 100%;
-         }
+    .my-picture {
+        width: 100%;
+    }
 }
 @media (min-width: 481px) {
-        .my-picture {
-         height: 40%;
-         }
+    .my-picture {
+        height: 40vh;
+    }
 }
 h1 {
     margin-top: 3vh;

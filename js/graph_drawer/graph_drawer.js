@@ -75,8 +75,8 @@
                     if ((graph.isMulti===false)&&(graph.adjMatrix[stVerDraw][i]===1)) return ;
                     if (graph.isMulti===true) {
                         let maxEdges=(graph.isWeighted===true)?2:5;
-                        if ((graph.isOriented===false)&&(graph.adjMatrix[stVerDraw][i]==maxEdges)) return ;
-                        if ((graph.isOriented===true)&&
+                        if ((graph.isDirected===false)&&(graph.adjMatrix[stVerDraw][i]==maxEdges)) return ;
+                        if ((graph.isDirected===true)&&
                             (graph.adjMatrix[stVerDraw][i]+graph.adjMatrix[i][stVerDraw]==maxEdges)) return ;
                     }
 
