@@ -166,6 +166,14 @@
             }
         }
 
+        this.convertSimpleEdgeList = function () {
+            let edges=[];
+            for (let edge of this.edgeList) {
+                if (edge.weight!="") edges.push([edge.x,edge.y,edge.weight]);
+                else edges.push([edge.x,edge.y]);
+            }
+            return edges;
+        }
         this.buildEdgeDataStructures = function (edges) {
             let edgeList=this.edgeList=[];
             for (let edge of edges) {
@@ -235,6 +243,24 @@
             this.draw(addDrawableEdges);
         }
 
+        function calculateArrowProperties (isLoop, strokeWidth, st, vertexRad) {
+            let arrowHeight;
+            if (isLoop===false) arrowHeight=5*(strokeWidth);
+            else {
+                let x=st[0]+properties,y=(st[1]-vertexRad-3*properties/8);
+                arrowHeight=((st[1]-Math.sqrt(vertexRad*vertexRad-(x-st[0])*(x-st[0])))-y)*2/3;
+            }
+            let arrowWidth=3*arrowHeight/2;
+            return [arrowHeight, arrowWidth, strokeWidth/arrowHeight*arrowWidth];
+        }
+        function addMarkerEnd (line, isLoop, strokeWidth, st) {
+            let [arrowHeight, arrowWidth, arrowDist]=calculateArrowProperties(isLoop,strokeWidth,st,this.vertexRad);
+            let arrowEnd=[3*arrowHeight/2,arrowHeight/2];
+            let arrow=this.s.polygon([0,0,arrowEnd[0],arrowEnd[1],0,arrowHeight,0,0]).attr({fill: "black"});
+            line.marker=arrow;
+            let marker=arrow.marker(0,0,arrowEnd[0],arrowHeight,(isLoop===false)?arrowEnd[0]-arrowDist:0,arrowEnd[1]).attr({markerUnits: "userSpaceOnUse"});
+            line.attr({"marker-end": marker});
+        }
         this.drawEdge = function (st, end, edgeInd, properties) {
             let strokeWidth=this.findStrokeWidth();
             
@@ -242,17 +268,11 @@
             let isLoop=(edgeLen<this.vertexRad)?true:false;
             let edge=new SvgEdge();
 
-            let arrowHeight;
-            if (isLoop===false) arrowHeight=5*(strokeWidth);
-            else {
-                let x=st[0]+properties,y=(st[1]-this.vertexRad-3*properties/8);
-                arrowHeight=((st[1]-Math.sqrt(this.vertexRad*this.vertexRad-(x-st[0])*(x-st[0])))-y)*2/3;
-            }
-            let arrowWidth=3*arrowHeight/2;
-            let arrowDist=0;
-            if (this.isDirected===true) arrowDist=strokeWidth/arrowHeight*arrowWidth;
             let endDist=0;
-            if (this.isDirected===true) endDist=strokeWidth/2+arrowDist;
+            if (this.isDirected===true) {
+                let arrowDist=calculateArrowProperties(isLoop,strokeWidth,st,this.vertexRad)[2];
+                endDist=strokeWidth/2+arrowDist;
+            }
 
             let pathForWeight;
             if (properties===0) {
@@ -300,13 +320,7 @@
             }
 
             edge.line.attr({fill: "none", stroke: "black", "stroke-width": strokeWidth});
-            if (this.isDirected==true) {
-                let arrowEnd=[3*arrowHeight/2,arrowHeight/2];
-                let arrow=this.s.polygon([0,0,arrowEnd[0],arrowEnd[1],0,arrowHeight,0,0]).attr({fill: "black"});
-                edge.line.marker=arrow;
-                let marker=arrow.marker(0,0,arrowEnd[0],arrowHeight,(isLoop===false)?arrowEnd[0]-arrowDist:0,arrowEnd[1]).attr({markerUnits: "userSpaceOnUse"});
-                edge.line.attr({"marker-end": marker});
-            }
+            if (this.isDirected==true) addMarkerEnd.call(this,edge.line,isLoop,strokeWidth,st);
 
             if ((edgeInd!==-1)&&(this.edgeList[edgeInd].weight!=="")) {
                 if ((isLoop===false)&&(st[0]===end[0])) {
@@ -338,8 +352,7 @@
         }
 
         this.drawVertexText = function (i, text) {
-            let x=this.svgVertices[i].coord[0]+this.vertexRad;
-            let y=this.svgVertices[i].coord[1]+this.vertexRad;
+            let x=this.svgVertices[i].coord[0],y=this.svgVertices[i].coord[1];
             if (this.svgVertices[i].text!==undefined) this.svgVertices[i].text.remove();
             this.vertices[i].name=text;
             let fontSize=this.findFontSize();
@@ -369,8 +382,8 @@
                 if (maxY<y) maxY=y;
             }
             let lenX=maxX-minX,lenY=maxY-minY;
-            let addX=(this.frameW-2*this.vertexRad-this.frameX-lenX)/2+this.frameX-minX;
-            let addY=(this.frameH-2*this.vertexRad-this.frameY-lenY)/2+this.frameY-minY;
+            let addX=(this.frameW-2*this.vertexRad-this.frameX-lenX)/2+this.frameX+this.vertexRad-minX;
+            let addY=(this.frameH-2*this.vertexRad-this.frameY-lenY)/2+this.frameY+this.vertexRad-minY;
             for (let i=0; i<this.n; i++) {
                 if (this.vertices[i].name===undefined) {
                     this.svgVertices[i].circle=this.svgVertices[i].text=undefined;
@@ -390,13 +403,16 @@
         this.drawableEdges=undefined;
         this.draw = function (addDrawableEdges) { /// this functions expects that coordinates are already calculated
             let oldVersCoords=[],changedVers=[],cntAnimations=0;
+            let oldRad=this.vertexRad;
             for (let i=0; i<this.n; i++) {
                 if (this.svgVertices[i].group!==undefined) {
                     oldVersCoords[i]=this.svgVertices[i].group.getBBox();
-                    if ((oldVersCoords[i].x!=this.svgVertices[i].coord[0])||(oldVersCoords[i].y!=this.svgVertices[i].coord[1])) {
+                    if ((oldVersCoords[i].x+this.vertexRad!=this.svgVertices[i].coord[0])||
+                        (oldVersCoords[i].y+this.vertexRad!=this.svgVertices[i].coord[1])) {
                         changedVers[i]=true;
                     }
                     else changedVers[i]=false;
+                    oldRad=this.svgVertices[i].circle.attr("r");
                 }
                 else changedVers[i]=false;
             }
@@ -438,9 +454,8 @@
                 let x=edge.x,y=edge.y;
                 let code=Math.max(x,y)*this.n+Math.min(x,y);
                 let val=edgeMapCurr.get(code);
-                let from=this.svgVertices[x].coord,to=this.svgVertices[y].coord;
-                let st=[from[0]+this.vertexRad,from[1]+this.vertexRad];
-                let end=[to[0]+this.vertexRad,to[1]+this.vertexRad];
+                let st=[this.svgVertices[x].coord[0],this.svgVertices[x].coord[1]];
+                let end=[this.svgVertices[y].coord[0],this.svgVertices[y].coord[1]];
                 let properties=(x!==y)?multiEdges[edgeMapCnt.get(code)][val++]:loopEdges[edgeMapCnt.get(code)][val++];
                 this.svgEdges[i]=this.drawEdge(st,end,i,properties);
                 edgeMapCurr.set(code,val);
@@ -461,8 +476,8 @@
                     cntAnimations++;
                     let currPath=this.svgEdges[i].line.attr("d"),weight=this.svgEdges[i].weight;
                     this.svgEdges[i].line.remove();
-                    st=[oldVersCoords[x].x+this.vertexRad,oldVersCoords[x].y+this.vertexRad];
-                    end=[oldVersCoords[y].x+this.vertexRad,oldVersCoords[y].y+this.vertexRad];
+                    let st=[oldVersCoords[x].x+this.vertexRad,oldVersCoords[x].y+this.vertexRad];
+                    let end=[oldVersCoords[y].x+this.vertexRad,oldVersCoords[y].y+this.vertexRad];
                     this.svgEdges[i]=this.drawEdge(st,end,i,properties);
                     if (this.svgEdges[i].weight!==undefined) this.svgEdges[i].weight.remove();
                     this.svgEdges[i].weight=weight;
@@ -477,23 +492,45 @@
                 i++;
             }
 
+            function drawVertex (i) {
+                let x=this.svgVertices[i].coord[0],y=this.svgVertices[i].coord[1];
+                this.svgVertices[i].circle=this.s.circle(x,y,this.vertexRad);
+                this.svgVertices[i].circle.attr({fill: "white", stroke: "black", "stroke-width": this.findStrokeWidth()});
+                this.drawVertexText(i,this.vertices[i].name);
+            }
             for (let i=0; i<this.n; i++) {
                 if (this.vertices[i].name===undefined) {
                     this.svgVertices[i].circle=this.svgVertices[i].text=undefined;
                     this.svgVertices[i].group=undefined;
                     continue;
                 }
-                let x=this.svgVertices[i].coord[0]+this.vertexRad;
-                let y=this.svgVertices[i].coord[1]+this.vertexRad;
-                this.svgVertices[i].circle=this.s.circle(x,y,this.vertexRad);
-                this.svgVertices[i].circle.attr({fill: "white", stroke: "black", "stroke-width": this.findStrokeWidth()});
-                this.drawVertexText(i,this.vertices[i].name);
+                drawVertex.call(this,i);
                 
                 if (changedVers[i]===true) {
                     cntAnimations++;
-                    this.svgVertices[i].group.transform("t "+(oldVersCoords[i].x-this.svgVertices[i].coord[0])+" "+(oldVersCoords[i].y-this.svgVertices[i].coord[1]));
+                    this.svgVertices[i].group.transform("t "+
+                                                        ((oldVersCoords[i].x+this.vertexRad)-this.svgVertices[i].coord[0])+" "+((oldVersCoords[i].y+this.vertexRad)-this.svgVertices[i].coord[1]));
                     this.svgVertices[i].group.animate({transform: "t 0 0"},500,animationsEnd.bind(this));
                 }
+            }
+            
+            if (this.vertexRad!=oldRad) {
+                cntAnimations++;
+                Snap.animate(oldRad,this.vertexRad,function (val) {
+                    this.vertexRad=val;
+                    for (let i=0; i<this.n; i++) {
+                        this.svgVertices[i].circle.remove();
+                        drawVertex.call(this,i);
+                        this.drawVertexText(i,this.vertices[i].name);
+                    }
+                    for (let i=0; i<this.edgeList.length; i++) {
+                        this.svgEdges[i].line.attr("stroke-width",this.findStrokeWidth());
+                        if (this.isDirected==true) {
+                            let x=this.edgeList[i].x,y=this.edgeList[i].y;
+                            addMarkerEnd.call(this,this.svgEdges[i].line,(x==y),this.findStrokeWidth(),this.svgVertices[x].coord);
+                        }
+                    }
+                }.bind(this),500,animationsEnd.bind(this));
             }
             
             function animationsEnd () {
@@ -533,7 +570,7 @@
         svgSave.hide();
 
         for (let saveButton of parentElement.find(".save")) {
-            $(saveButton).on("click",function () {
+            $(saveButton).off("click").on("click",function () {
                 let context=canvas[0].getContext('2d');
                 let svg=parentElement.children(".graph");
                 let svgWidth=svg.width(),svgHeight=svg.height();

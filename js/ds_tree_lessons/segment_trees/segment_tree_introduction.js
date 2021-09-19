@@ -11,7 +11,6 @@
 
         animationObj.clear();
         elements[pos-1]=val;
-        tree.s.selectAll("*").remove();
         makeEdgesAndNames(0,0,elements.length-1,[],tree.vertices,elements,false);
         tree.draw(false);
         addSegmentsLabels(0,1,elements.length,tree,false,false);
@@ -38,8 +37,8 @@
             let textIndex=tree.s.text(0,0,index+1);
             textIndex.attr({"font-size": indexFontSize,"font-family": "Times New Roman", "font-weight": "bold", class: "unselectable", fill: "blue"});
             textIndex.attr({
-                x: tree.svgVertices[index].coord[0]+tree.vertexRad, 
-                y: tree.svgVertices[index].coord[1]+1,
+                x: tree.svgVertices[index].coord[0], 
+                y: tree.svgVertices[index].coord[1]-tree.vertexRad+1,
             });
             textIndex.attr({dy: 2*determineDy(index+1,"Times New Roman",indexFontSize), "text-anchor": "middle"});
         }
@@ -49,15 +48,15 @@
         segment.attr({"font-size": labelFontSize, "font-family": "Times New Roman", class: "unselectable", fill: "#B22222"});
         if (l===r) {
            segment.attr({
-               x: tree.svgVertices[index].coord[0]+tree.vertexRad, 
-               y: tree.svgVertices[index].coord[1]+2*tree.vertexRad+tree.findStrokeWidth()+2
+               x: tree.svgVertices[index].coord[0], 
+               y: tree.svgVertices[index].coord[1]+tree.vertexRad+tree.findStrokeWidth()+2
            });
            segment.attr({dy: 2*determineDy(segment.attr("text"),"Times New Roman",labelFontSize), "text-anchor": "middle"});
            return ;
         }
         segment.attr({
-            x: tree.svgVertices[index].coord[0]+tree.vertexRad, 
-            y: tree.svgVertices[index].coord[1]-2,
+            x: tree.svgVertices[index].coord[0], 
+            y: tree.svgVertices[index].coord[1]-tree.vertexRad-2,
         });
         segment.attr({"text-anchor": "middle"});
         let mid=Math.floor((l+r)/2);
@@ -226,7 +225,6 @@
                 }
                 return animations;
             },function initialState () {
-                tree.s.selectAll("*").remove();
                 makeEdgesAndNames(0,0,elements.length-1,[],tree.vertices,elements,false);
                 tree.draw(false);
                 addSegmentsLabels(0,1,elements.length,tree,false,false);
@@ -378,15 +376,15 @@
         text.attr({"font-size": fontSize, "font-family": "Arial", "text-align": "center", class: "unselectable", fill: "orange"});
         if (isLeaf===true) {
             text.attr({
-                x: tree.svgVertices[index].coord[0]+tree.vertexRad, 
-                y: tree.svgVertices[index].coord[1]-2
+                x: tree.svgVertices[index].coord[0], 
+                y: tree.svgVertices[index].coord[1]-tree.vertexRad-2
             });
             text.attr({"text-anchor": "middle"});
             return ;
         }
         text.attr({
-            x: tree.svgVertices[index].coord[0]+2*tree.vertexRad+text.getBBox().w/2, 
-            y: tree.svgVertices[index].coord[1]+tree.vertexRad
+            x: tree.svgVertices[index].coord[0]+tree.vertexRad+text.getBBox().w/2, 
+            y: tree.svgVertices[index].coord[1]
         });
         text.attr({dy: determineDy(text.attr("text"),"Arial",fontSize), "text-anchor": "middle"});
     }

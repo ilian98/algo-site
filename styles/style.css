@@ -4,6 +4,11 @@
         margin-right: 4%;
     }
 }
+@media (max-width: 330px) {
+    .navbar .navbar-toggler {
+        margin-bottom: 0.5rem !important;
+    }
+}
 .navbar-collapse.show, .navbar-collapse.collapsing {
     margin-top: 0.5rem;
 }

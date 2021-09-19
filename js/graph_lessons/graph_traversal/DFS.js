@@ -61,7 +61,6 @@
             dfs(0,used,graph,animations);
             return animations;
         },function initialState () {
-            graph.s.selectAll("*").remove();
             graph.draw(false);
         });
 

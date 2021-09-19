@@ -20,12 +20,14 @@
         $("#undirected").on("click",function () {
             if (graph.isDirected===true) {
                 graph.isDirected=false;
+                graph.buildEdgeDataStructures(graph.convertSimpleEdgeList());
                 graph.draw(true);
             }
         });
         $("#directed").on("click",function () {
             if (graph.isDirected===false) {
                 graph.isDirected=true;
+                graph.buildEdgeDataStructures(graph.convertSimpleEdgeList());
                 graph.draw(true);
             }
         });
@@ -39,8 +41,7 @@
             outputRad.html(val);
             let oldVal=graph.vertexRad;
             graph.vertexRad=val;
-            if (oldVal>val) graph.draw(true);
-            else if (oldVal<val) graph.drawNewGraph(22,22,278,278,graph.vertexRad,true);
+            graph.draw(true);
         });
     }
     

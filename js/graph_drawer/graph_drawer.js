@@ -52,10 +52,9 @@
             if (currEdgeDraw!==undefined) currEdgeDraw.remove();
             setSvgPoint(event);
             let circleCoord=graph.svgVertices[stVerDraw].coord;
-            let st=[circleCoord[0]+graph.vertexRad,circleCoord[1]+graph.vertexRad];
-            if (segmentLength(st[0],st[1],svgPoint.x,svgPoint.y)>=graph.vertexRad) {
+            if (segmentLength(circleCoord[0],circleCoord[1],svgPoint.x,svgPoint.y)>=graph.vertexRad) {
                 let end=[svgPoint.x, svgPoint.y];
-                currEdgeDraw=graph.drawEdge(st,end,-1,0).line;
+                currEdgeDraw=graph.drawEdge(circleCoord,end,-1,0).line;
                 currEdgeDraw.prependTo(graph.s);
             }
         }

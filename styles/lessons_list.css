@@ -5,6 +5,7 @@
 .card-lessons {
     background-color: mediumaquamarine;
     break-inside: avoid;
+    overflow: hidden;
     padding: 0;
 }
 .card-footer {

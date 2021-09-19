@@ -151,8 +151,8 @@
                 for (let i=0; i<=(graph.frameW-2*graph.vertexRad)/(2*graph.vertexRad+distVertices); i++) {
                     for (let j=0; j<=(graph.frameH-2*graph.vertexRad)/(2*graph.vertexRad+distVertices); j++) {
                         originalPos.push([
-                            i*(2*graph.vertexRad+distVertices)+graph.frameX,
-                            j*(2*graph.vertexRad+distVertices)+graph.frameY
+                            i*(2*graph.vertexRad+distVertices)+graph.frameX+graph.vertexRad,
+                            j*(2*graph.vertexRad+distVertices)+graph.frameY+graph.vertexRad
                         ]);
                     }
                 }
@@ -255,22 +255,6 @@
                             }
                         }
                         j=h-1;
-                    }
-                }
-
-                let minX=graph.frameW,minY=graph.frameH;
-                for (let i=0; i<=maxDepth; i++) {
-                    for (let vertex of versDepth[i]) {
-                        if (vertex===-1) continue;
-                        if (minX>graph.svgVertices[vertex].coord[0]) minX=graph.svgVertices[vertex].coord[0];
-                        if (minY>graph.svgVertices[vertex].coord[1]) minY=graph.svgVertices[vertex].coord[1];
-                    }
-                }
-                for (let i=0; i<=maxDepth; i++) {
-                    for (let vertex of versDepth[i]) {
-                        if (vertex===-1) continue;
-                        graph.svgVertices[vertex].coord[0]+=-minX+graph.frameX;
-                        graph.svgVertices[vertex].coord[1]+=-minY+graph.frameY+distVertices;
                     }
                 }
             }
