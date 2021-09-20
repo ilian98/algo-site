@@ -53,8 +53,8 @@
         }
         function checkVertex (vr, tryPlanner) {
             for (let i=0; i<graph.n; i++) {
-                if ((i==vr)||(graph.svgVertices[i].coord===undefined)||
-                    ((graph.adjMatrix[vr][i]==0)&&(graph.adjMatrix[i][vr]==0))) continue;
+                if ((i===vr)||(graph.svgVertices[i].coord===undefined)||
+                    ((graph.adjMatrix[vr][i]==0)&&(graph.adjMatrix[i][vr]===0))) continue;
                 if (this.checkEdge(vr,i,tryPlanner)===false) return false;
             }
             return true;
@@ -70,25 +70,25 @@
                         break;
                     }
                     for (let j=0; j<graph.n; j++) {
-                        if ((j==i)||(graph.svgVertices[j].coord===undefined)||
-                            ((graph.adjMatrix[i][j]==0)&&(graph.adjMatrix[j][i]==0))) continue;
-                        if (this.circleSegment(graph.svgVertices[i].coord,graph.svgVertices[j].coord,pos)==true) {
+                        if ((j===i)||(graph.svgVertices[j].coord===undefined)||
+                            ((graph.adjMatrix[i][j]===0)&&(graph.adjMatrix[j][i]===0))) continue;
+                        if (this.circleSegment(graph.svgVertices[i].coord,graph.svgVertices[j].coord,pos)===true) {
                             flag=false;
                             break;
                         }
                     }
-                    if (flag==false) break;
+                    if (flag===false) break;
                 }
-                if (flag==true) possiblePos.push(pos);
+                if (flag===true) possiblePos.push(pos);
             }
         }
         this.placeVertex = function (vr, tryPlanner) {
             let currPossiblePos=possiblePos.slice();
             for (;;) {
-                if (currPossiblePos.length==0) return false;
+                if (currPossiblePos.length===0) return false;
                 let ind=parseInt(Math.random()*(10*currPossiblePos.length))%currPossiblePos.length;
                 graph.svgVertices[vr].coord=currPossiblePos[ind];
-                if (checkVertex.call(this,vr,tryPlanner)==false) {
+                if (checkVertex.call(this,vr,tryPlanner)===false) {
                     currPossiblePos.splice(ind,1);
                     continue;
                 }
@@ -97,8 +97,8 @@
                     return (elem==graph.svgVertices[vr].coord);
                 }),1);
                 for (let v=0; v<graph.n; v++) {
-                    if ((v==vr)||(graph.svgVertices[v].coord===undefined)||
-                        ((graph.adjMatrix[vr][v]==0)&&(graph.adjMatrix[v][vr]==0))) continue;
+                    if ((v===vr)||(graph.svgVertices[v].coord===undefined)||
+                        ((graph.adjMatrix[vr][v]===0)&&(graph.adjMatrix[v][vr]===0))) continue;
                     for (let i=0; i<possiblePos.length; i++) {
                         let pos=possiblePos[i];
                         if (this.circleSegment(graph.svgVertices[vr].coord,graph.svgVertices[v].coord,pos)==true) {

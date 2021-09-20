@@ -97,8 +97,62 @@
                 }
             }
         }
+        
+        function edgeClick (index, event) {
+            let parent=$(graph.svgName).parent();
+            if (graph.isWeighted===true) parent.find(".change-weight").show();
+            else parent.find(".change-weight").hide();
+            
+            let dropdown=parent.find(".dropdown-menu.edge");
+            let bodyOffsets=document.body.getBoundingClientRect();
+            dropdown.css({"top": event.pageY, "left": event.pageX-bodyOffsets.left});
+            dropdown.addClass("show");
+            let clicks=0;
+            $(window).off("click.remove-edge-menu").on("click.remove-edge-menu",function () {
+                clicks++;
+                if (clicks===1) return ;
+                dropdown.removeClass("show");
+                $(window).off("click.remove-edge-menu");
+            });
+            
+            parent.find(".remove-edge").off("click").on("click",function () {
+                parent.find(".remove-edge").off("click");
+                graph.removeEdge(index);
+                graph.graphChange();
+                this.remove();
+            }.bind(this));
+            
+            parent.find(".add-css").off("click").on("click",function () {
+                parent.find(".add-css").off("click");
+                let css=window.prompt("Въведете CSS стил за реброто","");
+                let edge=graph.svgEdges[index];
+                edge.line.addClass("temp");
+                $(".temp").attr("style",graph.edgeList[index].defaultCSS+" ; "+css);
+                edge.line.removeClass("temp");
+                graph.edgeList[index].addedCSS=css;
+                dropdown.removeClass("show");
+            });
+        }
 
         this.init = function () {
+            for (let i=0; i<graph.n; i++) {
+                if (graph.svgVertices[i].group===undefined) continue;
+                graph.svgVertices[i].group.attr({cursor: "pointer"});
+            }
+            for (let i=0; i<graph.edgeList.length; i++) {
+                if (graph.svgEdges[i]===undefined) continue;
+                let clickArea=graph.s.path(graph.svgEdges[i].line.attr("d")).attr({
+                    cursor: "pointer",
+                    "stroke-width": 20,
+                    "fill": "none",
+                    "stroke": "black",
+                    "stroke-opacity": 0
+                });
+                if (window.isMobile==="false") clickArea.mousedown(edgeClick.bind(clickArea,i));
+                else clickArea.touchstart(edgeClick.bind(graph.svgEdges[i],i));
+                if (graph.svgEdges[i].weight!==undefined) graph.svgEdges[i].weight.attr({cursor: "pointer"});
+            }
+                    
             if (window.isMobile==="true") {
                 let svgElement=$(graph.svgName);
                 svgElement.blockScroll=false;

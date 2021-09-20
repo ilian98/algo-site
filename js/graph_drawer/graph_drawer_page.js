@@ -31,6 +31,20 @@
                 graph.draw(true);
             }
         });
+        $("#weighted").change(function () {
+            if (this.checked===true) {
+                graph.isWeighted=true;
+                graph.draw(true);
+            }
+            else {
+                graph.isWeighted=false;
+                graph.draw(true);
+            }
+        });
+        $("#multi").change(function () {
+            if (this.checked===true) graph.isMulti=true;
+            else graph.isMulti=false;
+        });
         
         let sliderRad=$(".range-rad");
         let outputRad=$(".slider-value-rad");

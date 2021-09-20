@@ -206,11 +206,11 @@
                         let obj1=graph.svgVertices[vr1];
                         let obj2=graph.svgVertices[vr2];
 
-                        let ind=graph.edgeList.findIndex(function (e) { return ((e.x==vr1)&&(e.y==vr2)); });
+                        let ind=graph.edgeList.findIndex(function (e) { return ((e!==undefined)&&(e.x==vr1)&&(e.y==vr2)); });
                         let reverse=false;
                         if ((ind==-1)&&(graph.isDirected===false)) {
                             reverse=true;
-                            ind=graph.edgeList.findIndex(function (e) { return ((e.x==vr2)&&(e.y==vr1)); });
+                            ind=graph.edgeList.findIndex(function (e) { return ((e!==undefined)&&(e.x==vr2)&&(e.y==vr1)); });
                         }
                         let lineDraw=graph.s.path(graph.svgEdges[ind].line.attr("d"));
                         let pathLength=lineDraw.getTotalLength();

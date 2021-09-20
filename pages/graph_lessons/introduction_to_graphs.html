@@ -63,10 +63,20 @@
                         <ul>
                             <div>
                                 <svg class="graphExample1" width="25%" viewBox="0 0 300 300" style="float:right; margin-left: 2%"></svg>
+                                <ul class="dropdown-menu edge">
+                                    <li><a class="dropdown-item unselectable remove-edge">Изтрий реброто</a></li>
+                                    <li><a class="dropdown-item unselectable change-weight">Промени тегло</a></li>
+                                    <li><a class="dropdown-item unselectable add-css">Сложи CSS стил</a></li>
+                                </ul>
                                 <li class="dashed-list text-format" style="text-indent: 0px; margin-bottom: 2%">ориентирани – както казахме ребрата могат да представляват наредени двойки (при тях редът има значение), т.е. връзката има посока. Например ако графът моделира йерархията във фирма е важно дали връзката е шеф-подчинен или подчинен-шеф. Представяме пример за такъв граф. Тази „картинка“ с кръгчета и насочени отсечки е стандартен начин за изобразяване на граф от човек. Множеството от върховете е \(V=\{1,2,3,4,5\}\), а на ребрата - \(E=\{(1,2),(1,3),(1,4),(2,5),(3,5)\}\). Забележете, че за всяка двойка в множеството \(E\), на първо място седи върхът, от който излиза реброто, а на второ, върхът, в който влиза реброто. В случая графът може да моделира йерархията във фирма, като човекът под номер 1 е най-големият шеф, а например човекът под номер 5 има двама преки началници. Понеже графът е ориентиран, то би могло да съществува и реброто \((2,1) \ne (1,2)\). Но то няма смисъл, ако графът представя йерархията във фирма. Тогава може този граф да показва познанствата на хора (ако приемем, че познанството не е двустранно). Обърнете внимание, че един и същ граф може да изобразява различни неща.</li>
                             </div>
                             <div style="clear: both">
                                 <svg class="graphExample2" width="25%" viewBox="0 0 300 300" style="float:right; margin-left: 2%"></svg>
+                                <ul class="dropdown-menu edge">
+                                    <li><a class="dropdown-item unselectable remove-edge">Изтрий реброто</a></li>
+                                    <li><a class="dropdown-item unselectable change-weight">Промени тегло</a></li>
+                                    <li><a class="dropdown-item unselectable add-css">Сложи CSS стил</a></li>
+                                </ul>
                                 <li class="dashed-list text-format" style="text-indent: 0px">неориентирани – ребрата в тези графи са ненаредени двойки. Забележете, че тук отсечките са ненасочени. Множеството от върховете е отново \(V=\{1,2,3,4,5\}\), а \(E=\{\{1,2\},\{1,3\},\{1,4\},\{2,5\},\{3,5\}\}\). Начина, по който означаваме ребрата с двуелементни множества е коректен по отношение на смисъла, че няма ориентация, но не е често срещан. Обикновено (и за сходство с ориентирания случай) ребрата отново се означават с кръгли скоби, като се уточнява, че говорим за неориентиран граф. Така че пак ще запишем \(E=\{(1,2),(1,3),(2,4),(2,5),(3,5)\}\). Тук за двойките няма значение разположението на върховете, а само кои са.</li>
                             </div>
                         </ul>
@@ -78,6 +88,11 @@
                         <div class="row">
                             <div class="col-sm text-center">
                                 <svg class="graphExample4" viewBox="0 0 300 300" style="height: 50vh"></svg>
+                                <ul class="dropdown-menu edge">
+                                    <li><a class="dropdown-item unselectable remove-edge">Изтрий реброто</a></li>
+                                    <li><a class="dropdown-item unselectable change-weight">Промени тегло</a></li>
+                                    <li><a class="dropdown-item unselectable add-css">Сложи CSS стил</a></li>
+                                </ul>
                             </div>
                             <div class="col-sm text-center my-auto">
                                 <table class="table table-dark table-bordered degree" style="width: auto; margin: auto">
@@ -114,6 +129,11 @@
                                 </div>
                                 <div class="col-sm text-center">
                                     <svg class="graph" viewBox="0 0 300 300" style="height: 40vh"></svg>
+                                    <ul class="dropdown-menu edge">
+                                        <li><a class="dropdown-item unselectable remove-edge">Изтрий реброто</a></li>
+                                        <li><a class="dropdown-item unselectable change-weight">Промени тегло</a></li>
+                                        <li><a class="dropdown-item unselectable add-css">Сложи CSS стил</a></li>
+                                    </ul>
                                 </div>
                             </div>
                         </div>
@@ -121,6 +141,11 @@
                         <p class="text-format bold">Определение: Неориентиран граф \(G\) наричаме свързан \(\iff\) всеки два върха са свързани.</p>
                         <p class="text-format">Всички досегашни примери за неориентирани графи, без този с изолирания връх, са на свързани графи. Ясно е, че ако граф с повече от един връх има изолиран връх, то той няма как да е свързан, защото от изолирания връх няма път до другите върхове.</p>
                         <svg class="graphExample6" width="25%" viewBox="0 0 300 300" style="clear: both; float:right; margin-left: 2%"></svg>
+                        <ul class="dropdown-menu edge">
+                            <li><a class="dropdown-item unselectable remove-edge">Изтрий реброто</a></li>
+                            <li><a class="dropdown-item unselectable change-weight">Промени тегло</a></li>
+                            <li><a class="dropdown-item unselectable add-css">Сложи CSS стил</a></li>
+                        </ul>
                         <p class="text-format">Последно ще разгледаме графи, които са много приложими на практика и често срещани в задачите с графи. Можем да добавим допълнителни описания за всяко ребро, например дължина, време и т.н. Такива графи наричаме <i>претеглени графи</i>. Формална дефиниция е, че добавяме теглова функция \(f_w: E \to W\), където \(W\) е множество от възможните стойности на теглата. Най-често се работи с естествени числа за тегла на ребрата. За показания пример, графът би бил записан така: \(G(V,E,f_w)\), където \(f_w\) е функция дефинирана само за следните стойности - \(f_w((1,2))=1,\) \(f_w((1,3))=2,\) \(f_w((1,4))=3,\) \(f_w((2,5))=1\) и \(f_w((3,5))=2\).</p>
                     </div>
                 </div>
@@ -135,6 +160,11 @@
                                 <div class="row">
                                     <div class="col-sm text-center">
                                         <svg class="graphExample7" viewBox="0 0 300 300" style="height: 50vh"></svg>
+                                        <ul class="dropdown-menu edge">
+                                            <li><a class="dropdown-item unselectable remove-edge">Изтрий реброто</a></li>
+                                            <li><a class="dropdown-item unselectable change-weight">Промени тегло</a></li>
+                                            <li><a class="dropdown-item unselectable add-css">Сложи CSS стил</a></li>
+                                        </ul>
                                     </div>
                                     <div class="col-sm text-center my-auto">
                                         <table class="table table-dark table-bordered matrix" style="width: auto; margin: auto">
@@ -149,6 +179,11 @@
                                 <div class="row">
                                     <div class="col-sm text-center">
                                         <svg class="graphExample8" viewBox="0 0 300 300" style="height: 50vh"></svg>
+                                        <ul class="dropdown-menu edge">
+                                            <li><a class="dropdown-item unselectable remove-edge">Изтрий реброто</a></li>
+                                            <li><a class="dropdown-item unselectable change-weight">Промени тегло</a></li>
+                                            <li><a class="dropdown-item unselectable add-css">Сложи CSS стил</a></li>
+                                        </ul>
                                     </div>
                                     <div class="col-sm text-center my-auto">
                                         <table class="table table-dark table-bordered adjacency-list" style="width: auto; margin: auto">
@@ -162,6 +197,11 @@
                                 <div class="row">
                                     <div class="col-sm text-center">
                                         <svg class="graphExample9" viewBox="0 0 300 300" style="height: 50vh"></svg>
+                                        <ul class="dropdown-menu edge">
+                                            <li><a class="dropdown-item unselectable remove-edge">Изтрий реброто</a></li>
+                                            <li><a class="dropdown-item unselectable change-weight">Промени тегло</a></li>
+                                            <li><a class="dropdown-item unselectable add-css">Сложи CSS стил</a></li>
+                                        </ul>
                                     </div>
                                     <div class="col-sm my-auto">
                                         <div class="row justify-content">
