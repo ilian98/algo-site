@@ -176,8 +176,7 @@
                     edges.push(undefined);
                     continue;
                 }
-                if (edge.weight!="") edges.push([edge.x,edge.y,edge.weight]);
-                else edges.push([edge.x,edge.y]);
+                edges.push([edge.x,edge.y,edge.weight,edge.addedCSS]);
             }
             return edges;
         }
@@ -188,10 +187,14 @@
                     edgeList.push(undefined);
                     continue;
                 }
-                if (edge.length==2) edgeList.push(new Edge(edge[0],edge[1]));
-                else {
+                if (edge.length===2) edgeList.push(new Edge(edge[0],edge[1]));
+                else if (edge.length===3) {
                     edgeList.push(new Edge(edge[0],edge[1],edge[2]));
                     this.isWeighted=true;
+                }
+                else {
+                    edgeList.push(new Edge(edge[0],edge[1],edge[2],edge[3]));
+                    if (edge[2]!=="") this.isWeighted=true;
                 }
             }
             let max=0;
@@ -270,7 +273,7 @@
         function addMarkerEnd (line, isLoop, strokeWidth, st) {
             let [arrowHeight, arrowWidth, arrowDist]=calculateArrowProperties(isLoop,strokeWidth,st,this.vertexRad);
             let arrowEnd=[3*arrowHeight/2,arrowHeight/2];
-            let arrow=this.s.polygon([0,0,arrowEnd[0],arrowEnd[1],0,arrowHeight,0,0]).attr({fill: "black"});
+            let arrow=this.s.polygon([0,0,arrowEnd[0],arrowEnd[1],0,arrowHeight,0,0]).attr({fill: line.attr("stroke")});
             line.marker=arrow;
             let marker=arrow.marker(0,0,arrowEnd[0],arrowHeight,(isLoop===false)?arrowEnd[0]-arrowDist:0,arrowEnd[1]).attr({markerUnits: "userSpaceOnUse"});
             line.attr({"marker-end": marker});
@@ -334,13 +337,14 @@
             }
 
             edge.line.attr({fill: "none", stroke: "black", "stroke-width": strokeWidth});
-            if (this.isDirected==true) addMarkerEnd.call(this,edge.line,isLoop,strokeWidth,st);
+            if (this.isDirected===true) addMarkerEnd.call(this,edge.line,isLoop,strokeWidth,st);
             if (edgeInd!==-1) {
                 edge.line.addClass("temp");
                 let style=this.edgeList[edgeInd].defaultCSS=$(".temp").attr("style");
                 $(".temp").attr("style",style+" ; "+this.edgeList[edgeInd].addedCSS);
                 edge.line.removeClass("temp");
             }
+            if (this.isDirected===true) edge.line.marker.attr("fill",edge.line.attr("stroke"));
 
             if ((edgeInd!==-1)&&(this.isWeighted===true)) {
                 if ((isLoop===false)&&(st[0]===end[0])) {

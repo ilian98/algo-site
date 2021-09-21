@@ -9,6 +9,16 @@
         margin-bottom: 0.5rem !important;
     }
 }
+@media (max-width: 399px) {
+	.dropdown.end {
+		display: none;
+	}
+}
+@media (min-width: 400px) {
+	.dropdown.start {
+		display: none;
+	}
+}
 .navbar-collapse.show, .navbar-collapse.collapsing {
     margin-top: 0.5rem;
 }

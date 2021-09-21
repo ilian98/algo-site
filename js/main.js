@@ -224,10 +224,10 @@
     function changeLanguage (language) {
         let s=document.URL;
         if (s.includes(".html")===false) {
-            if (language=="en") s+="index_en.html";
+            if (language==="en") s+="index_en.html";
             else return ;
             }
-        if (language=="bg") s=s.replace("_en.html",".html");
+        if (language==="bg") s=s.replace("_en.html",".html");
         else if (s.includes("_en")===false) s=s.replace(".html","_en.html");
         this.setAttribute("href",s);
     }
@@ -239,6 +239,8 @@
                 let dropdown=$('[aria-labelledby="languages"] .dropdown-item');
                 $(dropdown[0]).on("click",changeLanguage.bind(dropdown[0],"bg"));
                 $(dropdown[1]).on("click",changeLanguage.bind(dropdown[1],"en"));
+                $(dropdown[2]).on("click",changeLanguage.bind(dropdown[2],"bg"));
+                $(dropdown[3]).on("click",changeLanguage.bind(dropdown[3],"en"));
             });
         
             let footer_page="/algo-site/footer.html";

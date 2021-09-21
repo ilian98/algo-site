@@ -6,6 +6,7 @@
         else if (event.touches!==undefined) return event.touches[0];
     }
     function checkInteger (s) {
+        if (s.length===0) return false;
         for (let c of s) {
             if ((c<'0')||(c>'9')) return false;
         }
@@ -82,7 +83,7 @@
                     let weight="";
                     if (graph.isWeighted===true) {
                         weight=window.prompt("Въведете тегло на реброто","1");
-                        if (checkInteger(weight.toString())===false) return ;
+                        if (checkInteger(weight)===false) return ;
                         weight=parseInt(weight);
                         if (weight===0) return ;
                     }
@@ -98,6 +99,12 @@
             }
         }
         
+        function changeEdgeWeight (index) {
+            let weight=window.prompt("Въведете ново тегло на реброто",graph.edgeList[index].weight);
+            if (checkInteger(weight)===false) return ;
+            graph.edgeList[index].weight=weight;
+            graph.draw(true);
+        }
         function edgeClick (index, event) {
             let parent=$(graph.svgName).parent();
             if (graph.isWeighted===true) parent.find(".change-weight").show();
@@ -111,8 +118,8 @@
             $(window).off("click.remove-edge-menu").on("click.remove-edge-menu",function () {
                 clicks++;
                 if (clicks===1) return ;
-                dropdown.removeClass("show");
                 $(window).off("click.remove-edge-menu");
+                dropdown.removeClass("show");
             });
             
             parent.find(".remove-edge").off("click").on("click",function () {
@@ -122,6 +129,14 @@
                 this.remove();
             }.bind(this));
             
+            if (graph.isWeighted===true) {
+                parent.find(".change-weight").off("click").on("click",function () {
+                    parent.find(".change-weight").off("click");
+                    changeEdgeWeight(index);
+                    graph.graphChange();
+                });
+            }
+            
             parent.find(".add-css").off("click").on("click",function () {
                 parent.find(".add-css").off("click");
                 let css=window.prompt("Въведете CSS стил за реброто","");
@@ -130,7 +145,10 @@
                 $(".temp").attr("style",graph.edgeList[index].defaultCSS+" ; "+css);
                 edge.line.removeClass("temp");
                 graph.edgeList[index].addedCSS=css;
-                dropdown.removeClass("show");
+                if (graph.isDirected===true) {
+                    let marker=edge.line.marker;
+                    marker.attr("fill",graph.svgEdges[index].line.attr("stroke"));
+                }
             });
         }
 
@@ -141,6 +159,8 @@
             }
             for (let i=0; i<graph.edgeList.length; i++) {
                 if (graph.svgEdges[i]===undefined) continue;
+                graph.svgEdges[i].line.attr({cursor: "pointer"});
+                graph.edgeList[i].defaultCSS+=" ; cursor: pointer";
                 let clickArea=graph.s.path(graph.svgEdges[i].line.attr("d")).attr({
                     cursor: "pointer",
                     "stroke-width": 20,
@@ -148,9 +168,20 @@
                     "stroke": "black",
                     "stroke-opacity": 0
                 });
-                if (window.isMobile==="false") clickArea.mousedown(edgeClick.bind(clickArea,i));
-                else clickArea.touchstart(edgeClick.bind(graph.svgEdges[i],i));
-                if (graph.svgEdges[i].weight!==undefined) graph.svgEdges[i].weight.attr({cursor: "pointer"});
+                clickArea.prependTo(graph.s);
+                if (window.isMobile==="false") {
+                    clickArea.mousedown(edgeClick.bind(clickArea,i));
+                    graph.svgEdges[i].line.mousedown(edgeClick.bind(clickArea,i));
+                }
+                else {
+                    clickArea.touchstart(edgeClick.bind(graph.svgEdges[i],i));
+                    graph.svgEdges[i].line.mousedown(edgeClick.bind(clickArea,i));
+                }
+                if (graph.svgEdges[i].weight!==undefined) {
+                    graph.svgEdges[i].weight.attr({cursor: "pointer"});
+                    if (window.isMobile==="false") graph.svgEdges[i].weight.mousedown(changeEdgeWeight.bind(this,i));
+                    else graph.svgEdges[i].weight.touchstart(changeEdgeWeight.bind(this,i));
+                }
             }
                     
             if (window.isMobile==="true") {

@@ -7,6 +7,12 @@
         graph.buildEdgeDataStructures([[0,1],[1,2],[2,3],[3,4],[4,0]]);
         graph.drawNewGraph(22,22,278,278,20,true);
         
+        function setGraphProperties () {
+            graph.isDirected=isDirected;
+            graph.isWeighted=isWeighted;
+            graph.isMulti=isMulti;
+        }
+        
         let sliderVers=$(".range-vers");
         let outputVers=$(".slider-value-vers");
         sliderVers.val(5);
@@ -14,36 +20,42 @@
         sliderVers.on("input", function() {
             outputVers.html($(this).val());
             graph.init(".graph",parseInt($(this).val()),graph.isDirected,true);
+            setGraphProperties();
             graph.drawNewGraph(22,22,278,278,graph.vertexRad,true);
         });
         
+        let isDirected=false;
         $("#undirected").on("click",function () {
-            if (graph.isDirected===true) {
-                graph.isDirected=false;
+            if (isDirected===true) {
+                graph.isDirected=false; isDirected=false;
                 graph.buildEdgeDataStructures(graph.convertSimpleEdgeList());
+                setGraphProperties();
                 graph.draw(true);
             }
         });
         $("#directed").on("click",function () {
             if (graph.isDirected===false) {
-                graph.isDirected=true;
+                graph.isDirected=true; isDirected=true;
                 graph.buildEdgeDataStructures(graph.convertSimpleEdgeList());
+                setGraphProperties();
                 graph.draw(true);
             }
         });
+        let isWeighted=false;
         $("#weighted").change(function () {
             if (this.checked===true) {
-                graph.isWeighted=true;
+                graph.isWeighted=true; isWeighted=true;
                 graph.draw(true);
             }
             else {
-                graph.isWeighted=false;
+                graph.isWeighted=false; isWeighted=false;
                 graph.draw(true);
             }
         });
+        let isMulti=false;
         $("#multi").change(function () {
-            if (this.checked===true) graph.isMulti=true;
-            else graph.isMulti=false;
+            if (this.checked===true) graph.isMulti=true, isMulti=true;
+            else graph.isMulti=false, isMulti=false;
         });
         
         let sliderRad=$(".range-rad");
