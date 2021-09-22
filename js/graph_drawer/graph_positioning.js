@@ -81,6 +81,7 @@
                 }
                 if (flag===true) possiblePos.push(pos);
             }
+            return possiblePos;
         }
         this.placeVertex = function (vr, tryPlanner) {
             let currPossiblePos=possiblePos.slice();

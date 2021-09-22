@@ -6,30 +6,75 @@
         else if (event.touches!==undefined) return event.touches[0];
     }
     function checkInteger (s) {
+        if ((s===null)||(s===undefined)) return false;
         if (s.length===0) return false;
         for (let c of s) {
             if ((c<'0')||(c>'9')) return false;
         }
         return true;
     }
+    function segmentLength (x1, y1, x2, y2) {
+        return Math.sqrt((x1-x2)*(x1-x2)+(y1-y2)*(y1-y2));
+    }
     
     function DrawableEdges (graph) {
-        let flagDraw,startX,startY;
-        let stVerDraw,currEdgeDraw=undefined,svgPoint;
-        
+        let svgPoint;
         function setSvgPoint (event) {
             let obj=getObjectForCoordinates(event);
             svgPoint.x=obj.clientX;
             svgPoint.y=obj.clientY;
             svgPoint=svgPoint.matrixTransform(graph.s.paper.node.getScreenCTM().inverse());
         }
+        
+        this.addVertexDrag=false;
+        let addVertexDrag,startVertexDrag;
+        let currEdgeDraw=undefined;
+        let startMousePos;
+        
+        function redrawEdges (dx, dy) {
+            let coords=[graph.svgVertices[startVertexDrag].coord[0]+dx,
+                        graph.svgVertices[startVertexDrag].coord[1]+dy];
+            function redrawEdge (ind, isReversed) {
+                graph.svgEdges[ind].line.remove();
+                if (graph.svgEdges[ind].weight!==undefined) graph.svgEdges[ind].weight.remove();
+                let otherEnd=graph.edgeList[ind].findEndPoint(startVertexDrag);
+                let otherCoords=[graph.svgVertices[otherEnd].coord[0], graph.svgVertices[otherEnd].coord[1]];
+                if (isReversed===false) {
+                    graph.svgEdges[ind]=graph.drawEdge([coords[0], coords[1]],otherCoords,ind,graph.svgEdges[ind].drawProperties);
+                }
+                else {
+                    graph.svgEdges[ind]=graph.drawEdge(otherCoords,[coords[0], coords[1]],graph.svgEdges[ind].drawProperties);
+                }
+                graph.svgEdges[ind].line.prependTo(graph.s);
+                if (graph.svgEdges[ind].weight!==undefined) graph.svgEdges[ind].weight.prependTo(graph.s);
+            }
+            for (let ind of graph.adjList[startVertexDrag]) {
+                redrawEdge(ind,false);
+                
+            }
+            for (let ind of graph.reverseAdjList[startVertexDrag]) {
+                redrawEdge(ind,true);
+            }
+        }
+        
         function vertexClick (index, event) {
-            setSvgPoint(event);
-            startX=svgPoint.x; startY=svgPoint.y;
-            flagDraw=true;
-            stVerDraw=index;
-
-            let lineOut = function (event) {
+            if (window.isMobile==="false") {
+                graph.s.mousemove(trackMouse);
+                graph.s.mouseup(edgeDrawEnd);
+            }
+            else {
+                graph.s.touchmove(trackMouse);
+                graph.s.touchend(edgeDrawEnd);
+            }
+            
+            addVertexDrag=this.addVertexDrag;
+            startVertexDrag=index;
+            if (this.addVertexDrag===true) {
+                setSvgPoint(event);
+                startMousePos=[svgPoint.x, svgPoint.y];
+            }
+            
+            let mouseOut = function (event) {
                 if (event===undefined) return ;
                 let boundBox = {
                     top: $(graph.svgName)[0].getBoundingClientRect().top+window.scrollY,
@@ -44,58 +89,93 @@
                     clearDrawParameters();
                 }
             };
-            $(window).off("mousemove.line-out").on("mousemove.line-out",lineOut);
-            $(window).off("touchmove.line-out").on("touchmove.line-out",lineOut);
+            if (window.isMobile==="false") $(window).off("mousemove.mouse-out").on("mousemove.mouse-out",mouseOut);
+            else $(window).off("touchmove.mouse-out").on("touchmove.mouse-out",mouseOut);
         }
         function trackMouse (event) {
-            if (flagDraw===false) return ;
             event.preventDefault();
-            if (currEdgeDraw!==undefined) currEdgeDraw.remove();
             setSvgPoint(event);
-            let circleCoord=graph.svgVertices[stVerDraw].coord;
-            if (segmentLength(circleCoord[0],circleCoord[1],svgPoint.x,svgPoint.y)>=graph.vertexRad) {
-                let end=[svgPoint.x, svgPoint.y];
-                currEdgeDraw=graph.drawEdge(circleCoord,end,-1,0).line;
-                currEdgeDraw.prependTo(graph.s);
+            if (addVertexDrag===false) {
+                if (currEdgeDraw!==undefined) currEdgeDraw.remove();
+                let circleCoord=graph.svgVertices[startVertexDrag].coord;
+                if (segmentLength(circleCoord[0],circleCoord[1],svgPoint.x,svgPoint.y)>=graph.vertexRad) {
+                    let end=[svgPoint.x, svgPoint.y];
+                    currEdgeDraw=graph.drawEdge(circleCoord,end,-1,0).line;
+                    currEdgeDraw.prependTo(graph.s);
+                }
+            }
+            else {
+                let dx=svgPoint.x-startMousePos[0],dy=svgPoint.y-startMousePos[1];
+                graph.svgVertices[startVertexDrag].group.transform("t"+dx+" "+dy);
+                redrawEdges(dx,dy);
             }
         }
         function clearDrawParameters () {
-            flagDraw=false;
-            if (currEdgeDraw!==undefined) currEdgeDraw.remove();
-            $(window).off("mousemove.line-out").off("touchmove.line-out");
+            if (addVertexDrag===false) {
+                if (currEdgeDraw!==undefined) currEdgeDraw.remove();
+            }
+            else {
+                graph.svgVertices[startVertexDrag].group.transform("t0 0");
+                redrawEdges(0,0);
+            }
+            $(window).off("mousemove.mouse-out").off("touchmove.mouse-out");
+            if (window.isMobile==="false") {
+                graph.s.unmousemove(trackMouse);
+                graph.s.unmouseup(edgeDrawEnd);
+            }
+            else {
+                graph.s.untouchmove(trackMouse);
+                graph.s.untouchend(edgeDrawEnd);
+            }
         }
         function edgeDrawEnd (event) {
-            if (flagDraw===false) return ;
             clearDrawParameters();
 
-            for (let i=0; i<graph.n; i++) {
-                if ((svgPoint.x>=graph.svgVertices[i].group.getBBox().x)&&(svgPoint.x<=graph.svgVertices[i].group.getBBox().x2)&&
-                    (svgPoint.y>=graph.svgVertices[i].group.getBBox().y)&&(svgPoint.y<=graph.svgVertices[i].group.getBBox().y2)) {
-                    if (stVerDraw===i) return ;
-                    if ((graph.isMulti===false)&&(graph.adjMatrix[stVerDraw][i]===1)) return ;
-                    if (graph.isMulti===true) {
-                        let maxEdges=(graph.isWeighted===true)?2:5;
-                        if ((graph.isDirected===false)&&(graph.adjMatrix[stVerDraw][i]==maxEdges)) return ;
-                        if ((graph.isDirected===true)&&
-                            (graph.adjMatrix[stVerDraw][i]+graph.adjMatrix[i][stVerDraw]==maxEdges)) return ;
-                    }
+            if (addVertexDrag===false) {
+                for (let i=0; i<graph.n; i++) {
+                    if ((svgPoint.x>=graph.svgVertices[i].group.getBBox().x)&&(svgPoint.x<=graph.svgVertices[i].group.getBBox().x2)&&
+                        (svgPoint.y>=graph.svgVertices[i].group.getBBox().y)&&(svgPoint.y<=graph.svgVertices[i].group.getBBox().y2)) {
+                        if (startVertexDrag===i) return ;
+                        if ((graph.isMulti===false)&&(graph.adjMatrix[startVertexDrag][i]===1)) return ;
+                        if (graph.isMulti===true) {
+                            let maxEdges=(graph.isWeighted===true)?2:5;
+                            if ((graph.isDirected===false)&&(graph.adjMatrix[startVertexDrag][i]==maxEdges)) return ;
+                            if ((graph.isDirected===true)&&
+                                (graph.adjMatrix[startVertexDrag][i]+graph.adjMatrix[i][startVertexDrag]==maxEdges)) return ;
+                        }
 
-                    let weight="";
-                    if (graph.isWeighted===true) {
-                        weight=window.prompt("Въведете тегло на реброто","1");
-                        if (checkInteger(weight)===false) return ;
-                        weight=parseInt(weight);
-                        if (weight===0) return ;
+                        let weight="";
+                        if (graph.isWeighted===true) {
+                            weight=window.prompt("Въведете тегло на реброто","1");
+                            if (checkInteger(weight)===false) return ;
+                            weight=parseInt(weight);
+                            if (weight===0) return ;
+                        }
+                        graph.addEdge(startVertexDrag,i,weight);
+                        if (graph.calcPositions.checkEdge(startVertexDrag,i)===false) {
+                            graph.svgVertices[i].coord=undefined;
+                            graph.calcPositions.calculatePossiblePos();
+                            if (graph.calcPositions.placeVertex(i,false)===false) graph.calcPositions.init();
+                        }
+                        graph.graphChange();
+                        graph.draw(true);
                     }
-                    graph.addEdge(stVerDraw,i,weight);
-                    if (graph.calcPositions.checkEdge(stVerDraw,i)===false) {
-                        graph.svgVertices[i].coord=undefined;
-                        graph.calcPositions.calculatePossiblePos();
-                        if (graph.calcPositions.placeVertex(i,false)===false) graph.calcPositions.init();
-                    }
-                    graph.graphChange();
-                    graph.draw(true);
                 }
+            }
+            else {
+                let ind=startVertexDrag;
+                let dx=svgPoint.x-startMousePos[0],dy=svgPoint.y-startMousePos[1];
+                let oldCoords=[graph.svgVertices[ind].coord[0], graph.svgVertices[ind].coord[1]];
+                graph.svgVertices[ind].coord=undefined;
+                let possiblePos=graph.calcPositions.calculatePossiblePos();
+                graph.svgVertices[ind].coord=[oldCoords[0]+dx, oldCoords[1]+dy];
+                for (let pos of possiblePos) {
+                    if (segmentLength(graph.svgVertices[ind].coord[0],graph.svgVertices[ind].coord[1],pos[0],pos[1])<15) {
+                        graph.svgVertices[ind].coord=[pos[0],pos[1]];
+                        break;
+                    }
+                }
+                graph.draw(true,false);
             }
         }
         
@@ -106,13 +186,13 @@
             graph.draw(true);
         }
         function edgeClick (index, event) {
-            let parent=$(graph.svgName).parent();
-            if (graph.isWeighted===true) parent.find(".change-weight").show();
-            else parent.find(".change-weight").hide();
+            let dropdown=$(graph.svgName).parent().find(".dropdown-menu.edge");
+            if (graph.isWeighted===true) dropdown.find(".change-weight").show();
+            else dropdown.find(".change-weight").hide();
             
-            let dropdown=parent.find(".dropdown-menu.edge");
             let bodyOffsets=document.body.getBoundingClientRect();
-            dropdown.css({"top": event.pageY, "left": event.pageX-bodyOffsets.left});
+            let obj=getObjectForCoordinates(event);
+            dropdown.css({"top": obj.pageY, "left": obj.pageX-bodyOffsets.left});
             dropdown.addClass("show");
             let clicks=0;
             $(window).off("click.remove-edge-menu").on("click.remove-edge-menu",function () {
@@ -122,68 +202,76 @@
                 dropdown.removeClass("show");
             });
             
-            parent.find(".remove-edge").off("click").on("click",function () {
-                parent.find(".remove-edge").off("click");
+            dropdown.find(".remove-edge").off("click").on("click",function () {
+                dropdown.find(".remove-edge").off("click");
                 graph.removeEdge(index);
                 graph.graphChange();
+                dropdown.removeClass("show");
                 this.remove();
             }.bind(this));
             
             if (graph.isWeighted===true) {
-                parent.find(".change-weight").off("click").on("click",function () {
-                    parent.find(".change-weight").off("click");
+                dropdown.find(".change-weight").off("click").on("click",function () {
+                    dropdown.find(".change-weight").off("click");
                     changeEdgeWeight(index);
                     graph.graphChange();
+                    dropdown.removeClass("show");
                 });
             }
             
-            parent.find(".add-css").off("click").on("click",function () {
-                parent.find(".add-css").off("click");
+            dropdown.find(".add-css").off("click").on("click",function () {
+                dropdown.find(".add-css").off("click");
                 let css=window.prompt("Въведете CSS стил за реброто","");
                 let edge=graph.svgEdges[index];
                 edge.line.addClass("temp");
-                $(".temp").attr("style",graph.edgeList[index].defaultCSS+" ; "+css);
+                $(".temp").attr("style",graph.edgeList[index].defaultCSS[0]+" ; "+css);
                 edge.line.removeClass("temp");
-                graph.edgeList[index].addedCSS=css;
+                graph.edgeList[index].addedCSS[0]=css;
                 if (graph.isDirected===true) {
                     let marker=edge.line.marker;
                     marker.attr("fill",graph.svgEdges[index].line.attr("stroke"));
                 }
+                dropdown.removeClass("show");
+            });
+        }
+        
+        function weightClick (index, event) {
+            let dropdown=$(graph.svgName).parent().find(".dropdown-menu.weight");
+            let bodyOffsets=document.body.getBoundingClientRect();
+            let obj=getObjectForCoordinates(event);
+            dropdown.css({"top": obj.pageY, "left": obj.pageX-bodyOffsets.left});
+            dropdown.addClass("show");
+            let clicks=0;
+            $(window).off("click.remove-weight-menu").on("click.remove-weight-menu",function () {
+                clicks++;
+                if (clicks===1) return ;
+                $(window).off("click.remove-weight-menu");
+                dropdown.removeClass("show");
+            });
+            
+            dropdown.find(".change-weight").off("click").on("click",function () {
+                dropdown.find(".change-weight").off("click");
+                changeEdgeWeight(index);
+                graph.graphChange();
+                dropdown.removeClass("show");
+            });
+            
+            dropdown.find(".add-css").off("click").on("click",function () {
+                dropdown.find(".add-css").off("click");
+                let css=window.prompt("Въведете CSS стил за реброто","");
+                let weight=graph.svgEdges[index].weight;
+                weight.addClass("temp");
+                $(".temp").attr("style",graph.edgeList[index].defaultCSS[1]+" ; "+css);
+                weight.removeClass("temp");
+                if ((graph.edgeList[index].defaultCSS[1]+" "+css).indexOf("fill")==-1) {
+                    weight.attr("fill",graph.svgEdges[index].line.attr("stroke"));
+                }
+                graph.edgeList[index].addedCSS[1]=css;
+                dropdown.removeClass("show");
             });
         }
 
         this.init = function () {
-            for (let i=0; i<graph.n; i++) {
-                if (graph.svgVertices[i].group===undefined) continue;
-                graph.svgVertices[i].group.attr({cursor: "pointer"});
-            }
-            for (let i=0; i<graph.edgeList.length; i++) {
-                if (graph.svgEdges[i]===undefined) continue;
-                graph.svgEdges[i].line.attr({cursor: "pointer"});
-                graph.edgeList[i].defaultCSS+=" ; cursor: pointer";
-                let clickArea=graph.s.path(graph.svgEdges[i].line.attr("d")).attr({
-                    cursor: "pointer",
-                    "stroke-width": 20,
-                    "fill": "none",
-                    "stroke": "black",
-                    "stroke-opacity": 0
-                });
-                clickArea.prependTo(graph.s);
-                if (window.isMobile==="false") {
-                    clickArea.mousedown(edgeClick.bind(clickArea,i));
-                    graph.svgEdges[i].line.mousedown(edgeClick.bind(clickArea,i));
-                }
-                else {
-                    clickArea.touchstart(edgeClick.bind(graph.svgEdges[i],i));
-                    graph.svgEdges[i].line.mousedown(edgeClick.bind(clickArea,i));
-                }
-                if (graph.svgEdges[i].weight!==undefined) {
-                    graph.svgEdges[i].weight.attr({cursor: "pointer"});
-                    if (window.isMobile==="false") graph.svgEdges[i].weight.mousedown(changeEdgeWeight.bind(this,i));
-                    else graph.svgEdges[i].weight.touchstart(changeEdgeWeight.bind(this,i));
-                }
-            }
-                    
             if (window.isMobile==="true") {
                 let svgElement=$(graph.svgName);
                 svgElement.blockScroll=false;
@@ -197,32 +285,41 @@
                     if (this.blockScroll===true) event.preventDefault();
                 });
             }
-
-            flagDraw=false;
+            
             svgPoint=graph.s.paper.node.createSVGPoint();
             for (let i=0; i<graph.n; i++) {
                 if (graph.svgVertices[i].group===undefined) continue;
+                graph.svgVertices[i].group.attr({cursor: "pointer"});
+                if (window.isMobile==="false") graph.svgVertices[i].group.mousedown(vertexClick.bind(this,i));
+                else graph.svgVertices[i].group.touchstart(vertexClick.bind(this,i));
+            }
+            
+            for (let i=0; i<graph.edgeList.length; i++) {
+                if (graph.svgEdges[i]===undefined) continue;
+                graph.svgEdges[i].line.attr({cursor: "pointer"});
+                graph.edgeList[i].defaultCSS[0]+=" ; cursor: pointer";
+                let clickArea=graph.s.path(graph.svgEdges[i].line.attr("d")).attr({
+                    cursor: "pointer",
+                    "stroke-width": 20,
+                    "fill": "none",
+                    "stroke": "black",
+                    "stroke-opacity": 0
+                });
+                clickArea.prependTo(graph.s);
                 if (window.isMobile==="false") {
-                    graph.svgVertices[i].group.unmousedown(vertexClick);
-                    graph.svgVertices[i].group.mousedown(vertexClick.bind(graph.svgVertices[i],i));
+                    clickArea.click(edgeClick.bind(clickArea,i));
+                    graph.svgEdges[i].line.click(edgeClick.bind(clickArea,i));
                 }
                 else {
-                    graph.svgVertices[i].group.untouchstart(vertexClick);
-                    graph.svgVertices[i].group.touchstart(vertexClick.bind(graph.svgVertices[i],i));
+                    clickArea.touchstart(edgeClick.bind(graph.svgEdges[i],i));
+                    graph.svgEdges[i].line.touchstart(edgeClick.bind(clickArea,i));
                 }
-            }
-
-            if (window.isMobile==="false") {
-                graph.s.unmousemove(trackMouse);
-                graph.s.mousemove(trackMouse);
-                graph.s.unmouseup(edgeDrawEnd);
-                graph.s.mouseup(edgeDrawEnd);
-            }
-            else {
-                graph.s.untouchmove(trackMouse);
-                graph.s.touchmove(trackMouse);
-                graph.s.untouchend(edgeDrawEnd);
-                graph.s.touchend(edgeDrawEnd);
+                if (graph.svgEdges[i].weight!==undefined) {
+                    graph.svgEdges[i].weight.attr({cursor: "pointer"});
+                    graph.edgeList[i].defaultCSS[1]+=" ; cursor: pointer";
+                    if (window.isMobile==="false") graph.svgEdges[i].weight.click(weightClick.bind(this,i));
+                    else graph.svgEdges[i].weight.touchstart(weightClick.bind(this,i));
+                }
             }
         }
     }

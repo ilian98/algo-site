@@ -69,6 +69,13 @@
             graph.vertexRad=val;
             graph.draw(true);
         });
+        
+        $("#edgeDraw").on("click",function () {
+            graph.drawableEdges.addVertexDrag=false;
+        });
+        $("#vertexMove").on("click",function () {
+            graph.drawableEdges.addVertexDrag=true;
+        });
     }
     
     window.init = init;
