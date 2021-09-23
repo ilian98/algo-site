@@ -198,7 +198,7 @@
                     if (edge[2]!=="") this.isWeighted=true;
                 }
             }
-            let max=0;
+            let max=this.n-1;
             for (let edge of edgeList) {
                 if (edge===undefined) continue;
                 if (max<edge.x) max=edge.x;
@@ -262,7 +262,42 @@
             this.draw(addDrawableEdges);
         }
 
-        function calculateArrowProperties (isLoop, strokeWidth, st, vertexRad) {
+        function calcStraightEdge (st, end, isDrawn, endDist, vertexRad) {
+            let edgeLen=segmentLength(st[0],st[1],end[0],end[1]);
+            let quotient=((isDrawn===true)?0:vertexRad)/edgeLen;
+            let diff=[end[0]-st[0],end[1]-st[1]];
+            let beg=[st[0]+quotient*diff[0], st[1]+quotient*diff[1]];
+            quotient=(edgeLen-((isDrawn===true)?0:vertexRad)-endDist)/edgeLen;
+            let fin=[st[0]+quotient*diff[0], st[1]+quotient*diff[1]];
+            return linePath(beg,fin);
+        }
+        function calcCurvedEdge (st, end, properties, endDist, vertexRad) {
+            let [beg,fin]=[st,end];
+            if ((st[1]>end[1])||((st[1]===end[1])&&(st[0]>end[0]))) [beg,fin]=[end,st];
+            if (beg[0]===fin[0]) properties*=(-1);
+            let sign=(beg[0]<=fin[0])?-1:1;
+            if (beg[1]===fin[1]) sign*=(-1);
+            let middlePoint=findPointAtDistance(beg[0],beg[1],fin[0],fin[1],properties*sign);
+            let bezierPoint=findBezierPoint(beg[0],beg[1],fin[0],fin[1],middlePoint[0],middlePoint[1]);
+                
+            let points=sortPoints([beg[0], beg[1]],[fin[0], fin[1]]);
+            let pathForWeight=bezierPath(points[0],points[1],bezierPoint);
+                    
+            let p1=Snap.path.intersection(
+                bezierPath(beg,fin,bezierPoint),
+                circlePath(beg[0],beg[1],((beg===st)?vertexRad:(vertexRad+endDist)))
+            )[0];
+            if (p1===undefined) return [pathForWeight, pathForWeight];
+            let p2=Snap.path.intersection(
+                bezierPath(beg,fin,bezierPoint),
+                circlePath(fin[0],fin[1],((fin===st)?vertexRad:(vertexRad+endDist)))
+            )[0];
+            if (p2===undefined) return [pathForWeight, pathForWeight];
+            bezierPoint=findBezierPoint(p1.x,p1.y,p2.x,p2.y,middlePoint[0],middlePoint[1]);
+            if (beg!==st) [p1,p2]=[p2,p1];
+            return [bezierPath([p1.x,p1.y],[p2.x,p2.y],bezierPoint), pathForWeight];
+        }
+        function calculateArrowProperties (isLoop, strokeWidth, st, vertexRad, properties) {
             let arrowHeight;
             if (isLoop===false) arrowHeight=5*(strokeWidth);
             else {
@@ -272,39 +307,83 @@
             let arrowWidth=3*arrowHeight/2;
             return [arrowHeight, arrowWidth, strokeWidth/arrowHeight*arrowWidth];
         }
-        function addMarkerEnd (line, isLoop, strokeWidth, st) {
-            let [arrowHeight, arrowWidth, arrowDist]=calculateArrowProperties(isLoop,strokeWidth,st,this.vertexRad);
+        function addMarkerEnd (line, isLoop, strokeWidth, st, properties) {
+            let [arrowHeight, arrowWidth, arrowDist]=calculateArrowProperties(isLoop,strokeWidth,st,this.vertexRad,properties);
             let arrowEnd=[3*arrowHeight/2,arrowHeight/2];
             let arrow=this.s.polygon([0,0,arrowEnd[0],arrowEnd[1],0,arrowHeight,0,0]).attr({fill: line.attr("stroke")});
             line.marker=arrow;
             let marker=arrow.marker(0,0,arrowEnd[0],arrowHeight,(isLoop===false)?arrowEnd[0]-arrowDist:0,arrowEnd[1]).attr({markerUnits: "userSpaceOnUse"});
             line.attr({"marker-end": marker});
         }
+        function calcWeightPosition (weight, isVertical, isLoop, pathForWeight, properties) {
+            if (isVertical===true) {
+                let tempPath=this.s.path(pathForWeight).attr({
+                    fill: "none",
+                    stroke: "black",
+                    "stroke-width": this.findStrokeWidth()
+                });
+                let middle=tempPath.getPointAtLength(tempPath.getTotalLength()/2);
+                tempPath.remove();
+                if (properties>=0) pathForWeight=linePath([middle.x-weight.width-2*5, middle.y],
+                                                          [middle.x, middle.y]);
+                else pathForWeight=linePath([middle.x, middle.y],
+                                            [middle.x+weight.width+2*5, middle.y]);
+                weight.attr({dy: weight.dyCenter});
+            }
+            else if ((isLoop===false)&&(properties<0)) weight.attr({dy: weight.height-2});
+            else weight.attr({dy: (isLoop===false)?-7:-3});
+            return pathForWeight;
+        }
+        this.redrawEdge = function (edge, st, end, edgeInd = -1) {
+            let properties=edge.drawProperties;
+            let isLoop=false,isDrawn=(edgeInd===-1);
+            if ((isDrawn===false)&&(this.edgeList[edgeInd].x===this.edgeList[edgeInd].y)) isLoop=true;
+            
+            let endDist=edge.endDist;
+
+            let pathForWeight;
+            if (properties===0) {
+                edge.line.attr("d",calcStraightEdge(st,end,isDrawn,endDist,this.vertexRad));
+                let points=sortPoints(st,end);
+                pathForWeight=linePath(points[0],points[1]);
+            }
+            else {
+                if (isLoop===true) { /// loop
+                    edge.line.attr("d",loopPath(st[0],st[1]-this.vertexRad,this.vertexRad,properties,this.isDirected));
+                    pathForWeight=loopPath(st[0],st[1]-this.vertexRad,this.vertexRad,properties,false);
+                }
+                else { /// multiedge
+                    let paths=calcCurvedEdge(st,end,properties,endDist,this.vertexRad);
+                    edge.line.attr("d",paths[0]);
+                    pathForWeight=paths[1];
+                }
+            }
+
+            if ((isDrawn===false)&&(this.isWeighted===true)) {
+                pathForWeight=calcWeightPosition.call(this,edge.weight,
+                                                      ((isLoop===false)&&(st[0]===end[0])),isLoop,pathForWeight,properties);
+                this.s.select(edge.weight.textPath.attr("href")).attr("d",pathForWeight);
+            }
+            return edge;
+        }
         this.drawEdge = function (st, end, edgeInd = -1, properties = 0) {
             let strokeWidth=this.findStrokeWidth();
+            let isLoop=false,isDrawn=(edgeInd===-1);
+            if ((isDrawn===false)&&(this.edgeList[edgeInd].x===this.edgeList[edgeInd].y)) isLoop=true;
             
-            let edgeLen=segmentLength(st[0],st[1],end[0],end[1]);
-            let isLoop=(edgeLen<this.vertexRad)?true:false;
             let edge=new SvgEdge();
             edge.drawProperties=properties;
 
             let endDist=0;
             if (this.isDirected===true) {
-                let arrowDist=calculateArrowProperties(isLoop,strokeWidth,st,this.vertexRad)[2];
+                let arrowDist=calculateArrowProperties(isLoop,strokeWidth,st,this.vertexRad,properties)[2];
                 endDist=strokeWidth/2+arrowDist;
             }
+            edge.endDist=endDist;
 
             let pathForWeight;
             if (properties===0) {
-                let quotient=(edgeLen-((edgeInd===-1)?0:this.vertexRad)-endDist)/edgeLen;
-                let diff=[end[0]-st[0],end[1]-st[1]];
-                end[0]=st[0]+quotient*diff[0];
-                end[1]=st[1]+quotient*diff[1];
-                quotient=((edgeInd===-1)?0:this.vertexRad)/edgeLen;
-                st[0]+=quotient*diff[0];
-                st[1]+=quotient*diff[1];
-                edge.line=this.s.path(linePath(st,end));
-
+                edge.line=this.s.path(calcStraightEdge(st,end,isDrawn,endDist,this.vertexRad));
                 let points=sortPoints(st,end);
                 pathForWeight=linePath(points[0],points[1]);
             }
@@ -314,34 +393,15 @@
                     pathForWeight=loopPath(st[0],st[1]-this.vertexRad,this.vertexRad,properties,false);
                 }
                 else { /// multiedge
-                    let [beg,fin]=[st,end];
-                    if ((st[1]>end[1])||((st[1]===end[1])&&(st[0]>end[0]))) [beg,fin]=[end,st];
-                    if (beg[0]===fin[0]) properties*=(-1);
-                    let sign=(beg[0]<=fin[0])?-1:1;
-                    if (beg[1]===fin[1]) sign*=(-1);
-                    let middlePoint=findPointAtDistance(beg[0],beg[1],fin[0],fin[1],properties*sign);
-                    let bezierPoint=findBezierPoint(beg[0],beg[1],fin[0],fin[1],middlePoint[0],middlePoint[1]);
-                    let p1=Snap.path.intersection(
-                        bezierPath(beg,fin,bezierPoint),
-                        circlePath(beg[0],beg[1],((beg===st)?this.vertexRad:(this.vertexRad+endDist)))
-                    )[0];
-                    let p2=Snap.path.intersection(
-                        bezierPath(beg,fin,bezierPoint),
-                        circlePath(fin[0],fin[1],((fin===st)?this.vertexRad:(this.vertexRad+endDist)))
-                    )[0];
-
-                    bezierPoint=findBezierPoint(p1.x,p1.y,p2.x,p2.y,middlePoint[0],middlePoint[1]);
-                    if (beg!==st) [p1,p2]=[p2,p1];
-                    edge.line=this.s.path(bezierPath([p1.x,p1.y],[p2.x,p2.y],bezierPoint));
-
-                    let points=sortPoints([p1.x,p1.y],[p2.x,p2.y]);
-                    pathForWeight=bezierPath(points[0],points[1],bezierPoint);
+                    let paths=calcCurvedEdge(st,end,properties,endDist,this.vertexRad);
+                    edge.line=this.s.path(paths[0]);
+                    pathForWeight=paths[1];
                 }
             }
 
             edge.line.attr({fill: "none", stroke: "black", "stroke-width": strokeWidth});
-            if (this.isDirected===true) addMarkerEnd.call(this,edge.line,isLoop,strokeWidth,st);
-            if (edgeInd!==-1) {
+            if (this.isDirected===true) addMarkerEnd.call(this,edge.line,isLoop,strokeWidth,st,properties);
+            if (isDrawn===false) {
                 edge.line.addClass("temp");
                 let style=this.edgeList[edgeInd].defaultCSS[0]=$(".temp").attr("style");
                 $(".temp").attr("style",style+" ; "+this.edgeList[edgeInd].addedCSS[0]);
@@ -349,14 +409,8 @@
             }
             if (this.isDirected===true) edge.line.marker.attr("fill",edge.line.attr("stroke"));
 
-            if ((edgeInd!==-1)&&(this.isWeighted===true)) {
-                if ((isLoop===false)&&(st[0]===end[0])) {
-                    let tempPath=this.s.path(pathForWeight).attr({fill: "none", stroke: "black", "stroke-width": strokeWidth});
-                    let middle=edge.line.getPointAtLength(tempPath.getTotalLength()/2);
-                    tempPath.remove();
-                    edge.weight=this.s.text(middle.x,middle.y,this.edgeList[edgeInd].weight.toString());
-                }
-                else edge.weight=this.s.text(0,0,this.edgeList[edgeInd].weight.toString());
+            if ((isDrawn===false)&&(this.isWeighted===true)) {
+                edge.weight=this.s.text(0,0,this.edgeList[edgeInd].weight.toString());
                 edge.weight.attr({
                     "font-size": this.vertexRad,
                     "font-family": "Arial",
@@ -364,17 +418,14 @@
                     class: "unselectable",
                     fill: edge.line.attr("stroke"),
                 });
-                if ((isLoop===false)&&(st[0]===end[0])) 
-                    edge.weight.attr({
-                        dx: (-edge.weight.getBBox().width/2-5)*((properties<=0)?1:-1),
-                        dy: determineDy(this.edgeList[edgeInd].weight.toString(),"Arial",this.vertexRad)
-                    });
-                else {
-                    if ((isLoop===false)&&(properties<0)) edge.weight.attr({dy: edge.weight.getBBox().height-2});
-                    else edge.weight.attr({dy: (isLoop===false)?-7:-3});
-                    edge.weight.attr({textpath: pathForWeight});
-                    edge.weight.textPath.attr({"startOffset": "50%"});
-                }
+                edge.weight.width=edge.weight.getBBox().width;
+                edge.weight.height=edge.weight.getBBox().height;
+                edge.weight.dyCenter=determineDy(this.edgeList[edgeInd].weight.toString(),"Arial",this.vertexRad);
+                
+                pathForWeight=calcWeightPosition.call(this,edge.weight,
+                                                      ((isLoop===false)&&(st[0]===end[0])),isLoop,pathForWeight,properties);
+                edge.weight.attr({textpath: pathForWeight});
+                edge.weight.textPath.attr({"startOffset": "50%"});
                 
                 edge.weight.addClass("temp");
                 let style=this.edgeList[edgeInd].defaultCSS[1]=$(".temp").attr("style");
@@ -437,7 +488,7 @@
         this.draw = function (addDrawableEdges, animateDraw = true) { /// this functions expects that coordinates are already calculated
             let oldVersCoords=[],changedVers=[],cntAnimations=0;
             let oldRad=this.vertexRad;
-            let oldEdgesPaths=[];
+            let oldEdgesPaths=[],oldDy=[],oldWeightsPaths=[];
             if (animateDraw===true) {
                 for (let i=0; i<this.n; i++) {
                     if (this.svgVertices[i].group!==undefined) {
@@ -454,6 +505,10 @@
                 for (let i=0; i<this.edgeList.length; i++) {
                     if ((this.svgEdges[i]!==undefined)&&(this.svgEdges[i].line!==undefined)) {
                         oldEdgesPaths[i]=this.svgEdges[i].line.attr("d");
+                        if (this.svgEdges[i].weight!==undefined) {
+                            oldWeightsPaths[i]=this.s.select(this.svgEdges[i].weight.textPath.attr("href")).attr("d");
+                            oldDy[i]=this.svgEdges[i].weight.attr("dy");
+                        }
                     }
                     else oldEdgesPaths[i]=undefined;
                 }
@@ -490,42 +545,53 @@
                 let x=this.edgeList[i].x,y=this.edgeList[i].y;
                 let code=Math.max(x,y)*this.n+Math.min(x,y);
                 let val=edgeMapCurr.get(code);
-                let st=[this.svgVertices[x].coord[0],this.svgVertices[x].coord[1]];
-                let end=[this.svgVertices[y].coord[0],this.svgVertices[y].coord[1]];
                 let drawProperties;
                 if (x!==y) drawProperties=multiEdges[edgeMapCnt.get(code)][val++];
                 else drawProperties=loopEdges[edgeMapCnt.get(code)][val++];
-                this.svgEdges[i]=this.drawEdge(st,end,i,drawProperties);
+                this.svgEdges[i]=this.drawEdge(this.svgVertices[x].coord,this.svgVertices[y].coord,i,drawProperties);
                 edgeMapCurr.set(code,val);
                 
                 if (animateDraw===true) {
+                    if ((oldEdgesPaths[i]===undefined)&&((changedVers[x]===true)||(changedVers[y]===true))) {
+                        let st=[oldVersCoords[x].x+this.vertexRad,oldVersCoords[x].y+this.vertexRad];
+                        let end=[oldVersCoords[y].x+this.vertexRad,oldVersCoords[y].y+this.vertexRad];
+                        this.redrawEdge(this.svgEdges[i],st,end,i);
+                        oldEdgesPaths[i]=this.svgEdges[i].line.attr("d");
+                        if (this.svgEdges[i].weight!==undefined) {
+                            oldWeightsPaths[i]=this.s.select(this.svgEdges[i].weight.textPath.attr("href")).attr("d");
+                            oldDy[i]=this.svgEdges[i].weight.attr("dy");
+                        }
+                        this.redrawEdge(this.svgEdges[i],this.svgVertices[x].coord,this.svgVertices[y].coord,i);
+                    }
+                    
                     if ((oldEdgesPaths[i]!==undefined)&&(oldEdgesPaths[i]!==this.svgEdges[i].line.attr("d"))) {
                         cntAnimations++;
                         let currPath=this.svgEdges[i].line.attr("d");
                         this.svgEdges[i].line.attr({d: oldEdgesPaths[i]});
-                        let weight=this.svgEdges[i].weight;
-                        if (weight!==undefined) weight.attr("opacity",0);
                         this.svgEdges[i].line.animate({d: currPath},500,function (graph) {
-                            if (weight!==undefined) weight.attr("opacity",1);
                             this.attr({d: currPath});
                             animationsEnd.call(graph);
                         }.bind(this.svgEdges[i].line,this));
-                    }
-                    else if ((oldEdgesPaths[i]===undefined)&&((changedVers[x]===true)||(changedVers[y]===true))) {
-                        cntAnimations++;
-                        let currPath=this.svgEdges[i].line.attr("d"),weight=this.svgEdges[i].weight;
-                        this.svgEdges[i].line.remove();
-                        let st=[oldVersCoords[x].x+this.vertexRad,oldVersCoords[x].y+this.vertexRad];
-                        let end=[oldVersCoords[y].x+this.vertexRad,oldVersCoords[y].y+this.vertexRad];
-                        this.svgEdges[i]=this.drawEdge(st,end,i,drawProperties);
-                        if (this.svgEdges[i].weight!==undefined) this.svgEdges[i].weight.remove();
-                        this.svgEdges[i].weight=weight;
-                        if (weight!==undefined) weight.attr("opacity",0);
-                        this.svgEdges[i].line.animate({d: currPath},500,function (graph) {
-                            if (weight!==undefined) weight.attr("opacity",1);
-                            this.attr({d: currPath});
-                            animationsEnd.call(graph);
-                        }.bind(this.svgEdges[i].line,this));
+                        
+                        if (this.svgEdges[i].weight!==undefined) {
+                            cntAnimations++;
+                            let weightPath=this.s.select(this.svgEdges[i].weight.textPath.attr("href"));
+                            let currWeightPath=weightPath.attr("d");
+                            weightPath.attr({d: oldWeightsPaths[i]});
+                            weightPath.animate({d: currWeightPath},500,function (graph) {
+                                this.attr({d: currWeightPath});
+                                animationsEnd.call(graph);
+                            }.bind(weightPath,this));
+                            
+                            let currDy=this.svgEdges[i].weight.attr("dy");
+                            if (oldDy[i]!==currDy) {
+                                cntAnimations++;
+                                this.svgEdges[i].weight.attr({dy: oldDy[i]});
+                                this.svgEdges[i].weight.animate({dy: currDy},500,function (graph) {
+                                    animationsEnd.call(graph);
+                                }.bind(this.svgEdges[i].weight,this));
+                            }
+                        }
                     }
                 }
             }
@@ -566,8 +632,9 @@
                         this.svgEdges[i].line.attr("stroke-width",this.findStrokeWidth());
                         if (this.isDirected==true) {
                             let x=this.edgeList[i].x,y=this.edgeList[i].y;
-                            addMarkerEnd.call(this,this.svgEdges[i].line,(x==y),this.findStrokeWidth(),this.svgVertices[x].coord);
+                            addMarkerEnd.call(this,this.svgEdges[i].line,(x===y),this.findStrokeWidth(),this.svgVertices[x].coord,this.svgEdges[i].drawProperties);
                         }
+                        if (this.svgEdges[i].weight!==undefined) this.svgEdges[i].weight.attr("font-size",val);
                     }
                 }.bind(this),500,animationsEnd.bind(this));
             }
@@ -591,6 +658,7 @@
             if (this.isDirected===false) this.adjList[y].push(ind);
             this.adjMatrix[x][y]++;
             if (this.isDirected===false) this.adjMatrix[y][x]++;
+            if (this.isDirected===true) this.reverseAdjList[y].push(ind);
         }
         this.removeEdge = function (index) {
             let edge=this.edgeList[index];

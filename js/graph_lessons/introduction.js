@@ -132,7 +132,7 @@
     function initExample (part) {
         if (part===2) {
             let example1 = new Graph ();
-            example1.init(".graphExample1",6,true);
+            example1.init(".graphExample1",5,true);
             example1.buildEdgeDataStructures([[0,1],[0,2],[0,3],[1,4],[2,4]]);
             example1.drawNewGraph(1,1,299,299,25,true);
 
