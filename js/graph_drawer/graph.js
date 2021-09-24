@@ -4,8 +4,8 @@
         x2-=x1; y2-=y1;
         let flag=false;
         if (y2==0) {
-            y2+=x2; x2=y2-x2; y2=y2-x2;
-            y1+=x1; x1=y1-x1; y1=y1-x1;
+            [x1, y1]=[y1, x1];
+            [x2, y2]=[y2, x2];
             flag=true;
         }
         /* x^2+y^2=r1^2
@@ -25,8 +25,15 @@
             xs[i]+=x1;
             ys[i]+=y1;
         }
-        if (flag===false) return [[xs[0],ys[0]],[xs[1],ys[1]]];
-        else return [[ys[0],xs[0]],[ys[1],xs[1]]];
+        x2+=x1; y2+=y1;
+        if (flag===true) {
+            [xs[0], ys[0]]=[ys[0], xs[0]];
+            [xs[1], ys[1]]=[ys[1], xs[1]];
+            [x1, y1]=[y1, x1];
+            [x2, y2]=[y2, x2];
+        }
+        if (orientation([x1, y1],[x2, y2],[xs[0], ys[0]])<0) return [[xs[0], ys[0]],[xs[1], ys[1]]];
+        else return [[xs[1], ys[1]],[xs[0], ys[0]]];
     }
     function segmentLength (x1, y1, x2, y2) {
         return Math.sqrt((x1-x2)*(x1-x2)+(y1-y2)*(y1-y2));
@@ -272,30 +279,25 @@
             return linePath(beg,fin);
         }
         function calcCurvedEdge (st, end, properties, endDist, vertexRad) {
+            let middlePoint=findPointAtDistance(st[0],st[1],end[0],end[1],properties);
             let [beg,fin]=[st,end];
             if ((st[1]>end[1])||((st[1]===end[1])&&(st[0]>end[0]))) [beg,fin]=[end,st];
-            if (beg[0]===fin[0]) properties*=(-1);
-            let sign=(beg[0]<=fin[0])?-1:1;
-            if (beg[1]===fin[1]) sign*=(-1);
-            let middlePoint=findPointAtDistance(beg[0],beg[1],fin[0],fin[1],properties*sign);
             let bezierPoint=findBezierPoint(beg[0],beg[1],fin[0],fin[1],middlePoint[0],middlePoint[1]);
-                
-            let points=sortPoints([beg[0], beg[1]],[fin[0], fin[1]]);
-            let pathForWeight=bezierPath(points[0],points[1],bezierPoint);
-                    
+            let bezPath=bezierPath(beg,fin,bezierPoint);
+            if (segmentLength(st[0],st[1],end[0],end[1])<2*vertexRad+3*endDist) return [bezPath, bezierPoint];
             let p1=Snap.path.intersection(
-                bezierPath(beg,fin,bezierPoint),
+                bezPath,
                 circlePath(beg[0],beg[1],((beg===st)?vertexRad:(vertexRad+endDist)))
             )[0];
-            if (p1===undefined) return [pathForWeight, pathForWeight];
+            if (p1===undefined) return ["", bezierPoint];
             let p2=Snap.path.intersection(
-                bezierPath(beg,fin,bezierPoint),
+                bezPath,
                 circlePath(fin[0],fin[1],((fin===st)?vertexRad:(vertexRad+endDist)))
             )[0];
-            if (p2===undefined) return [pathForWeight, pathForWeight];
-            bezierPoint=findBezierPoint(p1.x,p1.y,p2.x,p2.y,middlePoint[0],middlePoint[1]);
+            if (p2===undefined) return ["", bezierPoint];
+            let bezierPointFinal=findBezierPoint(p1.x,p1.y,p2.x,p2.y,middlePoint[0],middlePoint[1]);
             if (beg!==st) [p1,p2]=[p2,p1];
-            return [bezierPath([p1.x,p1.y],[p2.x,p2.y],bezierPoint), pathForWeight];
+            return [bezierPath([p1.x,p1.y],[p2.x,p2.y],bezierPointFinal), bezierPoint];
         }
         function calculateArrowProperties (isLoop, strokeWidth, st, vertexRad, properties) {
             let arrowHeight;
@@ -353,9 +355,11 @@
                     pathForWeight=loopPath(st[0],st[1]-this.vertexRad,this.vertexRad,properties,false);
                 }
                 else { /// multiedge
-                    let paths=calcCurvedEdge(st,end,properties,endDist,this.vertexRad);
-                    edge.line.attr("d",paths[0]);
-                    pathForWeight=paths[1];
+                    let res=calcCurvedEdge(st,end,properties,endDist,this.vertexRad);
+                    edge.line.attr("d",res[0]);
+                    let points=sortPoints(st,end);
+                    if (points[0]!==st) properties*=(-1);
+                    pathForWeight=bezierPath(points[0],points[1],res[1]);
                 }
             }
 
@@ -393,9 +397,11 @@
                     pathForWeight=loopPath(st[0],st[1]-this.vertexRad,this.vertexRad,properties,false);
                 }
                 else { /// multiedge
-                    let paths=calcCurvedEdge(st,end,properties,endDist,this.vertexRad);
-                    edge.line=this.s.path(paths[0]);
-                    pathForWeight=paths[1];
+                    let res=calcCurvedEdge(st,end,properties,endDist,this.vertexRad);
+                    edge.line=this.s.path(res[0]);
+                    let points=sortPoints(st,end);
+                    if (points[0]!==st) properties*=(-1);
+                    pathForWeight=bezierPath(points[0],points[1],res[1]);
                 }
             }
 
@@ -516,7 +522,7 @@
             
             this.erase();
 
-            let edgeMapCnt = new Map(), edgeMapCurr = new Map();
+            let edgeMapCnt=new Map(),edgeMapCurr=new Map();
             for (let edge of this.edgeList) {
                 if (edge===undefined) continue;
                 let x=edge.x,y=edge.y;
@@ -531,22 +537,22 @@
                 }
             }
             let height=this.vertexRad*3/10;
-            let multiEdges = [[],
-                              [0],
-                              [height, -height],
-                              [height, -height, 0],
-                              [height, -height, 2*height, -2*height],
-                              [height, -height, 2*height, -2*height, 0]];
-            let loopEdges = [[],
-                             [3*this.vertexRad/4],
-                             [3*this.vertexRad/4, this.vertexRad/2]];
+            let multiEdges=[[],
+                            [0],
+                            [height, -height],
+                            [height, -height, 0],
+                            [height, -height, 2*height, -2*height],
+                            [height, -height, 2*height, -2*height, 0]];
+            let loopEdges=[[],
+                           [3*this.vertexRad/4],
+                           [3*this.vertexRad/4, this.vertexRad/2]];
             for (let i=0; i<this.edgeList.length; i++) {
                 if (this.edgeList[i]===undefined) continue;
                 let x=this.edgeList[i].x,y=this.edgeList[i].y;
                 let code=Math.max(x,y)*this.n+Math.min(x,y);
                 let val=edgeMapCurr.get(code);
                 let drawProperties;
-                if (x!==y) drawProperties=multiEdges[edgeMapCnt.get(code)][val++];
+                if (x!==y) drawProperties=multiEdges[edgeMapCnt.get(code)][val++]*((x>y)?-1:1);
                 else drawProperties=loopEdges[edgeMapCnt.get(code)][val++];
                 this.svgEdges[i]=this.drawEdge(this.svgVertices[x].coord,this.svgVertices[y].coord,i,drawProperties);
                 edgeMapCurr.set(code,val);

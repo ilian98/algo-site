@@ -270,5 +270,6 @@
         }
     }
     
+    window.orientation=orientation;
     window.CalcPositions = CalcPositions;
 })();

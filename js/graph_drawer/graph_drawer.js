@@ -35,18 +35,19 @@
         function redrawEdges (dx, dy) {
             let coords=[graph.svgVertices[startVertexDrag].coord[0]+dx,
                         graph.svgVertices[startVertexDrag].coord[1]+dy];
-            function redrawEdge (ind, isReversed) {
+            function redrawEdge (ind) {
                 let otherEnd=graph.edgeList[ind].findEndPoint(startVertexDrag);
                 let otherCoords=[graph.svgVertices[otherEnd].coord[0], graph.svgVertices[otherEnd].coord[1]];
-                if (isReversed===false) graph.redrawEdge(graph.svgEdges[ind],[coords[0], coords[1]],otherCoords,ind);
+                if (graph.edgeList[ind].x===startVertexDrag) 
+                    graph.redrawEdge(graph.svgEdges[ind],[coords[0], coords[1]],otherCoords,ind);
                 else graph.redrawEdge(graph.svgEdges[ind],otherCoords,[coords[0], coords[1]],ind);
             }
             for (let ind of graph.adjList[startVertexDrag]) {
-                redrawEdge(ind,false);
+                redrawEdge(ind);
                 
             }
             for (let ind of graph.reverseAdjList[startVertexDrag]) {
-                redrawEdge(ind,true);
+                redrawEdge(ind);
             }
         }
         
@@ -235,6 +236,11 @@
                     let marker=edge.line.marker;
                     marker.attr("fill",graph.svgEdges[index].line.attr("stroke"));
                 }
+                if (graph.isWeighted===true) {
+                    if (graph.edgeList[index].addedCSS[1].indexOf("fill")===-1) {
+                        graph.svgEdges[index].weight.attr("fill",graph.svgEdges[index].line.attr("stroke"));
+                    }
+                }
                 dropdown.removeClass("show");
             });
         }
@@ -267,7 +273,7 @@
                 weight.addClass("temp");
                 $(".temp").attr("style",graph.edgeList[index].defaultCSS[1]+" ; "+css);
                 weight.removeClass("temp");
-                if ((graph.edgeList[index].defaultCSS[1]+" "+css).indexOf("fill")==-1) {
+                if (css.indexOf("fill")===-1) {
                     weight.attr("fill",graph.svgEdges[index].line.attr("stroke"));
                 }
                 graph.edgeList[index].addedCSS[1]=css;
