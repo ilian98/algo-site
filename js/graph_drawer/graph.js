@@ -32,7 +32,7 @@
             [x1, y1]=[y1, x1];
             [x2, y2]=[y2, x2];
         }
-        if (orientation([x1, y1],[x2, y2],[xs[0], ys[0]])<0) return [[xs[0], ys[0]],[xs[1], ys[1]]];
+        if (findOrientation([x1, y1],[x2, y2],[xs[0], ys[0]])<0) return [[xs[0], ys[0]],[xs[1], ys[1]]];
         else return [[xs[1], ys[1]],[xs[0], ys[0]]];
     }
     function segmentLength (x1, y1, x2, y2) {
@@ -61,11 +61,11 @@
         let r=Math.sqrt(((x1-x2)*(x1-x2)+(y1-y2)*(y1-y2))/4+d*d);
         return circlesIntersection(x1,y1,r,x2,y2,r)[(d>0)?0:1];
     }
-    function linePath (st, end) {
-        return "M"+st[0]+","+st[1]+" L"+end[0]+","+end[1];
-    }
     function bezierPath (st, end, q) {
         return "M"+st[0]+","+st[1]+" Q"+q[0]+","+q[1]+" "+end[0]+","+end[1];
+    }
+    function linePath (st, end) {
+        return bezierPath(st, end, [(st[0]+end[0])/2, (st[1]+end[1])/2]);
     }
     function circlePath (cx, cy, r) {
         let p="M"+cx+","+cy;
@@ -133,14 +133,17 @@
         this.isDirected=undefined; this.isMulti=undefined; this.isWeighted=undefined; this.isTree=undefined;
         this.graphChange=undefined; // function to be called after changing the graph, for exampe adding new edge
         this.init = function (svgName, n, isDirected, flagSave = false, isTree = false, graphChange = () => {}) {
+            $(svgName).css({
+                "border-style": "dotted",
+                "border-color": "transparent",
+                "border-width": "2px",
+                "border-radius": "5px"
+            });
             if (this.s===undefined) {
                 this.svgName=svgName;
                 this.s=Snap(svgName);
             }
-            this.s.selectAll("*").forEach(function (element) {
-                element.stop();
-                element.remove();
-            });
+            this.erase();
             this.svgVertices=[]; this.svgEdges=[];
 
             if (n!==undefined) this.n=n;
@@ -638,7 +641,8 @@
                         this.svgEdges[i].line.attr("stroke-width",this.findStrokeWidth());
                         if (this.isDirected==true) {
                             let x=this.edgeList[i].x,y=this.edgeList[i].y;
-                            addMarkerEnd.call(this,this.svgEdges[i].line,(x===y),this.findStrokeWidth(),this.svgVertices[x].coord,this.svgEdges[i].drawProperties);
+                            addMarkerEnd.call(this,this.svgEdges[i].line,(x===y),this.findStrokeWidth(),
+                                              this.svgVertices[x].coord,this.svgEdges[i].drawProperties);
                         }
                         if (this.svgEdges[i].weight!==undefined) this.svgEdges[i].weight.attr("font-size",val);
                     }

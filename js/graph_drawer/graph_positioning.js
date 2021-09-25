@@ -3,7 +3,7 @@
     function orientedArea (x1, y1, x2, y2, x3, y3) {
         return x1*y2+y1*x3+x2*y3-y1*x2-x1*y3-y2*x3;
     }
-    function orientation (p1, p2, p3) {
+    function findOrientation (p1, p2, p3) {
         let area=orientedArea(p1[0],p1[1],p2[0],p2[1],p3[0],p3[1]);
         if (area<0) return -1;
         if (area>0) return +1;
@@ -41,10 +41,10 @@
                     if ((u===x)||(u===y)||(v===x)||(v===y)) continue;
                     if (u===v) continue;
                     if ((graph.svgVertices[u].coord===undefined)||(graph.svgVertices[v].coord===undefined)) continue;
-                    if ((orientation(graph.svgVertices[x].coord,graph.svgVertices[y].coord,graph.svgVertices[u].coord)!=
-                         orientation(graph.svgVertices[x].coord,graph.svgVertices[y].coord,graph.svgVertices[v].coord))&&
-                        (orientation(graph.svgVertices[u].coord,graph.svgVertices[v].coord,graph.svgVertices[x].coord)!=
-                         orientation(graph.svgVertices[u].coord,graph.svgVertices[v].coord,graph.svgVertices[y].coord))) {
+                    if ((findOrientation(graph.svgVertices[x].coord,graph.svgVertices[y].coord,graph.svgVertices[u].coord)!=
+                         findOrientation(graph.svgVertices[x].coord,graph.svgVertices[y].coord,graph.svgVertices[v].coord))&&
+                        (findOrientation(graph.svgVertices[u].coord,graph.svgVertices[v].coord,graph.svgVertices[x].coord)!=
+                         findOrientation(graph.svgVertices[u].coord,graph.svgVertices[v].coord,graph.svgVertices[y].coord))) {
                         return false;
                     }
                 }
@@ -65,7 +65,8 @@
                 let flag=true;
                 for (let i=0; i<graph.n; i++) {
                     if (graph.svgVertices[i].coord===undefined) continue;
-                    if (graph.svgVertices[i].coord===pos) {
+                    if (segmentLength(graph.svgVertices[i].coord[0],
+                                      graph.svgVertices[i].coord[1],pos[0],pos[1])<2*graph.vertexRad+distVertices-1) {
                         flag=false;
                         break;
                     }
@@ -270,6 +271,6 @@
         }
     }
     
-    window.orientation=orientation;
+    window.findOrientation=findOrientation;
     window.CalcPositions = CalcPositions;
 })();

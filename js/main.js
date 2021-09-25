@@ -110,7 +110,7 @@
     function pageSetup () {
         setHeights();
         $(window).resize(setHeights);
-        $(window).on("orientationchange",setHeights);
+        $(window).on("findOrientationchange",setHeights);
         let scrollTop=parseInt(sessionStorage.getItem(page+"scrollTop"));
         let wrapper=$(".wrapper");
         wrapper.scrollTop(scrollTop);
@@ -284,7 +284,10 @@
                 });
             });
         }
-        else checkLessonParts(true);
+        else {
+            checkLessonParts(true);
+            if (page==="graph_drawer.html") init();
+        }
     });
     
     $(window).on("pagehide visibilitychange", function() {
