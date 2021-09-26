@@ -6,7 +6,6 @@
         else if (event.touches!==undefined) return event.touches[0];
     }
     function checkInteger (s) {
-        if ((s===null)||(s===undefined)) return false;
         if (s.length===0) return false;
         for (let c of s) {
             if ((c<'0')||(c>'9')) return false;
@@ -15,12 +14,19 @@
     }
     
     function DrawableEdges (graph) {
+        let globalObj=this; 
+        
         let svgPoint;
         function setSvgPoint (event) {
             let obj=getObjectForCoordinates(event);
             svgPoint.x=obj.clientX;
             svgPoint.y=obj.clientY;
             svgPoint=svgPoint.matrixTransform(graph.s.paper.node.getScreenCTM().inverse());
+        }
+        function prompt (text, defaultValue) {
+            let s=window.prompt(text,defaultValue);
+            if (s===null) s="";
+            return s;
         }
         
         this.addVertexDrag=false;
@@ -49,6 +55,7 @@
         
         let nearCircles=[];
         function vertexMouseDown (index, event) {
+            if (event.button!==0) return ;
             if (window.isMobile==="false") {
                 graph.s.mousemove(trackMouse);
                 graph.s.mouseup(edgeDrawEnd);
@@ -58,10 +65,10 @@
                 graph.s.touchend(edgeDrawEnd);
             }
             
-            addVertexDrag=this.addVertexDrag;
+            addVertexDrag=globalObj.addVertexDrag;
             trackedMouse=false;
             startVertexDrag=index;
-            if (this.addVertexDrag===true) {
+            if (addVertexDrag===true) {
                 setSvgPoint(event);
                 startMousePos=[svgPoint.x, svgPoint.y];
             }
@@ -162,7 +169,10 @@
         }
         function edgeDrawEnd (event) {
             clearDrawParameters();
-            if (trackedMouse===false) return ;
+            if (trackedMouse===false) { // click event
+                vertexClick(startVertexDrag,event);
+                return ;
+            }
             
             if (addVertexDrag===false) {
                 for (let i=0; i<graph.n; i++) {
@@ -179,7 +189,7 @@
 
                         let weight="";
                         if (graph.isWeighted===true) {
-                            weight=window.prompt("Въведете тегло на реброто","1");
+                            weight=prompt("Въведете тегло на реброто","1");
                             if (checkInteger(weight)===false) return ;
                             weight=parseInt(weight);
                             if (weight===0) return ;
@@ -212,6 +222,11 @@
             }
         }
         
+        function addCSS (obj, defaultCSS, newCSS) {
+            obj.addClass("temp");
+            $(".temp").attr("style",defaultCSS+" ; "+newCSS);
+            obj.removeClass("temp");
+        }
         function vertexClick (index, event) {
             let dropdown=$(graph.svgName).parent().find(".dropdown-menu.vertex");
             let bodyOffsets=document.body.getBoundingClientRect();
@@ -225,9 +240,49 @@
                 $(window).off("click.remove-vertex-menu");
                 dropdown.removeClass("show");
             });
+            
+            dropdown.find(".remove-vertex").off("click").on("click",function () {
+                dropdown.find(".remove-vertex").off("click");
+                graph.removeVertex(index);
+                graph.graphChange();
+                dropdown.removeClass("show");
+            });
+            
+            dropdown.find(".change-name").off("click").on("click",function () {
+                dropdown.find(".change-name").off("click");
+                let name=prompt("Въведете ново име на върха",graph.vertices[index].name);
+                graph.vertices[index].name=name;
+                graph.drawVertexText(index,name);
+                addVertexMenu(index);
+                dropdown.removeClass("show");
+            });
+            
+            dropdown.find(".add-css").off("click").on("click",function () {
+                dropdown.find(".add-css").off("click");
+                let css=prompt(
+                    "Въведете CSS стил за върха"+
+                    ((graph.vertices[index].addedCSS[0]==="")?" (например за червен цвят fill: red)":""),
+                    graph.vertices[index].addedCSS[0]
+                );
+                addCSS(graph.svgVertices[index].circle,graph.vertices[index].defaultCSS[0],css);
+                graph.vertices[index].addedCSS[0]=css;
+                dropdown.removeClass("show");
+            });
+            
+            dropdown.find(".add-css-name").off("click").on("click",function () {
+                dropdown.find(".add-css-name").off("click");
+                let css=prompt(
+                    "Въведете CSS стил за името на върха"+
+                    ((graph.vertices[index].addedCSS[1]==="")?" (например за червен цвят fill: red)":""),
+                    graph.vertices[index].addedCSS[1]
+                );
+                addCSS(graph.svgVertices[index].text,graph.vertices[index].defaultCSS[1],css);
+                graph.vertices[index].addedCSS[1]=css;
+                dropdown.removeClass("show");
+            });
         }
         function changeEdgeWeight (index) {
-            let weight=window.prompt("Въведете ново тегло на реброто",graph.edgeList[index].weight);
+            let weight=prompt("Въведете ново тегло на реброто",graph.edgeList[index].weight);
             if (checkInteger(weight)===false) return ;
             graph.edgeList[index].weight=weight;
             graph.svgEdges[index].line.remove();
@@ -276,14 +331,16 @@
             
             dropdown.find(".add-css").off("click").on("click",function () {
                 dropdown.find(".add-css").off("click");
-                let css=window.prompt("Въведете CSS стил за реброто","");
+                let css=prompt(
+                    "Въведете CSS стил за реброто"+
+                    ((graph.edgeList[index].addedCSS[0]==="")?" (например за червен цвят stroke: red)":""),
+                    graph.edgeList[index].addedCSS[0]
+                );
                 let edge=graph.svgEdges[index];
-                edge.line.addClass("temp");
-                $(".temp").attr("style",graph.edgeList[index].defaultCSS[0]+" ; "+css);
-                edge.line.removeClass("temp");
+                addCSS(edge.line,graph.edgeList[index].defaultCSS[0],css);
                 graph.edgeList[index].addedCSS[0]=css;
                 if (graph.isDirected===true) {
-                    let marker=edge.line.marker;
+                    let marker=edge.line.markerEnd;
                     marker.attr("fill",graph.svgEdges[index].line.attr("stroke"));
                 }
                 if (graph.isWeighted===true) {
@@ -318,11 +375,13 @@
             
             dropdown.find(".add-css").off("click").on("click",function () {
                 dropdown.find(".add-css").off("click");
-                let css=window.prompt("Въведете CSS стил за реброто","");
+                let css=prompt(
+                    "Въведете CSS стил за теглото"+
+                    ((graph.edgeList[index].addedCSS[1]==="")?" (например за червен цвят fill: red)":""),
+                    graph.edgeList[index].addedCSS[1]
+                );
                 let weight=graph.svgEdges[index].weight;
-                weight.addClass("temp");
-                $(".temp").attr("style",graph.edgeList[index].defaultCSS[1]+" ; "+css);
-                weight.removeClass("temp");
+                addCSS(weight,graph.edgeList[index].defaultCSS[1],css);
                 if (css.indexOf("fill")===-1) {
                     weight.attr("fill",graph.svgEdges[index].line.attr("stroke"));
                 }
@@ -331,6 +390,11 @@
             });
         }
 
+        function addVertexMenu (ind) {
+            graph.svgVertices[ind].group.attr({cursor: "pointer"});
+            if (window.isMobile==="false") graph.svgVertices[ind].group.mousedown(vertexMouseDown.bind(graph.svgVertices[ind],ind));
+            else graph.svgVertices[ind].group.touchstart(vertexMouseDown.bind(graph.svgVertices[ind],ind));
+        }
         let edgeClickAreas=[];
         function addEdgeMenus (ind) {
             graph.svgEdges[ind].line.attr({cursor: "pointer"});
@@ -378,12 +442,7 @@
             svgPoint=graph.s.paper.node.createSVGPoint();
             for (let i=0; i<graph.n; i++) {
                 if (graph.svgVertices[i].group===undefined) continue;
-                graph.svgVertices[i].group.attr({cursor: "pointer"});
-                if (window.isMobile==="false") {
-                    graph.svgVertices[i].group.mousedown(vertexMouseDown.bind(this,i));
-                    graph.svgVertices[i].group.click(vertexClick.bind(this,i));
-                }
-                else graph.svgVertices[i].group.touchstart(vertexMouseDown.bind(this,i));
+                addVertexMenu(i);
             }
             
             for (let i=0; i<graph.edgeList.length; i++) {

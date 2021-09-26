@@ -95,8 +95,11 @@
         return height/2-underBaseline;
     }
 
-    function Vertex (name) {
+    function Vertex (name, css=["",""]) {
         this.name=name;
+        
+        this.defaultCSS=["",""];
+        this.addedCSS=css;
     }
 
     function SvgVertex () {
@@ -316,7 +319,7 @@
             let [arrowHeight, arrowWidth, arrowDist]=calculateArrowProperties(isLoop,strokeWidth,st,this.vertexRad,properties);
             let arrowEnd=[3*arrowHeight/2,arrowHeight/2];
             let arrow=this.s.polygon([0,0,arrowEnd[0],arrowEnd[1],0,arrowHeight,0,0]).attr({fill: line.attr("stroke")});
-            line.marker=arrow;
+            line.markerEnd=arrow;
             let marker=arrow.marker(0,0,arrowEnd[0],arrowHeight,(isLoop===false)?arrowEnd[0]-arrowDist:0,arrowEnd[1]).attr({markerUnits: "userSpaceOnUse"});
             line.attr({"marker-end": marker});
         }
@@ -373,6 +376,13 @@
             }
             return edge;
         }
+        function setStyle (obj, css) {
+            obj.addClass("temp");
+            let style=$(".temp").attr("style");
+            $(".temp").attr("style",style+" ; "+css);
+            obj.removeClass("temp");
+            return style;
+        }
         this.drawEdge = function (st, end, edgeInd = -1, properties = 0) {
             let strokeWidth=this.findStrokeWidth();
             let isLoop=false,isDrawn=(edgeInd===-1);
@@ -410,13 +420,8 @@
 
             edge.line.attr({fill: "none", stroke: "black", "stroke-width": strokeWidth});
             if (this.isDirected===true) addMarkerEnd.call(this,edge.line,isLoop,strokeWidth,st,properties);
-            if (isDrawn===false) {
-                edge.line.addClass("temp");
-                let style=this.edgeList[edgeInd].defaultCSS[0]=$(".temp").attr("style");
-                $(".temp").attr("style",style+" ; "+this.edgeList[edgeInd].addedCSS[0]);
-                edge.line.removeClass("temp");
-            }
-            if (this.isDirected===true) edge.line.marker.attr("fill",edge.line.attr("stroke"));
+            if (isDrawn===false) this.edgeList[edgeInd].defaultCSS[0]=setStyle(edge.line,this.edgeList[edgeInd].addedCSS[0]);
+            if (this.isDirected===true) edge.line.markerEnd.attr("fill",edge.line.attr("stroke"));
 
             if ((isDrawn===false)&&(this.isWeighted===true)) {
                 edge.weight=this.s.text(0,0,this.edgeList[edgeInd].weight.toString());
@@ -436,10 +441,7 @@
                 edge.weight.attr({textpath: pathForWeight});
                 edge.weight.textPath.attr({"startOffset": "50%"});
                 
-                edge.weight.addClass("temp");
-                let style=this.edgeList[edgeInd].defaultCSS[1]=$(".temp").attr("style");
-                $(".temp").attr("style",style+" ; "+this.edgeList[edgeInd].addedCSS[1]);
-                edge.weight.removeClass("temp");
+                this.edgeList[edgeInd].defaultCSS[1]=setStyle(edge.weight,this.edgeList[edgeInd].addedCSS[1]);
             }
             return edge;
         }
@@ -458,6 +460,8 @@
                 class: "unselectable"
             });
             this.svgVertices[i].group=this.s.group(this.svgVertices[i].circle,this.svgVertices[i].text);
+            
+            this.vertices[i].defaultCSS[1]=setStyle(this.svgVertices[i].text,this.vertices[i].addedCSS[1]);
         }
 
         this.centerGraph = function () {
@@ -487,11 +491,11 @@
             }
         }
 
-        this.findFontSize = function () {
-            return this.vertexRad*5/4;
+        this.findFontSize = function (vertexRad = this.vertexRad) {
+            return vertexRad*5/4;
         }
-        this.findStrokeWidth = function () {
-            return this.vertexRad/20*1.5;
+        this.findStrokeWidth = function (vertexRad = this.vertexRad) {
+            return vertexRad/20*1.5;
         }
         this.drawableEdges=undefined;
         this.draw = function (addDrawableEdges, animateDraw = true) { /// this functions expects that coordinates are already calculated
@@ -501,13 +505,18 @@
             if (animateDraw===true) {
                 for (let i=0; i<this.n; i++) {
                     if (this.svgVertices[i].group!==undefined) {
+                        oldRad=parseInt(this.svgVertices[i].circle.attr("r"));
+                        break;
+                    }
+                }
+                for (let i=0; i<this.n; i++) {
+                    if (this.svgVertices[i].group!==undefined) {
                         oldVersCoords[i]=this.svgVertices[i].group.getBBox();
-                        if ((oldVersCoords[i].x+this.vertexRad!=this.svgVertices[i].coord[0])||
-                            (oldVersCoords[i].y+this.vertexRad!=this.svgVertices[i].coord[1])) {
+                        if ((oldVersCoords[i].x+oldRad!=this.svgVertices[i].coord[0])||
+                            (oldVersCoords[i].y+oldRad!=this.svgVertices[i].coord[1])) {
                             changedVers[i]=true;
                         }
                         else changedVers[i]=false;
-                        oldRad=this.svgVertices[i].circle.attr("r");
                     }
                     else changedVers[i]=false;
                 }
@@ -596,55 +605,73 @@
                             if (oldDy[i]!==currDy) {
                                 cntAnimations++;
                                 this.svgEdges[i].weight.attr({dy: oldDy[i]});
-                                this.svgEdges[i].weight.animate({dy: currDy},500,function (graph) {
-                                    animationsEnd.call(graph);
-                                }.bind(this.svgEdges[i].weight,this));
+                                this.svgEdges[i].weight.animate({dy: currDy},500,animationsEnd.bind(this));
                             }
                         }
                     }
                 }
             }
 
-            function drawVertex (i) {
-                let x=this.svgVertices[i].coord[0],y=this.svgVertices[i].coord[1];
-                this.svgVertices[i].circle=this.s.circle(x,y,this.vertexRad);
-                this.svgVertices[i].circle.attr({fill: "white", stroke: "black", "stroke-width": this.findStrokeWidth()});
-                this.drawVertexText(i,this.vertices[i].name);
-            }
             for (let i=0; i<this.n; i++) {
                 if (this.vertices[i].name===undefined) {
                     this.svgVertices[i].circle=this.svgVertices[i].text=undefined;
                     this.svgVertices[i].group=undefined;
                     continue;
                 }
-                drawVertex.call(this,i);
+                let x=this.svgVertices[i].coord[0],y=this.svgVertices[i].coord[1];
+                this.svgVertices[i].circle=this.s.circle(x,y,this.vertexRad);
+                this.svgVertices[i].circle.attr({fill: "white", stroke: "black", "stroke-width": this.findStrokeWidth()});
+                this.svgVertices[i].circle.animate({"stroke-width": 100},500);
+                this.vertices[i].defaultCSS[0]=setStyle(this.svgVertices[i].circle,this.vertices[i].addedCSS[0]);
+                this.drawVertexText(i,this.vertices[i].name);
                 
                 if ((animateDraw===true)&&(changedVers[i]===true)) {
                     cntAnimations++;
                     this.svgVertices[i].group.transform("t "+
-                                                        ((oldVersCoords[i].x+this.vertexRad)-this.svgVertices[i].coord[0])+" "+((oldVersCoords[i].y+this.vertexRad)-this.svgVertices[i].coord[1]));
+                                                        ((oldVersCoords[i].x+oldRad)-this.svgVertices[i].coord[0])+" "+((oldVersCoords[i].y+oldRad)-this.svgVertices[i].coord[1]));
                     this.svgVertices[i].group.animate({transform: "t 0 0"},500,animationsEnd.bind(this));
                 }
             }
             
             if ((animateDraw===true)&&(this.vertexRad!=oldRad)) {
+                    
+                for (let i=0; i<this.n; i++) {
+                    if (this.svgVertices[i].group===undefined) continue;
+                    cntAnimations++;
+                    this.svgVertices[i].circle.attr({r: oldRad});
+                    this.svgVertices[i].circle.animate({r: this.vertexRad},500,animationsEnd.bind(this));
+                }
+                
+                let oldStrokeWidth=this.findStrokeWidth(oldRad);
+                let newStrokeWidth=this.findStrokeWidth();
+                for (let i=0; i<this.edgeList.length; i++) {
+                    if (this.svgEdges[i]===undefined) continue;
+                    cntAnimations++;
+                    this.svgEdges[i].line.attr({"stroke-width": oldStrokeWidth});
+                    this.svgEdges[i].line.animate({"stroke-width": newStrokeWidth},500,animationsEnd.bind(this));
+                }
+                
                 cntAnimations++;
                 Snap.animate(oldRad,this.vertexRad,function (val) {
-                    this.vertexRad=val;
                     for (let i=0; i<this.n; i++) {
-                        this.svgVertices[i].circle.remove();
-                        drawVertex.call(this,i);
-                        this.drawVertexText(i,this.vertices[i].name);
+                        if (this.svgVertices[i].group===undefined) continue;
+                        this.svgVertices[i].circle.attr({"stroke-width": this.findStrokeWidth(val)});
+                        let fontSize=this.findFontSize(val);
+                        this.svgVertices[i].text.attr({
+                            "font-size": fontSize,
+                            dy: determineDy(this.vertices[i].name,"Consolas",fontSize)
+                        });
                     }
+                
                     for (let i=0; i<this.edgeList.length; i++) {
                         if (this.svgEdges[i]===undefined) continue;
-                        this.svgEdges[i].line.attr("stroke-width",this.findStrokeWidth());
-                        if (this.isDirected==true) {
+                        if (this.isDirected===true) {
                             let x=this.edgeList[i].x,y=this.edgeList[i].y;
-                            addMarkerEnd.call(this,this.svgEdges[i].line,(x===y),this.findStrokeWidth(),
+                            this.svgEdges[i].line.markerEnd.remove();
+                            addMarkerEnd.call(this,this.svgEdges[i].line,(x===y),this.findStrokeWidth(val),
                                               this.svgVertices[x].coord,this.svgEdges[i].drawProperties);
                         }
-                        if (this.svgEdges[i].weight!==undefined) this.svgEdges[i].weight.attr("font-size",val);
+                        if (this.svgEdges[i].weight!==undefined) this.svgEdges[i].weight.attr({"font-size": val});
                     }
                 }.bind(this),500,animationsEnd.bind(this));
             }
@@ -687,6 +714,9 @@
         this.addVertex = function (name) {
             this.vertices.push(new Vertex(name));
             this.n++;
+        }
+        this.removeVertex = function (ind) {
+            console.log("tuk");
         }
     }
 
