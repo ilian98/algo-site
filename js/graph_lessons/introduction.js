@@ -2,10 +2,11 @@
 (function () {
     function displayDegree (graph) {
         let table=[];
-        table.push(["Номер на връx","Степен"]);
+        table.push(["Име на връx","Степен"]);
         for (let i=0; i<graph.n; i++) {
+            if (graph.vertices[i]===undefined) continue;
             let row=[];
-            row.push(i+1);
+            row.push(graph.vertices[i].name);
             let deg=0;
             for (let ind of graph.adjList[i]) {
                 let u=graph.edgeList[ind].findEndPoint(i);
@@ -71,14 +72,17 @@
     function displayMatrix (graph) {
         let table=[],row=[];
         row.push("\\(A\\)");
-        for (let i=1; i<=graph.n; i++) {
-            row.push("\\("+i+"\\)");
+        for (let i=0; i<graph.n; i++) {
+            if (graph.vertices[i]===undefined) continue;
+            row.push("\\("+graph.vertices[i].name+"\\)");
         }
         table.push(row);
         for (let i=0; i<graph.n; i++) {
+            if (graph.vertices[i]===undefined) continue;
             row=[];
-            row.push("\\("+(i+1)+"\\)");
+            row.push("\\("+graph.vertices[i].name+"\\)");
             for (let j=0; j<graph.n; j++) {
+                if (graph.vertices[j]===undefined) continue;
                 row.push(graph.adjMatrix[i][j]);
             }
             table.push(row);
@@ -90,12 +94,13 @@
         let table=[];
         table.push(["Връх","Списък"]);
         for (let i=0; i<graph.n; i++) {
+            if (graph.vertices[i]===undefined) continue;
             let row=[];
-            row.push("\\("+(i+1)+"\\)");
+            row.push("\\("+graph.vertices[i].name+"\\)");
             row.push("");
             for (let ind of graph.adjList[i]) {
                 let v=graph.edgeList[ind].findEndPoint(i);
-                row[1]+="("+(v+1)+", "+graph.edgeList[ind].weight+") ";
+                row[1]+="("+graph.vertices[v].name+", "+graph.edgeList[ind].weight+") ";
             }
             table.push(row);
         }
@@ -107,12 +112,14 @@
         table.push(["Индекс","Ребро","\\(prev\\)"]);
         let last=new Array(graph.n);
         for (let i=0; i<graph.n; i++) {
+            if (graph.vertices[i]===undefined) continue;
             last[i]=-1;
         }
         for (let i=0; i<graph.edgeList.length; i++) {
+            if (graph.edgeList[i]===undefined) continue;
             let row=[];
             row.push("\\("+i+"\\)");
-            row.push("("+(graph.edgeList[i].x+1)+", "+(graph.edgeList[i].y+1)+")");
+            row.push("("+graph.vertices[graph.edgeList[i].x].name+", "+graph.vertices[graph.edgeList[i].y].name+")");
             row.push(last[graph.edgeList[i].x]);
             table.push(row);
             last[graph.edgeList[i].x]=i;
@@ -123,7 +130,8 @@
         table=[];
         table.push(["Връх","\\(last\\)"]);
         for (let i=0; i<graph.n; i++) {
-            table.push(["\\("+(i+1)+"\\)",last[i]]);
+            if (graph.vertices[i]===undefined) continue;
+            table.push(["\\("+graph.vertices[i].name+"\\)",last[i]]);
         }
         $(".last").html(tableHTML(table,true,true));
         if (typeof MathJax!=="undefined") MathJax.typeset([".last"]);

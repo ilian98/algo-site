@@ -3,7 +3,7 @@
     let graph;
     function init () {
         graph=new Graph();
-        graph.init(".graph",5,false,true,false);
+        graph.init(".graph",5,false,true,false,calcVertexCount);
         graph.buildEdgeDataStructures([[0,1],[1,2],[2,3],[3,4],[4,0]]);
         graph.drawNewGraph(22,22,278,278,20,true);
         
@@ -19,10 +19,19 @@
         outputVers.html(5);
         sliderVers.on("input", function() {
             outputVers.html($(this).val());
-            graph.init(".graph",parseInt($(this).val()),graph.isDirected,true);
+            graph.init(".graph",parseInt($(this).val()),graph.isDirected,true,false,calcVertexCount);
             setGraphProperties();
             graph.drawNewGraph(22,22,278,278,graph.vertexRad,true);
         });
+        function calcVertexCount () {
+            let cnt=0;
+            for (let i=0; i<graph.n; i++) {
+                if (graph.vertices[i]===undefined) continue;
+                cnt++;
+            }
+            sliderVers.val(cnt);
+            outputVers.html(cnt);
+        }
         
         let isDirected=false;
         $("#undirected").on("click",function () {

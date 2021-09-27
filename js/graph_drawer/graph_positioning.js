@@ -29,6 +29,7 @@
         }
         this.checkEdge = function (x, y, tryPlanner = false) {
             for (let i=0; i<graph.n; i++) {
+                if (graph.vertices[i]===undefined) continue;
                 if ((i==x)||(i==y)||(graph.svgVertices[i].coord===undefined)) continue;
                 if (this.circleSegment(graph.svgVertices[x].coord,graph.svgVertices[y].coord,graph.svgVertices[i].coord)==true) {
                     return false;
@@ -37,6 +38,7 @@
                 
             if (tryPlanner===true) {
                 for (let edge of graph.edgeList) {
+                    if (edge===undefined) continue;
                     let u=edge.x,v=edge.y;
                     if ((u===x)||(u===y)||(v===x)||(v===y)) continue;
                     if (u===v) continue;
@@ -53,6 +55,7 @@
         }
         function checkVertex (vr, tryPlanner) {
             for (let i=0; i<graph.n; i++) {
+                if (graph.vertices[i]===undefined) continue;
                 if ((i===vr)||(graph.svgVertices[i].coord===undefined)||
                     ((graph.adjMatrix[vr][i]==0)&&(graph.adjMatrix[i][vr]===0))) continue;
                 if (this.checkEdge(vr,i,tryPlanner)===false) return false;
@@ -64,6 +67,7 @@
             for (let pos of originalPos) {
                 let flag=true;
                 for (let i=0; i<graph.n; i++) {
+                    if (graph.vertices[i]===undefined) continue;
                     if (graph.svgVertices[i].coord===undefined) continue;
                     if (segmentLength(graph.svgVertices[i].coord[0],
                                       graph.svgVertices[i].coord[1],pos[0],pos[1])<2*graph.vertexRad+distVertices-1) {
@@ -71,6 +75,7 @@
                         break;
                     }
                     for (let j=0; j<graph.n; j++) {
+                        if (graph.vertices[j]===undefined) continue;
                         if ((j===i)||(graph.svgVertices[j].coord===undefined)||
                             ((graph.adjMatrix[i][j]===0)&&(graph.adjMatrix[j][i]===0))) continue;
                         if (this.circleSegment(graph.svgVertices[i].coord,graph.svgVertices[j].coord,pos)===true) {
@@ -99,6 +104,7 @@
                     return (elem==graph.svgVertices[vr].coord);
                 }),1);
                 for (let v=0; v<graph.n; v++) {
+                    if (graph.vertices[v]===undefined) continue;
                     if ((v===vr)||(graph.svgVertices[v].coord===undefined)||
                         ((graph.adjMatrix[vr][v]===0)&&(graph.adjMatrix[v][vr]===0))) continue;
                     for (let i=0; i<possiblePos.length; i++) {
@@ -160,9 +166,11 @@
                 }
                 possiblePos=originalPos.slice();
                 for (let i=0; i<graph.n; i++) {
+                    if (graph.vertices[i]===undefined) continue;
                     graph.svgVertices[i].coord=undefined;
                 }
                 for (let i=0; i<graph.n; i++) {
+                    if (graph.vertices[i]===undefined) continue;
                     if (this.placeVertex(i,tryPlanner)===false) {
                         calc.call(this,time+1);
                         break;
@@ -172,16 +180,19 @@
             else {
                 let versDepth=[],inDegree=[],root=0;
                 for (let i=0; i<graph.n; i++) {
+                    if (graph.vertices[i]===undefined) continue;
                     versDepth[i]=[];
                     inDegree[i]=0;
                     graph.svgVertices[i].coord=undefined;
                 }
                 if (graph.isDirected===true) {
                     for (let i=0; i<graph.edgeList.length; i++) {
+                        if (graph.edgeList[i]===undefined) continue;
                         let v=graph.edgeList[i].y;
                         inDegree[v]++;
                     }
                     for (let i=0; i<graph.n; i++) {
+                        if (graph.vertices[i]===undefined) continue;
                         if (inDegree[i]==0) {
                             root=i;
                             break;
@@ -271,6 +282,7 @@
         }
     }
     
+    window.orientedArea=orientedArea;
     window.findOrientation=findOrientation;
     window.CalcPositions = CalcPositions;
 })();

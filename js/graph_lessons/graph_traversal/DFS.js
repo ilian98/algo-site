@@ -52,6 +52,7 @@
             let animations=[];
             let used=[];
             for (let i=0; i<graph.n; i++) {
+                if (graph.vertices[i]===undefined) continue;
                 used[i]=false;
             }
             animations.push({

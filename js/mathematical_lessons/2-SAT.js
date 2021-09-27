@@ -141,19 +141,23 @@
         makeImplicationGraph(2);
         let graph=graphs[2],used=[];
         for (let i=0; i<graph.n; i++) {
+            if (graph.vertices[i]===undefined) continue;
             used[i]=false;
         }
         let order=[];
         for (let i=0; i<graph.n; i++) {
+            if (graph.vertices[i]===undefined) continue;
             if (used[i]===false) dfs1(i,graph.adjList,graph.edgeList,used,order);
         }
 
         let rev=[];
         for (let i=0; i<graph.n; i++) {
+            if (graph.vertices[i]===undefined) continue;
             used[i]=false;
             rev[i]=[];
         }
         for (let edge of graph.edgeList) {
+            if (edge===undefined) continue;
             rev[edge.y].push(edge.x);
         }
         let num=0,comps=[];
@@ -178,6 +182,7 @@
             colour+=jump;
         }
         for (let i=0; i<graph.edgeList.length; i++) {
+            if (graph.edgeList[i]===undefined) continue;
             let from=graph.edgeList[i].x,to=graph.edgeList[i].y;
             if (graph.svgVertices[from].circle.attr("fill")==graph.svgVertices[to].circle.attr("fill")) {
                 graph.svgEdges[i].line.attr({stroke: graph.svgVertices[from].circle.attr("fill")});
@@ -188,6 +193,7 @@
         let solution=document.querySelector(".twoSATexample2 .solution"),text;
         text="\\(";
         for (let i=0; i<graph.n; i++) {
+            if (graph.vertices[i]===undefined) continue;
             if (graph.vertices[i].name[0]==='!') continue;
             let comp=[];
             for (let j=0; j<num; j++) {
