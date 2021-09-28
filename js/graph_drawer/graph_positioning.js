@@ -13,77 +13,107 @@
     function CalcPositions (graph) {
         let originalPos,possiblePos;
         
-        this.circleSegment = function (segPoint1, segPoint2, center) {
-            let area,height,sides=[];    
-            area=Math.abs(orientedArea(segPoint1[0],segPoint1[1],segPoint2[0],segPoint2[1],center[0],center[1]))/2;
-            sides[0]=segmentLength(segPoint1[0],segPoint1[1],segPoint2[0],segPoint2[1],2);
-            sides[1]=segmentLength(segPoint1[0],segPoint1[1],center[0],center[1],2);
-            sides[2]=segmentLength(segPoint2[0],segPoint2[1],center[0],center[1],2);
-            if ((sides[0]*sides[0]+sides[2]*sides[2]-sides[1]*sides[1]>0)&&(sides[0]*sides[0]+sides[1]*sides[1]-sides[2]*sides[2]>0)) {
-                height=area*2/sides[0];
-                if ((graph.isWeighted===true)&&(height<=3*graph.vertexRad)) return true;
-                else if ((graph.isMulti===true)&&(height<=2.1*graph.vertexRad)) return true;
-                else if (((graph.isMulti===false)&&(graph.isWeighted===false))&&(height<=1.5*graph.vertexRad)) return true;
+        let tryDesperate;
+        this.vertexEdge = function (center, ind) {
+            let dist;
+            if (tryDesperate===false) {
+                if (graph.isWeight===true) dist=3*graph.vertexRad;
+                else if (graph.isMulti===true) dist=2.1*graph.vertexRad;
+                else dist=1.5*graph.vertexRad;
             }
-            return false;
+            else dist=0.1*graph.vertexRad;
+            let x=graph.edgeList[ind].x,y=graph.edgeList[ind].y;
+            let st=graph.svgVertices[x].coord,end=graph.svgVertices[y].coord;
+            if (graph.edgeList[ind].curveHeight===undefined) {
+                let area,height,sides=[];    
+                area=Math.abs(orientedArea(st[0],st[1],end[0],end[1],center[0],center[1]))/2;
+                sides[0]=segmentLength(st[0],st[1],end[0],end[1],2);
+                sides[1]=segmentLength(st[0],st[1],center[0],center[1],2);
+                sides[2]=segmentLength(end[0],end[1],center[0],center[1],2);
+                if ((sides[0]*sides[0]+sides[2]*sides[2]-sides[1]*sides[1]>0)&&
+                    (sides[0]*sides[0]+sides[1]*sides[1]-sides[2]*sides[2]>0)) {
+                    let height=area*2/sides[0];
+                    if (height<=dist) return false;
+                }
+                return true;
+            }
+            else {
+                let res=graph.calcCurvedEdge(st,end,graph.edgeList[ind].curveHeight,0);
+                if (Snap.path.intersection(res[0],circlePath(center[0],center[1],dist)).length>0) return false;
+                else return true;
+            }
         }
-        this.checkEdge = function (x, y, tryPlanner = false) {
+        this.checkEdge = function (x, y, ind) {
             for (let i=0; i<graph.n; i++) {
                 if (graph.vertices[i]===undefined) continue;
                 if ((i==x)||(i==y)||(graph.svgVertices[i].coord===undefined)) continue;
-                if (this.circleSegment(graph.svgVertices[x].coord,graph.svgVertices[y].coord,graph.svgVertices[i].coord)==true) {
+                if (this.vertexEdge(graph.svgVertices[i].coord,ind)===false) {
                     return false;
                 }
             }
-                
-            if (tryPlanner===true) {
-                for (let edge of graph.edgeList) {
-                    if (edge===undefined) continue;
-                    let u=edge.x,v=edge.y;
-                    if ((u===x)||(u===y)||(v===x)||(v===y)) continue;
-                    if (u===v) continue;
-                    if ((graph.svgVertices[u].coord===undefined)||(graph.svgVertices[v].coord===undefined)) continue;
-                    if ((findOrientation(graph.svgVertices[x].coord,graph.svgVertices[y].coord,graph.svgVertices[u].coord)!=
-                         findOrientation(graph.svgVertices[x].coord,graph.svgVertices[y].coord,graph.svgVertices[v].coord))&&
-                        (findOrientation(graph.svgVertices[u].coord,graph.svgVertices[v].coord,graph.svgVertices[x].coord)!=
-                         findOrientation(graph.svgVertices[u].coord,graph.svgVertices[v].coord,graph.svgVertices[y].coord))) {
-                        return false;
-                    }
+            return true;
+        }
+        function checkEdgePlanner (x, y) {
+            for (let edge of graph.edgeList) {
+                if (edge===undefined) continue;
+                let u=edge.x,v=edge.y;
+                if ((u===x)||(u===y)||(v===x)||(v===y)) continue;
+                if (u===v) continue;
+                if ((graph.svgVertices[u].coord===undefined)||(graph.svgVertices[v].coord===undefined)) continue;
+                if ((findOrientation(graph.svgVertices[x].coord,graph.svgVertices[y].coord,graph.svgVertices[u].coord)!=
+                     findOrientation(graph.svgVertices[x].coord,graph.svgVertices[y].coord,graph.svgVertices[v].coord))&&
+                    (findOrientation(graph.svgVertices[u].coord,graph.svgVertices[v].coord,graph.svgVertices[x].coord)!=
+                     findOrientation(graph.svgVertices[u].coord,graph.svgVertices[v].coord,graph.svgVertices[y].coord))) {
+                    return false;
                 }
             }
+            return true;
+        }
+        function checkEdges (x, y, check, tryPlanner = false) {
+            for (let ind of graph.adjMatrix[x][y]) {
+                if (check(ind)===false) return false;
+            }
+            if (graph.isOriented===true) {
+                for (let ind of graph.adjMatrix[y][x]) {
+                    if (check(ind)===false) return false;
+                }
+            }
+            if ((tryPlanner===true)&&(checkEdgePlanner(x,y)===false)) return false;
             return true;
         }
         function checkVertex (vr, tryPlanner) {
             for (let i=0; i<graph.n; i++) {
                 if (graph.vertices[i]===undefined) continue;
                 if ((i===vr)||(graph.svgVertices[i].coord===undefined)||
-                    ((graph.adjMatrix[vr][i]==0)&&(graph.adjMatrix[i][vr]===0))) continue;
-                if (this.checkEdge(vr,i,tryPlanner)===false) return false;
+                    ((graph.adjMatrix[vr][i].length==0)&&(graph.adjMatrix[i][vr].length===0))) continue;
+                if (checkEdges(vr,i,this.checkEdge.bind(this,vr,i),tryPlanner)===false) return false;
             }
             return true;
         }
-        this.calculatePossiblePos = function () {
+        this.calculatePossiblePos = function (flagCheckEdges) {
             possiblePos=[];
             for (let pos of originalPos) {
                 let flag=true;
                 for (let i=0; i<graph.n; i++) {
                     if (graph.vertices[i]===undefined) continue;
                     if (graph.svgVertices[i].coord===undefined) continue;
-                    if (segmentLength(graph.svgVertices[i].coord[0],
-                                      graph.svgVertices[i].coord[1],pos[0],pos[1])<2*graph.vertexRad+distVertices-1) {
+                    if (segmentLength(graph.svgVertices[i].coord[0],graph.svgVertices[i].coord[1],pos[0],pos[1])<
+                        2*graph.vertexRad+((flagCheckEdges===true)?distVertices:0)-1) {
                         flag=false;
                         break;
                     }
-                    for (let j=0; j<graph.n; j++) {
-                        if (graph.vertices[j]===undefined) continue;
-                        if ((j===i)||(graph.svgVertices[j].coord===undefined)||
-                            ((graph.adjMatrix[i][j]===0)&&(graph.adjMatrix[j][i]===0))) continue;
-                        if (this.circleSegment(graph.svgVertices[i].coord,graph.svgVertices[j].coord,pos)===true) {
-                            flag=false;
-                            break;
+                    if (flagCheckEdges===true) {
+                        for (let j=0; j<graph.n; j++) {
+                            if (graph.vertices[j]===undefined) continue;
+                            if ((j===i)||(graph.svgVertices[j].coord===undefined)||
+                                ((graph.adjMatrix[i][j].length===0)&&(graph.adjMatrix[j][i].length===0))) continue;
+                            if (checkEdges(i,j,this.vertexEdge.bind(this,pos))===false) {
+                                flag=false;
+                                break;
+                            }
                         }
+                        if (flag===false) break;
                     }
-                    if (flag===false) break;
                 }
                 if (flag===true) possiblePos.push(pos);
             }
@@ -106,10 +136,10 @@
                 for (let v=0; v<graph.n; v++) {
                     if (graph.vertices[v]===undefined) continue;
                     if ((v===vr)||(graph.svgVertices[v].coord===undefined)||
-                        ((graph.adjMatrix[vr][v]===0)&&(graph.adjMatrix[v][vr]===0))) continue;
+                        ((graph.adjMatrix[vr][v].length===0)&&(graph.adjMatrix[v][vr].length===0))) continue;
                     for (let i=0; i<possiblePos.length; i++) {
                         let pos=possiblePos[i];
-                        if (this.circleSegment(graph.svgVertices[vr].coord,graph.svgVertices[v].coord,pos)==true) {
+                        if (checkEdges(vr,v,this.vertexEdge.bind(this,pos))===false) {
                             possiblePos.splice(i,1); i--;
                         }
                     }
@@ -145,15 +175,7 @@
         }
 
         let maxTimes,distVertices;
-        function calc (time) {
-            if (time>maxTimes) {
-                alert("Неуспешно начертаване на графа, възможна причина е недостатъчно място за чертане!");
-                graph.n=0; graph.edgeList=[];
-                return ;
-            }
-            let tryPlanner=false;
-            if ((time<=maxTimes/2)&&((graph.n<=2)||((graph.n>=3)&&(graph.edgeList.length<=3*graph.n-6)))) tryPlanner=true;
-
+        function calc () {
             if (graph.isTree===false) {
                 originalPos=[];
                 for (let i=0; i<=(graph.frameW-2*graph.vertexRad)/(2*graph.vertexRad+distVertices); i++) {
@@ -163,17 +185,62 @@
                             j*(2*graph.vertexRad+distVertices)+graph.frameY+graph.vertexRad
                         ]);
                     }
+                }   
+                
+                let success=false,tryPlanner=false;
+                tryDesperate=false;
+                function tryCalc (tryPlanner) {
+                    possiblePos=originalPos.slice();
+                    for (let i=0; i<graph.n; i++) {
+                        if (graph.vertices[i]===undefined) continue;
+                        graph.svgVertices[i].coord=undefined;
+                    }
+                    for (let i=0; i<graph.n; i++) {
+                        if (graph.vertices[i]===undefined) continue;
+                        if (this.placeVertex(i,tryPlanner)===false) return false;
+                    }
+                    return true;
                 }
-                possiblePos=originalPos.slice();
-                for (let i=0; i<graph.n; i++) {
-                    if (graph.vertices[i]===undefined) continue;
-                    graph.svgVertices[i].coord=undefined;
-                }
-                for (let i=0; i<graph.n; i++) {
-                    if (graph.vertices[i]===undefined) continue;
-                    if (this.placeVertex(i,tryPlanner)===false) {
-                        calc.call(this,time+1);
+                for (let time=1; time<=maxTimes; time++) {
+                    if ((time<=maxTimes/2)&&((graph.n<=2)||((graph.n>=3)&&(graph.edgeList.length<=3*graph.n-6)))) tryPlanner=true;
+                    if (tryCalc.call(this,tryPlanner)===true) {
+                        success=true;
                         break;
+                    }
+                }
+                if (success===false) {
+                    tryDesperate=true;
+                    for (let time=1; time<=1000; time++) {
+                        if (tryCalc.call(this,false)===true) {
+                            success=true;
+                            break;
+                        }
+                    }
+                    tryDesperate=false;
+                    if (success===false) {
+                        let shuffle=[];
+                        for (let i=0; i<graph.n; i++) {
+                            if (graph.vertices[i]===undefined) continue;
+                            shuffle.push(i);
+                        }
+                        for (let i=shuffle.length-1; i>0; i--) {
+                            let j=parseInt(Math.random()*(i+1));
+                            [shuffle[i], shuffle[j]]=[shuffle[j], shuffle[i]];
+                        }
+                        let ind=0;
+                        for (let i=0; i<shuffle.length; i++) {
+                            let v=shuffle[i];
+                            if (ind<originalPos.length) {
+                                graph.svgVertices[v].coord=[originalPos[ind][0], originalPos[ind][1]];
+                                ind++;
+                            }
+                            else {
+                                graph.svgVertices[v].coord=[
+                                    graph.frameX+Math.random()*(graph.frameW-2*graph.vertexRad)+graph.vertexRad,
+                                    graph.frameY+Math.random()*(graph.frameH-2*graph.vertexRad)+graph.vertexRad
+                                ];
+                            }
+                        }
                     }
                 }
             }
@@ -216,7 +283,7 @@
                     }
                     for (let vertex of versDepth[i]) {
                         if (vertex===-1) continue;
-                        if ((ind===versDepth[i+1].length)||(graph.adjMatrix[vertex][versDepth[i+1][ind]]===0)) {
+                        if ((ind===versDepth[i+1].length)||(graph.adjMatrix[vertex][versDepth[i+1][ind]].length===0)) {
                            graph.svgVertices[vertex].coord=undefined;
                            continue;
                         }
@@ -224,7 +291,7 @@
                         for (; ind<versDepth[i+1].length; ind++) {
                             let child=versDepth[i+1][ind];
                             if (child===-1) continue;
-                            if (graph.adjMatrix[vertex][child]==-0) break;
+                            if (graph.adjMatrix[vertex][child].length===0) break;
                             sum+=graph.svgVertices[child].coord[0];
                             cnt++;
                         }
@@ -272,13 +339,13 @@
                 }
             }
 
-            if ((time===1)&&(graph.isDrawable===false)) graph.centerGraph();
+            if (graph.isDrawable===false) graph.centerGraph();
         }
         this.init = function () {
-            maxTimes=parseInt(8000/graph.n);
+            maxTimes=parseInt(10000/graph.n);
             distVertices=graph.vertexRad*5/4+parseInt((Math.random())*graph.vertexRad/4);
             if (graph.isWeighted===true) distVertices*=2;
-            calc.call(this,1);
+            calc.call(this);
         }
     }
     

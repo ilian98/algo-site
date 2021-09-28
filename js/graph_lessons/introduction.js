@@ -83,7 +83,7 @@
             row.push("\\("+graph.vertices[i].name+"\\)");
             for (let j=0; j<graph.n; j++) {
                 if (graph.vertices[j]===undefined) continue;
-                row.push(graph.adjMatrix[i][j]);
+                row.push(graph.adjMatrix[i][j].length);
             }
             table.push(row);
         }

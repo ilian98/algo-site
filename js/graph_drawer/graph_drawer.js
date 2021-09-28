@@ -13,7 +13,7 @@
         return true;
     }
     
-    function DrawableEdges (graph) {
+    function DrawableGraph (graph) {
         let globalObj=this; 
         
         let svgPoint;
@@ -104,7 +104,7 @@
                     let index=startIndex;
                     let oldCoords=[graph.svgVertices[index].coord[0], graph.svgVertices[index].coord[1]];
                     graph.svgVertices[index].coord=undefined;
-                    let possiblePos=graph.calcPositions.calculatePossiblePos();
+                    let possiblePos=graph.calcPositions.calculatePossiblePos(false);
                     graph.svgVertices[index].coord=[oldCoords[0], oldCoords[1]];
                     for (let pos of possiblePos) {
                         let circleVertex=graph.s.circle(pos[0],pos[1],graph.vertexRad).attr({
@@ -131,8 +131,8 @@
             setSvgPoint(event);
             if (addVertexDrag===false) {
                 let circleCoord=graph.svgVertices[startIndex].coord;
+                let end=[svgPoint.x, svgPoint.y];
                 if (segmentLength(circleCoord[0],circleCoord[1],svgPoint.x,svgPoint.y)>=graph.vertexRad) {
-                    let end=[svgPoint.x, svgPoint.y];
                     if (currEdgeDraw===undefined) {
                         currEdgeDraw=graph.drawEdge(circleCoord,end,-1,0);
                         currEdgeDraw.line.prependTo(graph.s);
@@ -218,17 +218,15 @@
             if (addVertexDrag===false) {
                 for (let i=0; i<graph.n; i++) {
                     if (graph.vertices[i]===undefined) continue;
-                    if ((svgPoint.x>=graph.svgVertices[i].group.getBBox().x)&&
-                        (svgPoint.x<=graph.svgVertices[i].group.getBBox().x2)&&
-                        (svgPoint.y>=graph.svgVertices[i].group.getBBox().y)&&
-                        (svgPoint.y<=graph.svgVertices[i].group.getBBox().y2)) {
-                        if (startIndex===i) return ;
-                        if ((graph.isMulti===false)&&(graph.adjMatrix[startIndex][i]===1)) return ;
+                    if (segmentLength(svgPoint.x,svgPoint.y,
+                                      graph.svgVertices[i].coord[0],
+                                      graph.svgVertices[i].coord[1])<graph.vertexRad) {
+                        if ((graph.isMulti===false)&&(graph.adjMatrix[startIndex][i].length===1)) return ;
                         if (graph.isMulti===true) {
-                            let maxEdges=(graph.isWeighted===true)?2:5;
-                            if ((graph.isDirected===false)&&(graph.adjMatrix[startIndex][i]==maxEdges)) return ;
+                            let maxEdges=((startIndex===i)||(graph.isWeighted===true))?2:5;
+                            if ((graph.isDirected===false)&&(graph.adjMatrix[startIndex][i].length===maxEdges)) return ;
                             if ((graph.isDirected===true)&&
-                                (graph.adjMatrix[startIndex][i]+graph.adjMatrix[i][startIndex]==maxEdges)) return ;
+                                (graph.adjMatrix[startIndex][i].length+graph.adjMatrix[i][startIndex].length==maxEdges)) return ;
                         }
 
                         let weight="";
@@ -238,14 +236,15 @@
                             weight=parseInt(weight);
                             if (weight===0) return ;
                         }
-                        graph.addEdge(startIndex,i,weight);
-                        if (graph.calcPositions.checkEdge(startIndex,i)===false) {
+                        let ind=graph.addEdge(startIndex,i,weight);
+                        if (graph.calcPositions.checkEdge(startIndex,i,ind)===false) {
                             graph.svgVertices[i].coord=undefined;
-                            graph.calcPositions.calculatePossiblePos();
+                            graph.calcPositions.calculatePossiblePos(true);
                             if (graph.calcPositions.placeVertex(i,false)===false) graph.calcPositions.init();
                         }
                         graph.graphChange();
                         graph.draw(true);
+                        break;
                     }
                 }
             }
@@ -254,7 +253,7 @@
                 let dx=svgPoint.x-startMousePos[0],dy=svgPoint.y-startMousePos[1];
                 let oldCoords=[graph.svgVertices[ind].coord[0], graph.svgVertices[ind].coord[1]];
                 graph.svgVertices[ind].coord=undefined;
-                let possiblePos=graph.calcPositions.calculatePossiblePos();
+                let possiblePos=graph.calcPositions.calculatePossiblePos(false);
                 graph.svgVertices[ind].coord=[oldCoords[0]+dx, oldCoords[1]+dy];
                 for (let pos of possiblePos) {
                     if (segmentLength(graph.svgVertices[ind].coord[0],graph.svgVertices[ind].coord[1],pos[0],pos[1])<15) {
@@ -553,5 +552,5 @@
     }
     
     
-    window.DrawableEdges = DrawableEdges;
+    window.DrawableGraph = DrawableGraph;
 })();

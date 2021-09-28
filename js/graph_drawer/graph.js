@@ -161,7 +161,7 @@
             for (let i=0; i<this.n; i++) {
                 this.adjList[i]=[]; this.reverseAdjList[i]=[]; this.adjMatrix[i]=[];
                 for (let j=0; j<this.n; j++) {
-                    this.adjMatrix[i][j]=0;
+                    this.adjMatrix[i][j]=[];
                 }
             }
 
@@ -242,17 +242,17 @@
             for (let i=0; i<=max; i++) {
                 this.adjMatrix[i]=[];
                 for (let j=0; j<=max; j++) {
-                    this.adjMatrix[i][j]=0;
+                    this.adjMatrix[i][j]=[];
                 }
                 this.adjList[i]=[]; this.reverseAdjList[i]=[];
             }
             for (let i=0; i<edgeList.length; i++) {
                 if (edgeList[i]===undefined) continue;
                 let x=edgeList[i].x,y=edgeList[i].y;
-                this.adjMatrix[x][y]++;
+                this.adjMatrix[x][y].push(i);
                 this.adjList[x].push(i);
                 if ((this.isDirected===false)&&(x!==y)) {
-                    this.adjMatrix[y][x]++;
+                    this.adjMatrix[y][x].push(i);
                     this.adjList[y].push(i);
                 }
                 if (this.isDirected===true) this.reverseAdjList[y].push(i);
@@ -265,7 +265,7 @@
 
         this.frameX=undefined; this.frameY=undefined; this.frameW=undefined; this.frameH=undefined; this.vertexRad=20;
         this.isDrawable=undefined; this.calcPositions=undefined;
-        this.drawNewGraph = function (frameX, frameY, frameW, frameH, vertexRad, addDrawableEdges = false) {
+        this.drawNewGraph = function (frameX, frameY, frameW, frameH, vertexRad, addDraw = false) {
             this.erase();
 
             if (frameX!==undefined) {
@@ -283,10 +283,10 @@
                 if (this.edgeList[i]===undefined) continue;
                 this.svgEdges[i]=new SvgEdge();
             }
-            this.isDrawable=addDrawableEdges;
+            this.isDrawable=addDraw;
             if (this.calcPositions===undefined) this.calcPositions=new CalcPositions(this);
             this.calcPositions.init();
-            this.draw(addDrawableEdges);
+            this.draw(addDraw);
         }
 
         function calcStraightEdge (st, end, isDrawn, endDist, vertexRad) {
@@ -298,21 +298,21 @@
             let fin=[st[0]+quotient*diff[0], st[1]+quotient*diff[1]];
             return linePath(beg,fin);
         }
-        function calcCurvedEdge (st, end, properties, endDist, vertexRad) {
+        this.calcCurvedEdge = function (st, end, properties, endDist) {
             let middlePoint=findPointAtDistance(st[0],st[1],end[0],end[1],properties);
             let [beg,fin]=[st,end];
             if ((st[1]>end[1])||((st[1]===end[1])&&(st[0]>end[0]))) [beg,fin]=[end,st];
             let bezierPoint=findBezierPoint(beg[0],beg[1],fin[0],fin[1],middlePoint[0],middlePoint[1]);
             let bezPath=bezierPath(beg,fin,bezierPoint);
-            if (segmentLength(st[0],st[1],end[0],end[1])<2*vertexRad+3*endDist) return [bezPath, bezierPoint];
+            if (segmentLength(st[0],st[1],end[0],end[1])<2*this.vertexRad+3*endDist) return [bezPath, bezierPoint];
             let p1=Snap.path.intersection(
                 bezPath,
-                circlePath(beg[0],beg[1],((beg===st)?vertexRad:(vertexRad+endDist)))
+                circlePath(beg[0],beg[1],((beg===st)?this.vertexRad:(this.vertexRad+endDist)))
             )[0];
             if (p1===undefined) return ["", bezierPoint];
             let p2=Snap.path.intersection(
                 bezPath,
-                circlePath(fin[0],fin[1],((fin===st)?vertexRad:(vertexRad+endDist)))
+                circlePath(fin[0],fin[1],((fin===st)?this.vertexRad:(this.vertexRad+endDist)))
             )[0];
             if (p2===undefined) return ["", bezierPoint];
             let bezierPointFinal=findBezierPoint(p1.x,p1.y,p2.x,p2.y,middlePoint[0],middlePoint[1]);
@@ -375,7 +375,7 @@
                     pathForWeight=loopPath(st[0],st[1]-this.vertexRad,this.vertexRad,properties,false);
                 }
                 else { /// multiedge
-                    let res=calcCurvedEdge(st,end,properties,endDist,this.vertexRad);
+                    let res=this.calcCurvedEdge(st,end,properties,endDist);
                     edge.line.attr("d",res[0]);
                     let points=sortPoints(st,end);
                     if (points[0]!==st) properties*=(-1);
@@ -425,7 +425,7 @@
                     pathForWeight=loopPath(st[0],st[1]-this.vertexRad,this.vertexRad,properties,false);
                 }
                 else { /// multiedge
-                    let res=calcCurvedEdge(st,end,properties,endDist,this.vertexRad);
+                    let res=this.calcCurvedEdge(st,end,properties,endDist);
                     edge.line=this.s.path(res[0]);
                     let points=sortPoints(st,end);
                     if (points[0]!==st) properties*=(-1);
@@ -514,8 +514,8 @@
         this.findStrokeWidth = function (vertexRad = this.vertexRad) {
             return vertexRad/20*1.5;
         }
-        this.drawableEdges=undefined;
-        this.draw = function (addDrawableEdges, animateDraw = true) { /// this functions expects that coordinates are already calculated
+        this.drawableGraph=undefined;
+        this.draw = function (addDraw, animateDraw = true) { /// this functions expects that coordinates are already calculated
             let oldVersCoords=[],changedVers=[],cntAnimations=0;
             let oldRad=this.vertexRad;
             let oldEdgesPaths=[],oldDy=[],oldWeightsPaths=[];
@@ -646,27 +646,11 @@
             }
             
             if ((animateDraw===true)&&(this.vertexRad!=oldRad)) {          
-                for (let i=0; i<this.n; i++) {
-                    if (this.vertices[i]===undefined) continue;
-                    cntAnimations++;
-                    this.svgVertices[i].circle.attr({r: oldRad});
-                    this.svgVertices[i].circle.animate({r: this.vertexRad},500,animationsEnd.bind(this));
-                }
-                
-                let oldStrokeWidth=this.findStrokeWidth(oldRad);
-                let newStrokeWidth=this.findStrokeWidth();
-                for (let i=0; i<this.edgeList.length; i++) {
-                    if (this.edgeList[i]===undefined) continue;
-                    cntAnimations++;
-                    this.svgEdges[i].line.attr({"stroke-width": oldStrokeWidth});
-                    this.svgEdges[i].line.animate({"stroke-width": newStrokeWidth},500,animationsEnd.bind(this));
-                }
-                
                 cntAnimations++;
                 Snap.animate(oldRad,this.vertexRad,function (val) {
                     for (let i=0; i<this.n; i++) {
                         if (this.vertices[i]===undefined) continue;
-                        this.svgVertices[i].circle.attr({"stroke-width": this.findStrokeWidth(val)});
+                        this.svgVertices[i].circle.attr({r: val, "stroke-width": this.findStrokeWidth(val)});
                         let fontSize=this.findFontSize(val);
                         this.svgVertices[i].text.attr({
                             "font-size": fontSize,
@@ -676,6 +660,7 @@
                 
                     for (let i=0; i<this.edgeList.length; i++) {
                         if (this.edgeList[i]===undefined) continue;
+                        this.svgEdges[i].line.attr({"stroke-width": this.findStrokeWidth(val)});
                         if (this.isDirected===true) {
                             let x=this.edgeList[i].x,y=this.edgeList[i].y;
                             this.svgEdges[i].line.markerEnd.remove();
@@ -690,9 +675,9 @@
             function animationsEnd () {
                 cntAnimations--;
                 if (cntAnimations<=0) {
-                    if (addDrawableEdges===true) {
-                        if (this.drawableEdges===undefined) this.drawableEdges=new DrawableEdges(this);
-                        this.drawableEdges.init();
+                    if (addDraw===true) {
+                        if (this.drawableGraph===undefined) this.drawableGraph=new DrawableGraph(this);
+                        this.drawableGraph.init();
                     }
                 }
             }
@@ -710,16 +695,17 @@
             this.edgeList[ind]=new Edge(x,y,weight);
             this.adjList[x].push(ind);
             if (this.isDirected===false) this.adjList[y].push(ind);
-            this.adjMatrix[x][y]++;
-            if (this.isDirected===false) this.adjMatrix[y][x]++;
+            this.adjMatrix[x][y].push(ind);
+            if (this.isDirected===false) this.adjMatrix[y][x].push(ind);
             if (this.isDirected===true) this.reverseAdjList[y].push(ind);
+            return ind;
         }
         this.removeEdge = function (index) {
             let edge=this.edgeList[index];
-            this.adjMatrix[edge.x][edge.y]--;
+            this.adjMatrix[edge.x][edge.y].splice(this.adjMatrix[edge.x][edge.y].indexOf(index),1);
             this.adjList[edge.x].splice(this.adjList[edge.x].indexOf(index),1);
             if (this.isDirected===false) {
-                this.adjMatrix[edge.y][edge.x]--;
+                this.adjMatrix[edge.y][edge.x].splice(this.adjMatrix[edge.y][edge.x].indexOf(index),1);
                 this.adjList[edge.y].splice(this.adjList[edge.y].indexOf(index),1);
             }
             if (this.isDirected===true) this.reverseAdjList[edge.y].splice(this.reverseAdjList[edge.y].indexOf(index),1);
@@ -743,7 +729,8 @@
                 this.adjMatrix[ind]=[];
                 this.n++;
                 for (let i=0; i<this.n; i++) {
-                    this.adjMatrix[i][ind]=this.adjMatrix[ind][i]=0;
+                    this.adjMatrix[i][ind]=[];
+                    this.adjMatrix[ind][i]=[];
                 }
             }
             this.svgVertices[ind]=new SvgVertex();
@@ -805,7 +792,8 @@
     }
     
     
-    window.Graph = Graph;
-    window.segmentLength = segmentLength;
-    window.determineDy = determineDy;
+    window.Graph=Graph;
+    window.segmentLength=segmentLength;
+    window.circlePath=circlePath;
+    window.determineDy=determineDy;
 })();

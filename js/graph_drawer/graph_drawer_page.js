@@ -80,10 +80,10 @@
         });
         
         $("#edgeDraw").on("click",function () {
-            graph.drawableEdges.addVertexDrag=false;
+            graph.drawableGraph.addVertexDrag=false;
         });
         $("#vertexMove").on("click",function () {
-            graph.drawableEdges.addVertexDrag=true;
+            graph.drawableGraph.addVertexDrag=true;
         });
     }
     
