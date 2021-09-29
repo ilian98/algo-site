@@ -116,9 +116,21 @@
                             </ul>
                             <svg class="svg-save" width="100" height="100" viewBox="0 0 300 300"></svg>
                             <canvas class="canvas-save"></canvas>
-                            <div class="row justify-content-end">
-                                <div class="col-auto">
-                                    <button class="btn btn-primary save" style="float: right">
+                            <div class="row">
+                                <div class="col text-start">
+                                    <button class="btn btn-primary undo">
+                                        <svg class="bi" width="24px" height="24px" fill="currentColor">
+                                            <use xlink:href="/algo-site/node_modules/bootstrap-icons/bootstrap-icons.svg#arrow-counterclockwise"/>
+                                        </svg>
+                                    </button>
+                                    <button class="btn btn-primary redo">
+                                        <svg class="bi" width="24px" height="24px" fill="currentColor">
+                                            <use xlink:href="/algo-site/node_modules/bootstrap-icons/bootstrap-icons.svg#arrow-clockwise"/>
+                                        </svg>
+                                    </button>
+                                </div>
+                                <div class="col text-end">
+                                    <button class="btn btn-primary save">
                                         <svg class="bi" width="24px" height="24px" fill="currentColor">
                                             <use xlink:href="/algo-site/node_modules/bootstrap-icons/bootstrap-icons.svg#download"/>
                                         </svg>

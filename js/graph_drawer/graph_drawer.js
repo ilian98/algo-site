@@ -238,9 +238,20 @@
                         }
                         let ind=graph.addEdge(startIndex,i,weight);
                         if (graph.calcPositions.checkEdge(startIndex,i,ind)===false) {
+                            let oldCoords=[graph.svgVertices[i].coord[0], graph.svgVertices[i].coord[1]];
+                            graph.undoStack.push({
+                                time: graph.undoTime-1,
+                                type: "new-pos",
+                                data: [i, oldCoords]
+                            });
+                            graph.redoStack=[];
+                            
                             graph.svgVertices[i].coord=undefined;
                             graph.calcPositions.calculatePossiblePos(true);
-                            if (graph.calcPositions.placeVertex(i,false)===false) graph.calcPositions.init();
+                            if (graph.calcPositions.placeVertex(i,false)===false) {
+                                graph.svgVertices[i].coord=[oldCoords[0], oldCoords[1]];
+                                graph.calcPositions.init();
+                            }
                         }
                         graph.graphChange();
                         graph.draw(true);
@@ -261,6 +272,15 @@
                         break;
                     }
                 }
+                if ((oldCoords[0]!=graph.svgVertices[ind].coord[0])||(oldCoords[1]!=graph.svgVertices[ind].coord[1])) {
+                    graph.undoStack.push({
+                        time: graph.undoTime,
+                        type: "new-pos",
+                        data: [ind, [oldCoords[0], oldCoords[1]]]
+                    });
+                    graph.undoTime++;
+                }
+                
                 graph.draw(true,false);
             }
         }
@@ -273,11 +293,28 @@
             }
             
             if (Math.abs(height-graph.svgEdges[startIndex].drawProperties[2])<10) height=undefined;
+            let oldCurveHeight=graph.edgeList[startIndex].curveHeight;
+            if (oldCurveHeight!==height) {
+                graph.undoStack.push({
+                    time: graph.undoTime,
+                    type: "change-curve-height",
+                    data: [startIndex, oldCurveHeight],
+                });
+                graph.undoTime++;
+            }
+            
             graph.edgeList[startIndex].curveHeight=height;
             graph.draw(true,false);
         }
         
-        function addCSS (obj, defaultCSS, newCSS) {
+        function addCSS (obj, defaultCSS, newCSS, typeName, ind) {
+            let oldCSS;
+            if (typeName==="vertex") oldCSS=[graph.vertices[ind].addedCSS[0], graph.vertices[ind].addedCSS[1]];
+            else oldCSS=[graph.edgeList[ind].addedCSS[0], graph.edgeList[ind].addedCSS[1]];
+            graph.undoStack.push({time: graph.undoTime, type: "change-css-"+typeName, data: [ind, oldCSS]});
+            graph.undoTime++;
+            graph.redoStack=[];
+            
             obj.addClass("temp");
             $(".temp").attr("style",defaultCSS+" ; "+newCSS);
             obj.removeClass("temp");
@@ -312,10 +349,16 @@
             dropdown.find(".change-name").off("click").on("click",function () {
                 dropdown.find(".change-name").off("click");
                 let name=prompt("Въведете ново име на върха",graph.vertices[index].name);
-                graph.vertices[index].name=name;
-                graph.drawVertexText(index,name);
-                addVertexEvents(index);
-                graph.graphChange();
+                if (graph.vertices[index].name!==name) {
+                    graph.undoStack.push({time: graph.undoTime, type: "change-name", data: [index, graph.vertices[index].name]});
+                    graph.undoTime++;
+                    graph.redoStack=[];
+                    
+                    graph.vertices[index].name=name;
+                    graph.drawVertexText(index,name);
+                    addVertexEvents(index);
+                    graph.graphChange();
+                }
                 dropdown.removeClass("show");
             });
             
@@ -326,7 +369,8 @@
                     ((graph.vertices[index].addedCSS[0]==="")?" (например за червен цвят fill: red)":""),
                     graph.vertices[index].addedCSS[0]
                 );
-                addCSS(graph.svgVertices[index].circle,graph.vertices[index].defaultCSS[0],css);
+                if (graph.vertices[index].addedCSS[0]!==css)
+                    addCSS(graph.svgVertices[index].circle,graph.vertices[index].defaultCSS[0],css,"vertex",index);
                 graph.vertices[index].addedCSS[0]=css;
                 dropdown.removeClass("show");
             });
@@ -338,7 +382,8 @@
                     ((graph.vertices[index].addedCSS[1]==="")?" (например за червен цвят fill: red)":""),
                     graph.vertices[index].addedCSS[1]
                 );
-                addCSS(graph.svgVertices[index].text,graph.vertices[index].defaultCSS[1],css);
+                if (graph.vertices[index].addedCSS[1]!==css)
+                    addCSS(graph.svgVertices[index].text,graph.vertices[index].defaultCSS[1],css,"vertex",index);
                 graph.vertices[index].addedCSS[1]=css;
                 dropdown.removeClass("show");
             });
@@ -363,16 +408,21 @@
         function changeEdgeWeight (index) {
             let weight=prompt("Въведете ново тегло на реброто",graph.edgeList[index].weight);
             if (checkInteger(weight)===false) return ;
-            graph.edgeList[index].weight=weight;
-            graph.svgEdges[index].line.remove();
-            graph.svgEdges[index].weight.remove();
-            let x=graph.edgeList[index].x,y=graph.edgeList[index].y;
-            graph.svgEdges[index]=graph.drawEdge(graph.svgVertices[x].coord,graph.svgVertices[y].coord,index,
-                                                 graph.svgEdges[index].drawProperties[0]);
-            graph.svgEdges[index].line.prependTo(graph.s);
-            graph.svgEdges[index].weight.prependTo(graph.s);
-            
-            addEdgeEvents(index);
+            if (graph.edgeList[index].weight!==weight) {
+                graph.undoStack.push({time: graph.undoTime, type: "change-weight", data: [index, graph.edgeList[index].weight]});
+                graph.undoTime++;
+                graph.redoStack=[];
+                
+                graph.edgeList[index].weight=weight;
+                graph.svgEdges[index].line.remove();
+                graph.svgEdges[index].weight.remove();
+                let x=graph.edgeList[index].x,y=graph.edgeList[index].y;
+                graph.svgEdges[index]=graph.drawEdge(graph.svgVertices[x].coord,graph.svgVertices[y].coord,index,
+                                                     graph.svgEdges[index].drawProperties[0]);
+                graph.svgEdges[index].line.prependTo(graph.s);
+                graph.svgEdges[index].weight.prependTo(graph.s);
+                addEdgeEvents(index);
+            }
         }
         function edgeClick (index, event) {
             let dropdown=$(graph.svgName).parent().find(".dropdown-menu.edge");
@@ -416,7 +466,8 @@
                     graph.edgeList[index].addedCSS[0]
                 );
                 let edge=graph.svgEdges[index];
-                addCSS(edge.line,graph.edgeList[index].defaultCSS[0],css);
+                if (graph.edgeList[index].addedCSS[0]!==css)
+                    addCSS(edge.line,graph.edgeList[index].defaultCSS[0],css,"edge",index);
                 graph.edgeList[index].addedCSS[0]=css;
                 if (graph.isDirected===true) {
                     let marker=edge.line.markerEnd;
@@ -460,7 +511,8 @@
                     graph.edgeList[index].addedCSS[1]
                 );
                 let weight=graph.svgEdges[index].weight;
-                addCSS(weight,graph.edgeList[index].defaultCSS[1],css);
+                if (graph.edgeList[index].addedCSS[1]!==css)
+                    addCSS(weight,graph.edgeList[index].defaultCSS[1],css,"edge",index);
                 if (css.indexOf("fill")===-1) {
                     weight.attr("fill",graph.svgEdges[index].line.attr("stroke"));
                 }

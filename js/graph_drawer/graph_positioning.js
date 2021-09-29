@@ -11,7 +11,8 @@
     }
         
     function CalcPositions (graph) {
-        let originalPos,possiblePos;
+        this.originalPos=[];
+        let possiblePos;
         
         let tryDesperate;
         this.vertexEdge = function (center, ind) {
@@ -73,7 +74,7 @@
             for (let ind of graph.adjMatrix[x][y]) {
                 if (check(ind)===false) return false;
             }
-            if (graph.isOriented===true) {
+            if (graph.isDirected===true) {
                 for (let ind of graph.adjMatrix[y][x]) {
                     if (check(ind)===false) return false;
                 }
@@ -92,7 +93,7 @@
         }
         this.calculatePossiblePos = function (flagCheckEdges) {
             possiblePos=[];
-            for (let pos of originalPos) {
+            for (let pos of this.originalPos) {
                 let flag=true;
                 for (let i=0; i<graph.n; i++) {
                     if (graph.vertices[i]===undefined) continue;
@@ -176,11 +177,21 @@
 
         let maxTimes,distVertices;
         function calc () {
+            let oldCoords=[];
+            for (let i=0; i<graph.n; i++) {
+                if (graph.vertices[i]===undefined) continue;
+                if ((graph.svgVertices[i]===undefined)||(graph.svgVertices[i].coord===undefined)) continue;
+                oldCoords[i]=[graph.svgVertices[i].coord[0], graph.svgVertices[i].coord[1]];
+            }
+            graph.undoStack.push({time: graph.undoTime, type: "new-positions", data: [this.originalPos.slice(), oldCoords]});
+            graph.undoTime++;
+            graph.redoStack=[];
+            
             if (graph.isTree===false) {
-                originalPos=[];
+                this.originalPos=[];
                 for (let i=0; i<=(graph.frameW-2*graph.vertexRad)/(2*graph.vertexRad+distVertices); i++) {
                     for (let j=0; j<=(graph.frameH-2*graph.vertexRad)/(2*graph.vertexRad+distVertices); j++) {
-                        originalPos.push([
+                        this.originalPos.push([
                             i*(2*graph.vertexRad+distVertices)+graph.frameX+graph.vertexRad,
                             j*(2*graph.vertexRad+distVertices)+graph.frameY+graph.vertexRad
                         ]);
@@ -190,7 +201,7 @@
                 let success=false,tryPlanner=false;
                 tryDesperate=false;
                 function tryCalc (tryPlanner) {
-                    possiblePos=originalPos.slice();
+                    possiblePos=this.originalPos.slice();
                     for (let i=0; i<graph.n; i++) {
                         if (graph.vertices[i]===undefined) continue;
                         graph.svgVertices[i].coord=undefined;
@@ -230,8 +241,8 @@
                         let ind=0;
                         for (let i=0; i<shuffle.length; i++) {
                             let v=shuffle[i];
-                            if (ind<originalPos.length) {
-                                graph.svgVertices[v].coord=[originalPos[ind][0], originalPos[ind][1]];
+                            if (ind<this.originalPos.length) {
+                                graph.svgVertices[v].coord=[this.originalPos[ind][0], this.originalPos[ind][1]];
                                 ind++;
                             }
                             else {

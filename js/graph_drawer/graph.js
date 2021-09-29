@@ -131,13 +131,14 @@
     }
 
     function Graph () {
-        this.svgName=undefined; this.s=undefined; this.flagSave=undefined;
+        this.svgName=undefined; this.s=undefined;
         this.svgVertices=undefined; this.svgEdges=undefined;
         this.n=undefined; this.vertices=undefined;
         this.edgeList=undefined; this.adjList=undefined; this.adjMatrix=undefined;
         this.isDirected=undefined; this.isMulti=undefined; this.isWeighted=undefined; this.isTree=undefined;
         this.graphChange=undefined; // function to be called after changing the graph, for exampe adding new edge
-        this.init = function (svgName, n, isDirected, flagSave = false, isTree = false, graphChange = () => {}) {
+        this.undoStack=undefined; this.undoTime=undefined; this.redoStack=undefined; this.redoTime=undefined;
+        this.init = function (svgName, n, isDirected, isTree = false, graphChange = () => {}) {
             $(svgName).css({
                 "border-style": "dotted",
                 "border-color": "transparent",
@@ -169,13 +170,11 @@
             this.isMulti=false; this.isWeighted=false;
             if (isTree!==undefined) this.isTree=isTree;
             else this.isTree=false;
-            if (flagSave!==undefined) {
-                this.flagSave=flagSave;
-                if (flagSave===true) addSaveFunctionality(svgName);
-            }
-            else this.flagSave=false;
-
+            
+            addSaveFunctionality(svgName);
             this.graphChange=graphChange;
+            this.undoStack=[]; this.undoTime=0; this.redoStack=[]; this.redoTime=0;
+            addUndoFunctionality(svgName,this);
         }
 
         this.initVertices = function (n) {
@@ -185,6 +184,9 @@
             }
         }
 
+        function convertEdgeToList (edge) {
+            return [edge.x,edge.y,edge.weight,[edge.addedCSS[0],edge.addedCSS[1]],edge.curveHeight];
+        }
         this.convertSimpleEdgeList = function () {
             let edges=[];
             for (let edge of this.edgeList) {
@@ -192,11 +194,24 @@
                     edges.push(undefined);
                     continue;
                 }
-                edges.push([edge.x,edge.y,edge.weight,edge.addedCSS,edge.curveHeight]);
+                edges.push(convertEdgeToList(edge));
             }
             return edges;
         }
-        this.buildEdgeDataStructures = function (edges) {
+        this.buildEdgeDataStructures = function (edges, undoType) {
+            let undoObj={type: "edge-list", data: [this.n, this.convertSimpleEdgeList()]};
+            if ((undoType===undefined)||(undoType==="redo")) {
+                undoObj.time=this.undoTime;
+                this.undoStack.push(undoObj);
+                this.undoTime++;
+                if (undoType===undefined) this.redoStack=[];
+            }
+            else {
+                undoObj.time=this.redoTime;
+                this.redoStack.push(undoObj);
+                this.redoTime++;
+            }
+            
             let edgeList=this.edgeList=[];
             for (let edge of edges) {
                 if (edge===undefined) {
@@ -286,6 +301,7 @@
             this.isDrawable=addDraw;
             if (this.calcPositions===undefined) this.calcPositions=new CalcPositions(this);
             this.calcPositions.init();
+            this.undoStack.pop(); this.redoStack=[];
             this.draw(addDraw);
         }
 
@@ -527,7 +543,8 @@
                     }
                 }
                 for (let i=0; i<this.n; i++) {
-                    if ((this.svgVertices[i]!==undefined)&&(this.svgVertices[i].group!==undefined)) {
+                    if ((this.svgVertices[i]!==undefined)&&
+                        (this.svgVertices[i].group!==undefined)&&(this.svgVertices[i].coord!==undefined)) {
                         oldVersCoords[i]=this.svgVertices[i].group.getBBox();
                         if ((oldVersCoords[i].x+oldRad!=this.svgVertices[i].coord[0])||
                             (oldVersCoords[i].y+oldRad!=this.svgVertices[i].coord[1])) {
@@ -575,6 +592,7 @@
             let loopEdges=[[],
                            [3*this.vertexRad/4],
                            [3*this.vertexRad/4, this.vertexRad/2]];
+            this.svgEdges=[];
             for (let i=0; i<this.edgeList.length; i++) {
                 if (this.edgeList[i]===undefined) continue;
                 let x=this.edgeList[i].x,y=this.edgeList[i].y;
@@ -634,7 +652,10 @@
             }
 
             for (let i=0; i<this.n; i++) {
-                if (this.vertices[i]===undefined) continue;
+                if (this.vertices[i]===undefined) {
+                    this.svgVertices[i]=undefined;
+                    continue;
+                }
                 this.drawVertex(i);
                 
                 if ((animateDraw===true)&&(changedVers[i]===true)) {
@@ -684,24 +705,47 @@
             if (cntAnimations===0) animationsEnd.call(this);
         }
         
-        this.addEdge = function (x, y, weight) {
+        this.addEdge = function (x, y, weight, css = ["",""], curveHeight=undefined, prevInd = undefined, undoType) {
             let ind;
-            for (let i=0; i<=this.edgeList.length; i++) {
-                if (this.edgeList[i]===undefined) {
-                    ind=i;
-                    break;
+            if (prevInd!==undefined) ind=prevInd;
+            else {
+                for (let i=0; i<=this.edgeList.length; i++) {
+                    if (this.edgeList[i]===undefined) {
+                        ind=i;
+                        break;
+                    }
                 }
             }
-            this.edgeList[ind]=new Edge(x,y,weight);
+            if ((undoType===undefined)||(undoType==="redo")) {
+                this.undoStack.push({time: this.undoTime, type: "add-edge", data: [ind]});
+                this.undoTime++;
+                if (undoType===undefined) this.redoStack=[];
+            }
+            else {
+                this.redoStack.push({time: this.redoTime, type: "add-edge", data: [ind]});
+                this.redoTime++;
+            }
+            
+            this.edgeList[ind]=new Edge(x,y,weight,css,curveHeight);
             this.adjList[x].push(ind);
-            if (this.isDirected===false) this.adjList[y].push(ind);
+            if ((this.isDirected===false)&&(x!==y)) this.adjList[y].push(ind);
             this.adjMatrix[x][y].push(ind);
-            if (this.isDirected===false) this.adjMatrix[y][x].push(ind);
+            if ((this.isDirected===false)&&(x!==y)) this.adjMatrix[y][x].push(ind);
             if (this.isDirected===true) this.reverseAdjList[y].push(ind);
             return ind;
         }
-        this.removeEdge = function (index) {
+        this.removeEdge = function (index, undoType) {
             let edge=this.edgeList[index];
+            if ((undoType===undefined)||(undoType==="redo")) {
+                this.undoStack.push({time: this.undoTime, type: "remove-edge", data: [index, convertEdgeToList(edge)]});
+                this.undoTime++;
+                if (undoType===undefined) this.redoStack=[];
+            }
+            else {
+                this.redoStack.push({time: this.redoTime, type: "remove-edge", data: [index, convertEdgeToList(edge)]});
+                this.redoTime++;
+            }
+            
             this.adjMatrix[edge.x][edge.y].splice(this.adjMatrix[edge.x][edge.y].indexOf(index),1);
             this.adjList[edge.x].splice(this.adjList[edge.x].indexOf(index),1);
             if (this.isDirected===false) {
@@ -714,15 +758,27 @@
             this.svgEdges[index]=undefined;
             this.edgeList[index]=undefined;
         }
-        this.addVertex = function (name) {
+        this.addVertex = function (name, css = ["",""], prevInd = undefined, undoType) {
             let ind;
-            for (let i=0; i<=this.n; i++) {
-                if (this.vertices[i]===undefined) {
-                    ind=i;
-                    break;
+            if (prevInd!==undefined) ind=prevInd;
+            else {
+                for (let i=0; i<=this.n; i++) {
+                    if (this.vertices[i]===undefined) {
+                        ind=i;
+                        break;
+                    }
                 }
             }
-            this.vertices[ind]=new Vertex(name);
+            if ((undoType===undefined)||(undoType==="redo")) {
+                this.undoStack.push({time: this.undoTime, type: "add-vertex", data: [ind]});
+                this.undoTime++;
+                if (undoType===undefined) this.redoStack=[];
+            }
+            else {
+                this.redoStack.push({time: this.redoTime, type: "add-vertex", data: [ind]});
+                this.redoTime++;
+            }
+            this.vertices[ind]=new Vertex(name,css);
             if (ind===this.n) {
                 this.adjList[ind]=[];
                 this.reverseAdjList[ind]=[];
@@ -735,7 +791,7 @@
             }
             this.svgVertices[ind]=new SvgVertex();
         }
-        this.removeVertex = function (x) {
+        this.removeVertex = function (x, undoType) {
             let removeEdges=[];
             for (let ind of this.adjList[x]) {
                 removeEdges.push(ind);
@@ -746,8 +802,29 @@
                 }
             }
             for (let ind of removeEdges) {
-                this.removeEdge(ind);
+                this.removeEdge(ind,undoType);
+                if ((undoType===undefined)||(undoType==="redo")) this.undoTime--;
+                else this.redoTime--;
             }
+            
+            let undoObj={
+                type: "remove-vertex",
+                data: [x, [this.svgVertices[x].coord[0], this.svgVertices[x].coord[1]],
+                       [this.vertices[x].name, [this.vertices[x].addedCSS[0], this.vertices[x].addedCSS[1]]]]
+            };
+            if ((undoType===undefined)||(undoType==="redo")) {
+                undoObj.time=this.undoTime;
+                this.undoStack.push(undoObj);
+                this.undoTime++;
+                if (undoType===undefined) this.redoStack=[];
+            }
+            else {
+                undoObj.time=this.redoTime;
+                this.redoStack.push(undoObj);
+                this.redoTime++;
+            }
+            
+            
             this.svgVertices[x].group.remove();
             this.svgVertices[x]=undefined;
             this.vertices[x]=undefined;
@@ -789,6 +866,102 @@
                 });
             });
         }
+    }
+    
+    function undoAction (undoType, graph) {
+        let stack,otherStack;
+        if (undoType==="undo") stack=graph.undoStack, otherStack=graph.redoStack;
+        else stack=graph.redoStack, otherStack=graph.undoStack;
+        if (stack.length===0) return ;
+        function pushOther (t, d) {
+            otherStack.push({
+                time: ((undoType==="undo")?graph.redoTime:graph.undoTime),
+                type: t,
+                data: d
+            });
+            if (undoType==="undo") graph.redoTime++;
+            else graph.undoTime++;    
+        }
+        
+        let curr=stack[stack.length-1];
+        let currTime=stack[stack.length-1].time;
+        for (;;) {
+            if (stack.length===0) break;
+            let curr=stack[stack.length-1];
+            if (curr.time!==currTime) break;
+            stack.pop();
+            if (curr.type==="edge-list") {
+                graph.n=curr.data[0];
+                graph.buildEdgeDataStructures(curr.data[1],undoType);
+            }
+            else if (curr.type==="new-positions") {
+                let currCoords=[];
+                let coords=curr.data[1];
+                for (let i=0; i<graph.n; i++) {
+                    if (graph.vertices[i]===undefined) continue;
+                    currCoords[i]=[graph.svgVertices[i].coord[0], graph.svgVertices[i].coord[1]];
+                    graph.svgVertices[i].coord=coords[i];
+                }
+                pushOther(curr.type,[graph.calcPositions.originalPos.slice(), currCoords]);
+                graph.calcPositions.originalPos=curr.data[0];
+            }
+            else {
+                let ind=curr.data[0];
+                if (curr.type==="new-pos") {
+                    pushOther(curr.type,[ind, [graph.svgVertices[ind].coord[0], graph.svgVertices[ind].coord[1]]]);
+                    graph.svgVertices[ind].coord=curr.data[1];
+                }
+                else if (curr.type==="add-edge") graph.removeEdge(ind,undoType);
+                else if (curr.type==="remove-edge") {
+                    let edgeData=curr.data[1];
+                    graph.addEdge(edgeData[0],edgeData[1],edgeData[2],edgeData[3],edgeData[4],ind,undoType);
+                }
+                else if (curr.type==="add-vertex") graph.removeVertex(ind,undoType);
+                else if (curr.type==="remove-vertex") {
+                    graph.addVertex(curr.data[2][0],curr.data[2][1],ind,undoType);
+                    graph.svgVertices[ind].coord=curr.data[1];
+                }
+                else if (curr.type==="change-curve-height") {
+                    pushOther(curr.type,[ind, graph.edgeList[ind].curveHeight]);
+                    graph.edgeList[ind].curveHeight=curr.data[1];
+                }
+                else if (curr.type==="change-css-vertex") {
+                    pushOther(curr.type,[ind, [graph.vertices[ind].addedCSS[0], graph.vertices[ind].addedCSS[1]]]);
+                    graph.vertices[ind].addedCSS=curr.data[1];
+                }
+                else if (curr.type==="change-css-edge") {
+                    pushOther(curr.type,[ind, [graph.edgeList[ind].addedCSS[0], graph.edgeList[ind].addedCSS[1]]]);
+                    graph.edgeList[ind].addedCSS=curr.data[1];
+                }
+                else if (curr.type==="change-name") {
+                    pushOther(curr.type,[ind, graph.vertices[ind].name]);
+                    graph.vertices[ind].name=curr.data[1];
+                }
+                else if (curr.type==="change-weight") {
+                    pushOther(curr.type,[ind, graph.edgeList[ind].weight]);
+                    graph.edgeList[ind].weight=curr.data[1];
+                }
+            }
+            
+            if (undoType==="undo") graph.redoTime--;
+            else graph.undoTime--;
+        }
+        if (undoType==="undo") graph.redoTime++;
+        else graph.undoTime++;
+        
+        graph.graphChange();
+        graph.draw(graph.isDrawable);
+    }
+    function addUndoFunctionality (svgName, graph) {
+        let parentElement=$(svgName).parent();
+        let undoButton=parentElement.find(".undo");
+        $(undoButton).off("click").on("click",function () {
+            undoAction("undo",graph);
+        });
+        let redoButton=parentElement.find(".redo");
+        $(redoButton).off("click").on("click",function () {
+            undoAction("redo",graph);
+        });
     }
     
     

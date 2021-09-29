@@ -41,7 +41,7 @@
     }
 
     function defaultExample (name, graph, animationObj, isDirected, vertexRad) {
-        graph.init(name+" .graph",5,isDirected,true);
+        graph.init(name+" .graph",5,isDirected);
         let edgeList;
         if (isDirected===false) edgeList=[[0,1],[0,2],[0,3],[0,4],[1,2]];
         else edgeList=[[0,1],[0,2],[0,3],[0,4],[1,2],[1,4],[2,3],[3,1]];
@@ -73,7 +73,7 @@
             animationObj.clear();
             $(name+" .default").show();
             output.html($(this).val());
-            graph.init(name+" .graph",parseInt($(this).val()),isDirected,true);
+            graph.init(name+" .graph",parseInt($(this).val()),isDirected);
             graph.drawNewGraph(1,1,299,299,vertexRad,true);
         });
 
@@ -95,7 +95,7 @@
     function initExample (part) {
         if (part==1) {
             let graph = new Graph();
-            graph.init(".graphExample1",6,false,false);
+            graph.init(".graphExample1",6,false);
             graph.buildEdgeDataStructures([[0,1],[0,2],[3,4]]);
             graph.n=6;
             graph.drawNewGraph(1,1,299,299,30,false);
@@ -114,7 +114,7 @@
         }
         else if (part==3) {
             let graph = new Graph();
-            graph.init(".graphExample4",4,true,false);
+            graph.init(".graphExample4",4,true);
             graph.buildEdgeDataStructures([[0,1],[0,2],[1,3],[2,3]]);
             graph.drawNewGraph(1,1,299,299,40,false);
         }

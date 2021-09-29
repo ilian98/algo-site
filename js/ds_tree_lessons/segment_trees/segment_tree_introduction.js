@@ -258,7 +258,7 @@
         if (part==2) {
             let tree=new Graph();
             let exampleName=".segTreeExample1";
-            tree.init(exampleName+" .treeExample .graph",8,false,true,true);
+            tree.init(exampleName+" .treeExample .graph",8,false,true);
             let elements=[];
             $(exampleName+" .default").off("click").on("click",defaultExample.bind(this,exampleName,tree,elements));
             $(exampleName+" .make").off("click").on("click",makeSegTree.bind(this,exampleName,tree,elements,undefined));
@@ -271,7 +271,7 @@
         else if (part==3) {
             let tree1=new Graph();
             let exampleName1=".segTreeExample2";
-            tree1.init(exampleName1+" .treeExample .graph",8,false,true,true);
+            tree1.init(exampleName1+" .treeExample .graph",8,false,true);
             let animationObj1=new Animation();
             let elements1=[];
             $(exampleName1+" .default").off("click").on("click",defaultExample.bind(this,exampleName1,tree1,elements1,animationObj1));
@@ -286,7 +286,7 @@
 
             let tree2=new Graph();
             let exampleName2=".segTreeExample3";
-            tree2.init(exampleName2+" .treeExample .graph",8,false,true,true);
+            tree2.init(exampleName2+" .treeExample .graph",8,false,true);
             let animationObj2=new Animation();
             let elements2=[];
             $(exampleName2+" .default").off("click").on("click",defaultExample.bind(this,exampleName2,tree2,elements2,animationObj2));
@@ -301,7 +301,7 @@
         else if (part==4) {
             let tree=new Graph();
             let exampleName=".segTreeExample4";
-            tree.init(exampleName+" .treeExample .graph",1,false,true,true);
+            tree.init(exampleName+" .treeExample .graph",1,false,true);
             let elements=[];
             $(exampleName+" .default").off("click").on("click",defaultExample.bind(this,exampleName,tree,elements));
             $(exampleName+" .add").off("click").on("click",addPoint.bind(this,exampleName,tree));

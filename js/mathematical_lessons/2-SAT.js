@@ -4,7 +4,7 @@
     function initExample (part) {
         part--;
         graphs[part] = new Graph();
-        graphs[part].init(".twoSATexample"+part+" .graphExample .graph",5,true,true);
+        graphs[part].init(".twoSATexample"+part+" .graphExample .graph",5,true);
         if (part===1) {
             $(".twoSATexample1 .formula").val("(a||b)&&(a||!c)&&(!a||!b)");
             $(".twoSATexample1 .make").on("click",makeImplicationGraph.bind(this,1));
