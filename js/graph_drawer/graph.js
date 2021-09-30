@@ -94,6 +94,30 @@
         let underBaseline=bBox.y2;
         return height/2-underBaseline;
     }
+    
+    function getObjectForCoordinates (event) {
+        if (window.isMobile==="false") return event;
+        else if (event.changedTouches!==undefined) return event.changedTouches[0];
+        else if (event.touches!==undefined) return event.touches[0];
+    }
+    function dropdownMenu (mainObj, name, place = ["down", "left"]) {
+        let dropdown=mainObj.parent().find(name);
+        let bodyOffsets=document.body.getBoundingClientRect();
+        let obj=getObjectForCoordinates(event);
+        dropdown.css({
+            "top": obj.pageY-((place[0]==="up")?dropdown.outerHeight():0),
+            "left": obj.pageX-bodyOffsets.left-((place[1]==="right")?dropdown.outerWidth():0)
+        });
+        dropdown.addClass("show");
+        let clicks=0;
+        $(window).off("click.remove-dropdown-menu").on("click.remove-dropdown-menu",function () {
+            clicks++;
+            if (clicks===1) return ;
+            $(window).off("click.remove-dropdown-menu");
+            dropdown.removeClass("show");
+        });
+        return dropdown;
+    }
 
     function Vertex (name, css=["",""]) {
         this.name=name;
@@ -150,10 +174,13 @@
                 this.s=Snap(svgName);
             }
             this.erase();
+            this.undoStack=[]; this.undoTime=0; this.redoStack=[]; this.redoTime=0;
             this.svgVertices=[]; this.svgEdges=[];
 
             if (n!==undefined) this.n=n;
+            this.vertices=[];
             this.initVertices(this.n);
+            this.undoStack.pop();
             for (let i=0; i<this.n; i++) {
                 this.vertices[i].name=(i+1).toString();
             }
@@ -171,17 +198,52 @@
             if (isTree!==undefined) this.isTree=isTree;
             else this.isTree=false;
             
-            addSaveFunctionality(svgName);
+            addSaveFunctionality(svgName,this);
+            addImportFunctionality(svgName,this);
             this.graphChange=graphChange;
-            this.undoStack=[]; this.undoTime=0; this.redoStack=[]; this.redoTime=0;
             addUndoFunctionality(svgName,this);
         }
 
-        this.initVertices = function (n) {
+        function convertVertexToList (vertex) {
+            return [vertex.name,[vertex.addedCSS[0], vertex.addedCSS[1]]];
+        }
+        this.convertSimpleVertexList = function () {
+            let vers=[];
+            for (let vertex of this.vertices) {
+                if (vertex===undefined) {
+                    vers.push(undefined);
+                    continue;
+                }
+                vers.push(convertVertexToList(vertex));
+            }
+            return vers;
+        }
+        this.initVertices = function (n, vers, undoType) {
+            let undoObj={type: "vertex-list", data: [this.n, this.convertSimpleVertexList()]};
+            if ((undoType===undefined)||(undoType==="redo")) {
+                undoObj.time=this.undoTime;
+                this.undoStack.push(undoObj);
+                this.undoTime++;
+                if (undoType===undefined) this.redoStack=[];
+            }
+            else {
+                undoObj.time=this.redoTime;
+                this.redoStack.push(undoObj);
+                this.redoTime++;
+            }
+            
             this.n=n; this.vertices=[];
             for (let i=0; i<this.n; i++) {
-                this.vertices[i]=new Vertex();
+                if ((vers===undefined)||(vers.length===0)) {
+                    this.vertices[i]=new Vertex();
+                    continue;
+                }
+                if (vers[i]===undefined) this.vertices[i]=undefined;
+                else this.vertices[i]=new Vertex(vers[i][0],vers[i][1]);
             }
+        }
+        this.initSvgVertex = function (x) {
+            this.svgVertices[x]=new SvgVertex();
         }
 
         function convertEdgeToList (edge) {
@@ -199,7 +261,7 @@
             return edges;
         }
         this.buildEdgeDataStructures = function (edges, undoType) {
-            let undoObj={type: "edge-list", data: [this.n, this.convertSimpleEdgeList()]};
+            let undoObj={type: "edge-list", data: this.convertSimpleEdgeList()};
             if ((undoType===undefined)||(undoType==="redo")) {
                 undoObj.time=this.undoTime;
                 this.undoStack.push(undoObj);
@@ -279,7 +341,7 @@
         }
 
         this.frameX=undefined; this.frameY=undefined; this.frameW=undefined; this.frameH=undefined; this.vertexRad=20;
-        this.isDrawable=undefined; this.calcPositions=undefined;
+        this.calcPositions=undefined;
         this.drawNewGraph = function (frameX, frameY, frameW, frameH, vertexRad, addDraw = false) {
             this.erase();
 
@@ -288,17 +350,6 @@
                 this.frameW=frameW; this.frameH=frameH;
             }
             if (vertexRad!==undefined) this.vertexRad=vertexRad;
-            this.svgVertices=[];
-            for (let i=0; i<this.n; i++) {
-                if (this.vertices[i]===undefined) continue;
-                this.svgVertices[i]=new SvgVertex();
-            }
-            this.svgEdges=[];
-            for (let i=0; i<this.edgeList.length; i++) {
-                if (this.edgeList[i]===undefined) continue;
-                this.svgEdges[i]=new SvgEdge();
-            }
-            this.isDrawable=addDraw;
             if (this.calcPositions===undefined) this.calcPositions=new CalcPositions(this);
             this.calcPositions.init();
             this.undoStack.pop(); this.redoStack=[];
@@ -530,7 +581,7 @@
         this.findStrokeWidth = function (vertexRad = this.vertexRad) {
             return vertexRad/20*1.5;
         }
-        this.drawableGraph=undefined;
+        this.isDrawable=undefined; this.drawableGraph=undefined; 
         this.draw = function (addDraw, animateDraw = true) { /// this functions expects that coordinates are already calculated
             let oldVersCoords=[],changedVers=[],cntAnimations=0;
             let oldRad=this.vertexRad;
@@ -552,7 +603,7 @@
                         }
                         else changedVers[i]=false;
                     }
-                    else changedVers[i]=false;
+                    else oldVersCoords[i]=undefined, changedVers[i]=false;
                 }
                 for (let i=0; i<this.edgeList.length; i++) {
                     if ((this.svgEdges[i]!==undefined)&&(this.svgEdges[i].line!==undefined)) {
@@ -561,8 +612,9 @@
                             oldWeightsPaths[i]=this.s.select(this.svgEdges[i].weight.textPath.attr("href")).attr("d");
                             oldDy[i]=this.svgEdges[i].weight.attr("dy");
                         }
+                        else oldWeightsPaths[i]=undefined;
                     }
-                    else oldEdgesPaths[i]=undefined;
+                    else oldEdgesPaths[i]=undefined, oldWeightsPaths[i]=undefined;
                 }
             }
             
@@ -609,12 +661,13 @@
                 edgeMapCurr.set(code,val);
                 
                 if (animateDraw===true) {
-                    if ((oldEdgesPaths[i]===undefined)&&((changedVers[x]===true)||(changedVers[y]===true))) {
+                    if ((oldVersCoords[x]!==undefined)&&(oldVersCoords[y]!==undefined)&&
+                        ((changedVers[x]===true)||(changedVers[y]===true))) {
                         let st=[oldVersCoords[x].x+this.vertexRad,oldVersCoords[x].y+this.vertexRad];
                         let end=[oldVersCoords[y].x+this.vertexRad,oldVersCoords[y].y+this.vertexRad];
                         this.redrawEdge(this.svgEdges[i],st,end,i);
-                        oldEdgesPaths[i]=this.svgEdges[i].line.attr("d");
-                        if (this.svgEdges[i].weight!==undefined) {
+                        if (oldEdgesPaths[i]===undefined) oldEdgesPaths[i]=this.svgEdges[i].line.attr("d");
+                        if ((oldWeightsPaths[i]===undefined)&&(this.svgEdges[i].weight!==undefined)) {
                             oldWeightsPaths[i]=this.s.select(this.svgEdges[i].weight.textPath.attr("href")).attr("d");
                             oldDy[i]=this.svgEdges[i].weight.attr("dy");
                         }
@@ -630,7 +683,7 @@
                             animationsEnd.call(graph);
                         }.bind(this.svgEdges[i].line,this));
                         
-                        if (this.svgEdges[i].weight!==undefined) {
+                        if ((oldWeightsPaths[i]!==undefined)&&(this.svgEdges[i].weight!==undefined)) {
                             cntAnimations++;
                             let weightPath=this.s.select(this.svgEdges[i].weight.textPath.attr("href"));
                             let currWeightPath=weightPath.attr("d");
@@ -665,6 +718,9 @@
                     this.svgVertices[i].group.animate({transform: "t 0 0"},500,animationsEnd.bind(this));
                 }
             }
+            for (let i=this.n; i<this.svgVertices.length; i++) {
+                this.svgVertices[i]=undefined;
+            }
             
             if ((animateDraw===true)&&(this.vertexRad!=oldRad)) {          
                 cntAnimations++;
@@ -696,6 +752,7 @@
             function animationsEnd () {
                 cntAnimations--;
                 if (cntAnimations<=0) {
+                    this.isDrawable=addDraw;
                     if (addDraw===true) {
                         if (this.drawableGraph===undefined) this.drawableGraph=new DrawableGraph(this);
                         this.drawableGraph.init();
@@ -748,7 +805,7 @@
             
             this.adjMatrix[edge.x][edge.y].splice(this.adjMatrix[edge.x][edge.y].indexOf(index),1);
             this.adjList[edge.x].splice(this.adjList[edge.x].indexOf(index),1);
-            if (this.isDirected===false) {
+            if ((this.isDirected===false)&&(edge.x!==edge.y)) {
                 this.adjMatrix[edge.y][edge.x].splice(this.adjMatrix[edge.y][edge.x].indexOf(index),1);
                 this.adjList[edge.y].splice(this.adjList[edge.y].indexOf(index),1);
             }
@@ -828,11 +885,63 @@
             this.svgVertices[x].group.remove();
             this.svgVertices[x]=undefined;
             this.vertices[x]=undefined;
-            if (x===this.n-1) this.n--;
+            if (x===this.n-1) {
+                this.n--;
+                this.vertices.pop();
+            }
+        }
+        
+        this.export = function () {
+            let edges=[];
+            for (let i=0; i<this.edgeList.length; i++) {
+                if (this.edgeList[i]===undefined) continue;
+                let info=[this.edgeList[i].x+1, this.edgeList[i].y+1];
+                if (this.edgeList[i].weight!=="") info.push(this.edgeList[i].weight);
+                if ((this.edgeList[i].addedCSS[0]!=="")||(this.edgeList[i].addedCSS[1]!=="")) {
+                    info.push("[["+this.edgeList[i].addedCSS[0]+"],["+this.edgeList[i].addedCSS[1]+"]]");
+                }
+                if (this.edgeList[i].curveHeight!==undefined) info.push("["+this.edgeList[i].curveHeight+"]");
+                edges.push(info);
+            }
+            let text=this.n+" "+edges.length+"\n";
+            for (let edge of edges) {
+                for (let data of edge) {
+                    text+=data+" ";
+                }
+                text+="\n";
+            }
+            text+="\n";
+            
+            let vers=[];
+            for (let i=0; i<this.n; i++) {
+                if (this.vertices[i]===undefined) continue;
+                let info=[(i+1).toString(),"["+this.svgVertices[i].coord[0]+","+this.svgVertices[i].coord[1]+"]"];
+                if (this.vertices[i].name!==info[0]) info.push(this.vertices[i].name);
+                if ((this.vertices[i].addedCSS[0]!=="")||(this.vertices[i].addedCSS[1]!=="")) {
+                    info.push("[["+this.vertices[i].addedCSS[0]+"],["+this.vertices[i].addedCSS[1]+"]]");
+                }
+                vers.push(info);
+            }
+            text+=vers.length+"\n";
+            for (let v of vers) {
+                for (let data of v) {
+                    text+=data+" ";
+                }
+                text+="\n";
+            }
+            text+="\n";
+            
+            if (this.isDirected===true) text+="Directed\n";
+            else text+="Undirected\n";
+            if (this.isWeighted===true) text+="Weighted\n";
+            if (this.isMulti===true) text+="Multigraph\n";
+            if (this.isTree===true) text+="Tree\n";
+            
+            return text;
         }
     }
 
-    function addSaveFunctionality (svgName) {
+    function addSaveFunctionality (svgName, graph) {
         let parentElement=$(svgName).parent();
         let canvas=parentElement.children(".canvas-save");
         canvas.hide();
@@ -841,28 +950,88 @@
 
         for (let saveButton of parentElement.find(".save")) {
             $(saveButton).off("click").on("click",function () {
-                let context=canvas[0].getContext('2d');
-                let svg=parentElement.children(".graph");
-                let svgWidth=svg.width(),svgHeight=svg.height();
-                svgSave.attr("width",svgWidth);
-                svgSave.attr("height",svgHeight);
+                let dropdown=dropdownMenu($(saveButton).parent(),".dropdown-menu.save-menu",["up", "right"]);
+                dropdown.find(".png").off("click").on("click",function () {
+                    dropdown.find(".png").off("click");
+                    dropdown.removeClass("show");
+                    
+                    let context=canvas[0].getContext('2d');
+                    let svg=parentElement.children(".graph");
+                    let svgWidth=2*svg.width(),svgHeight=2*svg.height();
+                    svgSave.attr("width",svgWidth);
+                    svgSave.attr("height",svgHeight);
 
-                $(svgName).clone().appendTo(svgSave);
-                canvas.prop("width",svgWidth);
-                canvas.prop("height",svgHeight);
+                    $(svgName).clone().appendTo(svgSave);
+                    canvas.prop("width",svgWidth);
+                    canvas.prop("height",svgHeight);
 
-                svgSave.show();
-                let svgString=(new XMLSerializer()).serializeToString(svgSave[0]);
-                svgSave.hide();
+                    svgSave.show();
+                    let svgString=(new XMLSerializer()).serializeToString(svgSave[0]);
+                    svgSave.hide();
 
-                let image=$("<img>").prop("src","data:image/svg+xml; charset=utf8, "+encodeURIComponent(svgString));
-                image.on("load", function () {
-                    context.drawImage(image[0],0,0);
-                    let imageURI=canvas[0].toDataURL('image/png').replace('image/png','image/octet-stream');
-                    $("<a>").prop("download","graph.png")
-                        .prop("href",imageURI)
-                        .prop("target",'_blank')[0].click();
-                    $(svgSave).empty();
+                    let image=$("<img>").prop("src","data:image/svg+xml; charset=utf8, "+encodeURIComponent(svgString));
+                    image.on("load", function () {
+                        context.drawImage(image[0],0,0);
+                        let imageURI=canvas[0].toDataURL('image/png').replace('image/png','image/octet-stream');
+                        $("<a>").prop("download","graph.png")
+                            .prop("href",imageURI)
+                            .prop("target","_blank")[0].click();
+                        $(svgSave).empty();
+                    });
+                });
+                
+                dropdown.find(".svg").off("click").on("click",function () {
+                    dropdown.find(".svg").off("click");
+                    dropdown.removeClass("show");
+                    
+                    $(".click-area").hide();
+                    let svg=parentElement.children(".graph")[0];
+                    svg.setAttribute("xmlns","http://www.w3.org/2000/svg");
+                    let svgData=svg.outerHTML.replaceAll("cursor: pointer;","")
+                        .replace("border-style: dotted","border-style: none");
+                    let preface='<?xml version="1.0" standalone="no"?>\r\n';
+                    let svgBlob=new Blob([preface, svgData], {type: "image/svg+xml;charset=utf-8"});
+                    let svgURL=URL.createObjectURL(svgBlob);
+                    console.log(URL.createObjectURL(svgBlob));
+                    $("<a>").prop("download","graph.svg")
+                        .prop("href",svgURL)
+                        .prop("target","_black")[0].click();
+                    $(".click-area").show();
+                });
+                
+                dropdown.find(".edge-list").off("click").on("click", function () {
+                    dropdown.find(".edge-list").off("click");
+                    dropdown.removeClass("show");
+                    
+                    let vers=0;
+                    for (let vertex of graph.vertices) {
+                        if (vertex===undefined) continue;
+                        vers++;
+                    }
+                    let edges=[];
+                    for (let edge of graph.edgeList) {
+                        if (edge===undefined) continue;
+                        if (edge.weight==="") edges.push([graph.vertices[edge.x].name,graph.vertices[edge.y].name]);
+                        else edges.push([graph.vertices[edge.x].name,graph.vertices[edge.y].name,edge.weight]);
+                    }
+                    let text=vers+" "+edges.length+"\n";
+                    for (let edge of edges) {
+                        text+=edge[0]+" "+edge[1];
+                        if (edge.length===3) text+=" "+edge[2];
+                        text+="\n";
+                    }
+                    $("<a>").prop("download","edge_list.txt")
+                        .prop("href","data:text/plain;charset=utf-8,"+encodeURIComponent(text))
+                        .prop("target","_black")[0].click();
+                });
+                
+                dropdown.find(".txt").off("click").on("click", function () {
+                    dropdown.find(".txt").off("click");
+                    dropdown.removeClass("show");
+                    
+                    $("<a>").prop("download","graph.txt")
+                        .prop("href","data:text/plain;charset=utf-8,"+encodeURIComponent(graph.export()))
+                        .prop("target","_black")[0].click();
                 });
             });
         }
@@ -890,21 +1059,9 @@
             let curr=stack[stack.length-1];
             if (curr.time!==currTime) break;
             stack.pop();
-            if (curr.type==="edge-list") {
-                graph.n=curr.data[0];
-                graph.buildEdgeDataStructures(curr.data[1],undoType);
-            }
-            else if (curr.type==="new-positions") {
-                let currCoords=[];
-                let coords=curr.data[1];
-                for (let i=0; i<graph.n; i++) {
-                    if (graph.vertices[i]===undefined) continue;
-                    currCoords[i]=[graph.svgVertices[i].coord[0], graph.svgVertices[i].coord[1]];
-                    graph.svgVertices[i].coord=coords[i];
-                }
-                pushOther(curr.type,[graph.calcPositions.originalPos.slice(), currCoords]);
-                graph.calcPositions.originalPos=curr.data[0];
-            }
+            if (curr.type==="vertex-list") graph.initVertices(curr.data[0],curr.data[1],undoType);
+            else if (curr.type==="edge-list") graph.buildEdgeDataStructures(curr.data,undoType);
+            else if (curr.type==="new-positions") graph.calcPositions.changePositions(curr.data[0],curr.data[1],undoType);
             else {
                 let ind=curr.data[0];
                 if (curr.type==="new-pos") {
@@ -941,8 +1098,30 @@
                     pushOther(curr.type,[ind, graph.edgeList[ind].weight]);
                     graph.edgeList[ind].weight=curr.data[1];
                 }
+                else if (curr.type==="change-property") {
+                    let type=curr.data[0];
+                    if (type==="isDirected") {
+                        pushOther(curr.type,[type, !curr.data[1]]);
+                        graph.isDirected=curr.data[1];
+                    }
+                    else if (type==="isTree") {
+                        pushOther(curr.type,[type, !curr.data[1]]);
+                        graph.isTree=curr.data[0];
+                    }
+                    else if (type==="isWeighted") {
+                        pushOther(curr.type,[type, !curr.data[1]]);
+                        graph.isWeighted=curr.data[1];
+                    }
+                    else if (type==="isMulti") {
+                        pushOther(curr.type,[type, !curr.data[1]]);
+                        graph.isMulti=curr.data[1];
+                    }
+                    else if (type==="radius") {
+                        pushOther(curr.type,[type, graph.vertexRad]);
+                        graph.vertexRad=parseInt(curr.data[1]);
+                    }
+                }
             }
-            
             if (undoType==="undo") graph.redoTime--;
             else graph.undoTime--;
         }
@@ -964,9 +1143,243 @@
         });
     }
     
+    function removeEmpty (strings) {
+        let res=[];
+        for (let i=0; i<strings.length; i++) {
+            if (strings[i].length===0) continue;
+            res.push(strings[i]);
+        }
+        return res;
+    }
+    function getTokens (s) {
+        s=s.split("");
+        let cnt=0;
+        for (let i=0; i<s.length; i++) {
+            if (s[i]==='[') cnt++;
+            else if (s[i]===']') cnt--;
+            else if ((s[i]===' ')&&(cnt>0)) s[i]='\x00'; // escaping spaces
+        }
+        s=s.join("");
+        let tokens=s.split(" ");
+        for (let i=0; i<tokens.length; i++) {
+            let token=tokens[i].split("");
+            for (let j=0; j<token.length; j++) {
+                if (token[j]==='\x00') token[j]=' ';
+            }
+            tokens[i]=token.join("");
+        }
+        return tokens;
+    }
+    function addImportFunctionality (svgName, graph) {
+        let parentElement=$(svgName).parent();
+        let importButton=parentElement.find(".import");
+        let input=parentElement.find(".input-file");
+        input.hide();
+        $(importButton).off("click").on("click",function () {
+            input.click();
+        });
+        input.off("change").on("change",function (event) {
+            if (event.target.files.length===0) return ;
+            let reader=new FileReader();
+            reader.onload = function (event) {
+                let text=event.target.result;
+                let lines=removeEmpty(text.split("\n"));
+                let nums=removeEmpty(lines[0].split(" "));
+                if (nums.length!==2) {
+                    alert("Очаквани са две числа за максимален номер на връх и брой ребра при: "+lines[0]);
+                    return ;
+                }
+                let n=parseInt(nums[0]),m=parseInt(nums[1]);
+                if (n<1) {
+                    alert("Очакван е положителен максимален номер на връх при: "+lines[0]);
+                    return ;
+                }
+                let curr=1,edges=[];
+                for (let i=1; i<=m; i++) {
+                    if (lines.length===curr) {
+                        alert("Има липсващи ребра!");
+                        return ;
+                    }
+                    let tokens=removeEmpty(getTokens(lines[curr]));
+                    if (tokens.length<2) {
+                        alert("Трябват поне върхове за реброто: "+lines[curr]);
+                        return ;
+                    }
+                    let x=parseInt(tokens[0]),y=parseInt(tokens[1]);
+                    if (!((x>=1)&&(x<=n)&&(y>=1)&&(y<=n))) {
+                        alert("Невалиден номер на връх за: "+lines[curr]);
+                        return ;
+                    }
+                    let weight="",addedCSS=["",""],curveHeight=undefined;
+                    if (tokens.length>=3) {
+                        let ind=2;
+                        if (tokens[ind][0]!=='[') weight=tokens[ind++];
+                        if (tokens.length>ind) {
+                            if ((tokens[ind][0]!=='[')||(tokens[ind][tokens[ind].length-1]!==']')) {
+                                alert("Очаква се свойството да е оградено от квадратни скоби при: "+lines[curr]);
+                                return ;
+                            }
+                            if (tokens[ind][1]!='[') curveHeight=parseFloat(tokens[ind].slice(1,tokens[ind].length-1));
+                            else {
+                                let css=removeEmpty(tokens[ind].split(","));
+                                if (css.length!==2) {
+                                    alert("Очаква се да има два CSS-а, разделени със запетайка при: "+lines[curr]);
+                                    return ;
+                                }
+                                addedCSS[0]=css[0].slice(2,css[0].length-1);
+                                addedCSS[1]=css[1].slice(1,css[1].length-2);
+                                ind++;
+                                if (tokens.length>ind) {
+                                    if ((tokens[ind][0]!=='[')||(tokens[ind][tokens[ind].length-1]!==']')) {
+                                        alert("Очаква се свойството да е оградено от квадратни скоби при: "+lines[curr]);
+                                        return ;
+                                    }
+                                    curveHeight=parseFloat(tokens[ind].slice(1,tokens[ind].length-1));
+                                    ind++;
+                                    if (tokens.length>ind) {
+                                        alert("Твърде много свойства при: "+lines[curr]);
+                                        return ;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    edges.push([x-1,y-1,weight,addedCSS,curveHeight]);
+                    curr++;
+                }
+                
+                let vers=[],flagCoords=false,versCoord=[];
+                if ((lines.length>curr)&&(lines[curr][0]>='0')&&(lines[curr][0]<='9')) {
+                    let num=removeEmpty(lines[curr].split(" "));
+                    if (num.length!==1) {
+                        alert("Очаквано е само едно число за брой върхове при: "+lines[curr]);
+                        return ;
+                    }
+                    curr++;
+                    for (let i=1; i<=n; i++) {
+                        vers.push(undefined);
+                        versCoord.push(undefined);
+                    }
+                    flagCoords=true;
+                    for (let i=1; i<=num[0]; i++) {
+                        if (lines.length===curr) {
+                            alert("Има липсваща информация за връх!");
+                            return ;
+                        }
+                        let tokens=removeEmpty(getTokens(lines[curr]));
+                        if (tokens.length<1) {
+                            alert("Трябва поне номер на връх: "+lines[curr]);
+                            return ;
+                        }
+                        let x=parseInt(tokens[0]);
+                        if (!((x>=1)&&(x<=n))) {
+                            alert("Невалиден номер на връх за: "+lines[curr]);
+                            return ;
+                        }
+                        let name=x.toString(),coord=undefined,addedCSS=["",""];
+                        if (tokens.length>=2) {
+                            let ind=1;
+                            if (tokens[ind][0]!=='[') name=tokens[ind++];
+                            if (tokens.length>ind) {
+                                if ((tokens[ind][0]!=='[')||(tokens[ind][tokens[ind].length-1]!==']')) {
+                                    alert("Очаква се свойството да е оградено от квадратни скоби при: "+lines[curr]);
+                                    return ;
+                                }
+                                if (tokens[ind][1]!='[') {
+                                    let coords=removeEmpty(tokens[ind].split(","));
+                                    if (coords.length!==2) {
+                                        alert("Очаква се да има две координати, разделени със запетайка при: "+lines[curr]);
+                                        return ;
+                                    }
+                                    coord=[];
+                                    coord[0]=parseFloat(coords[0].slice(1,coords[0].length));
+                                    coord[1]=parseFloat(coords[1].slice(0,coords[1].length-1));
+                                    ind++;
+                                }
+                            
+                                if (tokens.length>ind) {
+                                    if ((tokens[ind][0]!=='[')||(tokens[ind][tokens[ind].length-1]!==']')) {
+                                        alert("Очаква се свойството да е оградено от квадратни скоби при: "+lines[curr]);
+                                        return ;
+                                    }
+                                    let css=removeEmpty(tokens[ind].split(","));
+                                    if (css.length!==2) {
+                                        alert("Очаква се да има два CSS-а, разделени със запетайка при: "+lines[curr]);
+                                        return ;
+                                    }
+                                    addedCSS[0]=css[0].slice(2,css[0].length-1);
+                                    addedCSS[1]=css[1].slice(1,css[1].length-2);
+                                    ind++;
+                                    if (tokens.length>ind) {
+                                        alert("Твърде много свойства при: "+lines[curr]);
+                                        return ;
+                                    }
+                                }
+                            }
+                        }
+                        if (coord===undefined) flagCoords=false;
+                        vers[x-1]=[name,addedCSS];
+                        versCoord[x-1]=coord;
+                        curr++;
+                    }
+                }
+                else {
+                    for (let i=1; i<=n; i++) {
+                        vers.push([i.toString(), ["",""]]);
+                    }
+                }
+                
+                let isDirected=false,isWeighted=false,isMulti=false,isTree=false;
+                for (;;) {
+                    if (lines.length===curr) break;
+                    let words=removeEmpty(lines[curr].split(" "));
+                    if (words.length!==1) {
+                        alert("Очаквано е само една дума, описващо свойство на графа, при: "+lines[curr]);
+                        return ;
+                    }
+                    if (words[0]==="Directed") isDirected=true;
+                    else if (words[0]==="Undirected") isDirected=false;
+                    else if (words[0]==="Weighted") isWeighted=true;
+                    else if (words[0]==="Multigraph") isMulti=true;
+                    else if (words[0]==="Tree") isTree=true;
+                    else {
+                        alert("Неочаквано свойство на графа при: "+lines[curr]);
+                        return ;
+                    }
+                    curr++;
+                }
+                
+                let graphProperties=[graph.isDirected, graph.isTree, graph.isWeighted, graph.isMulti];
+                graph.isDirected=isDirected; graph.isTree=isTree;
+                graph.isWeighted=isWeighted; graph.isMulti=isMulti;
+                graph.initVertices(n,vers); graph.undoTime--;
+                graph.buildEdgeDataStructures(edges); graph.undoTime--;
+                
+                if (graphProperties[0]!=graph.isDirected)
+                    graph.undoStack.push({time: graph.undoTime, type: "change-property", data: ["isDirected", graphProperties[0]]});
+                if (graphProperties[1]!=graph.isTree)
+                    graph.undoStack.push({time: graph.undoTime, type: "change-property", data: ["isTree", graphProperties[1]]});
+                if (graphProperties[2]!=graph.isWeighted)
+                    graph.undoStack.push({time: graph.undoTime, type: "change-property", data: ["isWeighted", graphProperties[2]]});
+                if (graphProperties[3]!=graph.isMulti)
+                    graph.undoStack.push({time: graph.undoTime, type: "change-property", data: ["isMulti", graphProperties[3]]});
+                
+                if (flagCoords===false) graph.calcPositions.init();
+                else graph.calcPositions.changePositions([],versCoord);
+                graph.draw(graph.isDrawable,false);
+                
+                graph.graphChange();
+            }
+            reader.readAsText(event.target.files[0]);
+            $(input).val("");
+        });
+    }
+    
     
     window.Graph=Graph;
     window.segmentLength=segmentLength;
     window.circlePath=circlePath;
+    window.getObjectForCoordinates=getObjectForCoordinates;
+    window.dropdownMenu=dropdownMenu;
     window.determineDy=determineDy;
 })();

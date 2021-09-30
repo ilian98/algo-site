@@ -1,10 +1,5 @@
 "use strict";
 (function () {
-    function getObjectForCoordinates (event) {
-        if (window.isMobile==="false") return event;
-        else if (event.changedTouches!==undefined) return event.changedTouches[0];
-        else if (event.touches!==undefined) return event.touches[0];
-    }
     function checkInteger (s) {
         if (s.length===0) return false;
         for (let c of s) {
@@ -151,6 +146,10 @@
             event.preventDefault();
             
             let x=graph.edgeList[startIndex].x,y=graph.edgeList[startIndex].y;
+            if (x===y) {
+                trackedMouse=true;
+                return ;
+            }
             let st=graph.svgVertices[x].coord,end=graph.svgVertices[y].coord;
             if (trackedMouse===false) {
                 $(graph.svgName).css({"border-color": "black"});
@@ -320,19 +319,7 @@
             obj.removeClass("temp");
         }
         function vertexClick (index, event) {
-            let dropdown=$(graph.svgName).parent().find(".dropdown-menu.vertex");
-            let bodyOffsets=document.body.getBoundingClientRect();
-            let obj=getObjectForCoordinates(event);
-            dropdown.css({"top": obj.pageY, "left": obj.pageX-bodyOffsets.left});
-            dropdown.addClass("show");
-            let clicks=0;
-            $(window).off("click.remove-vertex-menu").on("click.remove-vertex-menu",function () {
-                clicks++;
-                if (clicks===1) return ;
-                $(window).off("click.remove-vertex-menu");
-                dropdown.removeClass("show");
-            });
-            
+            let dropdown=dropdownMenu($(graph.svgName).parent(),".dropdown-menu.vertex");
             dropdown.find(".remove-vertex").off("click").on("click",function () {
                 dropdown.find(".remove-vertex").off("click");
                 for (let ind of graph.adjList[index]) {
@@ -425,21 +412,9 @@
             }
         }
         function edgeClick (index, event) {
-            let dropdown=$(graph.svgName).parent().find(".dropdown-menu.edge");
+            let dropdown=dropdownMenu($(graph.svgName).parent(),".dropdown-menu.edge");
             if (graph.isWeighted===true) dropdown.find(".change-weight").show();
             else dropdown.find(".change-weight").hide();
-            
-            let bodyOffsets=document.body.getBoundingClientRect();
-            let obj=getObjectForCoordinates(event);
-            dropdown.css({"top": obj.pageY, "left": obj.pageX-bodyOffsets.left});
-            dropdown.addClass("show");
-            let clicks=0;
-            $(window).off("click.remove-edge-menu").on("click.remove-edge-menu",function () {
-                clicks++;
-                if (clicks===1) return ;
-                $(window).off("click.remove-edge-menu");
-                dropdown.removeClass("show");
-            });
             
             dropdown.find(".remove-edge").off("click").on("click",function () {
                 dropdown.find(".remove-edge").off("click");
@@ -483,19 +458,7 @@
         }
         
         function weightClick (index, event) {
-            let dropdown=$(graph.svgName).parent().find(".dropdown-menu.weight");
-            let bodyOffsets=document.body.getBoundingClientRect();
-            let obj=getObjectForCoordinates(event);
-            dropdown.css({"top": obj.pageY, "left": obj.pageX-bodyOffsets.left});
-            dropdown.addClass("show");
-            let clicks=0;
-            $(window).off("click.remove-weight-menu").on("click.remove-weight-menu",function () {
-                clicks++;
-                if (clicks===1) return ;
-                $(window).off("click.remove-weight-menu");
-                dropdown.removeClass("show");
-            });
-            
+            let dropdown=dropdownMenu($(graph.svgName).parent(),".dropdown-menu.weight");
             dropdown.find(".change-weight").off("click").on("click",function () {
                 dropdown.find(".change-weight").off("click");
                 changeEdgeWeight(index);
@@ -544,6 +507,7 @@
                 "stroke": "black",
                 "stroke-opacity": 0
             });
+            clickArea.addClass("click-area");
             edgeClickAreas[ind]=clickArea;
             clickArea.prependTo(graph.s);
             if (window.isMobile==="false") {

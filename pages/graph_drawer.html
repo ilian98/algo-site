@@ -114,7 +114,7 @@
                                 <li><a class="dropdown-item unselectable change-weight">Промени теглото</a></li>
                                 <li><a class="dropdown-item unselectable add-css">Сложи CSS стил</a></li>
                             </ul>
-                            <svg class="svg-save" width="100" height="100" viewBox="0 0 300 300"></svg>
+                            <svg class="svg-save" width="100" height="100" viewBox="0 0 150 150"></svg>
                             <canvas class="canvas-save"></canvas>
                             <div class="row">
                                 <div class="col text-start">
@@ -130,11 +130,23 @@
                                     </button>
                                 </div>
                                 <div class="col text-end">
+                                    <input class="input-file" type="file" accept="text/plain"/>
+                                    <button class="btn btn-primary import">
+                                        <svg class="bi" width="24px" height="24px" fill="currentColor">
+                                            <use xlink:href="/algo-site/node_modules/bootstrap-icons/bootstrap-icons.svg#box-arrow-in-up"/>
+                                        </svg>
+                                    </button>
                                     <button class="btn btn-primary save">
                                         <svg class="bi" width="24px" height="24px" fill="currentColor">
                                             <use xlink:href="/algo-site/node_modules/bootstrap-icons/bootstrap-icons.svg#download"/>
                                         </svg>
                                     </button>
+                                    <ul class="dropdown-menu save-menu">
+                                        <li><a class="dropdown-item unselectable txt">Изтегли като txt</a></li>
+                                        <li><a class="dropdown-item unselectable edge-list">Изтегли като сп. на ребрата</a></li>
+                                        <li><a class="dropdown-item unselectable svg">Изтегли като svg</a></li>
+                                        <li><a class="dropdown-item unselectable png">Изтегли като png</a></li>
+                                    </ul>
                                 </div>
                             </div>
                         </div>
