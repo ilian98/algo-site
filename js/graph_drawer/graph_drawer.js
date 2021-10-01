@@ -278,6 +278,7 @@
                         data: [ind, [oldCoords[0], oldCoords[1]]]
                     });
                     graph.undoTime++;
+                    graph.redoStack=[];
                 }
                 
                 graph.draw(true,false);
@@ -300,6 +301,7 @@
                     data: [startIndex, oldCurveHeight],
                 });
                 graph.undoTime++;
+                graph.redoStack=[];
             }
             
             graph.edgeList[startIndex].curveHeight=height;
@@ -319,7 +321,7 @@
             obj.removeClass("temp");
         }
         function vertexClick (index, event) {
-            let dropdown=dropdownMenu($(graph.svgName).parent(),".dropdown-menu.vertex");
+            let dropdown=dropdownMenu(".dropdown-menu.vertex",event);
             dropdown.find(".remove-vertex").off("click").on("click",function () {
                 dropdown.find(".remove-vertex").off("click");
                 for (let ind of graph.adjList[index]) {
@@ -412,7 +414,7 @@
             }
         }
         function edgeClick (index, event) {
-            let dropdown=dropdownMenu($(graph.svgName).parent(),".dropdown-menu.edge");
+            let dropdown=dropdownMenu(".dropdown-menu.edge",event);
             if (graph.isWeighted===true) dropdown.find(".change-weight").show();
             else dropdown.find(".change-weight").hide();
             
@@ -458,7 +460,7 @@
         }
         
         function weightClick (index, event) {
-            let dropdown=dropdownMenu($(graph.svgName).parent(),".dropdown-menu.weight");
+            let dropdown=dropdownMenu(".dropdown-menu.weight",event);
             dropdown.find(".change-weight").off("click").on("click",function () {
                 dropdown.find(".change-weight").off("click");
                 changeEdgeWeight(index);

@@ -63,15 +63,32 @@
                         <p class="text-format">Има два интерактивни примера - за неориентиран и ориентиран граф. Обхождането винаги започва от върха с номер 1, като може да се задават брой върхове от 1 до 9 и да се свързват два върха с ребро, като се влачи реброто от единия до другия. Може да се задава ускорение от 1 до 9, както и по време на анимацията да се превърта на предишна или следваща стъпка.</p>
                         <div class="row" style="width: 75%">
                             <div class="col-sm" style="margin-bottom: 2vh">
+                                <ul class="dropdown-menu vertex" tabindex="-1">
+                                    <li><a class="dropdown-item unselectable remove-vertex">Изтрий върха</a></li>
+                                    <li><a class="dropdown-item unselectable change-name">Промени името</a></li>
+                                    <li><a class="dropdown-item unselectable add-css">Сложи CSS стил</a></li>
+                                    <li><a class="dropdown-item unselectable add-css-name">Сложи CSS стил на името</a></li>
+                                </ul>
+                                <ul class="dropdown-menu edge" tabindex="-1">
+                                    <li><a class="dropdown-item unselectable remove-edge">Изтрий реброто</a></li>
+                                    <li><a class="dropdown-item unselectable change-weight">Промени теглото</a></li>
+                                    <li><a class="dropdown-item unselectable add-css">Сложи CSS стил</a></li>
+                                </ul>
+                                <ul class="dropdown-menu save-menu" tabindex="-1">
+                                    <li><a class="dropdown-item unselectable txt">Изтегли като txt</a></li>
+                                    <li><a class="dropdown-item unselectable edge-list">Изтегли като сп. на ребрата</a></li>
+                                    <li><a class="dropdown-item unselectable svg">Изтегли като svg</a></li>
+                                    <li><a class="dropdown-item unselectable png">Изтегли като png</a></li>
+                                </ul>
                                 <div class="graphExample2">
                                     <button class="btn btn-primary start">Старт!</button>
                                     <button class="btn btn-primary default" style="margin-bottom: 5%">Начален пример</button>
-                                    <button class="btn btn-primary next">
+                                    <button class="btn btn-primary next" title="Следваща стъпка">
                                         <svg class="bi" width="20px" height="20px" fill="currentColor">
                                             <use xlink:href="/algo-site/node_modules/bootstrap-icons/bootstrap-icons.svg#skip-end-fill"/>
                                         </svg>
                                     </button>
-                                    <button class="btn btn-primary previous">
+                                    <button class="btn btn-primary previous" title="Предишна стъпка">
                                         <svg class="bi" width="20px" height="20px" fill="currentColor">
                                             <use xlink:href="/algo-site/node_modules/bootstrap-icons/bootstrap-icons.svg#skip-start-fill"/>
                                         </svg>
@@ -85,20 +102,9 @@
                                         <span class="slider-value" style="color: red; font-weight: bold"></span>
                                     </div>
                                     <svg class="graph" width="100%" viewBox="0 0 300 300" style="margin-top: 2%"></svg>
-                                    <ul class="dropdown-menu vertex">
-                                        <li><a class="dropdown-item unselectable remove-vertex">Изтрий върха</a></li>
-                                        <li><a class="dropdown-item unselectable change-name">Промени името</a></li>
-                                        <li><a class="dropdown-item unselectable add-css">Сложи CSS стил</a></li>
-                                        <li><a class="dropdown-item unselectable add-css-name">Сложи CSS стил на името</a></li>
-                                    </ul>
-                                    <ul class="dropdown-menu edge">
-                                        <li><a class="dropdown-item unselectable remove-edge">Изтрий реброто</a></li>
-                                        <li><a class="dropdown-item unselectable change-weight">Промени теглото</a></li>
-                                        <li><a class="dropdown-item unselectable add-css">Сложи CSS стил</a></li>
-                                    </ul>
                                     <svg class="svg-save" width="100" height="100" viewBox="0 0 150 150"></svg>
                                     <canvas class="canvas-save"></canvas>
-                                    <button class="btn btn-primary save" style="float: right">
+                                    <button class="btn btn-primary save" style="float: right" title="Изтегли графа">
                                         <svg class="bi" width="24px" height="24px" fill="currentColor">
                                             <use xlink:href="/algo-site/node_modules/bootstrap-icons/bootstrap-icons.svg#download"/>
                                         </svg>
@@ -109,7 +115,7 @@
                                             <input class="form-control speed" maxLength="1"/>
                                         </div>
                                         <div class="col-auto ms-auto">
-                                            <button class="btn btn-primary save">
+                                            <button class="btn btn-primary save" title="Изтегли графа">
                                                 <svg class="bi" width="24px" height="24px" fill="currentColor">
                                                     <use xlink:href="/algo-site/node_modules/bootstrap-icons/bootstrap-icons.svg#download"/>
                                                 </svg>
@@ -123,12 +129,12 @@
                                 <div class="graphExample3">
                                     <button class="btn btn-primary start">Старт!</button>
                                     <button class="btn btn-primary default" style="margin-bottom: 5%">Начален пример</button>
-                                    <button class="btn btn-primary next">
+                                    <button class="btn btn-primary next" title="Следваща стъпка">
                                         <svg class="bi" width="20px" height="20px" fill="currentColor">
                                             <use xlink:href="/algo-site/node_modules/bootstrap-icons/bootstrap-icons.svg#skip-end-fill"/>
                                         </svg>
                                     </button>
-                                    <button class="btn btn-primary previous">
+                                    <button class="btn btn-primary previous" title="Предишна стъпка">
                                         <svg class="bi" width="20px" height="20px" fill="currentColor">
                                             <use xlink:href="/algo-site/node_modules/bootstrap-icons/bootstrap-icons.svg#skip-start-fill"/>
                                         </svg>
@@ -142,20 +148,9 @@
                                         <span class="slider-value" style="color: red; font-weight: bold"></span>
                                     </div>
                                     <svg class="graph" width="100%" viewBox="0 0 300 300" style="margin-top: 2%"></svg>
-                                    <ul class="dropdown-menu vertex">
-                                        <li><a class="dropdown-item unselectable remove-vertex">Изтрий върха</a></li>
-                                        <li><a class="dropdown-item unselectable change-name">Промени името</a></li>
-                                        <li><a class="dropdown-item unselectable add-css">Сложи CSS стил</a></li>
-                                        <li><a class="dropdown-item unselectable add-css-name">Сложи CSS стил на името</a></li>
-                                    </ul>
-                                    <ul class="dropdown-menu edge">
-                                        <li><a class="dropdown-item unselectable remove-edge">Изтрий реброто</a></li>
-                                        <li><a class="dropdown-item unselectable change-weight">Промени теглото</a></li>
-                                        <li><a class="dropdown-item unselectable add-css">Сложи CSS стил</a></li>
-                                    </ul>
                                     <svg class="svg-save" width="100" height="100" viewBox="0 0 150 150"></svg>
                                     <canvas class="canvas-save"></canvas>
-                                    <button class="btn btn-primary save" style="float: right">
+                                    <button class="btn btn-primary save" style="float: right" title="Изтегли графа">
                                         <svg class="bi" width="24px" height="24px" fill="currentColor">
                                             <use xlink:href="/algo-site/node_modules/bootstrap-icons/bootstrap-icons.svg#download"/>
                                         </svg>
@@ -166,7 +161,7 @@
                                             <input class="form-control speed" maxLength="1"/>
                                         </div>
                                         <div class="col-auto ms-auto">
-                                            <button class="btn btn-primary save">
+                                            <button class="btn btn-primary save" title="Изтегли графа">
                                                 <svg class="bi" width="24px" height="24px" fill="currentColor">
                                                     <use xlink:href="/algo-site/node_modules/bootstrap-icons/bootstrap-icons.svg#download"/>
                                                 </svg>

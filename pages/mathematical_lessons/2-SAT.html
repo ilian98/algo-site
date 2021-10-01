@@ -98,11 +98,17 @@
                                 <button class="btn btn-primary make">Направи графа!</button>
                                 <svg class="graph" width="100%" viewBox="0 0 300 150" style="margin-top: 2%"></svg>
                                 <svg class="svg-save" width="100" height="100" viewBox="0 0 150 75"></svg>
-                                <button class="btn btn-primary save" style="float: right">
+                                <button class="btn btn-primary save" style="float: right" title="Изтегли графа">
                                     <svg class="bi" width="24px" height="24px" fill="currentColor">
                                         <use xlink:href="/algo-site/node_modules/bootstrap-icons/bootstrap-icons.svg#download"/>
                                     </svg>
                                 </button>
+                                <ul class="dropdown-menu save-menu" tabindex="-1">
+                                    <li><a class="dropdown-item unselectable txt">Изтегли като txt</a></li>
+                                    <li><a class="dropdown-item unselectable edge-list">Изтегли като сп. на ребрата</a></li>
+                                    <li><a class="dropdown-item unselectable svg">Изтегли като svg</a></li>
+                                    <li><a class="dropdown-item unselectable png">Изтегли като png</a></li>
+                                </ul>
                                 <canvas class="canvas-save"></canvas>
                             </div>
                         </div>
@@ -130,7 +136,7 @@
                                 <button class="btn btn-primary show">Покажи компонентите!</button>
                                 <svg class="graph" width="100%" viewBox="0 0 300 150" style="margin-top: 2%"></svg>
                                 <svg class="svg-save" width="100" height="100" viewBox="0 0 150 75"></svg>
-                                <button class="btn btn-primary save" style="float: right">
+                                <button class="btn btn-primary save" style="float: right" title="Изтегли графа">
                                     <svg class="bi" width="24px" height="24px" fill="currentColor">
                                         <use xlink:href="/algo-site/node_modules/bootstrap-icons/bootstrap-icons.svg#download"/>
                                     </svg>

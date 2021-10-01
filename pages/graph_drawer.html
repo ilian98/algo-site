@@ -98,19 +98,39 @@
                         </div>
                         
                         <div class="col-sm-7 text-center">
+                            <button class="btn p-0 information" data-bs-toggle="modal" data-bs-target="#infoModal" style="float: right" title="Информация">
+                                <svg class="bi" width="20px" height="20px" fill="currentColor">
+                                    <use xlink:href="/algo-site/node_modules/bootstrap-icons/bootstrap-icons.svg#info-circle-fill"/>
+                                </svg>
+                            </button>
+                            <div class="modal fade" id="infoModal" tabindex="-1" aria-labelledby="infoModalLabel" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content" style="max-height: 100%; overflow-y: auto">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="exampleModalLabel">Информация</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body" style="text-align: justify">
+                                            Първият слайдър е за определяне на броя върхове в графа - от 1 до 10. При промяна графът се изтрива и се появяват указания брой върхове на произволни места. Вторият плъзгач е за промяна на големината на върховете, като графът сам променя останалите характеристики в зависимост от тази големина.<br><br>
+                                            Нов връх на графа се добавя с двойно натискане на празно място. Всеки връх може да се натисне, с което да се появят различни опции за работа с него. При влачене на връх, се появяват опорни позиции. Връх, който е пуснат близо до опорна позиция се придвижва автоматично там. Всяко ребро с изключение на примките, може да се персонализира с влачене. По този начин се променя кривината на реброто. При натискане на ребро също се появяват различни опции за него. Това става и при натискане на тегло (при претеглени графи).<br><br>
+                                            Всички компоненти на графа като цвят, големина и т.н., могат да се персонализират чрез написване на съответeн CSS код след избиране на опция за добавяне на CSS стил. Отделно се поддържа възможност за връщане на всяка промяна, както и изпълняването ѝ отново чрез бутоните вляво от графа. Бутоните вдясно от графа са за качване на текстов файл, в който е описан граф, както и за изтегляне на направения граф в различни формати.
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                             <svg class="graph" viewBox="0 0 300 300"></svg>
-                            <ul class="dropdown-menu vertex">
+                            <ul class="dropdown-menu vertex" tabindex="-1">
                                 <li><a class="dropdown-item unselectable remove-vertex">Изтрий върха</a></li>
                                 <li><a class="dropdown-item unselectable change-name">Промени името</a></li>
                                 <li><a class="dropdown-item unselectable add-css">Сложи CSS стил</a></li>
                                 <li><a class="dropdown-item unselectable add-css-name">Сложи CSS стил на името</a></li>
                             </ul>
-                            <ul class="dropdown-menu edge">
+                            <ul class="dropdown-menu edge" tabindex="-1">
                                 <li><a class="dropdown-item unselectable remove-edge">Изтрий реброто</a></li>
                                 <li><a class="dropdown-item unselectable change-weight">Промени теглото</a></li>
                                 <li><a class="dropdown-item unselectable add-css">Сложи CSS стил</a></li>
                             </ul>
-                            <ul class="dropdown-menu weight">
+                            <ul class="dropdown-menu weight" tabindex="-1">
                                 <li><a class="dropdown-item unselectable change-weight">Промени теглото</a></li>
                                 <li><a class="dropdown-item unselectable add-css">Сложи CSS стил</a></li>
                             </ul>
@@ -118,12 +138,12 @@
                             <canvas class="canvas-save"></canvas>
                             <div class="row">
                                 <div class="col text-start">
-                                    <button class="btn btn-primary undo">
+                                    <button class="btn btn-primary undo" title="Върни промяната">
                                         <svg class="bi" width="24px" height="24px" fill="currentColor">
                                             <use xlink:href="/algo-site/node_modules/bootstrap-icons/bootstrap-icons.svg#arrow-counterclockwise"/>
                                         </svg>
                                     </button>
-                                    <button class="btn btn-primary redo">
+                                    <button class="btn btn-primary redo" title="Повтори промяната">
                                         <svg class="bi" width="24px" height="24px" fill="currentColor">
                                             <use xlink:href="/algo-site/node_modules/bootstrap-icons/bootstrap-icons.svg#arrow-clockwise"/>
                                         </svg>
@@ -131,17 +151,17 @@
                                 </div>
                                 <div class="col text-end">
                                     <input class="input-file" type="file" accept="text/plain"/>
-                                    <button class="btn btn-primary import">
+                                    <button class="btn btn-primary import" title="Зареди граф">
                                         <svg class="bi" width="24px" height="24px" fill="currentColor">
                                             <use xlink:href="/algo-site/node_modules/bootstrap-icons/bootstrap-icons.svg#box-arrow-in-up"/>
                                         </svg>
                                     </button>
-                                    <button class="btn btn-primary save">
+                                    <button class="btn btn-primary save" title="Изтегли графа">
                                         <svg class="bi" width="24px" height="24px" fill="currentColor">
                                             <use xlink:href="/algo-site/node_modules/bootstrap-icons/bootstrap-icons.svg#download"/>
                                         </svg>
                                     </button>
-                                    <ul class="dropdown-menu save-menu">
+                                    <ul class="dropdown-menu save-menu" tabindex="-1">
                                         <li><a class="dropdown-item unselectable txt">Изтегли като txt</a></li>
                                         <li><a class="dropdown-item unselectable edge-list">Изтегли като сп. на ребрата</a></li>
                                         <li><a class="dropdown-item unselectable svg">Изтегли като svg</a></li>

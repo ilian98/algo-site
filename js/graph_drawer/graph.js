@@ -100,8 +100,8 @@
         else if (event.changedTouches!==undefined) return event.changedTouches[0];
         else if (event.touches!==undefined) return event.touches[0];
     }
-    function dropdownMenu (mainObj, name, place = ["down", "left"]) {
-        let dropdown=mainObj.parent().find(name);
+    function dropdownMenu (name, event, place = ["down", "left"]) {
+        let dropdown=$(name);
         let bodyOffsets=document.body.getBoundingClientRect();
         let obj=getObjectForCoordinates(event);
         dropdown.css({
@@ -109,11 +109,9 @@
             "left": obj.pageX-bodyOffsets.left-((place[1]==="right")?dropdown.outerWidth():0)
         });
         dropdown.addClass("show");
-        let clicks=0;
-        $(window).off("click.remove-dropdown-menu").on("click.remove-dropdown-menu",function () {
-            clicks++;
-            if (clicks===1) return ;
-            $(window).off("click.remove-dropdown-menu");
+        dropdown.focus();
+        event.stopPropagation();
+        $(window).one("mouseup",function () {
             dropdown.removeClass("show");
         });
         return dropdown;
@@ -341,7 +339,7 @@
         }
 
         this.frameX=undefined; this.frameY=undefined; this.frameW=undefined; this.frameH=undefined; this.vertexRad=20;
-        this.calcPositions=undefined;
+        this.isDrawable=undefined; this.calcPositions=undefined;
         this.drawNewGraph = function (frameX, frameY, frameW, frameH, vertexRad, addDraw = false) {
             this.erase();
 
@@ -350,6 +348,7 @@
                 this.frameW=frameW; this.frameH=frameH;
             }
             if (vertexRad!==undefined) this.vertexRad=vertexRad;
+            this.isDrawable=addDraw;
             if (this.calcPositions===undefined) this.calcPositions=new CalcPositions(this);
             this.calcPositions.init();
             this.undoStack.pop(); this.redoStack=[];
@@ -581,21 +580,23 @@
         this.findStrokeWidth = function (vertexRad = this.vertexRad) {
             return vertexRad/20*1.5;
         }
-        this.isDrawable=undefined; this.drawableGraph=undefined; 
+        this.drawableGraph=undefined; 
         this.draw = function (addDraw, animateDraw = true) { /// this functions expects that coordinates are already calculated
             let oldVersCoords=[],changedVers=[],cntAnimations=0;
             let oldRad=this.vertexRad;
             let oldEdgesPaths=[],oldDy=[],oldWeightsPaths=[];
             if (animateDraw===true) {
                 for (let i=0; i<this.n; i++) {
-                    if ((this.svgVertices[i]!==undefined)&&(this.svgVertices[i].group!==undefined)) {
+                    if ((this.svgVertices[i]!==undefined)&&(this.svgVertices[i].group!==undefined)&&
+                        (this.svgVertices[i].group.removed!==true)) {
                         oldRad=parseInt(this.svgVertices[i].circle.attr("r"));
                         break;
                     }
                 }
                 for (let i=0; i<this.n; i++) {
                     if ((this.svgVertices[i]!==undefined)&&
-                        (this.svgVertices[i].group!==undefined)&&(this.svgVertices[i].coord!==undefined)) {
+                        (this.svgVertices[i].group!==undefined)&&(this.svgVertices[i].coord!==undefined)&&
+                        (this.svgVertices[i].group.removed!==true)) {
                         oldVersCoords[i]=this.svgVertices[i].group.getBBox();
                         if ((oldVersCoords[i].x+oldRad!=this.svgVertices[i].coord[0])||
                             (oldVersCoords[i].y+oldRad!=this.svgVertices[i].coord[1])) {
@@ -606,7 +607,8 @@
                     else oldVersCoords[i]=undefined, changedVers[i]=false;
                 }
                 for (let i=0; i<this.edgeList.length; i++) {
-                    if ((this.svgEdges[i]!==undefined)&&(this.svgEdges[i].line!==undefined)) {
+                    if ((this.svgEdges[i]!==undefined)&&(this.svgEdges[i].line!==undefined)&&
+                        (this.svgEdges[i].line.removed!==true)) {
                         oldEdgesPaths[i]=this.svgEdges[i].line.attr("d");
                         if (this.svgEdges[i].weight!==undefined) {
                             oldWeightsPaths[i]=this.s.select(this.svgEdges[i].weight.textPath.attr("href")).attr("d");
@@ -915,8 +917,9 @@
             let vers=[];
             for (let i=0; i<this.n; i++) {
                 if (this.vertices[i]===undefined) continue;
-                let info=[(i+1).toString(),"["+this.svgVertices[i].coord[0]+","+this.svgVertices[i].coord[1]+"]"];
+                let info=[(i+1).toString()];
                 if (this.vertices[i].name!==info[0]) info.push(this.vertices[i].name);
+                info.push("["+this.svgVertices[i].coord[0]+","+this.svgVertices[i].coord[1]+"]");
                 if ((this.vertices[i].addedCSS[0]!=="")||(this.vertices[i].addedCSS[1]!=="")) {
                     info.push("[["+this.vertices[i].addedCSS[0]+"],["+this.vertices[i].addedCSS[1]+"]]");
                 }
@@ -949,8 +952,8 @@
         svgSave.hide();
 
         for (let saveButton of parentElement.find(".save")) {
-            $(saveButton).off("click").on("click",function () {
-                let dropdown=dropdownMenu($(saveButton).parent(),".dropdown-menu.save-menu",["up", "right"]);
+            $(saveButton).off("click").on("click",function (event) {
+                let dropdown=dropdownMenu(".dropdown-menu.save-menu",event,["up", "right"]);
                 dropdown.find(".png").off("click").on("click",function () {
                     dropdown.find(".png").off("click");
                     dropdown.removeClass("show");
@@ -992,7 +995,6 @@
                     let preface='<?xml version="1.0" standalone="no"?>\r\n';
                     let svgBlob=new Blob([preface, svgData], {type: "image/svg+xml;charset=utf-8"});
                     let svgURL=URL.createObjectURL(svgBlob);
-                    console.log(URL.createObjectURL(svgBlob));
                     $("<a>").prop("download","graph.svg")
                         .prop("href",svgURL)
                         .prop("target","_black")[0].click();
