@@ -60,94 +60,135 @@
                         <p class="text-format bold">Определение: Компоненти на свързаност на неориентиран граф наричаме максималните по включване подграфи на началния граф, така че във всеки подграф всеки два върха да са свързани. (<a class="info">...</a><a class="info" style="display: none">под максимални по включване подграфи се разбира, че не може да добавим повече върхове и ребра към подграфите без да развалим свързаността между върховете</a>)</p>
                         <svg class="graphExample1" width="20%" viewBox="0 0 300 300" style="float:right; margin-left: 2%"></svg>
                         <p class="text-format">Директно от определението следва, че от произволен връх в една компонента на свързаност, можем да достигнем до всички останали върхове в компонентата, но няма как да достигнем до върхове извън компонентата на свързаност. Затова ако неориентиран граф има повече от една компоненти на свързаност, то трябва да пуснем <i>DFS</i> процедурата от всеки необходен връх, за да гарантираме минаването през всички компоненти. За онагледяване е показан граф с три компоненти на свързаност - една с върховете 1, 2 и 3, втора с върховете 4 и 5 и трета с върха 6. Обърнете внимание, че когато говорим за компонента на свързаност, говорим за подграф, т.е. се включват и съответните индуцирани ребра. Затова е достатъчно да асоциираме компонентата на свързаност само с върховете, които се включват, но разбираме и съответните ребра.</p>
-                        <p class="text-format">Има два интерактивни примера - за неориентиран и ориентиран граф. Обхождането винаги започва от върха с номер 1, като може да се задават брой върхове от 1 до 9 и да се свързват два върха с ребро, като се влачи реброто от единия до другия. Може да се задава ускорение от 1 до 9, както и по време на анимацията да се превърта на предишна или следваща стъпка.</p>
-                        <div class="row" style="width: 75%">
-                            <div class="col-sm" style="margin-bottom: 2vh">
-                                <ul class="dropdown-menu vertex" tabindex="-1">
+                        <div class="row">
+                            <div class="col-sm">
+                                <p class="text-format">Следва интерактивeн пример на алгоритъма. Обхождането винаги започва от върха с номер 1. Може да се задава ускорение от 1 до 9, както и по време на анимацията да се превърта на предишна или следваща стъпка.</p>
+                            </div>
+                            <div class="col-sm">
+                                <ul class="dropdown-menu vertex">
                                     <li><a class="dropdown-item unselectable remove-vertex">Изтрий върха</a></li>
                                     <li><a class="dropdown-item unselectable change-name">Промени името</a></li>
                                     <li><a class="dropdown-item unselectable add-css">Сложи CSS стил</a></li>
                                     <li><a class="dropdown-item unselectable add-css-name">Сложи CSS стил на името</a></li>
                                 </ul>
-                                <ul class="dropdown-menu edge" tabindex="-1">
+                                <ul class="dropdown-menu edge">
                                     <li><a class="dropdown-item unselectable remove-edge">Изтрий реброто</a></li>
                                     <li><a class="dropdown-item unselectable change-weight">Промени теглото</a></li>
                                     <li><a class="dropdown-item unselectable add-css">Сложи CSS стил</a></li>
                                 </ul>
-                                <ul class="dropdown-menu save-menu" tabindex="-1">
+                                <ul class="dropdown-menu save-menu">
                                     <li><a class="dropdown-item unselectable txt">Изтегли като txt</a></li>
                                     <li><a class="dropdown-item unselectable edge-list">Изтегли като сп. на ребрата</a></li>
                                     <li><a class="dropdown-item unselectable svg">Изтегли като svg</a></li>
                                     <li><a class="dropdown-item unselectable png">Изтегли като png</a></li>
                                 </ul>
-                                <div class="graphExample2">
-                                    <button class="btn btn-primary start">Старт!</button>
-                                    <button class="btn btn-primary default" style="margin-bottom: 5%">Начален пример</button>
-                                    <button class="btn btn-primary next" title="Следваща стъпка">
-                                        <svg class="bi" width="20px" height="20px" fill="currentColor">
-                                            <use xlink:href="/algo-site/node_modules/bootstrap-icons/bootstrap-icons.svg#skip-end-fill"/>
-                                        </svg>
-                                    </button>
-                                    <button class="btn btn-primary previous" title="Предишна стъпка">
-                                        <svg class="bi" width="20px" height="20px" fill="currentColor">
-                                            <use xlink:href="/algo-site/node_modules/bootstrap-icons/bootstrap-icons.svg#skip-start-fill"/>
-                                        </svg>
-                                    </button>
-                                    <button class="btn btn-primary pause">Пауза</button>
-                                    <div class="slidecontainer">
-                                        <input type="range" min="1" max="10" value="5" class="slider range" id="range">
-                                    </div>
-                                    <div class="slider-text unselectable">
-                                        <span>Брой върхове: </span>
-                                        <span class="slider-value" style="color: red; font-weight: bold"></span>
-                                    </div>
-                                    <svg class="graph" width="100%" viewBox="0 0 300 300" style="margin-top: 2%"></svg>
-                                    <svg class="svg-save" width="100" height="100" viewBox="0 0 150 150"></svg>
-                                    <canvas class="canvas-save"></canvas>
-                                    <button class="btn btn-primary save" style="float: right" title="Изтегли графа">
-                                        <svg class="bi" width="24px" height="24px" fill="currentColor">
-                                            <use xlink:href="/algo-site/node_modules/bootstrap-icons/bootstrap-icons.svg#download"/>
-                                        </svg>
-                                    </button>
-                                    <div class="row form-group">
-                                        <label for="speed" class="col-auto col-form-label pe-0">Ускорение:</label>
-                                        <div class="col-4 col-md-3 col-xl-2 mb-2">
-                                            <input class="form-control speed" maxLength="1"/>
+
+                                <div class="modal fade" id="settingsModal" tabindex="-1" aria-labelledby="settingsModalLabel" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content" style="max-height: 100%; overflow-y: auto">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="settingsModalLabel">Настройки на графа</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body" style="text-align: justify">
+                                                <div class="row mb-3">
+                                                    <div class="slidecontainer">
+                                                        <input type="range" min="1" max="10" value="5" class="slider range-vers" id="rangeVers">
+                                                    </div>
+                                                    <div class="slider-text unselectable">
+                                                        <span>Брой върхове: </span>
+                                                        <span class="slider-value-vers" style="color: red; font-weight: bold"></span>
+                                                    </div>
+                                                </div>
+                                                <div class="row mb-3">
+                                                    <div class="col-sm">
+                                                        <div class="form-check">
+                                                            <input class="form-check-input" type="radio" name="direction" id="undirected" checked>
+                                                            <label class="form-check-label unselectable" for="undirected">Неориентиран граф</label>
+                                                        </div>
+                                                        <div class="form-check">
+                                                            <input class="form-check-input" type="radio" name="direction" id="directed">
+                                                            <label class="form-check-label unselectable" for="directed">Ориентиран граф</label>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-sm">
+                                                        <div class="form-check">
+                                                            <input class="form-check-input" type="checkbox" value="" id="weighted">
+                                                            <label class="form-check-label unselectable" for="weighted">Претеглен граф</label>
+                                                        </div>
+                                                        <div class="form-check">
+                                                            <input class="form-check-input" type="checkbox" value="" id="multi">
+                                                            <label class="form-check-label unselectable" for="multi">Мултиграф</label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="row mb-3">
+                                                    <div class="slidecontainer">
+                                                        <input type="range" min="15" max="30" value="20" class="slider range-rad" id="rangeRad">
+                                                    </div>
+                                                    <div class="slider-text unselectable">
+                                                        <span>Големина на върховете: </span>
+                                                        <span class="slider-value-rad" style="color: red; font-weight: bold"></span>
+                                                    </div>
+                                                </div>
+                                                <div class="row mb-3">
+                                                    <div class="col-auto">
+                                                        <p class="mb-1 unselectable">Отбележете какво действие да се извършва при задържане на връх:</p>
+                                                        <div class="form-check">
+                                                            <input class="form-check-input" type="radio" name="dragging" id="edgeDraw" checked>
+                                                            <label class="form-check-label unselectable" for="edgeDraw">Чертаене на ребро от върха</label>
+                                                        </div>
+                                                        <div class="form-check">
+                                                            <input class="form-check-input" type="radio" name="dragging" id="vertexMove">
+                                                            <label class="form-check-label unselectable" for="vertexMove">Преместване на върха</label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
-                                        <div class="col-auto ms-auto">
-                                            <button class="btn btn-primary save" title="Изтегли графа">
-                                                <svg class="bi" width="24px" height="24px" fill="currentColor">
-                                                    <use xlink:href="/algo-site/node_modules/bootstrap-icons/bootstrap-icons.svg#download"/>
+                                    </div>
+                                </div>
+
+                                <div class="graphExample2 mx-auto" style="width: 50vh">
+                                    <div class="row">
+                                        <div class="col-auto">
+                                            <button class="btn btn-primary start">Старт!</button>
+                                        </div>
+                                        <div class="col text-end">
+                                            <button class="btn btn-primary default" style="margin-bottom: 2vh">Начален пример</button>
+                                            <button class="btn btn-primary pause">Пауза</button>
+                                            <button class="btn btn-primary previous" title="Предишна стъпка">
+                                                <svg class="bi" width="20px" height="20px" fill="currentColor">
+                                                    <use xlink:href="/algo-site/node_modules/bootstrap-icons/bootstrap-icons.svg#skip-start-fill"/>
+                                                </svg>
+                                            </button>
+                                            <button class="btn btn-primary next" title="Следваща стъпка">
+                                                <svg class="bi" width="20px" height="20px" fill="currentColor">
+                                                    <use xlink:href="/algo-site/node_modules/bootstrap-icons/bootstrap-icons.svg#skip-end-fill"/>
                                                 </svg>
                                             </button>
                                         </div>
                                     </div>
-                                    <p class="anim-text"></p>
-                                </div>
-                            </div>
-                            <div class="col-sm" style="margin-bottom: 2vh">
-                                <div class="graphExample3">
-                                    <button class="btn btn-primary start">Старт!</button>
-                                    <button class="btn btn-primary default" style="margin-bottom: 5%">Начален пример</button>
-                                    <button class="btn btn-primary next" title="Следваща стъпка">
-                                        <svg class="bi" width="20px" height="20px" fill="currentColor">
-                                            <use xlink:href="/algo-site/node_modules/bootstrap-icons/bootstrap-icons.svg#skip-end-fill"/>
-                                        </svg>
-                                    </button>
-                                    <button class="btn btn-primary previous" title="Предишна стъпка">
-                                        <svg class="bi" width="20px" height="20px" fill="currentColor">
-                                            <use xlink:href="/algo-site/node_modules/bootstrap-icons/bootstrap-icons.svg#skip-start-fill"/>
-                                        </svg>
-                                    </button>
-                                    <button class="btn btn-primary pause">Пауза</button>
-                                    <div class="slidecontainer">
-                                        <input type="range" min="1" max="10" value="5" class="slider range" id="range">
+
+                                    <div class="row justify-content-end">
+                                        <div class="col-auto pe-0 me-2">
+                                            <button class="btn p-0 settings" data-bs-toggle="modal" data-bs-target="#settingsModal" title="Настройки">
+                                                <svg class="bi" width="20px" height="20px" fill="currentColor">
+                                                    <use xlink:href="/algo-site/node_modules/bootstrap-icons/bootstrap-icons.svg#card-checklist"/>
+                                                </svg>
+                                            </button>
+                                        </div>
+
+                                        <div class="col-auto ps-0">
+                                            <button class="btn p-0 information" data-bs-toggle="modal" data-bs-target="#infoModal" title="Информация">
+                                                <svg class="bi" width="20px" height="20px" fill="currentColor">
+                                                    <use xlink:href="/algo-site/node_modules/bootstrap-icons/bootstrap-icons.svg#info-circle-fill"/>
+                                                </svg>
+                                            </button>
+                                        </div>
                                     </div>
-                                    <div class="slider-text unselectable">
-                                        <span>Брой върхове: </span>
-                                        <span class="slider-value" style="color: red; font-weight: bold"></span>
-                                    </div>
-                                    <svg class="graph" width="100%" viewBox="0 0 300 300" style="margin-top: 2%"></svg>
+
+                                    <svg class="graph" viewBox="0 0 300 300" style="margin-top: 2%; height: 100%"></svg>
                                     <svg class="svg-save" width="100" height="100" viewBox="0 0 150 150"></svg>
                                     <canvas class="canvas-save"></canvas>
                                     <button class="btn btn-primary save" style="float: right" title="Изтегли графа">
@@ -156,7 +197,7 @@
                                         </svg>
                                     </button>
                                     <div class="row form-group">
-                                        <label for="speed" class="col-auto col-form-label pe-0">Ускорение:</label>
+                                        <label for="speed" class="col-auto col-form-label pe-0 unselectable">Ускорение:</label>
                                         <div class="col-4 col-md-3 col-xl-2 mb-2">
                                             <input class="form-control speed" maxLength="1"/>
                                         </div>
@@ -194,7 +235,7 @@
                         <p class="text-format" style="margin-top: 5%">Последното приложение, което ще покажем, е за откриване на това дали граф е цикличен. Нека първо разгледаме случая при неориентиран граф. По принцип главната идея е, че ако видим съсед на връх, който вече е обходен, то това ребро (<a class="info">...</a><a class="info" style="display: none">от което се получава съседството</a>) участва в цикъл. Има само един случай, когато това може да не е вярно именно защото графът е неориентиран. Нека от връх \(x\) отидем по реброто \((x,y)\) до връх \(y\). Тогава в съседите на връх \(y\) ще присъства и \(x\), но това не оформя цикъл. Затова трябва в допълнителен параметър да пазим за всеки връх от кой сме дошли. Така в нашия случай, като сме извиквали <i>DFS</i> за \(y\), ще сме запомнили, че сме дошли от \(x\) и няма да се объркаме. Следва реализацията за неориентиран граф.</p>
                         <div id="find_cycle_undirected_graph" class="placeholder"></div>
                         <p class="text-format">Ако търсим дали има цикъл в ориентиран граф няма как да имаме горния проблем. Дори да имаме ребра в двете посоки - \((x,y)\) и \((y,x)\), то те двете наистина образуват цикъл. Но тук има друг проблем, заради който трябва отново да променим нещо. Нека имаме следният граф. </p>
-                        <svg class="graphExample4" width="15%" viewBox="0 0 300 300" style="float:right; margin-left: 2%"></svg>
+                        <svg class="graphExample3" width="15%" viewBox="0 0 300 300" style="float:right; margin-left: 2%"></svg>
                         <p class="text-format">Може да пуснете по-горе <i>DFS</i> върху този граф. Тогава ще се види, че за връх 2 или за връх 3 (зависи през кой минаваме първо) връх 4 ще е вече обходен, и бихме заключили, че наистина има цикъл. Ако този граф беше неориентиран, то това щеше да е вярно (защото можем да ходим и в двете посоки на ребрата). Но тук не е вярно. За да оправим алгоритъма, трябва да гледаме дали виждаме обходен връх, който е в текущия път (така е ясно, че се формира цикъл) и затова трябва да въведем вече 3 състояния на връх - 0 за необходен връх, 1 за връх в текущия път и 2 за обходен връх, който не е в текущия път. Всъщност единствено, когато напускаме връх трябва да сменяме неговото състояние на 2, другото е същото, като работата с масива \(visited\). Така ще намерим цикъл само когато видим съсед, който е от текущия път, т.е. е в състояние 1. Интересното е, че другото стандартно обхождане - <i>BFS</i> не е удобно да се използва в случая на ориентиран граф. Затова стандартния подход за търсене на цикъл при какъвто и да е граф е да се използва <i>DFS</i>.
                         <div id="find_cycle_directed_graph" class="placeholder"></div>
                         <p class="text-format">Допълнително трябва да отбележим, че трябва да  пускаме горния <i>DFS</i> от всеки необходен връх досега. Малко е трудно с моментните знания да се даде лесна обосновка защо този алгоритъм работи коректно. Ясно е, че ако той каже, че има цикъл, това наистина е така. Обратният въпрос е по-интересен - ако каже, че няма цикъл, наистина ли е така. Това най-лесно се вижда, ако се разгледа факта, че всъщност обхождането в дълбочина строи покриващо дърво на графа и се разгледат точно кои ребра могат да затварят цикъл (те са точно тези, които се намират с тази модификация на <i>DFS</i>) (<a class="info">...</a><a class="info" style="display: none">за повече информация може да погледнете темата за увод в дърветата</a>).</p></p>

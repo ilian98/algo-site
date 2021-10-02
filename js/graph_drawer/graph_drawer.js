@@ -49,7 +49,10 @@
         }
         
         function mouseDown (type, index, event) {
-            $(graph.svgName).parent().find(".dropdown-menu").removeClass("show");
+            let dropdownNames=["vertex","edge","weight","save-menu"];
+            for (let name of dropdownNames) {
+                $(".dropdown-menu."+name).removeClass("show");
+            }
             if (window.isMobile==="false") {
                 if (event.button!==0) return ;
                 graph.s.mousemove((type==="vertex")?trackMouseVertex:trackMouseEdge);
@@ -322,8 +325,7 @@
         }
         function vertexClick (index, event) {
             let dropdown=dropdownMenu(".dropdown-menu.vertex",event);
-            dropdown.find(".remove-vertex").off("click").on("click",function () {
-                dropdown.find(".remove-vertex").off("click");
+            dropdown.find(".remove-vertex").off("click").one("click",function () {
                 for (let ind of graph.adjList[index]) {
                     edgeClickAreas[ind].remove();
                 }
@@ -332,11 +334,9 @@
                 }
                 graph.removeVertex(index);
                 graph.graphChange();
-                dropdown.removeClass("show");
             });
             
-            dropdown.find(".change-name").off("click").on("click",function () {
-                dropdown.find(".change-name").off("click");
+            dropdown.find(".change-name").off("click").one("click",function () {
                 let name=prompt("Въведете ново име на върха",graph.vertices[index].name);
                 if (graph.vertices[index].name!==name) {
                     graph.undoStack.push({time: graph.undoTime, type: "change-name", data: [index, graph.vertices[index].name]});
@@ -348,11 +348,9 @@
                     addVertexEvents(index);
                     graph.graphChange();
                 }
-                dropdown.removeClass("show");
             });
             
-            dropdown.find(".add-css").off("click").on("click",function () {
-                dropdown.find(".add-css").off("click");
+            dropdown.find(".add-css").off("click").one("click",function () {
                 let css=prompt(
                     "Въведете CSS стил за върха"+
                     ((graph.vertices[index].addedCSS[0]==="")?" (например за червен цвят fill: red)":""),
@@ -361,11 +359,9 @@
                 if (graph.vertices[index].addedCSS[0]!==css)
                     addCSS(graph.svgVertices[index].circle,graph.vertices[index].defaultCSS[0],css,"vertex",index);
                 graph.vertices[index].addedCSS[0]=css;
-                dropdown.removeClass("show");
             });
             
-            dropdown.find(".add-css-name").off("click").on("click",function () {
-                dropdown.find(".add-css-name").off("click");
+            dropdown.find(".add-css-name").off("click").one("click",function () {
                 let css=prompt(
                     "Въведете CSS стил за името на върха"+
                     ((graph.vertices[index].addedCSS[1]==="")?" (например за червен цвят fill: red)":""),
@@ -374,7 +370,6 @@
                 if (graph.vertices[index].addedCSS[1]!==css)
                     addCSS(graph.svgVertices[index].text,graph.vertices[index].defaultCSS[1],css,"vertex",index);
                 graph.vertices[index].addedCSS[1]=css;
-                dropdown.removeClass("show");
             });
         }
         function addNewVertex (event) {
@@ -418,25 +413,20 @@
             if (graph.isWeighted===true) dropdown.find(".change-weight").show();
             else dropdown.find(".change-weight").hide();
             
-            dropdown.find(".remove-edge").off("click").on("click",function () {
-                dropdown.find(".remove-edge").off("click");
+            dropdown.find(".remove-edge").off("click").one("click",function () {
                 graph.removeEdge(index);
                 graph.graphChange();
-                dropdown.removeClass("show");
                 edgeClickAreas[index].remove();
             });
             
             if (graph.isWeighted===true) {
-                dropdown.find(".change-weight").off("click").on("click",function () {
-                    dropdown.find(".change-weight").off("click");
+                dropdown.find(".change-weight").off("click").one("click",function () {
                     changeEdgeWeight(index);
                     graph.graphChange();
-                    dropdown.removeClass("show");
                 });
             }
             
-            dropdown.find(".add-css").off("click").on("click",function () {
-                dropdown.find(".add-css").off("click");
+            dropdown.find(".add-css").off("click").one("click",function () {
                 let css=prompt(
                     "Въведете CSS стил за реброто"+
                     ((graph.edgeList[index].addedCSS[0]==="")?" (например за червен цвят stroke: red)":""),
@@ -455,21 +445,17 @@
                         graph.svgEdges[index].weight.attr("fill",graph.svgEdges[index].line.attr("stroke"));
                     }
                 }
-                dropdown.removeClass("show");
             });
         }
         
         function weightClick (index, event) {
             let dropdown=dropdownMenu(".dropdown-menu.weight",event);
-            dropdown.find(".change-weight").off("click").on("click",function () {
-                dropdown.find(".change-weight").off("click");
+            dropdown.find(".change-weight").off("click").one("click",function () {
                 changeEdgeWeight(index);
                 graph.graphChange();
-                dropdown.removeClass("show");
             });
             
-            dropdown.find(".add-css").off("click").on("click",function () {
-                dropdown.find(".add-css").off("click");
+            dropdown.find(".add-css").off("click").one("click",function () {
                 let css=prompt(
                     "Въведете CSS стил за теглото"+
                     ((graph.edgeList[index].addedCSS[1]==="")?" (например за червен цвят fill: red)":""),
@@ -482,7 +468,6 @@
                     weight.attr("fill",graph.svgEdges[index].line.attr("stroke"));
                 }
                 graph.edgeList[index].addedCSS[1]=css;
-                dropdown.removeClass("show");
             });
         }
 
@@ -528,20 +513,6 @@
             }
         }
         this.init = function () {
-            let svgElement=$(graph.svgName);
-            if (window.isMobile==="true") {
-                svgElement.blockScroll=false;
-                svgElement.on("touchstart", function (event) {
-                    this.blockScroll=true;
-                });
-                svgElement.on("touchend", function () {
-                    this.blockScroll=false;
-                });
-                svgElement.on("touchmove", function (event) {
-                    if (this.blockScroll===true) event.preventDefault();
-                });
-            }
-            
             svgPoint=graph.s.paper.node.createSVGPoint();
             for (let i=0; i<graph.n; i++) {
                 if (graph.vertices[i]===undefined) continue;
@@ -552,6 +523,7 @@
                 if (graph.edgeList[i]===undefined) continue;
                 addEdgeEvents(i);
             }
+            let svgElement=$(graph.svgName);
             if (window.isMobile==="false") svgElement.off("dblclick").on("dblclick",addNewVertex);
             else {
                 let tapped=false;
@@ -566,7 +538,21 @@
                     }
                 });
             }
+            addSettings(graph.svgName,this);
         }
+    }
+        
+    function addSettings (svgName, drawableGraph) {
+        $(svgName).parent().find(" .settings").off("click.draw-settings").on("click.draw-settings",function () {
+            if (drawableGraph.addVertexDrag===false) $("#edgeDraw").click();
+            else $("#vertexMove").click();
+            $("#edgeDraw").off("click").on("click",function () {
+                drawableGraph.addVertexDrag=false;
+            });
+            $("#vertexMove").off("click").on("click",function () {
+                drawableGraph.addVertexDrag=true;
+            });
+        });
     }
     
     

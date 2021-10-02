@@ -99,8 +99,10 @@
         if (window.isMobile==="false") return event;
         else if (event.changedTouches!==undefined) return event.changedTouches[0];
         else if (event.touches!==undefined) return event.touches[0];
+        else return event;
     }
     function dropdownMenu (name, event, place = ["down", "left"]) {
+        console.log(event);
         let dropdown=$(name);
         let bodyOffsets=document.body.getBoundingClientRect();
         let obj=getObjectForCoordinates(event);
@@ -109,12 +111,17 @@
             "left": obj.pageX-bodyOffsets.left-((place[1]==="right")?dropdown.outerWidth():0)
         });
         dropdown.addClass("show");
-        dropdown.focus();
         event.stopPropagation();
-        $(window).one("mouseup",function () {
-            dropdown.removeClass("show");
+        event.preventDefault();
+        $(window).one("click",function () {
+            if (window.isMobile==="false") {
+                $(window).one("click",function () {
+                    dropdown.removeClass("show");
+                });
+            }
+            else dropdown.removeClass("show");
         });
-        return dropdown;
+		return dropdown;
     }
 
     function Vertex (name, css=["",""]) {
@@ -200,6 +207,7 @@
             addImportFunctionality(svgName,this);
             this.graphChange=graphChange;
             addUndoFunctionality(svgName,this);
+            addSettings(svgName,this);
         }
 
         function convertVertexToList (vertex) {
@@ -869,7 +877,7 @@
             let undoObj={
                 type: "remove-vertex",
                 data: [x, [this.svgVertices[x].coord[0], this.svgVertices[x].coord[1]],
-                       [this.vertices[x].name, [this.vertices[x].addedCSS[0], this.vertices[x].addedCSS[1]]]]
+                       convertVertexToList(this.vertices[x])]
             };
             if ((undoType===undefined)||(undoType==="redo")) {
                 undoObj.time=this.undoTime;
@@ -954,10 +962,7 @@
         for (let saveButton of parentElement.find(".save")) {
             $(saveButton).off("click").on("click",function (event) {
                 let dropdown=dropdownMenu(".dropdown-menu.save-menu",event,["up", "right"]);
-                dropdown.find(".png").off("click").on("click",function () {
-                    dropdown.find(".png").off("click");
-                    dropdown.removeClass("show");
-                    
+                dropdown.find(".png").off("click").one("click",function () {
                     let context=canvas[0].getContext('2d');
                     let svg=parentElement.children(".graph");
                     let svgWidth=2*svg.width(),svgHeight=2*svg.height();
@@ -983,10 +988,7 @@
                     });
                 });
                 
-                dropdown.find(".svg").off("click").on("click",function () {
-                    dropdown.find(".svg").off("click");
-                    dropdown.removeClass("show");
-                    
+                dropdown.find(".svg").off("click").one("click",function () {
                     $(".click-area").hide();
                     let svg=parentElement.children(".graph")[0];
                     svg.setAttribute("xmlns","http://www.w3.org/2000/svg");
@@ -1001,10 +1003,7 @@
                     $(".click-area").show();
                 });
                 
-                dropdown.find(".edge-list").off("click").on("click", function () {
-                    dropdown.find(".edge-list").off("click");
-                    dropdown.removeClass("show");
-                    
+                dropdown.find(".edge-list").off("click").one("click", function () {
                     let vers=0;
                     for (let vertex of graph.vertices) {
                         if (vertex===undefined) continue;
@@ -1029,7 +1028,6 @@
                 
                 dropdown.find(".txt").off("click").on("click", function () {
                     dropdown.find(".txt").off("click");
-                    dropdown.removeClass("show");
                     
                     $("<a>").prop("download","graph.txt")
                         .prop("href","data:text/plain;charset=utf-8,"+encodeURIComponent(graph.export()))
@@ -1377,6 +1375,94 @@
         });
     }
     
+    function addSettings (svgName, graph) {
+        $(svgName).parent().find(" .settings").off("click.settings").on("click.settings",function () {
+            let sliderVers=$(".range-vers");
+            let outputVers=$(".slider-value-vers");
+            let cnt=0;
+            for (let i=0; i<graph.n; i++) {
+                if (graph.vertices[i]===undefined) continue;
+                cnt++;
+            }
+            sliderVers.val(cnt);
+            outputVers.html(cnt);
+
+            sliderVers.off("input").on("input", function() {
+                let n=parseInt($(this).val());
+                outputVers.html(n);
+                graph.initVertices(n); graph.undoTime--;
+                for (let i=0; i<n; i++) {
+                    graph.vertices[i].name=(i+1).toString();
+                }
+                graph.buildEdgeDataStructures([]); graph.undoTime--;
+                graph.calcPositions.init();
+                graph.draw(true,false);
+            });
+
+            if (graph.isDirected===false) $("#undirected").click();
+            else $("#directed").click();
+            $("#undirected").off("click").on("click",function () {
+                if (graph.isDirected===true) {
+                    graph.isDirected=false;
+                    graph.buildEdgeDataStructures(graph.convertSimpleEdgeList()); graph.undoTime--;
+                    graph.undoStack.push({time: graph.undoTime, type: "change-property", data: ["isDirected", true]});
+                    graph.undoTime++;
+                    graph.draw(true);
+                }
+            });
+            $("#directed").off("click").on("click",function () {
+                if (graph.isDirected===false) {
+                    graph.isDirected=true;
+                    graph.buildEdgeDataStructures(graph.convertSimpleEdgeList()); graph.undoTime--;
+                    graph.undoStack.push({time: graph.undoTime, type: "change-property", data: ["isDirected", false]});
+                    graph.undoTime++;
+                    graph.draw(true);
+                }
+            });
+            $("#weighted").prop("checked",graph.isWeighted);
+            $("#weighted").off("change").on("change",function () {
+                if ((this.checked===true)&&(graph.isWeighted===false)) {
+                    graph.undoStack.push({time: graph.undoTime, type: "change-property", data: ["isWeighted", false]});
+                    graph.undoTime++; graph.redoStack=[];
+                    graph.isWeighted=true;
+                    graph.draw(true);
+                }
+                else if ((this.checked===false)&&(graph.isWeighted===true)) {
+                    graph.undoStack.push({time: graph.undoTime, type: "change-property", data: ["isWeighted", true]});
+                    graph.undoTime++; graph.redoStack=[];
+                    graph.isWeighted=false;
+                    graph.draw(true);
+                }
+            });
+            $("#multi").prop("checked",graph.isMulti);
+            $("#multi").off("change").on("change",function () {
+                if ((this.checked===true)&&(graph.isMulti===false)) {
+                    graph.undoStack.push({time: graph.undoTime, type: "change-property", data: ["isMulti", false]});
+                    graph.undoTime++; graph.redoStack=[];
+                    graph.isMulti=true;
+                }
+                else if ((this.checked===false)&&(graph.isMulti===true)) {
+                    graph.undoStack.push({time: graph.undoTime, type: "change-property", data: ["isMulti", true]});
+                    graph.undoTime++; graph.redoStack=[];
+                    graph.isMulti=false;
+                }
+            });
+
+            let sliderRad=$(".range-rad");
+            let outputRad=$(".slider-value-rad");
+            sliderRad.val(graph.vertexRad);
+            outputRad.html(graph.vertexRad);
+            sliderRad.off("input").on("input", function() {
+                let val=parseInt($(this).val());
+                outputRad.html(val);
+                let oldVal=graph.vertexRad;
+                graph.undoStack.push({time: graph.undoTime, type: "change-property", data: ["radius", oldVal]});
+                graph.undoTime++; graph.redoStack=[];
+                graph.vertexRad=val;
+                graph.draw(true);
+            });
+        });
+    }
     
     window.Graph=Graph;
     window.segmentLength=segmentLength;

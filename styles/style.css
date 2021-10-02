@@ -157,3 +157,12 @@ footer {
     padding-left: 1rem;
     padding-right: 1rem;
 }
+
+.modal-dialog {
+    position: absolute;
+    height: auto;
+    bottom: 0;
+    top: 0;
+    left: 0;
+    right: 0;
+}

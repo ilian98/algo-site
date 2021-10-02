@@ -91,7 +91,7 @@
                                         <use xlink:href="/algo-site/node_modules/bootstrap-icons/bootstrap-icons.svg#download"/>
                                     </svg>
                                 </button>
-                                <ul class="dropdown-menu save-menu" tabindex="-1">
+                                <ul class="dropdown-menu save-menu">
                                     <li><a class="dropdown-item unselectable txt">Изтегли като txt</a></li>
                                     <li><a class="dropdown-item unselectable edge-list">Изтегли като сп. на ребрата</a></li>
                                     <li><a class="dropdown-item unselectable svg">Изтегли като svg</a></li>
@@ -150,19 +150,25 @@
                                 </div>
                             </div>
                             <div class="treeExample col-lg-7">
-                                <button class="btn btn-primary start">Старт!</button>
-                                <button class="btn btn-primary end" style="margin-bottom: 5%">Край</button>
-                                <button class="btn btn-primary next" title="Следваща стъпка">
-                                    <svg class="bi" width="20px" height="20px" fill="currentColor">
-                                        <use xlink:href="/algo-site/node_modules/bootstrap-icons/bootstrap-icons.svg#skip-end-fill"/>
-                                    </svg>
-                                </button>
-                                <button class="btn btn-primary previous" title="Предишна стъпка">
-                                    <svg class="bi" width="20px" height="20px" fill="currentColor">
-                                        <use xlink:href="/algo-site/node_modules/bootstrap-icons/bootstrap-icons.svg#skip-start-fill"/>
-                                    </svg>
-                                </button>
-                                <button class="btn btn-primary pause">Пауза</button>
+                                <div class="row">
+                                    <div class="col-auto">
+                                        <button class="btn btn-primary start">Старт!</button>
+                                        <button class="btn btn-primary end" style="margin-bottom: 2vh; margin-left: 1vh">Край</button>
+                                    </div>
+                                    <div class="col text-end">
+                                        <button class="btn btn-primary pause">Пауза</button>
+                                        <button class="btn btn-primary previous" title="Предишна стъпка">
+                                            <svg class="bi" width="20px" height="20px" fill="currentColor">
+                                                <use xlink:href="/algo-site/node_modules/bootstrap-icons/bootstrap-icons.svg#skip-start-fill"/>
+                                            </svg>
+                                        </button>
+                                        <button class="btn btn-primary next" title="Следваща стъпка">
+                                            <svg class="bi" width="20px" height="20px" fill="currentColor">
+                                                <use xlink:href="/algo-site/node_modules/bootstrap-icons/bootstrap-icons.svg#skip-end-fill"/>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
                                 
                                 <svg class="graph" width="100%" viewBox="0 0 300 150" style="margin-top: 2%"></svg>
                                 <svg class="svg-save" width="100" height="100" viewBox="0 0 150 75"></svg>
@@ -226,19 +232,24 @@
                                 </div>
                             </div>
                             <div class="treeExample col-lg-7">
-                                <button class="btn btn-primary start">Старт!</button>
-                                <button class="btn btn-primary end">Край</button>
-                                <button class="btn btn-primary next" title="Следваща стъпка">
-                                    <svg class="bi" width="20px" height="20px" fill="currentColor">
-                                        <use xlink:href="/algo-site/node_modules/bootstrap-icons/bootstrap-icons.svg#skip-end-fill"/>
-                                    </svg>
-                                </button>
-                                <button class="btn btn-primary previous" title="Предишна стъпка">
-                                    <svg class="bi" width="20px" height="20px" fill="currentColor">
-                                        <use xlink:href="/algo-site/node_modules/bootstrap-icons/bootstrap-icons.svg#skip-start-fill"/>
-                                    </svg>
-                                </button>
-                                <button class="btn btn-primary pause">Пауза</button>
+                                <div class="row">
+                                    <div class="col-auto">
+                                        <button class="btn btn-primary start">Старт!</button>
+                                    </div>
+                                    <div class="col text-end">
+                                        <button class="btn btn-primary pause">Пауза</button>
+                                        <button class="btn btn-primary previous" title="Предишна стъпка">
+                                            <svg class="bi" width="20px" height="20px" fill="currentColor">
+                                                <use xlink:href="/algo-site/node_modules/bootstrap-icons/bootstrap-icons.svg#skip-start-fill"/>
+                                            </svg>
+                                        </button>
+                                        <button class="btn btn-primary next" title="Следваща стъпка">
+                                            <svg class="bi" width="20px" height="20px" fill="currentColor">
+                                                <use xlink:href="/algo-site/node_modules/bootstrap-icons/bootstrap-icons.svg#skip-end-fill"/>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
                                 
                                 <svg class="graph" width="100%" viewBox="0 0 300 150" style="margin-top: 2%"></svg>
                                 <svg class="svg-save" width="100" height="100" viewBox="0 0 150 75"></svg>

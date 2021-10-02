@@ -142,9 +142,10 @@
 
                     if (animations[i].hasOwnProperty("startFunction")) animations[i].startFunction();
                     for (let j=0; j<animations[i].animFunctions.length; j++) {
-                        let isLast=(j==animations[i].animFunctions.length-1);
-                        minas.push(animations[i].animFunctions[j](function () {
-                            if (isLast==true) {
+                        let isLast=(j===(animations[i].animFunctions.length-1));
+                        minas.push(...animations[i].animFunctions[j](function () {
+                            if (this.removed!==undefined) return ;
+                            if (isLast===true) {
                                 if (i<animations.length-1) {
                                     if (animations[i].hasOwnProperty("endFunction")) animations[i].endFunction();
                                     animFuncs[i+1]();
@@ -194,7 +195,11 @@
                     else obj=graph.svgVertices[vr].text;
                     if (speed>0) {
                         obj.animate({fill: colour},speed*speedCoeff,callback);
-                        return obj.inAnim()[0].mina;
+                        let minas=[];
+                        for (let anim of obj.inAnim()) {
+                            minas.push(anim.mina);
+                        }
+                        return minas;
                     }
                     obj.attr({fill: colour});
                 }
@@ -218,13 +223,12 @@
                         lineDraw.attr({"stroke-dasharray": pathLength, "stroke-dashoffset": pathLength});
                         graph.s.append(obj1.group);
                         graph.s.append(obj2.group);
-                        return Snap.animate(0,pathLength,function (t) {
+                        return [Snap.animate(0,pathLength,function (t) {
                             lineDraw.attr({"stroke-dashoffset": ((reverse===true)?(pathLength+t):(pathLength-t))});
-                        },
-                            speed*speedCoeff,function () {
-                            callback();
+                        },speed*speedCoeff,function () {
+                            callback.call(lineDraw);
                             lineDraw.remove();
-                        });
+                        })];
                     }
                 }
             }
