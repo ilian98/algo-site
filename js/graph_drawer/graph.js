@@ -101,25 +101,24 @@
         else if (event.touches!==undefined) return event.touches[0];
         else return event;
     }
-    function dropdownMenu (name, event, place = ["down", "left"]) {
-        console.log(event);
+    let previousDropdown=undefined;
+    function dropdownMenu (name, event) {
         let dropdown=$(name);
+        if ((previousDropdown!==undefined)&&(previousDropdown!==dropdown)) previousDropdown.removeClass("show");
+        previousDropdown=dropdown;
         let bodyOffsets=document.body.getBoundingClientRect();
         let obj=getObjectForCoordinates(event);
-        dropdown.css({
-            "top": obj.pageY-((place[0]==="up")?dropdown.outerHeight():0),
-            "left": obj.pageX-bodyOffsets.left-((place[1]==="right")?dropdown.outerWidth():0)
-        });
+        let diffX=0,diffY=0;
+        if (obj.clientY+dropdown.outerHeight()>$(window).height()) diffY=dropdown.outerHeight();
+        if (obj.clientX+dropdown.outerWidth()>$(window).width()) {
+            diffX=obj.clientX+dropdown.outerWidth()-$(window).width();
+        }
+        dropdown.css({"top": obj.pageY-diffY, "left": obj.pageX-diffX});
         dropdown.addClass("show");
         event.stopPropagation();
         event.preventDefault();
         $(window).one("click",function () {
-            if (window.isMobile==="false") {
-                $(window).one("click",function () {
-                    dropdown.removeClass("show");
-                });
-            }
-            else dropdown.removeClass("show");
+            dropdown.removeClass("show");
         });
 		return dropdown;
     }
@@ -130,13 +129,11 @@
         this.defaultCSS=["",""];
         this.addedCSS=css;
     }
-
     function SvgVertex () {
         this.coord=undefined;
         this.circle=undefined; this.text=undefined;
         this.group=undefined;
     }
-
     function Edge (x, y, weight = "", css=["",""], curveHeight=undefined) {
         this.x=x;
         this.y=y;
@@ -152,7 +149,6 @@
             else return this.x;
         }
     }
-
     function SvgEdge () {
         this.line=undefined;
         this.weight=undefined;
@@ -207,7 +203,7 @@
             addImportFunctionality(svgName,this);
             this.graphChange=graphChange;
             addUndoFunctionality(svgName,this);
-            addSettings(svgName,this);
+            $(svgName).parent().find(" .settings").off("click.settings").on("click.settings",this.addSettings.bind(this));
         }
 
         function convertVertexToList (vertex) {
@@ -950,6 +946,94 @@
             
             return text;
         }
+        
+        this.addSettings = function () {
+            let graph=this;
+            let sliderVers=$(".range-vers");
+            let outputVers=$(".slider-value-vers");
+            let cnt=0;
+            for (let i=0; i<graph.n; i++) {
+                if (graph.vertices[i]===undefined) continue;
+                cnt++;
+            }
+            sliderVers.val(cnt);
+            outputVers.html(cnt);
+
+            sliderVers.off("input").on("input", function() {
+                let n=parseInt($(this).val());
+                outputVers.html(n);
+                graph.initVertices(n); graph.undoTime--;
+                for (let i=0; i<n; i++) {
+                    graph.vertices[i].name=(i+1).toString();
+                }
+                graph.buildEdgeDataStructures([]); graph.undoTime--;
+                graph.calcPositions.init();
+                graph.draw(true,false);
+            });
+
+            if (graph.isDirected===false) $("#undirected").click();
+            else $("#directed").click();
+            $("#undirected").off("click").on("click",function () {
+                if (graph.isDirected===true) {
+                    graph.isDirected=false;
+                    graph.buildEdgeDataStructures(graph.convertSimpleEdgeList()); graph.undoTime--;
+                    graph.undoStack.push({time: graph.undoTime, type: "change-property", data: ["isDirected", true]});
+                    graph.undoTime++;
+                    graph.draw(true);
+                }
+            });
+            $("#directed").off("click").on("click",function () {
+                if (graph.isDirected===false) {
+                    graph.isDirected=true;
+                    graph.buildEdgeDataStructures(graph.convertSimpleEdgeList()); graph.undoTime--;
+                    graph.undoStack.push({time: graph.undoTime, type: "change-property", data: ["isDirected", false]});
+                    graph.undoTime++;
+                    graph.draw(true);
+                }
+            });
+            $("#weighted").prop("checked",graph.isWeighted);
+            $("#weighted").off("change").on("change",function () {
+                if ((this.checked===true)&&(graph.isWeighted===false)) {
+                    graph.undoStack.push({time: graph.undoTime, type: "change-property", data: ["isWeighted", false]});
+                    graph.undoTime++; graph.redoStack=[];
+                    graph.isWeighted=true;
+                    graph.draw(true);
+                }
+                else if ((this.checked===false)&&(graph.isWeighted===true)) {
+                    graph.undoStack.push({time: graph.undoTime, type: "change-property", data: ["isWeighted", true]});
+                    graph.undoTime++; graph.redoStack=[];
+                    graph.isWeighted=false;
+                    graph.draw(true);
+                }
+            });
+            $("#multi").prop("checked",graph.isMulti);
+            $("#multi").off("change").on("change",function () {
+                if ((this.checked===true)&&(graph.isMulti===false)) {
+                    graph.undoStack.push({time: graph.undoTime, type: "change-property", data: ["isMulti", false]});
+                    graph.undoTime++; graph.redoStack=[];
+                    graph.isMulti=true;
+                }
+                else if ((this.checked===false)&&(graph.isMulti===true)) {
+                    graph.undoStack.push({time: graph.undoTime, type: "change-property", data: ["isMulti", true]});
+                    graph.undoTime++; graph.redoStack=[];
+                    graph.isMulti=false;
+                }
+            });
+
+            let sliderRad=$(".range-rad");
+            let outputRad=$(".slider-value-rad");
+            sliderRad.val(graph.vertexRad);
+            outputRad.html(graph.vertexRad);
+            sliderRad.off("input").on("input", function() {
+                let val=parseInt($(this).val());
+                outputRad.html(val);
+                let oldVal=graph.vertexRad;
+                graph.undoStack.push({time: graph.undoTime, type: "change-property", data: ["radius", oldVal]});
+                graph.undoTime++; graph.redoStack=[];
+                graph.vertexRad=val;
+                graph.draw(true);
+            });
+        }
     }
 
     function addSaveFunctionality (svgName, graph) {
@@ -961,7 +1045,7 @@
 
         for (let saveButton of parentElement.find(".save")) {
             $(saveButton).off("click").on("click",function (event) {
-                let dropdown=dropdownMenu(".dropdown-menu.save-menu",event,["up", "right"]);
+                let dropdown=dropdownMenu(".dropdown-menu.save-menu",event);
                 dropdown.find(".png").off("click").one("click",function () {
                     let context=canvas[0].getContext('2d');
                     let svg=parentElement.children(".graph");
@@ -1375,94 +1459,6 @@
         });
     }
     
-    function addSettings (svgName, graph) {
-        $(svgName).parent().find(" .settings").off("click.settings").on("click.settings",function () {
-            let sliderVers=$(".range-vers");
-            let outputVers=$(".slider-value-vers");
-            let cnt=0;
-            for (let i=0; i<graph.n; i++) {
-                if (graph.vertices[i]===undefined) continue;
-                cnt++;
-            }
-            sliderVers.val(cnt);
-            outputVers.html(cnt);
-
-            sliderVers.off("input").on("input", function() {
-                let n=parseInt($(this).val());
-                outputVers.html(n);
-                graph.initVertices(n); graph.undoTime--;
-                for (let i=0; i<n; i++) {
-                    graph.vertices[i].name=(i+1).toString();
-                }
-                graph.buildEdgeDataStructures([]); graph.undoTime--;
-                graph.calcPositions.init();
-                graph.draw(true,false);
-            });
-
-            if (graph.isDirected===false) $("#undirected").click();
-            else $("#directed").click();
-            $("#undirected").off("click").on("click",function () {
-                if (graph.isDirected===true) {
-                    graph.isDirected=false;
-                    graph.buildEdgeDataStructures(graph.convertSimpleEdgeList()); graph.undoTime--;
-                    graph.undoStack.push({time: graph.undoTime, type: "change-property", data: ["isDirected", true]});
-                    graph.undoTime++;
-                    graph.draw(true);
-                }
-            });
-            $("#directed").off("click").on("click",function () {
-                if (graph.isDirected===false) {
-                    graph.isDirected=true;
-                    graph.buildEdgeDataStructures(graph.convertSimpleEdgeList()); graph.undoTime--;
-                    graph.undoStack.push({time: graph.undoTime, type: "change-property", data: ["isDirected", false]});
-                    graph.undoTime++;
-                    graph.draw(true);
-                }
-            });
-            $("#weighted").prop("checked",graph.isWeighted);
-            $("#weighted").off("change").on("change",function () {
-                if ((this.checked===true)&&(graph.isWeighted===false)) {
-                    graph.undoStack.push({time: graph.undoTime, type: "change-property", data: ["isWeighted", false]});
-                    graph.undoTime++; graph.redoStack=[];
-                    graph.isWeighted=true;
-                    graph.draw(true);
-                }
-                else if ((this.checked===false)&&(graph.isWeighted===true)) {
-                    graph.undoStack.push({time: graph.undoTime, type: "change-property", data: ["isWeighted", true]});
-                    graph.undoTime++; graph.redoStack=[];
-                    graph.isWeighted=false;
-                    graph.draw(true);
-                }
-            });
-            $("#multi").prop("checked",graph.isMulti);
-            $("#multi").off("change").on("change",function () {
-                if ((this.checked===true)&&(graph.isMulti===false)) {
-                    graph.undoStack.push({time: graph.undoTime, type: "change-property", data: ["isMulti", false]});
-                    graph.undoTime++; graph.redoStack=[];
-                    graph.isMulti=true;
-                }
-                else if ((this.checked===false)&&(graph.isMulti===true)) {
-                    graph.undoStack.push({time: graph.undoTime, type: "change-property", data: ["isMulti", true]});
-                    graph.undoTime++; graph.redoStack=[];
-                    graph.isMulti=false;
-                }
-            });
-
-            let sliderRad=$(".range-rad");
-            let outputRad=$(".slider-value-rad");
-            sliderRad.val(graph.vertexRad);
-            outputRad.html(graph.vertexRad);
-            sliderRad.off("input").on("input", function() {
-                let val=parseInt($(this).val());
-                outputRad.html(val);
-                let oldVal=graph.vertexRad;
-                graph.undoStack.push({time: graph.undoTime, type: "change-property", data: ["radius", oldVal]});
-                graph.undoTime++; graph.redoStack=[];
-                graph.vertexRad=val;
-                graph.draw(true);
-            });
-        });
-    }
     
     window.Graph=Graph;
     window.segmentLength=segmentLength;

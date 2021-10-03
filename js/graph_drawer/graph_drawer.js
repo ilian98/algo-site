@@ -49,6 +49,7 @@
         }
         
         function mouseDown (type, index, event) {
+            event.preventDefault();
             let dropdownNames=["vertex","edge","weight","save-menu"];
             for (let name of dropdownNames) {
                 $(".dropdown-menu."+name).removeClass("show");
@@ -324,6 +325,7 @@
             obj.removeClass("temp");
         }
         function vertexClick (index, event) {
+            if (trackedMouse===true) return ;
             let dropdown=dropdownMenu(".dropdown-menu.vertex",event);
             dropdown.find(".remove-vertex").off("click").one("click",function () {
                 for (let ind of graph.adjList[index]) {
@@ -409,6 +411,7 @@
             }
         }
         function edgeClick (index, event) {
+            if (trackedMouse===true) return ;
             let dropdown=dropdownMenu(".dropdown-menu.edge",event);
             if (graph.isWeighted===true) dropdown.find(".change-weight").show();
             else dropdown.find(".change-weight").hide();
@@ -475,6 +478,7 @@
             graph.svgVertices[ind].group.attr({cursor: "pointer"});
             if (window.isMobile==="false") graph.svgVertices[ind].group.mousedown(mouseDown.bind(this,"vertex",ind));
             else graph.svgVertices[ind].group.touchstart(mouseDown.bind(this,"vertex",ind));
+            graph.svgVertices[ind].group.click(vertexClick.bind(this,ind));
         }
         let edgeClickAreas=[];
         function addEdgeEvents (ind) {
@@ -505,11 +509,12 @@
                 clickArea.touchstart(mouseDown.bind(this,"edge",ind));
                 graph.svgEdges[ind].line.touchstart(mouseDown.bind(this,"edge",ind));
             }
+            clickArea.click(edgeClick.bind(this,ind));
+            graph.svgEdges[ind].line.click(edgeClick.bind(this,ind));
             if (graph.svgEdges[ind].weight!==undefined) {
                 graph.svgEdges[ind].weight.attr({cursor: "pointer"});
                 graph.edgeList[ind].defaultCSS[1]+=" ; cursor: pointer";
-                if (window.isMobile==="false") graph.svgEdges[ind].weight.click(weightClick.bind(graph.svgEdges[ind],ind));
-                else graph.svgEdges[ind].weight.touchstart(weightClick.bind(graph.svgEdges[ind],ind));
+                graph.svgEdges[ind].weight.click(weightClick.bind(graph.svgEdges[ind],ind));
             }
         }
         this.init = function () {
@@ -538,21 +543,19 @@
                     }
                 });
             }
-            addSettings(graph.svgName,this);
+            $(graph.svgName).parent().find(" .settings").off("click.draw-settings").on("click.draw-settings",this.addSettings.bind(this));
         }
-    }
         
-    function addSettings (svgName, drawableGraph) {
-        $(svgName).parent().find(" .settings").off("click.draw-settings").on("click.draw-settings",function () {
-            if (drawableGraph.addVertexDrag===false) $("#edgeDraw").click();
+        this.addSettings = function () {
+            if (this.addVertexDrag===false) $("#edgeDraw").click();
             else $("#vertexMove").click();
             $("#edgeDraw").off("click").on("click",function () {
-                drawableGraph.addVertexDrag=false;
-            });
+                this.addVertexDrag=false;
+            }.bind(this));
             $("#vertexMove").off("click").on("click",function () {
-                drawableGraph.addVertexDrag=true;
-            });
-        });
+                this.addVertexDrag=true;
+            }.bind(this));
+        }
     }
     
     

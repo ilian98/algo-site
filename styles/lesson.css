@@ -106,15 +106,9 @@ code {
     background: green;
     cursor: pointer;
 }
-.settings {
+.undo-mini, .redo-mini, .settings, .information {
     color: #0d6efd;
 }
-.settings:hover, .settings:focus {
-    color: #0b5ed7;
-}
-.information {
-    color: #0d6efd;
-}
-.information:hover, .information:focus {
+.undo-mini:hover, .undo-mini:focus, .redo-mini:hover, .redo-mini:focus, .settings:hover, .settings:focus, .information:hover, .information:focus {
     color: #0b5ed7;
 }

@@ -40,12 +40,9 @@
         });
     }
 
-    function defaultExample (name, graph, animationObj, isDirected, vertexRad) {
-        graph.init(name+" .graph",5,isDirected);
-        let edgeList;
-        if (isDirected===false) edgeList=[[0,1],[0,2],[0,3],[0,4],[1,2]];
-        else edgeList=[[0,1],[0,2],[0,3],[0,4],[1,2],[1,4],[2,3],[3,1]];
-        graph.buildEdgeDataStructures(edgeList);
+    function defaultExample (name, graph, animationObj, vertexRad) {
+        graph.init(name+" .graph",5,false);
+        graph.buildEdgeDataStructures([[0,1],[0,2],[0,3],[0,4],[1,2]]);
         graph.drawNewGraph(1,1,299,299,vertexRad,true);
 
         animationObj.init(name,function findAnimation () {
@@ -71,12 +68,18 @@
             if ($(name+" .default").is(":hidden")===false) {
                 topSaveButton.show();
                 $(name+" .default").hide();
+                $(name+" .undo").hide();
+                $(name+" .redo").hide();
                 $(name+" .settings").hide();
+                $(name+" .import").hide();
             }
             else {
                 topSaveButton.hide();
                 $(name+" .default").show();
+                $(name+" .undo").show();
+                $(name+" .redo").show();
                 $(name+" .settings").show();
+                $(name+" .import").show();
                 graph.draw(true);
             }
         });
@@ -90,11 +93,11 @@
             graph.n=6;
             graph.drawNewGraph(1,1,299,299,30,false);
 
-            let graphUndirected = new Graph();
+            let graphDFS = new Graph();
             let animationObjUndirected = new Animation();
-            let exampleName1=".graphExample2";
-            defaultExample(exampleName1,graphUndirected,animationObjUndirected,false,20);
-            $(exampleName1+" .default").off("click").on("click",defaultExample.bind(this,exampleName1,graphUndirected,animationObjUndirected,false,20));
+            let exampleName=".graphExample2";
+            defaultExample(exampleName,graphDFS,animationObjUndirected,20);
+            $(exampleName+" .default").off("click").on("click",defaultExample.bind(this,exampleName,graphDFS,animationObjUndirected,20));
         }
         else if (part==3) {
             let graph = new Graph();
