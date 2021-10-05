@@ -5,9 +5,8 @@
         frameX: 2,
     };
     
-    function endAnimation (topSaveButton, tree, animationObj, elements, pos, val) {
+    function endAnimation (tree, animationObj, elements, pos, val) {
         this.hide();
-        topSaveButton.hide();
 
         animationObj.clear();
         elements[pos-1]=val;
@@ -231,21 +230,17 @@
             });
             let endButton=$(".treeExample .end");
             endButton.hide();
-            let topSaveButton=$($(exampleName+" .save")[0]);
-            topSaveButton.hide();
             animationObj.startButton.on("click.bonus", function () {
                 if (animationObj.startButton.html()==="Стоп") { // first click handler is in animationObj
                     if (exampleName==".segTreeExample2") {
                         endButton.show();
-                        endButton.on("click",endAnimation.bind(endButton,topSaveButton,tree,animationObj,elements,pos,val));
+                        endButton.on("click",endAnimation.bind(endButton,tree,animationObj,elements,pos,val));
                     }
-                    topSaveButton.show();
                 }
                 else {
                     if (exampleName==".segTreeExample2") {
                         endButton.hide();
                     }
-                    topSaveButton.hide();
                 }
             });
         }
@@ -258,7 +253,7 @@
         if (part==2) {
             let tree=new Graph();
             let exampleName=".segTreeExample1";
-            tree.init(exampleName+" .treeExample .graph",8,false,true);
+            tree.init(exampleName+" .treeExample",8,false,true);
             let elements=[];
             $(exampleName+" .default").off("click").on("click",defaultExample.bind(this,exampleName,tree,elements));
             $(exampleName+" .make").off("click").on("click",makeSegTree.bind(this,exampleName,tree,elements,undefined));
@@ -271,7 +266,7 @@
         else if (part==3) {
             let tree1=new Graph();
             let exampleName1=".segTreeExample2";
-            tree1.init(exampleName1+" .treeExample .graph",8,false,true);
+            tree1.init(exampleName1+" .treeExample",8,false,true);
             let animationObj1=new Animation();
             let elements1=[];
             $(exampleName1+" .default").off("click").on("click",defaultExample.bind(this,exampleName1,tree1,elements1,animationObj1));
@@ -286,7 +281,7 @@
 
             let tree2=new Graph();
             let exampleName2=".segTreeExample3";
-            tree2.init(exampleName2+" .treeExample .graph",8,false,true);
+            tree2.init(exampleName2+" .treeExample",8,false,true);
             let animationObj2=new Animation();
             let elements2=[];
             $(exampleName2+" .default").off("click").on("click",defaultExample.bind(this,exampleName2,tree2,elements2,animationObj2));
@@ -301,7 +296,7 @@
         else if (part==4) {
             let tree=new Graph();
             let exampleName=".segTreeExample4";
-            tree.init(exampleName+" .treeExample .graph",1,false,true);
+            tree.init(exampleName+" .treeExample",1,false,true);
             let elements=[];
             $(exampleName+" .default").off("click").on("click",defaultExample.bind(this,exampleName,tree,elements));
             $(exampleName+" .add").off("click").on("click",addPoint.bind(this,exampleName,tree));

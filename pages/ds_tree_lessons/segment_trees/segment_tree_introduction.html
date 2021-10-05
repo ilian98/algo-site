@@ -54,6 +54,13 @@
         <div class="wrapper" tabindex="-1">
             <div class="content">            
                 <h1 align="center">Увод в сегментните дървета</h1>
+                
+                <ul class="dropdown-menu save-menu">
+                    <li><a class="dropdown-item unselectable txt">Изтегли като txt</a></li>
+                    <li><a class="dropdown-item unselectable edge-list">Изтегли като сп. на ребрата</a></li>
+                    <li><a class="dropdown-item unselectable svg">Изтегли като svg</a></li>
+                    <li><a class="dropdown-item unselectable png">Изтегли като png</a></li>
+                </ul>
 
                 <div class="lesson-part-position">
                     <button class="btn btn-secondary">1. За какво се използват?</button>
@@ -75,8 +82,8 @@
                             <div class="form-group col-lg-5">
                                 <div class="row mb-2">
                                     <label for="array" class="col-auto col-form-label pe-0">Масив:</label>
-                                    <div class="col-9 col-md-6 col-lg-9">
-                                        <input class="form-control array" maxLength="47"/>
+                                    <div class="col-auto">
+                                        <input class="form-control array" maxLength="47" style="width: 15rem"/>
                                     </div>
                                 </div>
                                 <button class="btn btn-primary make">Направи дървото!</button><br>
@@ -84,20 +91,14 @@
                                 <button class="btn btn-primary indexes" style="margin-top: 2%">Покажи номерата</button>
                             </div>
                             <div class="treeExample col-lg-7">
-                                <svg class="graph" width="100%" viewBox="0 0 300 150" style="margin-top: 2%"></svg>
-                                <svg class="svg-save" width="100" height="100" viewBox="0 0 150 75"></svg>
-                                <button class="btn btn-primary save" style="float: right" title="Изтегли дървото">
-                                    <svg class="bi" width="24px" height="24px" fill="currentColor">
+                                <svg class="graph" width="100%" viewBox="0 0 300 150"></svg>
+                                <svg class="svg-save" style="display: none"></svg>
+                                <canvas class="canvas-save" style="display: none"></canvas>
+                                <button class="btn p-0 save save-mini" title="Изтегли графа" style="float: right">
+                                    <svg class="bi" width="20px" height="20px" fill="currentColor">
                                         <use xlink:href="/algo-site/node_modules/bootstrap-icons/bootstrap-icons.svg#download"/>
                                     </svg>
                                 </button>
-                                <ul class="dropdown-menu save-menu">
-                                    <li><a class="dropdown-item unselectable txt">Изтегли като txt</a></li>
-                                    <li><a class="dropdown-item unselectable edge-list">Изтегли като сп. на ребрата</a></li>
-                                    <li><a class="dropdown-item unselectable svg">Изтегли като svg</a></li>
-                                    <li><a class="dropdown-item unselectable png">Изтегли като png</a></li>
-                                </ul>
-                                <canvas class="canvas-save"></canvas>
                             </div>
                         </div>
                         <p class="text-format">В сегментното дърво всеки връх освен листата има по две деца. Коренът отговаря за целия масив (в нашия случай за числата на позиции от 1 до 8). Съответно лявото му дете отговаря за лявата половина от числата (тези на позиции от 1 до 4), а дясното дете - за дясната половина (от 5 до 8). Така рекурсивно ще стигнем до листата.  Сегментното дърво е рекурсивна структура от данни. На най-високо ниво, се използва идеята <i>разделяй и владей</i> върху дадения масив - ако връх отговаря за интервала \([l;r]\), то децата му отговарят за двете половинки \([l; {l+r \over 2}]\) и \([{l+r \over 2}+1; r]\), рекурсивно същото е за децата и техните деца и т.н. (това е <i>разделяй</i> частта). По-късно ще се убедим, че информацията за всеки връх, който не е листо, се получава от децата му - <i>владей</i> частта. Обикновено сегментното дърво се пази в един масив. Нека засега си мислим, че големината на масива е степен на двойката (за примера \(8=2^3\)). Ако означим с \(n\) броя числа в масива, то нека \(n=2^s\). Тогава лесно можем да сметнем общия брой върхове, които ще имаме в дървото - \(1+2^1+2^2+...+2^s=\) \(2^{s+1}-1=2n-1\). Това означава, че броя върхове, който ни трябва е линеен спрямо големината на масива.</p>
@@ -124,8 +125,8 @@
                             <div class="form-group col-lg-5">
                                 <div class="row mb-2">
                                     <label for="array" class="col-auto col-form-label pe-0">Масив:</label>
-                                    <div class="col-9 col-md-6 col-lg-9">
-                                        <input class="form-control array" maxLength="47"/>
+                                    <div class="col-auto">
+                                        <input class="form-control array" maxLength="47" style="width: 15rem"/>
                                     </div>
                                 </div>
                                 <button class="btn btn-primary make">Направи дървото!</button><br>
@@ -134,28 +135,45 @@
                                     <div class="col">
                                         <div class="row">
                                             <label for="pos" class="col-auto col-form-label pe-0">\(pos=\)</label>
-                                            <div class="col-6 col-md-3 col-lg-5">
-                                                <input class="form-control pos" maxLength="2"/>
+                                            <div class="col-auto">
+                                                <input class="form-control pos" maxLength="2" style="width: 3.5rem"/>
                                             </div>
                                         </div>
                                     </div>
                                     <div class="col">
                                         <div class="row">
                                             <label for="val" class="col-auto col-form-label pe-0">\(val=\)</label>
-                                            <div class="col-6 col-md-3 col-lg-5">
-                                                <input class="form-control val" maxLength="2"/>
+                                            <div class="col-auto">
+                                                <input class="form-control val" maxLength="2" style="width: 3.5rem"/>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                             <div class="treeExample col-lg-7">
-                                <div class="row">
+                                <svg class="svg-save" style="display: none"></svg>
+                                <canvas class="canvas-save" style="display: none"></canvas>
+                                <button class="btn p-0 save save-mini" title="Изтегли графа" style="float: right">
+                                    <svg class="bi" width="20px" height="20px" fill="currentColor">
+                                        <use xlink:href="/algo-site/node_modules/bootstrap-icons/bootstrap-icons.svg#download"/>
+                                    </svg>
+                                </button>
+                                
+                                <svg class="graph" width="100%" viewBox="0 0 300 150" style="margin-top: 2%"></svg>
+                                <p class="anim-text"></p>
+                                
+                                <div class="row mt-2">
                                     <div class="col-auto">
                                         <button class="btn btn-primary start">Старт!</button>
                                         <button class="btn btn-primary end" style="margin-bottom: 2vh; margin-left: 1vh">Край</button>
                                     </div>
                                     <div class="col text-end">
+                                        <div class="row form-group justify-content-end speed-wrapper">
+                                            <label for="speed" class="col-auto col-form-label pe-0 unselectable">Ускорение:</label>
+                                            <div class="col-auto">
+                                                <input class="form-control speed" maxLength="1" style="width: 2.5rem"/>
+                                            </div>
+                                        </div>
                                         <button class="btn btn-primary pause">Пауза</button>
                                         <button class="btn btn-primary previous" title="Предишна стъпка">
                                             <svg class="bi" width="20px" height="20px" fill="currentColor">
@@ -169,29 +187,6 @@
                                         </button>
                                     </div>
                                 </div>
-                                
-                                <svg class="graph" width="100%" viewBox="0 0 300 150" style="margin-top: 2%"></svg>
-                                <svg class="svg-save" width="100" height="100" viewBox="0 0 150 75"></svg>
-                                <canvas class="canvas-save"></canvas>
-                                <button class="btn btn-primary save" style="float: right" title="Изтегли дървото">
-                                    <svg class="bi" width="24px" height="24px" fill="currentColor">
-                                        <use xlink:href="/algo-site/node_modules/bootstrap-icons/bootstrap-icons.svg#download"/>
-                                    </svg>
-                                </button>
-                                <div class="row form-group">
-                                    <label for="speed" class="col-auto col-form-label pe-0">Ускорение:</label>
-                                    <div class="col-4 col-md-3 col-xl-2 mb-2">
-                                        <input class="form-control speed" maxLength="1"/>
-                                    </div>
-                                    <div class="col-auto ms-auto">
-                                        <button class="btn btn-primary save" title="Изтегли дървото">
-                                            <svg class="bi" width="24px" height="24px" fill="currentColor">
-                                                <use xlink:href="/algo-site/node_modules/bootstrap-icons/bootstrap-icons.svg#download"/>
-                                            </svg>
-                                        </button>
-                                    </div>
-                                </div>
-                                <p class="anim-text"></p>
                             </div>
                         </div>
                         
@@ -206,8 +201,8 @@
                             <div class="form-group col-lg-5">
                                 <div class="row mb-2">
                                     <label for="array" class="col-auto col-form-label pe-0">Масив:</label>
-                                    <div class="col-9 col-md-6 col-lg-9">
-                                        <input class="form-control array" maxLength="47"/>
+                                    <div class="col-auto">
+                                        <input class="form-control array" maxLength="47" style="width: 15rem"/>
                                     </div>
                                 </div>
                                 <button class="btn btn-primary make">Направи дървото!</button><br>
@@ -216,27 +211,44 @@
                                     <div class="col">
                                         <div class="row">
                                             <label for="ql" class="col-auto col-form-label pe-0">\(ql=\)</label>
-                                            <div class="col-6 col-md-3 col-lg-5">
-                                                <input class="form-control ql" maxLength="2"/>
+                                            <div class="col-auto">
+                                                <input class="form-control ql" maxLength="2" style="width: 3.5rem"/>
                                             </div>
                                         </div>
                                     </div>
                                     <div class="col">
                                         <div class="row">
                                             <label for="qr" class="col-auto col-form-label pe-0">\(qr=\)</label>
-                                            <div class="col-6 col-md-3 col-lg-5">
-                                                <input class="form-control qr" maxLength="2"/>
+                                            <div class="col-auto">
+                                                <input class="form-control qr" maxLength="2" style="width: 3.5rem"/>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                             <div class="treeExample col-lg-7">
-                                <div class="row">
+                                <svg class="svg-save" style="display: none"></svg>
+                                <canvas class="canvas-save" style="display: none"></canvas>
+                                <button class="btn p-0 save save-mini" title="Изтегли графа" style="float: right">
+                                    <svg class="bi" width="20px" height="20px" fill="currentColor">
+                                        <use xlink:href="/algo-site/node_modules/bootstrap-icons/bootstrap-icons.svg#download"/>
+                                    </svg>
+                                </button>
+                                
+                                <svg class="graph" width="100%" viewBox="0 0 300 150" style="margin-top: 2%"></svg>
+                                <p class="anim-text"></p>
+                                
+                                <div class="row mt-2">
                                     <div class="col-auto">
                                         <button class="btn btn-primary start">Старт!</button>
                                     </div>
                                     <div class="col text-end">
+                                        <div class="row form-group justify-content-end speed-wrapper">
+                                            <label for="speed" class="col-auto col-form-label pe-0 unselectable">Ускорение:</label>
+                                            <div class="col-auto">
+                                                <input class="form-control speed" maxLength="1" style="width: 2.5rem"/>
+                                            </div>
+                                        </div>
                                         <button class="btn btn-primary pause">Пауза</button>
                                         <button class="btn btn-primary previous" title="Предишна стъпка">
                                             <svg class="bi" width="20px" height="20px" fill="currentColor">
@@ -250,29 +262,6 @@
                                         </button>
                                     </div>
                                 </div>
-                                
-                                <svg class="graph" width="100%" viewBox="0 0 300 150" style="margin-top: 2%"></svg>
-                                <svg class="svg-save" width="100" height="100" viewBox="0 0 150 75"></svg>
-                                <canvas class="canvas-save"></canvas>
-                                <button class="btn btn-primary save" style="float: right" title="Изтегли дървото">
-                                    <svg class="bi" width="24px" height="24px" fill="currentColor">
-                                        <use xlink:href="/algo-site/node_modules/bootstrap-icons/bootstrap-icons.svg#download"/>
-                                    </svg>
-                                </button>
-                                <div class="row form-group">
-                                    <label for="speed" class="col-auto col-form-label pe-0">Ускорение:</label>
-                                    <div class="col-4 col-md-3 col-xl-2 mb-2">
-                                        <input class="form-control speed" maxLength="1"/>
-                                    </div>
-                                    <div class="col-auto ms-auto">
-                                        <button class="btn btn-primary save" title="Изтегли дървото">
-                                            <svg class="bi" width="24px" height="24px" fill="currentColor">
-                                                <use xlink:href="/algo-site/node_modules/bootstrap-icons/bootstrap-icons.svg#download"/>
-                                            </svg>
-                                        </button>
-                                    </div>
-                                </div>
-                                <p class="anim-text"></p>
                             </div>
                         </div>
                         
@@ -296,11 +285,11 @@
                         <div class="segTreeExample4 row">
                             <div class="form-group col-lg-4">
                                 <div class="row mb-2">
-                                    <div class="col-5 col-sm-3 col-md-2 col-lg-5 mb-1">
+                                    <div class="col-auto mb-2">
                                         <div class="row">
                                             <label for="c" class="col-auto col-form-label pe-0">\(c=\)</label>
-                                            <div class="col-7 col-md-8">
-                                                <input class="form-control c" maxLength="2"/>
+                                            <div class="col-auto">
+                                                <input class="form-control c" maxLength="2" style="width: 3.5rem"/>
                                             </div>
                                         </div>
                                     </div>
@@ -313,13 +302,14 @@
                             </div>
                             <div class="treeExample col-lg-8">
                                 <svg class="graph" width="100%" viewBox="0 0 300 200" style="margin-top: 2%"></svg>
-                                <svg class="svg-save" width="100" height="100" viewBox="0 0 150 100"></svg>
-                                <button class="btn btn-primary save" style="float: right" title="Изтегли дървото">
-                                    <svg class="bi" width="24px" height="24px" fill="currentColor">
+                                
+                                <svg class="svg-save" style="display: none"></svg>
+                                <canvas class="canvas-save" style="display: none"></canvas>
+                                <button class="btn p-0 save save-mini" title="Изтегли графа" style="float: right">
+                                    <svg class="bi" width="20px" height="20px" fill="currentColor">
                                         <use xlink:href="/algo-site/node_modules/bootstrap-icons/bootstrap-icons.svg#download"/>
                                     </svg>
                                 </button>
-                                <canvas class="canvas-save"></canvas>
                             </div>
                         </div>
                         <p class="text-format">Функцията, която обработва заявка въпрос остава горе-долу същата като преди. Единствено не стъпваме във все още неинициализирани върхове, които очевидно не повлияват броя точки, които смятаме.</p>

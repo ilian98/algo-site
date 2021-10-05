@@ -41,45 +41,51 @@
     }
 
     function defaultExample (name, graph, animationObj, vertexRad) {
-        graph.init(name+" .graph",5,false);
+        graph.init(name,5,false);
         graph.buildEdgeDataStructures([[0,1],[0,2],[0,3],[0,4],[1,2]]);
         graph.drawNewGraph(1,1,299,299,vertexRad,true);
+        graph.setSettings([true, false, true]);
 
+        $(".start-vertex").val("1");
         animationObj.init(name,function findAnimation () {
-            let animations=[];
-            let used=[];
+            let st=parseInt($(".start-vertex").val()); st--;
+            let used=[],found=false;
             for (let i=0; i<graph.n; i++) {
                 if (graph.vertices[i]===undefined) continue;
+                if (i===st) found=true;
                 used[i]=false;
             }
+            if (found===false) {
+                alert("Невалиден номер на връх!");
+                return [];
+            }
+            let animations=[];
             animations.push({
-                animFunctions: [graph.vertexAnimation(0,"red","circle")],
-                animText: "Започваме обхождането от връх номер 1."
+                animFunctions: [graph.vertexAnimation(st,"red","circle")],
+                animText: "Започваме обхождането от връх номер "+(st+1)+"."
             });
-            dfs(0,used,graph,animations);
+            dfs(st,used,graph,animations);
             return animations;
         },function initialState () {
-            graph.draw(false);
+            graph.draw(false,false,true);
         });
 
-        let topSaveButton=$($(name+" .save")[0]);
-        topSaveButton.hide();
         animationObj.startButton.off("click.bonus").on("click.bonus", function () {
-            if ($(name+" .default").is(":hidden")===false) {
-                topSaveButton.show();
-                $(name+" .default").hide();
-                $(name+" .undo").hide();
-                $(name+" .redo").hide();
-                $(name+" .settings").hide();
+            if ($(this).html()==="Стоп") {
+                $(name+" .default").parent().hide();
+                $(name+" .undo-group").hide();
                 $(name+" .import").hide();
+                $(name+" .save-group").removeClass("text-center").addClass("text-start");
+                $(name+" .dragging-mini").parent().removeClass("d-flex").addClass("d-none");
+                $(name+" .settings").parent().removeClass("d-flex").addClass("d-none");
             }
             else {
-                topSaveButton.hide();
-                $(name+" .default").show();
-                $(name+" .undo").show();
-                $(name+" .redo").show();
-                $(name+" .settings").show();
+                $(name+" .default").parent().show();
+                $(name+" .undo-group").show();
                 $(name+" .import").show();
+                $(name+" .save-group").addClass("text-center").removeClass("text-start");
+                $(name+" .dragging-mini").parent().removeClass("d-none").addClass("d-flex");
+                $(name+" .settings").parent().removeClass("d-none").addClass("d-flex");
                 graph.draw(true);
             }
         });

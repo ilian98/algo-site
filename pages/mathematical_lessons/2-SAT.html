@@ -29,6 +29,7 @@
         <script type="text/javascript" src="/algo-site/js/mathematical_lessons/2-SAT.js"></script>
         <script type="text/javascript" src="/algo-site/js/graph_drawer/graph.js"></script>
         <script type="text/javascript" src="/algo-site/js/graph_drawer/graph_positioning.js"></script>
+        <script type="text/javascript" src="/algo-site/js/graph_drawer/graph_drawer.js"></script>
         <title>2-SAT</title>
     </head>
     <body>
@@ -49,6 +50,13 @@
             <div class="content">            
                 <h1 align="center">2-SAT</h1>
 
+                <ul class="dropdown-menu save-menu">
+                    <li><a class="dropdown-item unselectable txt">Изтегли като txt</a></li>
+                    <li><a class="dropdown-item unselectable edge-list">Изтегли като сп. на ребрата</a></li>
+                    <li><a class="dropdown-item unselectable svg">Изтегли като svg</a></li>
+                    <li><a class="dropdown-item unselectable png">Изтегли като png</a></li>
+                </ul>
+                
                 <div class="lesson-part-position">
                     <button class="btn btn-secondary">1. Какво представлява 2-SAT задачата?</button>
                     <div id="firstPart">
@@ -86,7 +94,7 @@
                         </div>
                         <p class="text-format">Смисълът на тази операция е като математическото следователно - искаме да кажем, че ако едно твърдение е истина (a), то друго твърдение също трябва да е истина (b). Както се вижда, при тази операция можем да получим 0, само ако първата променлива e 1, а втората е 0. Нека например имаме \(x||y\). Тогава ако \(x=1\), нямаме претенции за стойността на \(y\). Но ако \(x=0\), тогава за да удовлетворим тази формула, <b>трябва</b> \(y=1\). Това можем да запишем с импликация по следния начин: \(!x\to y\), което е напълно еквивалетно на началната формула \(x||y\). По-рано казахме, че искаме да знаем за всяка променлива какво следва, ако ѝ присвоим дадена стойност. Затова аналогично, ако разсъждаваме за \(y\) трябва да имаме импликацията \(!y\to x\), която също е еквивалентна на началната формула. Така тези две импликации ни описват точно какво трябва да се случи в зависимост от това какви стойности присвоим на \(x\) и \(y\). По този начин можем за всяко едно от логическите <b>или</b>-та да разпишем съответни импликации на това какво трябва да следва при присвояване на дадена стойност на някоя променлива. Понеже те са обединени с логическо <b>и</b>, то всички тези импликации трябва да са верни. Цялата тази информация най-компактно и приложимо можем да я запишем в граф, чиито върхове са променливите и техните отрицания, а ребрата са именно тези импликации. Следният интерактивен пример илюстрира как от формула, която е в 2-<i>SAT</i> форма, можем да получим така наречения <i>граф на импликациите</i>:</p>
                         <div class="twoSATexample1 row">
-                            <div class="form-group col-lg-5">
+                            <div class="form-group col-lg-5 mb-2">
                                 <div class="row">
                                     <label for="formula" class="col-auto col-form-label pe-0">Формула:</label>
                                     <div class="col-9 col-md-6 col-lg-9">
@@ -97,19 +105,13 @@
                             <div class="graphExample col-lg-7">
                                 <button class="btn btn-primary make">Направи графа!</button>
                                 <svg class="graph" width="100%" viewBox="0 0 300 150" style="margin-top: 2%"></svg>
-                                <svg class="svg-save" width="100" height="100" viewBox="0 0 150 75"></svg>
-                                <button class="btn btn-primary save" style="float: right" title="Изтегли графа">
-                                    <svg class="bi" width="24px" height="24px" fill="currentColor">
+                                <svg class="svg-save" style="display: none"></svg>
+                                <canvas class="canvas-save" style="display: none"></canvas>
+                                <button class="btn p-0 save save-mini" title="Изтегли графа" style="float: right">
+                                    <svg class="bi" width="20px" height="20px" fill="currentColor">
                                         <use xlink:href="/algo-site/node_modules/bootstrap-icons/bootstrap-icons.svg#download"/>
                                     </svg>
                                 </button>
-                                <ul class="dropdown-menu save-menu">
-                                    <li><a class="dropdown-item unselectable txt">Изтегли като txt</a></li>
-                                    <li><a class="dropdown-item unselectable edge-list">Изтегли като сп. на ребрата</a></li>
-                                    <li><a class="dropdown-item unselectable svg">Изтегли като svg</a></li>
-                                    <li><a class="dropdown-item unselectable png">Изтегли като png</a></li>
-                                </ul>
-                                <canvas class="canvas-save"></canvas>
                             </div>
                         </div>
                         <p class="text-format">Нещо, което следва да уточним е следното - може да има самостоятелна променлива (или отрицание на променлива) като формула, обградена с логическо <b>и</b>. Ако например имаме самостоятелно променливата \(x\), това означава, че за да е удовлетворима цялата формула трябва \(x=1\). Това с импликации можем да го наложим по-следния начин: \(!x\to x\), така ако се опитаме да сложим \(x=0\) ще стигнем до противоречие. Аналогично ако имаме самостоятелно \(!x\), то ще имаме импликацията \(x\to !x\). Разсъждението преди малко показва и начина на мислене, като имаме този граф. Идеята е, че ако приемем, даден връх за правилно твърдение, то импликациите показват какво следва от него за останалите променливи. Проблем възниква, както преди малко, ако по някакъв начин стигнем до връх, който отрича началното твърдение.</p>
@@ -135,13 +137,13 @@
                             <div class="graphExample col-lg-7">
                                 <button class="btn btn-primary show">Покажи компонентите!</button>
                                 <svg class="graph" width="100%" viewBox="0 0 300 150" style="margin-top: 2%"></svg>
-                                <svg class="svg-save" width="100" height="100" viewBox="0 0 150 75"></svg>
-                                <button class="btn btn-primary save" style="float: right" title="Изтегли графа">
-                                    <svg class="bi" width="24px" height="24px" fill="currentColor">
+                                <svg class="svg-save" style="display: none"></svg>
+                                <canvas class="canvas-save" style="display: none"></canvas>
+                                <button class="btn p-0 save save-mini" title="Изтегли графа" style="float: right">
+                                    <svg class="bi" width="20px" height="20px" fill="currentColor">
                                         <use xlink:href="/algo-site/node_modules/bootstrap-icons/bootstrap-icons.svg#download"/>
                                     </svg>
                                 </button>
-                                <canvas class="canvas-save"></canvas>
                             </div>
                         </div>
                         <p class="text-format">Единствено остана да изясним един важен въпрос. Когато имаме решение как да намерим едно такова. Това не е тривиален въпрос. Има лесен начин, използвайки вече намерените силно-свързани компоненти. Стандартният алгоритъм (на Косаруджо), с който се намират, ги обхожда в топологичен ред. Нека сме ги номерирали в този ред. Нека \(a\) е номерът на компонентата на връх \(x\), а \(b\) е номерът на компонентата на връх \(!x\). Ако \(b \lt a\), то е възможно да има потенциален път между върховете \(!x\) и \(x\), но е сигурно, че няма път между тях в обратната посока. Това означава, че можем да сложим стойност истина на \(x\). В обратния случай трябва да сложим стойност лъжа на тази променлива. Следният код реализира описаният досега алгоритъм за удовлетворяване на формула в 2-<i>SAT</i> форма:</p>

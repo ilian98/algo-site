@@ -3,7 +3,7 @@
     let graph;
     function init () {
         graph=new Graph();
-        graph.init(".graph",5,false,false,function () {
+        graph.init(".graph-drawer",5,false,false,function () {
             let cnt=0;
             for (let i=0; i<graph.n; i++) {
                 if (graph.vertices[i]===undefined) continue;

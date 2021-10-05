@@ -30,7 +30,11 @@
                     animText: ""
                 });
 
-                flagStart=true; this.html("Стоп");        
+                if ($(".dropdown-menu.save-menu").length!==0) {
+                    $(".dropdown-menu.save-menu .txt").hide();
+                    $(".dropdown-menu.save-menu .edge-list").hide();
+                }
+                flagStart=true; this.html("Стоп");
                 speedObj.hide();
                 if (speedInput.val()==="") speed=4000/2;
                 else speed=4000/parseInt(speedInput.val());
@@ -55,6 +59,10 @@
                 globalObj.start();
             }
             else {
+                if ($(".dropdown-menu.save-menu").length!==0) {
+                    $(".dropdown-menu.save-menu .txt").show();
+                    $(".dropdown-menu.save-menu .edge-list").show();
+                }
                 flagStart=false; this.html("Старт!");
                 speedObj.show();
                 if (speedInput.val()==="") speedInput.val("2");
@@ -110,7 +118,7 @@
             let pauseButton=this.pauseButton=$(name+" .pause");
             let previousButton=this.previousButton=$(name+" .previous");
             let nextButton=this.nextButton=$(name+" .next");
-            speedObj=$(name+" .form-group");
+            speedObj=$(name+" .speed-wrapper");
             animText=$(name+" .anim-text");
             animText.hide();
 

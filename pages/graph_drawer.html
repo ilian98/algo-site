@@ -40,7 +40,7 @@
                 <h1 align="center">Чертаене на графи</h1>
                 
                 <div id="firstPart" style="display: block">
-                    <div class="row">
+                    <div class="graph-drawer row">
                         <div class="col-sm-5">
                             <div class="row mb-3">
                                 <div class="slidecontainer">
@@ -134,8 +134,6 @@
                                 <li><a class="dropdown-item unselectable change-weight">Промени теглото</a></li>
                                 <li><a class="dropdown-item unselectable add-css">Сложи CSS стил</a></li>
                             </ul>
-                            <svg class="svg-save" width="100" height="100" viewBox="0 0 150 150"></svg>
-                            <canvas class="canvas-save"></canvas>
                             <div class="row">
                                 <div class="col text-start">
                                     <button class="btn btn-primary undo" title="Върни промяната">
@@ -150,12 +148,14 @@
                                     </button>
                                 </div>
                                 <div class="col text-end">
-                                    <input class="input-file" type="file" accept="text/plain"/>
+                                    <input class="input-file" type="file" accept="text/plain" style="display: none"/>
                                     <button class="btn btn-primary import" title="Зареди граф">
                                         <svg class="bi" width="24px" height="24px" fill="currentColor">
                                             <use xlink:href="/algo-site/node_modules/bootstrap-icons/bootstrap-icons.svg#box-arrow-in-up"/>
                                         </svg>
                                     </button>
+                                    <svg class="svg-save" style="display: none"></svg>
+                                    <canvas class="canvas-save" style="display: none"></canvas>
                                     <button class="btn btn-primary save" title="Изтегли графа">
                                         <svg class="bi" width="24px" height="24px" fill="currentColor">
                                             <use xlink:href="/algo-site/node_modules/bootstrap-icons/bootstrap-icons.svg#download"/>

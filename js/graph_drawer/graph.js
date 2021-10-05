@@ -156,6 +156,7 @@
     }
 
     function Graph () {
+        this.wrapperName=undefined;
         this.svgName=undefined; this.s=undefined;
         this.svgVertices=undefined; this.svgEdges=undefined;
         this.n=undefined; this.vertices=undefined;
@@ -163,16 +164,18 @@
         this.isDirected=undefined; this.isMulti=undefined; this.isWeighted=undefined; this.isTree=undefined;
         this.graphChange=undefined; // function to be called after changing the graph, for exampe adding new edge
         this.undoStack=undefined; this.undoTime=undefined; this.redoStack=undefined; this.redoTime=undefined;
-        this.init = function (svgName, n, isDirected, isTree = false, graphChange = () => {}) {
-            $(svgName).css({
-                "border-style": "dotted",
-                "border-color": "transparent",
-                "border-width": "2px",
-                "border-radius": "5px"
-            });
-            if (this.s===undefined) {
-                this.svgName=svgName;
-                this.s=Snap(svgName);
+        this.init = function (wrapperName, n, isDirected, isTree = false, graphChange = () => {}) {
+            if (this.wrapperName===undefined) {
+                this.wrapperName=wrapperName;
+                if ($(wrapperName+" .graph").length===0) this.svgName=this.wrapperName;
+                else this.svgName=this.wrapperName+" .graph";
+                $(this.svgName).css({
+                    "border-style": "dotted",
+                    "border-color": "transparent",
+                    "border-width": "2px",
+                    "border-radius": "5px"
+                });
+                this.s=Snap(this.svgName);
             }
             this.erase();
             this.undoStack=[]; this.undoTime=0; this.redoStack=[]; this.redoTime=0;
@@ -199,11 +202,11 @@
             if (isTree!==undefined) this.isTree=isTree;
             else this.isTree=false;
             
-            addSaveFunctionality(svgName,this);
-            addImportFunctionality(svgName,this);
+            addSaveFunctionality(wrapperName,this);
+            addImportFunctionality(wrapperName,this);
             this.graphChange=graphChange;
-            addUndoFunctionality(svgName,this);
-            $(svgName).parent().find(" .settings").off("click.settings").on("click.settings",this.addSettings.bind(this));
+            addUndoFunctionality(wrapperName,this);
+            $(wrapperName+" .settings").off("click.settings").on("click.settings",this.addSettings.bind(this));
         }
 
         function convertVertexToList (vertex) {
@@ -342,19 +345,12 @@
             this.s.selectAll("*").remove();
         }
 
-        this.frameX=undefined; this.frameY=undefined; this.frameW=undefined; this.frameH=undefined; this.vertexRad=20;
-        this.isDrawable=undefined; this.calcPositions=undefined;
+        this.vertexRad=20; this.calcPositions=undefined;
         this.drawNewGraph = function (frameX, frameY, frameW, frameH, vertexRad, addDraw = false) {
             this.erase();
-
-            if (frameX!==undefined) {
-                this.frameX=frameX; this.frameY=frameY;
-                this.frameW=frameW; this.frameH=frameH;
-            }
             if (vertexRad!==undefined) this.vertexRad=vertexRad;
-            this.isDrawable=addDraw;
             if (this.calcPositions===undefined) this.calcPositions=new CalcPositions(this);
-            this.calcPositions.init();
+            this.calcPositions.init(frameX,frameY,frameW,frameH);
             this.undoStack.pop(); this.redoStack=[];
             this.draw(addDraw);
         }
@@ -556,36 +552,14 @@
             this.vertices[i].defaultCSS[0]=setStyle(this.svgVertices[i].circle,this.vertices[i].addedCSS[0]);
             this.drawVertexText(i,this.vertices[i].name);
         }
-
-        this.centerGraph = function () {
-            let minX=this.frameX+this.frameW,maxX=0;
-            let minY=this.frameY+this.frameH,maxY=0;
-            for (let i=0; i<this.n; i++) {
-                if (this.vertices[i]===undefined) continue;
-                let x=this.svgVertices[i].coord[0],y=this.svgVertices[i].coord[1];
-                if (minX>x) minX=x;
-                if (maxX<x) maxX=x;
-                if (minY>y) minY=y;
-                if (maxY<y) maxY=y;
-            }
-            let lenX=maxX-minX,lenY=maxY-minY;
-            let addX=(this.frameW-2*this.vertexRad-this.frameX-lenX)/2+this.frameX+this.vertexRad-minX;
-            let addY=(this.frameH-2*this.vertexRad-this.frameY-lenY)/2+this.frameY+this.vertexRad-minY;
-            for (let i=0; i<this.n; i++) {
-                if (this.vertices[i]===undefined) continue;
-                this.svgVertices[i].coord[0]+=addX;
-                this.svgVertices[i].coord[1]+=addY;
-            }
-        }
-
         this.findFontSize = function (vertexRad = this.vertexRad) {
             return vertexRad*5/4;
         }
         this.findStrokeWidth = function (vertexRad = this.vertexRad) {
             return vertexRad/20*1.5;
         }
-        this.drawableGraph=undefined; 
-        this.draw = function (addDraw, animateDraw = true) { /// this functions expects that coordinates are already calculated
+        this.isDrawable=undefined; this.drawableGraph=undefined; 
+        this.draw = function (addDraw, animateDraw = true, isStatic = false) { /// this functions expects that coordinates are already calculated
             let oldVersCoords=[],changedVers=[],cntAnimations=0;
             let oldRad=this.vertexRad;
             let oldEdgesPaths=[],oldDy=[],oldWeightsPaths=[];
@@ -759,9 +733,11 @@
                 cntAnimations--;
                 if (cntAnimations<=0) {
                     this.isDrawable=addDraw;
-                    if (addDraw===true) {
-                        if (this.drawableGraph===undefined) this.drawableGraph=new DrawableGraph(this);
-                        this.drawableGraph.init();
+                    if (isStatic===false) {
+                        if ((this.drawableGraph===undefined)&&(typeof DrawableGraph!=="undefined")) {
+                            this.drawableGraph=new DrawableGraph(this);
+                        }
+                        if (this.drawableGraph!==undefined) this.drawableGraph.init();
                     }
                 }
             }
@@ -947,7 +923,29 @@
             return text;
         }
         
+        this.changeType=[true, true, true]; this.changeVers=true; this.changeRad=true;
+        function showSettings (changeType, changeVers, changeRad) {
+            if (changeType[0]===true) $("#undirected").parent().parent().show();
+            else $("#undirected").parent().parent().hide();
+            if (changeType[1]===true) $("#weighted").parent().show();
+            else $("#weighted").parent().hide();
+            if (changeType[2]===true) $("#multi").parent().show();
+            else $("#multi").parent().hide();
+            
+            if (changeVers===true) $(".range-vers").parent().parent().show();
+            else $(".range-vers").parent().parent().hide();
+            
+            if (changeRad===true) $(".range-rad").parent().parent().show();
+            else $(".range-rad").parent().parent().hide();
+        }
+        this.setSettings = function (changeType = [true, true, true], changeVers = true, changeRad = true) {
+            this.changeType=[changeType[0], changeType[1], changeType[2]];
+            this.changeVers=changeVers; this.changeRad=changeRad;
+            showSettings(changeType,changeVers,changeRad);
+        }
         this.addSettings = function () {
+            showSettings(this.changeType,this.changeVers,this.changeRad);
+            
             let graph=this;
             let sliderVers=$(".range-vers");
             let outputVers=$(".slider-value-vers");
@@ -968,28 +966,33 @@
                 }
                 graph.buildEdgeDataStructures([]); graph.undoTime--;
                 graph.calcPositions.init();
-                graph.draw(true,false);
+                graph.draw(graph.isDrawable,false);
+                graph.graphChange();
             });
 
             if (graph.isDirected===false) $("#undirected").click();
             else $("#directed").click();
+            function changeDirection (isDirected) {
+                graph.isDirected=isDirected;
+                let isWeighted=graph.isWeighted,isMulti=graph.isMulti;
+                graph.undoStack.push({time: graph.undoTime, type: "change-property", data: ["isDirected", !isDirected]});
+                graph.undoStack.push({time: graph.undoTime, type: "change-property", data: ["isWeighted", isWeighted]});
+                graph.undoStack.push({time: graph.undoTime, type: "change-property", data: ["isMulti", isMulti]});
+                graph.buildEdgeDataStructures(graph.convertSimpleEdgeList()); graph.undoTime--;
+                graph.undoStack.push({time: graph.undoTime, type: "change-property", data: ["isDirected", !isDirected]});
+                graph.isWeighted=isWeighted;
+                graph.undoStack.push({time: graph.undoTime, type: "change-property", data: ["isWeighted", !isWeighted]});
+                graph.isMulti=isMulti;
+                graph.undoStack.push({time: graph.undoTime, type: "change-property", data: ["isMulti", !isMulti]});
+                graph.undoTime++;
+                graph.draw(graph.isDrawable);
+                graph.graphChange();
+            }
             $("#undirected").off("click").on("click",function () {
-                if (graph.isDirected===true) {
-                    graph.isDirected=false;
-                    graph.buildEdgeDataStructures(graph.convertSimpleEdgeList()); graph.undoTime--;
-                    graph.undoStack.push({time: graph.undoTime, type: "change-property", data: ["isDirected", true]});
-                    graph.undoTime++;
-                    graph.draw(true);
-                }
+                if (graph.isDirected===true) changeDirection(false);
             });
             $("#directed").off("click").on("click",function () {
-                if (graph.isDirected===false) {
-                    graph.isDirected=true;
-                    graph.buildEdgeDataStructures(graph.convertSimpleEdgeList()); graph.undoTime--;
-                    graph.undoStack.push({time: graph.undoTime, type: "change-property", data: ["isDirected", false]});
-                    graph.undoTime++;
-                    graph.draw(true);
-                }
+                if (graph.isDirected===false) changeDirection(true);
             });
             $("#weighted").prop("checked",graph.isWeighted);
             $("#weighted").off("change").on("change",function () {
@@ -997,13 +1000,15 @@
                     graph.undoStack.push({time: graph.undoTime, type: "change-property", data: ["isWeighted", false]});
                     graph.undoTime++; graph.redoStack=[];
                     graph.isWeighted=true;
-                    graph.draw(true);
+                    graph.draw(graph.isDrawable);
+                    graph.graphChange();
                 }
                 else if ((this.checked===false)&&(graph.isWeighted===true)) {
                     graph.undoStack.push({time: graph.undoTime, type: "change-property", data: ["isWeighted", true]});
                     graph.undoTime++; graph.redoStack=[];
                     graph.isWeighted=false;
-                    graph.draw(true);
+                    graph.draw(graph.isDrawable);
+                    graph.graphChange();
                 }
             });
             $("#multi").prop("checked",graph.isMulti);
@@ -1031,94 +1036,91 @@
                 graph.undoStack.push({time: graph.undoTime, type: "change-property", data: ["radius", oldVal]});
                 graph.undoTime++; graph.redoStack=[];
                 graph.vertexRad=val;
-                graph.draw(true);
+                graph.draw(graph.isDrawable);
             });
         }
     }
 
-    function addSaveFunctionality (svgName, graph) {
-        let parentElement=$(svgName).parent();
-        let canvas=parentElement.children(".canvas-save");
-        canvas.hide();
-        let svgSave=parentElement.children(".svg-save");
-        svgSave.hide();
-
-        for (let saveButton of parentElement.find(".save")) {
-            $(saveButton).off("click").on("click",function (event) {
-                let dropdown=dropdownMenu(".dropdown-menu.save-menu",event);
-                dropdown.find(".png").off("click").one("click",function () {
-                    let context=canvas[0].getContext('2d');
-                    let svg=parentElement.children(".graph");
-                    let svgWidth=2*svg.width(),svgHeight=2*svg.height();
-                    svgSave.attr("width",svgWidth);
-                    svgSave.attr("height",svgHeight);
-
-                    $(svgName).clone().appendTo(svgSave);
-                    canvas.prop("width",svgWidth);
-                    canvas.prop("height",svgHeight);
-
-                    svgSave.show();
-                    let svgString=(new XMLSerializer()).serializeToString(svgSave[0]);
-                    svgSave.hide();
-
-                    let image=$("<img>").prop("src","data:image/svg+xml; charset=utf8, "+encodeURIComponent(svgString));
-                    image.on("load", function () {
-                        context.drawImage(image[0],0,0);
-                        let imageURI=canvas[0].toDataURL('image/png').replace('image/png','image/octet-stream');
-                        $("<a>").prop("download","graph.png")
-                            .prop("href",imageURI)
-                            .prop("target","_blank")[0].click();
-                        $(svgSave).empty();
-                    });
-                });
+    function addSaveFunctionality (wrapperName, graph) {
+        let svg=$(graph.svgName);
+        let canvas=$(wrapperName+" .canvas-save");
+        let svgSave=$(wrapperName+" .svg-save");
+        svgSave.attr("viewBox",svg.attr("viewBox"));
+        
+        let saveButton=$(wrapperName+" .save");
+        $(saveButton).off("click").on("click",function (event) {
+            let dropdown=dropdownMenu(".dropdown-menu.save-menu",event);
+            dropdown.find(".png").off("click").one("click",function () {
+                let context=canvas[0].getContext('2d');
+                let svgWidth=2*svg.width(),svgHeight=2*svg.height();
                 
-                dropdown.find(".svg").off("click").one("click",function () {
-                    $(".click-area").hide();
-                    let svg=parentElement.children(".graph")[0];
-                    svg.setAttribute("xmlns","http://www.w3.org/2000/svg");
-                    let svgData=svg.outerHTML.replaceAll("cursor: pointer;","")
-                        .replace("border-style: dotted","border-style: none");
-                    let preface='<?xml version="1.0" standalone="no"?>\r\n';
-                    let svgBlob=new Blob([preface, svgData], {type: "image/svg+xml;charset=utf-8"});
-                    let svgURL=URL.createObjectURL(svgBlob);
-                    $("<a>").prop("download","graph.svg")
-                        .prop("href",svgURL)
-                        .prop("target","_black")[0].click();
-                    $(".click-area").show();
-                });
-                
-                dropdown.find(".edge-list").off("click").one("click", function () {
-                    let vers=0;
-                    for (let vertex of graph.vertices) {
-                        if (vertex===undefined) continue;
-                        vers++;
-                    }
-                    let edges=[];
-                    for (let edge of graph.edgeList) {
-                        if (edge===undefined) continue;
-                        if (edge.weight==="") edges.push([graph.vertices[edge.x].name,graph.vertices[edge.y].name]);
-                        else edges.push([graph.vertices[edge.x].name,graph.vertices[edge.y].name,edge.weight]);
-                    }
-                    let text=vers+" "+edges.length+"\n";
-                    for (let edge of edges) {
-                        text+=edge[0]+" "+edge[1];
-                        if (edge.length===3) text+=" "+edge[2];
-                        text+="\n";
-                    }
-                    $("<a>").prop("download","edge_list.txt")
-                        .prop("href","data:text/plain;charset=utf-8,"+encodeURIComponent(text))
-                        .prop("target","_black")[0].click();
-                });
-                
-                dropdown.find(".txt").off("click").on("click", function () {
-                    dropdown.find(".txt").off("click");
-                    
-                    $("<a>").prop("download","graph.txt")
-                        .prop("href","data:text/plain;charset=utf-8,"+encodeURIComponent(graph.export()))
-                        .prop("target","_black")[0].click();
+                svgSave.attr("width",svgWidth);
+                svgSave.attr("height",svgHeight);
+                svgSave.html(svg.html());
+                canvas.prop("width",svgWidth);
+                canvas.prop("height",svgHeight);
+
+                let svgString=(new XMLSerializer()).serializeToString(svgSave[0]);
+                let image=$("<img>").prop("src","data:image/svg+xml; charset=utf8, "+encodeURIComponent(svgString));
+                image.on("load", function () {
+                    context.drawImage(image[0],0,0);
+                    let imageURI=canvas[0].toDataURL("image/png").replace("image/png","image/octet-stream");
+                    $("<a>").prop("download","graph.png")
+                        .prop("href",imageURI)
+                        .prop("target","_blank")[0].click();
+                    svgSave.empty();
                 });
             });
-        }
+
+            dropdown.find(".svg").off("click").one("click",function () {
+                $(".click-area").hide();
+                svgSave.removeAttr("width").removeAttr("height");
+                svgSave.html(svg.html());
+                svgSave[0].setAttribute("xmlns","http://www.w3.org/2000/svg");
+                let svgData=svgSave[0].outerHTML.replaceAll("cursor: pointer;","")
+                    .replace("border-style: dotted","border-style: none")
+                    .replace("display: none","");
+                let preface='<?xml version="1.0" standalone="no"?>\r\n';
+                let svgBlob=new Blob([preface, svgData], {type: "image/svg+xml;charset=utf-8"});
+                let svgURL=URL.createObjectURL(svgBlob);
+                $("<a>").prop("download","graph.svg")
+                    .prop("href",svgURL)
+                    .prop("target","_black")[0].click();
+                $(".click-area").show();
+                svgSave.empty();
+            });
+
+            dropdown.find(".edge-list").off("click").one("click", function () {
+                let vers=0;
+                for (let vertex of graph.vertices) {
+                    if (vertex===undefined) continue;
+                    vers++;
+                }
+                let edges=[];
+                for (let edge of graph.edgeList) {
+                    if (edge===undefined) continue;
+                    if (edge.weight==="") edges.push([graph.vertices[edge.x].name,graph.vertices[edge.y].name]);
+                    else edges.push([graph.vertices[edge.x].name,graph.vertices[edge.y].name,edge.weight]);
+                }
+                let text=vers+" "+edges.length+"\n";
+                for (let edge of edges) {
+                    text+=edge[0]+" "+edge[1];
+                    if (edge.length===3) text+=" "+edge[2];
+                    text+="\n";
+                }
+                $("<a>").prop("download","edge_list.txt")
+                    .prop("href","data:text/plain;charset=utf-8,"+encodeURIComponent(text))
+                    .prop("target","_black")[0].click();
+            });
+
+            dropdown.find(".txt").off("click").on("click", function () {
+                dropdown.find(".txt").off("click");
+
+                $("<a>").prop("download","graph.txt")
+                    .prop("href","data:text/plain;charset=utf-8,"+encodeURIComponent(graph.export()))
+                    .prop("target","_black")[0].click();
+            });
+        });
     }
     
     function undoAction (undoType, graph) {
@@ -1212,16 +1214,15 @@
         if (undoType==="undo") graph.redoTime++;
         else graph.undoTime++;
         
-        graph.graphChange();
         graph.draw(graph.isDrawable);
+        graph.graphChange();
     }
-    function addUndoFunctionality (svgName, graph) {
-        let parentElement=$(svgName).parent();
-        let undoButton=parentElement.find(".undo");
+    function addUndoFunctionality (wrapperName, graph) {
+        let undoButton=$(wrapperName+" .undo");
         $(undoButton).off("click").on("click",function () {
             undoAction("undo",graph);
         });
-        let redoButton=parentElement.find(".redo");
+        let redoButton=$(wrapperName+" .redo");
         $(redoButton).off("click").on("click",function () {
             undoAction("redo",graph);
         });
@@ -1254,10 +1255,9 @@
         }
         return tokens;
     }
-    function addImportFunctionality (svgName, graph) {
-        let parentElement=$(svgName).parent();
-        let importButton=parentElement.find(".import");
-        let input=parentElement.find(".input-file");
+    function addImportFunctionality (wrapperName, graph) {
+        let importButton=$(wrapperName+" .import");
+        let input=$(wrapperName+" .input-file");
         input.hide();
         $(importButton).off("click").on("click",function () {
             input.click();
@@ -1266,7 +1266,7 @@
             if (event.target.files.length===0) return ;
             let reader=new FileReader();
             reader.onload = function (event) {
-                let text=event.target.result;
+                let text=event.target.result.replaceAll("\r\n","\n");
                 let lines=removeEmpty(text.split("\n"));
                 let nums=removeEmpty(lines[0].split(" "));
                 if (nums.length!==2) {
@@ -1413,7 +1413,7 @@
                     }
                 }
                 
-                let isDirected=false,isWeighted=false,isMulti=false,isTree=false;
+                let isDirected=graph.isDirected,isWeighted=graph.isWeighted,isMulti=graph.isMulti,isTree=graph.isTree;
                 for (;;) {
                     if (lines.length===curr) break;
                     let words=removeEmpty(lines[curr].split(" "));
@@ -1421,10 +1421,42 @@
                         alert("Очаквано е само една дума, описващо свойство на графа, при: "+lines[curr]);
                         return ;
                     }
-                    if (words[0]==="Directed") isDirected=true;
-                    else if (words[0]==="Undirected") isDirected=false;
-                    else if (words[0]==="Weighted") isWeighted=true;
-                    else if (words[0]==="Multigraph") isMulti=true;
+                    if (words[0]==="Directed") {
+                        if (isDirected===false) {
+                            if (graph.changeType[0]===false) {
+                                alert("Графът трябва да е неориентиран!");
+                                return ;
+                            }
+                            isDirected=true;
+                        }
+                    }
+                    else if (words[0]==="Undirected") {
+                        if (isDirected===true) {
+                            if (graph.changeType[0]===false) {
+                                alert("Графът трябва да е ориентиран!");
+                                return ;
+                            }
+                            isDirected=false;
+                        }
+                    }
+                    else if (words[0]==="Weighted") {
+                        if (isWeighted===false) {
+                            if (graph.changeType[1]===false) {
+                                alert("Графът трябва да е непретеглен!");
+                                return ;
+                            }
+                            isWeighted=true;
+                        }
+                    }
+                    else if (words[0]==="Multigraph") {
+                        if (isMulti===false) {
+                            if (graph.changeType[2]===false) {
+                                alert("Графът не трябва да е мулти!");
+                                return ;
+                            }
+                            isMulti=true;
+                        }
+                    }
                     else if (words[0]==="Tree") isTree=true;
                     else {
                         alert("Неочаквано свойство на графа при: "+lines[curr]);
@@ -1437,7 +1469,18 @@
                 graph.isDirected=isDirected; graph.isTree=isTree;
                 graph.isWeighted=isWeighted; graph.isMulti=isMulti;
                 graph.initVertices(n,vers); graph.undoTime--;
-                graph.buildEdgeDataStructures(edges); graph.undoTime--;
+                graph.buildEdgeDataStructures(edges);
+                if ((graph.changeType[1]===false)&&(graph.isWeighted!==isWeighted)) {
+                    alert("Графът трябва да е непретеглен!");
+                    undoAction("undo",graph);
+                    return ;
+                }
+                else if ((graph.changeType[2]===false)&&(graph.isMulti!==isMulti)) {
+                    alert("Графът не трябва да е мулти!");
+                    undoAction("undo",graph);
+                    return ;
+                }
+                graph.undoTime--;
                 
                 if (graphProperties[0]!=graph.isDirected)
                     graph.undoStack.push({time: graph.undoTime, type: "change-property", data: ["isDirected", graphProperties[0]]});

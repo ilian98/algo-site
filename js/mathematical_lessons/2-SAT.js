@@ -4,14 +4,15 @@
     function initExample (part) {
         part--;
         graphs[part] = new Graph();
-        graphs[part].init(".twoSATexample"+part+" .graphExample .graph",5,true);
         if (part===1) {
+            graphs[1].init(".twoSATexample"+part+" .graphExample",5,true,false);
             $(".twoSATexample1 .formula").val("(a||b)&&(a||!c)&&(!a||!b)");
             $(".twoSATexample1 .make").on("click",makeImplicationGraph.bind(this,1));
             
             makeImplicationGraph(part);
         }
         else if (part==2) {
+            graphs[2].init(".twoSATexample"+part+" .graphExample",5,true,false,colourSCC.bind(this,graphs[2]));
             $(".twoSATexample2 .formula").val("(a||b)&&(a||!c)&&(!a||!b)");
             $(".twoSATexample2 .show").on("click",showSCC);
             showSCC();
@@ -137,6 +138,29 @@
             }
     }
 
+    let num,comps;
+    function colourSCC (graph) {
+        let colours=["#f09481","#e66440","#de4026","#bd291e","#a6262f","#ba3a71","#e65c9a","#f777c2","#f094cd","#d97cc0",
+                     "#c76dbf","#99498a","#80447f","#513d66","#3653b3","#248ad4","#5fcaed","#82ebf5","#17b2e6","#306ec9",
+                     "#237040","#2d801b","#52992e","#66b324","#86cc14","#b0e627","#ffff69","#f7db02","#e8c00e","#f7aa25",
+                     "#ff8c00","#ff8c00","#f0690e","#f0cab6","#e8bb97","#e09e75","#c9794b","#b06838","#ad6615","#733405",
+                     "#542d01","#361c01","#574d43","#786e65","#b0a79d","#c7c5c3","#f2f2f2"];
+        let jump=Math.floor(colours.length/num),colour=0;
+        for (let i=0; i<num; i++) {
+            for (let j=0; j<comps[i].length; j++) {
+                graph.svgVertices[comps[i][j]].circle.attr({fill: colours[colour]});
+            }
+            colour+=jump;
+        }
+        for (let i=0; i<graph.edgeList.length; i++) {
+            if (graph.edgeList[i]===undefined) continue;
+            let from=graph.edgeList[i].x,to=graph.edgeList[i].y;
+            if (graph.svgVertices[from].circle.attr("fill")==graph.svgVertices[to].circle.attr("fill")) {
+                graph.svgEdges[i].line.attr({stroke: graph.svgVertices[from].circle.attr("fill")});
+                graph.svgEdges[i].line.markerEnd.attr({fill: graph.svgVertices[from].circle.attr("fill")});
+            }
+        }
+    }
     function showSCC () {
         makeImplicationGraph(2);
         let graph=graphs[2],used=[];
@@ -160,7 +184,7 @@
             if (edge===undefined) continue;
             rev[edge.y].push(edge.x);
         }
-        let num=0,comps=[];
+        num=0; comps=[];
         for (let i=graph.n-1; i>=0; i--) {
             if (used[order[i]]===false) {
                comps[num]=[];
@@ -169,27 +193,8 @@
             }
         }
 
-        let colours=["#f09481","#e66440","#de4026","#bd291e","#a6262f","#ba3a71","#e65c9a","#f777c2","#f094cd","#d97cc0",
-                     "#c76dbf","#99498a","#80447f","#513d66","#3653b3","#248ad4","#5fcaed","#82ebf5","#17b2e6","#306ec9",
-                     "#237040","#2d801b","#52992e","#66b324","#86cc14","#b0e627","#ffff69","#f7db02","#e8c00e","#f7aa25",
-                     "#ff8c00","#ff8c00","#f0690e","#f0cab6","#e8bb97","#e09e75","#c9794b","#b06838","#ad6615","#733405",
-                     "#542d01","#361c01","#574d43","#786e65","#b0a79d","#c7c5c3","#f2f2f2"];
-        let jump=Math.floor(46/num),colour=0;
-        for (let i=0; i<num; i++) {
-            for (let j=0; j<comps[i].length; j++) {
-                graph.svgVertices[comps[i][j]].circle.attr({fill: colours[colour]});
-            }
-            colour+=jump;
-        }
-        for (let i=0; i<graph.edgeList.length; i++) {
-            if (graph.edgeList[i]===undefined) continue;
-            let from=graph.edgeList[i].x,to=graph.edgeList[i].y;
-            if (graph.svgVertices[from].circle.attr("fill")==graph.svgVertices[to].circle.attr("fill")) {
-                graph.svgEdges[i].line.attr({stroke: graph.svgVertices[from].circle.attr("fill")});
-                graph.svgEdges[i].line.markerEnd.attr({fill: graph.svgVertices[from].circle.attr("fill")});
-            }
-        }
-
+        colourSCC(graph);
+        
         let solution=document.querySelector(".twoSATexample2 .solution"),text;
         text="\\(";
         for (let i=0; i<graph.n; i++) {
