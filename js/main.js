@@ -11,38 +11,31 @@
         }
         return URL.slice(index+1,endIndex);
     }
-    function ignoreKey (code, event) {
-        if ((event.altKey===true)||(event.ctrlKey===true)||(event.metaKey===true)||(event.shiftKey===true)) return true;
-        if (code===32) return false;
-        if (code<=40) return true;
-        if ((code>=44)&&(code<=46)) return true; /// printscreen, insert and delete
-        if ((code>=91)&&(code<=93)) return true; /// windows key and select
-        if ((code>=112)&&(code<=123)) return true; /// f keys
-        if ((code===144)||(code===145)) return true; /// num and scroll lock
+    function ignoreKey (key, event) {
+        if (key.length>1) return true;
         return false;
     }
     function isBinary (event) {
-        let charCode=(event.which)?event.which:event.keyCode;
-        if (ignoreKey(charCode,event)===true) return true;
-        if ((charCode>=48)&&(charCode<=49)) return true;
+        let key=event.key;
+        if (ignoreKey(key,event)===true) return true;
+        if ((key==="0")||(key==="1")) return true;
         return false;
     }
     function isDigit (event) {
-        let charCode=(event.which)?event.which:event.keyCode;
-        if (ignoreKey(charCode,event)===true) return true;
-        if ((charCode>=48)&&(charCode<=57)) return true;
+        let key=event.key;
+        if (ignoreKey(key,event)===true) return true;
+        if ((key>='0')&&(key<='9')) return true;
         return false;
     }
     function isDigitOrComma (event) {
         if (isDigit(event)===true) return true;
-        let charCode=(event.which)?event.which:event.keyCode;
-        if (charCode===188) return true;
+        if (event.key===",") return true;
         return false;
     }
     function isSmallLatinLetter (event) {
-        let charCode=(event.which)?event.which:event.keyCode;
-        if (ignoreKey(charCode,event)===true) return true;
-        if ((charCode>=65)&&(charCode<=90)) return true;
+        let key=event.key;
+        if (ignoreKey(key,event)===true) return true;
+        if ((key>='a')&&(key<='z')) return true;
         return false;
     }
     function tableHTML (table, hasHeadRow = false, hasHeadColumn = false) {
@@ -71,7 +64,7 @@
         return tableText;
     }
     function findNumbersFromText (s) {
-        if (s.length>1000) return [[],"дължината е над 100 символа"];
+        if (s.length>1000) return [[],"дължината е над 1000 символа"];
         let elements=[],num=0,digs=0;
         for (let i=0; i<s.length; i++) {
             if (s[i]===',') {
