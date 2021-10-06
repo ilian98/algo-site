@@ -11,25 +11,38 @@
         }
         return URL.slice(index+1,endIndex);
     }
+    function ignoreKey (code, event) {
+        if ((event.altKey===true)||(event.ctrlKey===true)||(event.metaKey===true)||(event.shiftKey===true)) return true;
+        if (code===32) return false;
+        if (code<=40) return true;
+        if ((code>=44)&&(code<=46)) return true; /// printscreen, insert and delete
+        if ((code>=91)&&(code<=93)) return true; /// windows key and select
+        if ((code>=112)&&(code<=123)) return true; /// f keys
+        if ((code===144)||(code===145)) return true; /// num and scroll lock
+        return false;
+    }
     function isBinary (event) {
         let charCode=(event.which)?event.which:event.keyCode;
-        if ((charCode<=31)||((charCode>=48)&&(charCode<=49))) return true;
+        if (ignoreKey(charCode,event)===true) return true;
+        if ((charCode>=48)&&(charCode<=49)) return true;
         return false;
     }
     function isDigit (event) {
         let charCode=(event.which)?event.which:event.keyCode;
-        if ((charCode<=31)||((charCode>=48)&&(charCode<=57))) return true;
+        if (ignoreKey(charCode,event)===true) return true;
+        if ((charCode>=48)&&(charCode<=57)) return true;
         return false;
     }
     function isDigitOrComma (event) {
         if (isDigit(event)===true) return true;
         let charCode=(event.which)?event.which:event.keyCode;
-        if ((charCode<=31)||(charCode==44)) return true;
+        if (charCode===188) return true;
         return false;
     }
     function isSmallLatinLetter (event) {
         let charCode=(event.which)?event.which:event.keyCode;
-        if ((charCode>=97)&&(charCode<=122)) return true;
+        if (ignoreKey(charCode,event)===true) return true;
+        if ((charCode>=65)&&(charCode<=90)) return true;
         return false;
     }
     function tableHTML (table, hasHeadRow = false, hasHeadColumn = false) {
@@ -58,24 +71,24 @@
         return tableText;
     }
     function findNumbersFromText (s) {
-        if (s.length>1000) return [[],1];
+        if (s.length>1000) return [[],"дължината е над 100 символа"];
         let elements=[],num=0,digs=0;
         for (let i=0; i<s.length; i++) {
             if (s[i]===',') {
-                if (digs==0) return [[],2];
+                if (digs===0) return [[],"липсва число между 2 запетайки"];
                 elements.push(num);
                 num=0; digs=0;
             }
             else {
-                if ((s[i]<'0')||(s[i]>'9')) return [[],3];
+                if ((s[i]<'0')||(s[i]>'9')) return [[],"намерен е знак различен от цифра между запетайките"];
                 num*=10; num+=s[i]-'0';
                 digs++;
             }
         }
-        if (digs==0) return [[],4];
+        if (digs===0) return [[],"липсва число след последната запетайка"];
             
         elements.push(num);
-        return [elements,0];
+        return [elements,""];
     }
 
     let page=get_page(),home_page=false;
@@ -298,10 +311,11 @@
         checkLessonParts(false);
     });
     
+    let inited=new Set();
     function initExamples (part = 1) {
+        if (inited.has(part)===true) return ;
+        inited.add(part);
         let name="#"+ordinals[part-1]+"Part";
-        if ($(name).hasClass("inited")===true) return ;
-        $(name).addClass("inited");
 
         if (page==="introduction_to_graphs.html") {
             if (part>=2) initExample(part);

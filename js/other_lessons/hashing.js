@@ -5,25 +5,21 @@
             $(".hashExample1 .base").val("307");
             $(".hashExample1 .modulo").val("1009");
             $("#string").val("abcab");
-            $(".hashExample1 .start").on("click",calculateHashString);
+            $(".hashExample1 .start").on("click",calculateHashString).click();
             
-            $(".hashExample1 .base").on("keypress",isDigit);
-            $(".hashExample1 .modulo").on("keypress",isDigit);
-            $("#string").on("keypress",isSmallLatinLetter);
-            
-            calculateHashString();
+            $(".hashExample1 .base").on("keydown",isDigit);
+            $(".hashExample1 .modulo").on("keydown",isDigit);
+            $("#string").on("keydown",isSmallLatinLetter);
         }
         else if (part===4) {
             $(".hashExample2 .base").val("7");
             $(".hashExample2 .modulo").val("1009");
             $("#multiSet").val("1,2,3");
-            $(".hashExample2 .start").on("click",calculateHashMultiSet);
+            $(".hashExample2 .start").on("click",calculateHashMultiSet).click();
             
-            $(".hashExample2 .base").on("keypress",isDigit);
-            $(".hashExample2 .modulo").on("keypress",isDigit);
-            $("#multiSet").on("keypress",isDigitOrComma);
-            
-            calculateHashMultiSet();
+            $(".hashExample2 .base").on("keydown",isDigit);
+            $(".hashExample2 .modulo").on("keydown",isDigit);
+            $("#multiSet").on("keydown",isDigitOrComma);
         }
     }
     
@@ -49,7 +45,7 @@
         hash=s.charCodeAt(0); hash%=modulo;
         if (s.length===1) {
             paragraph.append("Хеш-кодът на низа е: \\("+s.charCodeAt(0)+"."+base+"^0 \\space \\% \\space"+modulo+" = "+hash+"\\).");
-            if (typeof MathJax!=="undefined") MathJax.typeset(["#hashString"]);
+            if (typeof MathJax!=="undefined") MathJax.typeset([".hashExample1 .hash"]);
             return ;
         }
         paragraph.append("Хеш-кодът на низа е: ");
@@ -78,7 +74,10 @@
         if ((s.length===0)||(base<2)||(modulo<2)) return ;
 
         let [elements,error]=findNumbersFromText(s);
-        if (error!==0) return ;
+        if (error!=="") {
+            alert("Невалидно множество - "+error+"!");
+            return ;
+        }
         
         paragraph.append("Хеш-кодът на мултимножеството е: ");
         for (let i=0; i<elements.length; i++) {
@@ -102,5 +101,5 @@
     }
     
     
-    window.initExample = initExample;
+    window.initExample=initExample;
 })();

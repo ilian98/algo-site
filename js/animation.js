@@ -124,7 +124,7 @@
 
             this.clear();
             $(name+" .speed").val("2");
-            $(name+" .speed").on("keypress",isDigit);
+            $(name+" .speed").on("keydown",isDigit);
             startButton.flag=false; startButton.off("click.start").on("click.start",startButtonFunc.bind(startButton,this,name,findAnimations,initialState));
             pauseButton.off("click.pause").on("click.pause",pauseButtonFunc);
             previousButton.off("click.prev").on("click.prev",stepButtonFunc.bind(previousButton,pauseButton,initialState,-1));

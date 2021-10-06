@@ -77,6 +77,7 @@ body {
     outline: none;
 }
 .content {
+    overflow-x: hidden;
     overflow-y: auto;
     padding-left: 5%;
     padding-right: 5%;

@@ -102,9 +102,12 @@
         else return event;
     }
     let previousDropdown=undefined;
+    function closePreviousDropdown () {
+        if (previousDropdown!==undefined) previousDropdown.removeClass("show");
+    }
     function dropdownMenu (name, event) {
         let dropdown=$(name);
-        if ((previousDropdown!==undefined)&&(previousDropdown!==dropdown)) previousDropdown.removeClass("show");
+        closePreviousDropdown();
         previousDropdown=dropdown;
         let bodyOffsets=document.body.getBoundingClientRect();
         let obj=getObjectForCoordinates(event);
@@ -120,7 +123,7 @@
         $(window).one("click",function () {
             dropdown.removeClass("show");
         });
-		return dropdown;
+        return dropdown;
     }
 
     function Vertex (name, css=["",""]) {
@@ -1507,6 +1510,7 @@
     window.segmentLength=segmentLength;
     window.circlePath=circlePath;
     window.getObjectForCoordinates=getObjectForCoordinates;
+    window.closePreviousDropdown=closePreviousDropdown;
     window.dropdownMenu=dropdownMenu;
     window.determineDy=determineDy;
 })();

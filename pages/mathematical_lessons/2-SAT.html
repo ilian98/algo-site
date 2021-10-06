@@ -72,7 +72,7 @@
                     <div id="secondPart">
                         <p class="text-format">Идеята за решаване на формула в 2-<i>SAT</i> форма е следната. Бихме искали да знаем, когато присвоим на някоя променлива дадена стойност, то какво следва за другите променливи. Понеже най-въшното действие във формулите е логическо <b>и</b>, то за да е удовлетворен цялата формула, искаме всяка подформула с логическо <b>или</b> да бъде удовлетворена. Затова ще изразим логическото <b>или</b> в алтернативна форма. Ще използваме бинарната логическата операция импликация, която ще означаваме с \(\to\). Тя има следната истинна таблица:</p>
                         <div class="col-2">
-                            <table class="table table-dark table-bordered">
+                            <table class="table table-dark table-bordered text-center">
                                 <tbody>
                                     <tr>
                                         <td>\(a\)</td><td>\(b\)</td><td>\(a\to b\)</td>
@@ -97,8 +97,8 @@
                             <div class="form-group col-lg-5 mb-2">
                                 <div class="row">
                                     <label for="formula" class="col-auto col-form-label pe-0">Формула:</label>
-                                    <div class="col-9 col-md-6 col-lg-9">
-                                        <input class="form-control formula" maxLength="40"/>
+                                    <div class="col-auto">
+                                        <input class="form-control formula" maxLength="40" style="width: 22.5rem; max-width: 100%"/>
                                     </div>
                                 </div>
                             </div>
@@ -127,8 +127,8 @@
                             <div class="form-group col-lg-5">
                                 <div class="row mb-2">
                                     <label for="formula" class="col-auto col-form-label pe-0">Формула:</label>
-                                    <div class="col-9 col-md-6 col-lg-9">
-                                        <input class="form-control formula" maxLength="40"/>
+                                    <div class="col-auto">
+                                        <input class="form-control formula" maxLength="40" style="width: 22.5rem; max-width: 100%"/>
                                     </div>
                                 </div>
                                 <label for="solution" style="float: left; margin-right: 10px; margin-bottom: 0px">Решение:</label>

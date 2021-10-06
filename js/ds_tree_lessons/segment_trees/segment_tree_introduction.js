@@ -103,7 +103,10 @@
         
         elements.splice(0,elements.length);
         let [nums,error]=findNumbersFromText($(exampleName+" .array").val());
-        if (error!==0) alert("Невалиден масив!");
+        if (error!=="") {
+            alert("Невалиден масив - "+error+"!");
+            return ;
+        }
         if (nums.length>16) {
             alert("Позволяват се най-много до 16 числа! Въвели сте "+nums.length+" на брой числа.");
             return ;
@@ -259,7 +262,7 @@
             $(exampleName+" .make").off("click").on("click",makeSegTree.bind(this,exampleName,tree,elements,undefined));
             $(exampleName+" .indexes").off("click").on("click",toggleIndexes.bind($(exampleName+" .indexes"),tree,elements,false));
 
-            $(exampleName+" .array").on("keypress",isDigitOrComma);
+            $(exampleName+" .array").on("keydown",isDigitOrComma);
 
             defaultExample(exampleName,tree,elements);
         }
@@ -272,9 +275,9 @@
             $(exampleName1+" .default").off("click").on("click",defaultExample.bind(this,exampleName1,tree1,elements1,animationObj1));
             $(exampleName1+" .make").off("click").on("click",makeSegTree.bind(this,exampleName1,tree1,elements1,animationObj1));
 
-            $(exampleName1+" .array").on("keypress",isDigitOrComma);
-            $(exampleName1+" .pos").on("keypress",isDigit);
-            $(exampleName1+" .val").on("keypress",isDigit);
+            $(exampleName1+" .array").on("keydown",isDigitOrComma);
+            $(exampleName1+" .pos").on("keydown",isDigit);
+            $(exampleName1+" .val").on("keydown",isDigit);
 
             defaultExample(exampleName1,tree1,elements1,animationObj1);
 
@@ -287,9 +290,9 @@
             $(exampleName2+" .default").off("click").on("click",defaultExample.bind(this,exampleName2,tree2,elements2,animationObj2));
             $(exampleName2+" .make").off("click").on("click",makeSegTree.bind(this,exampleName2,tree2,elements2,animationObj2));
 
-            $(exampleName2+" .array").on("keypress",isDigitOrComma);
-            $(exampleName2+" .ql").on("keypress",isDigit);
-            $(exampleName2+" .qr").on("keypress",isDigit);
+            $(exampleName2+" .array").on("keydown",isDigitOrComma);
+            $(exampleName2+" .ql").on("keydown",isDigit);
+            $(exampleName2+" .qr").on("keydown",isDigit);
 
             defaultExample(exampleName2,tree2,elements2,animationObj2);
         }
@@ -302,7 +305,7 @@
             $(exampleName+" .add").off("click").on("click",addPoint.bind(this,exampleName,tree));
             $(exampleName+" .indexes").off("click").on("click",toggleIndexes.bind($(exampleName+" .indexes"),tree,elements,true));
 
-            $(exampleName+" .c").on("keypress",isDigit);
+            $(exampleName+" .c").on("keydown",isDigit);
 
             defaultExample(exampleName,tree,elements);
         }

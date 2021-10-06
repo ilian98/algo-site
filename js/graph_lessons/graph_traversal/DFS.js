@@ -48,7 +48,7 @@
 
         $(".start-vertex").val("1");
         animationObj.init(name,function findAnimation () {
-            let st=parseInt($(".start-vertex").val()); st--;
+            let st=parseInt($(name+" .start-vertex").val()); st--;
             let used=[],found=false;
             for (let i=0; i<graph.n; i++) {
                 if (graph.vertices[i]===undefined) continue;
@@ -104,6 +104,7 @@
             let exampleName=".graphExample2";
             defaultExample(exampleName,graphDFS,animationObjUndirected,20);
             $(exampleName+" .default").off("click").on("click",defaultExample.bind(this,exampleName,graphDFS,animationObjUndirected,20));
+            $(exampleName+" .start-vertex").on("keydown",isDigit);
         }
         else if (part==3) {
             let graph = new Graph();

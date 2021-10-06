@@ -50,6 +50,7 @@
         
         function mouseDown (type, index, event) {
             event.preventDefault();
+            closePreviousDropdown();
             if (window.isMobile==="false") {
                 if (event.button!==0) return ;
                 graph.s.mousemove((type==="vertex")?trackMouseVertex:trackMouseEdge);
