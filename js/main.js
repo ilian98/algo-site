@@ -199,6 +199,7 @@
             
             ind++;
         }
+        if ((ind===0)&&(typeof init==="function")) init();
     }
     function triggerInfo (trigger, info, name) {
         if (trigger.is(":hidden")===false) {
@@ -285,15 +286,11 @@
                     opentype.load("/algo-site/fonts/TimesNewRoman.woff", (error, font) => {
                         window.font["Times New Roman"]=font;
                         checkLessonParts(true);
-                        if (page==="graph_drawer.html") init();
                     });
                 });
             });
         }
-        else {
-            checkLessonParts(true);
-            if (page==="graph_drawer.html") init();
-        }
+        else checkLessonParts(true);
     });
     
     $(window).on("pagehide visibilitychange", function() {
@@ -333,6 +330,7 @@
         else if (page==="dp_profile.html") {
             if (part>=3) initExample(part);
         }
+        else if (page==="articulation_components.html") initExample(part);
     }
     
     window.get_page = get_page;
