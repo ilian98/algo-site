@@ -174,7 +174,7 @@
             if ((flagChildren===false)&&(dep<maxDepth)) fillVersDepth(-1,-2,dep+1,maxDepth,adjList,edgeList,versDepth);
         }
 
-        let maxTimes,distVertices;
+        let maxTimes;
         function findPositions () {
             let oldCoords=[],i=0;
             for (let svgVertex of graph.svgVertices) {
@@ -199,7 +199,7 @@
                 graph.redoStack.push(undoObj);
                 graph.redoTime++;
             }
-            if (allPositions!==[]) originalPos=allPositions;
+            if (allPositions.length>0) originalPos=allPositions;
             let i=0;
             for (let coord of versCoord) {
                 if (graph.svgVertices[i]===undefined) graph.initSvgVertex(i);
@@ -218,20 +218,25 @@
         this.findMinY = function () {
             return this.frameY+graph.findStrokeWidth()/2;
         }
-        function calcOriginalPos (minX = 0, minY = 0) {
+        this.distVertices=undefined; this.minX=undefined; this.minY=undefined;
+        this.calcOriginalPos = function (minX = 0, minY = 0, dist = undefined) {
+            maxTimes=parseInt(10000/graph.n);
+            if (dist!==undefined) this.distVertices=dist;
+            this.minX=minX; this.minY=minY;
+            
             originalPos=[];
             let maxX=this.findMinX()+this.findRealWidth(),maxY=this.findMinY()+this.findRealHeight();
             let posX=[];
             posX.push(minX);
             for (;;) {
-                let curr=posX[posX.length-1]+2*graph.vertexRad+distVertices;
+                let curr=posX[posX.length-1]+2*graph.vertexRad+this.distVertices;
                 if (curr>maxX) break;
                 posX.push(curr);
             }
             let posY=[];
             posY.push(minY);
             for (;;) {
-                let curr=posY[posY.length-1]+2*graph.vertexRad+distVertices;
+                let curr=posY[posY.length-1]+2*graph.vertexRad+this.distVertices;
                 if (curr>maxY) break;
                 posY.push(curr);
             }
@@ -251,7 +256,7 @@
                 if (graph.svgVertices[i]===undefined) graph.initSvgVertex(i);
             }
             if (graph.isTree===false) {
-                calcOriginalPos.call(this);
+                this.calcOriginalPos();
                 
                 let success=false,tryPlanner=false;
                 tryDesperate=false;
@@ -414,8 +419,7 @@
                 this.frameX=frameX; this.frameY=frameY;
                 this.frameW=frameW; this.frameH=frameH;
             }
-            maxTimes=parseInt(10000/graph.n);
-            distVertices=graph.vertexRad*5/4+parseInt((Math.random())*graph.vertexRad/4);
+            this.distVertices=graph.vertexRad*5/4+parseInt((Math.random())*graph.vertexRad/4);
             if (graph.isWeighted===true) distVertices*=2;
             calc.call(this);
         }
@@ -443,15 +447,15 @@
             
             minX+=addX;
             for (;;) {
-                if (minX-distVertices-2*graph.vertexRad<this.findMinX()+graph.vertexRad) break;
-                minX-=(distVertices+2*graph.vertexRad);
+                if (minX-this.distVertices-2*graph.vertexRad<this.findMinX()+graph.vertexRad) break;
+                minX-=(this.distVertices+2*graph.vertexRad);
             }
             minY+=addY;
             for (;;) {
-                if (minY-distVertices-2*graph.vertexRad<this.findMinY()+graph.vertexRad) break;
-                minY-=(distVertices+2*graph.vertexRad);
+                if (minY-this.distVertices-2*graph.vertexRad<this.findMinY()+graph.vertexRad) break;
+                minY-=(this.distVertices+2*graph.vertexRad);
             }
-            calcOriginalPos.call(this,minX-graph.vertexRad,minY-graph.vertexRad);
+            this.calcOriginalPos(minX-graph.vertexRad,minY-graph.vertexRad);
         }
     }
     

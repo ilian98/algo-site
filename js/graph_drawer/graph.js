@@ -917,6 +917,8 @@
             }
             text+="\n";
             
+            text+="["+this.calcPositions.minX+","+this.calcPositions.minY+","+this.calcPositions.distVertices+"]\n\n";
+            
             if (this.isDirected===true) text+="Directed\n";
             else text+="Undirected\n";
             if (this.isWeighted===true) text+="Weighted\n";
@@ -1063,7 +1065,9 @@
                 canvas.prop("width",svgWidth);
                 canvas.prop("height",svgHeight);
 
+                svgSave.show();
                 let svgString=(new XMLSerializer()).serializeToString(svgSave[0]);
+                svgSave.hide();
                 let image=$("<img>").prop("src","data:image/svg+xml; charset=utf8, "+encodeURIComponent(svgString));
                 image.on("load", function () {
                     context.drawImage(image[0],0,0);
@@ -1416,6 +1420,21 @@
                     }
                 }
                 
+                let posProperties=undefined;
+                if (curr<lines.length) {
+                    let words=removeEmpty(lines[curr].split(" "));
+                    if ((words.length===1)&&(words[0].length>2)&&(words[0][0]=='[')&&(words[0][words[0].length-1]==']')) {
+                        let tokens=words[0].slice(1,words[0].length-1).split(",");
+                        if (tokens.length===3) {
+                            posProperties=[parseFloat(tokens[0]), parseFloat(tokens[1]), parseFloat(tokens[2])];
+                            if ((isNaN(posProperties[0])===true)||
+                                (isNaN(posProperties[1])===true)||
+                                (isNaN(posProperties[2])===true)) posProperties=undefined;
+                            else curr++;
+                        }
+                    }
+                }
+                
                 let isDirected=graph.isDirected,isWeighted=graph.isWeighted,isMulti=graph.isMulti,isTree=graph.isTree;
                 for (;;) {
                     if (lines.length===curr) break;
@@ -1495,7 +1514,11 @@
                     graph.undoStack.push({time: graph.undoTime, type: "change-property", data: ["isMulti", graphProperties[3]]});
                 
                 if (flagCoords===false) graph.calcPositions.init();
-                else graph.calcPositions.changePositions([],versCoord);
+                else {
+                    graph.calcPositions.changePositions([],versCoord);
+                    if (posProperties===undefined) graph.calcPositions.calcOriginalPos();
+                    else graph.calcPositions.calcOriginalPos(posProperties[0],posProperties[1],posProperties[2]);
+                }
                 graph.draw(graph.isDrawable,false);
                 
                 graph.graphChange();
