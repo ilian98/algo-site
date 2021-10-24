@@ -98,7 +98,7 @@
                     if (graph.vertices[i]===undefined) continue;
                     if (graph.svgVertices[i].coord===undefined) continue;
                     if (segmentLength(graph.svgVertices[i].coord[0],graph.svgVertices[i].coord[1],pos[0],pos[1])<
-                        2*graph.vertexRad+((flagCheckEdges===true)?distVertices:0)-1) {
+                        2*graph.vertexRad+((flagCheckEdges===true)?this.distVertices:0)-1) {
                         flag=false;
                         break;
                     }
@@ -340,14 +340,14 @@
                 let maxDepth=findMaxDepth(root,-1,0,graph.adjList,graph.edgeList);
                 fillVersDepth(root,-1,0,maxDepth,graph.adjList,graph.edgeList,versDepth);
 
-                let x,y=(2*graph.vertexRad+distVertices)*maxDepth,distX;
+                let x,y=(2*graph.vertexRad+this.distVertices)*maxDepth,distX;
                 x=0; distX=this.findRealWidth()/(versDepth[maxDepth].length-1);
                 for (let vertex of versDepth[maxDepth]) {
                     if (vertex!==-1) graph.svgVertices[vertex].coord=[x,y];
                     x+=distX;
                 }
                 for (let i=maxDepth-1; i>=0; i--) {
-                    y-=(2*graph.vertexRad+distVertices);
+                    y-=(2*graph.vertexRad+this.distVertices);
                     let ind=0;
                     while (versDepth[i+1][ind]===-1) {
                         ind++;
@@ -372,7 +372,7 @@
                     for (let j=0; j<versDepth[i].length; j++) {
                         let v=versDepth[i][j];
                         if ((v!==-1)&&(graph.svgVertices[v].coord!==undefined)) {
-                           prevX=graph.svgVertices[v].coord[0]+2*graph.vertexRad+distVertices;
+                           prevX=graph.svgVertices[v].coord[0]+2*graph.vertexRad+this.distVertices;
                            continue;
                         }
                         let nextX=this.frameW,cnt=0;
@@ -385,8 +385,8 @@
                             cnt++;
                         }
                         let h;
-                        if ((nextX==this.frameW)||(2*graph.vertexRad+distVertices<=(nextX-(prevX-distVertices))/(cnt+1))) {
-                            prevX-=distVertices;
+                        if ((nextX==this.frameW)||(2*graph.vertexRad+this.distVertices<=(nextX-(prevX-this.distVertices))/(cnt+1))) {
+                            prevX-=this.distVertices;
                             let x=prevX;
                             for (h=j; h<versDepth[i].length; h++) {
                                 let v=versDepth[i][h];
@@ -402,7 +402,7 @@
                                 let v=versDepth[i][h];
                                 if ((v!==-1)&&(graph.svgVertices[v].coord!==undefined)) break;
                                 if (v!==-1) graph.svgVertices[v].coord=[x,y];
-                                x+=(nextX-prevX-distVertices)/cnt;
+                                x+=(nextX-prevX-this.distVertices)/cnt;
                             }
                         }
                         j=h-1;
@@ -420,7 +420,7 @@
                 this.frameW=frameW; this.frameH=frameH;
             }
             this.distVertices=graph.vertexRad*5/4+parseInt((Math.random())*graph.vertexRad/4);
-            if (graph.isWeighted===true) distVertices*=2;
+            if (graph.isWeighted===true) this.distVertices*=2;
             calc.call(this);
         }
         
