@@ -3,13 +3,3 @@
         height: 60vh;
     }
 }
-@media (min-width: 576px) { 
-    .graph {
-        height: auto;
-    }
-}
-@media (min-width: 680px) { 
-    .graph {
-        height: 60vh;
-    }
-}

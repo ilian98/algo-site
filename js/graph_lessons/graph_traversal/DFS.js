@@ -43,7 +43,7 @@
     function defaultExample (name, graph, animationObj, vertexRad) {
         graph.init(name,5,false);
         graph.buildEdgeDataStructures([[0,1],[0,2],[0,3],[0,4],[1,2]]);
-        graph.drawNewGraph(1,1,299,299,vertexRad,true);
+        graph.drawNewGraph(true,vertexRad);
         graph.setSettings([true, false, true]);
 
         $(".start-vertex").val("1");
@@ -97,20 +97,19 @@
             graph.init(".graphExample1",6,false);
             graph.buildEdgeDataStructures([[0,1],[0,2],[3,4]]);
             graph.n=6;
-            graph.drawNewGraph(1,1,299,299,30,false);
+            graph.drawNewGraph(false,30);
 
             let graphDFS = new Graph();
             let animationObjUndirected = new Animation();
             let exampleName=".graphExample2";
-            defaultExample(exampleName,graphDFS,animationObjUndirected,20);
-            $(exampleName+" .default").off("click").on("click",defaultExample.bind(this,exampleName,graphDFS,animationObjUndirected,20));
+            $(exampleName+" .default").off("click").on("click",defaultExample.bind(this,exampleName,graphDFS,animationObjUndirected,20)).click();
             $(exampleName+" .start-vertex").on("keydown",isDigit);
         }
         else if (part==3) {
             let graph = new Graph();
             graph.init(".graphExample3",4,true);
             graph.buildEdgeDataStructures([[0,1],[0,2],[1,3],[2,3]]);
-            graph.drawNewGraph(1,1,299,299,40,false);
+            graph.drawNewGraph(false,40);
         }
     }
     

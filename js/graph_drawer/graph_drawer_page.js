@@ -25,7 +25,7 @@
             outputRad.html(graph.vertexRad);
         });
         graph.buildEdgeDataStructures([[0,1],[1,2],[2,3],[3,4],[4,0]]);
-        graph.drawNewGraph(22,22,278,278,20,true);
+        graph.drawNewGraph(true);
         graph.addSettings();
         graph.drawableGraph.addSettings();
     }

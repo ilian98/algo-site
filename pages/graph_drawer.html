@@ -98,27 +98,35 @@
                         </div>
                         
                         <div class="col-sm-7 text-center">
-                            <button class="btn p-0 information" data-bs-toggle="modal" data-bs-target="#infoModal" style="float: right" title="Информация">
-                                <svg class="bi" width="20px" height="20px" fill="currentColor">
-                                    <use xlink:href="/algo-site/node_modules/bootstrap-icons/bootstrap-icons.svg#info-circle-fill"/>
-                                </svg>
-                            </button>
-                            <div class="modal fade" id="infoModal" tabindex="-1" aria-labelledby="infoModalLabel" aria-hidden="true">
-                                <div class="modal-dialog">
-                                    <div class="modal-content" style="max-height: 100%; overflow-y: auto">
-                                        <div class="modal-header">
-                                            <h5 class="modal-title" id="infoModalLabel">Информация</h5>
-                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                        </div>
-                                        <div class="modal-body" style="text-align: justify">
-                                            Първият слайдър е за определяне на броя върхове в графа - от 1 до 10. При промяна графът се изтрива и се появяват указания брой върхове на произволни места. Вторият плъзгач е за промяна на големината на върховете, като графът сам променя останалите характеристики в зависимост от тази големина.<br><br>
-                                            Нов връх на графа се добавя с двойно натискане на празно място. Всеки връх може да се натисне, с което да се появят различни опции за работа с него. При влачене на връх, се появяват опорни позиции. Връх, който е пуснат близо до опорна позиция се придвижва автоматично там. Всяко ребро с изключение на примките, може да се персонализира с влачене. По този начин се променя кривината на реброто. При натискане на ребро също се появяват различни опции за него. Това става и при натискане на тегло (при претеглени графи).<br><br>
-                                            Всички компоненти на графа като цвят, големина и т.н., могат да се персонализират чрез написване на съответeн CSS код след избиране на опция за добавяне на CSS стил. Отделно се поддържа възможност за връщане на всяка промяна, както и изпълняването ѝ отново чрез бутоните вляво от графа. Бутоните вдясно от графа са за качване на текстов файл, в който е описан граф, както и за изтегляне на направения граф в различни формати.
+                            <div class="row justify-content-end">
+                                <div class="col-auto">
+                                    <button class="btn p-0 information" data-bs-toggle="modal" data-bs-target="#infoModal" title="Информация">
+                                        <svg class="bi" width="20px" height="20px" fill="currentColor">
+                                            <use xlink:href="/algo-site/node_modules/bootstrap-icons/bootstrap-icons.svg#info-circle-fill"/>
+                                        </svg>
+                                    </button>
+                                    <div class="modal fade" id="infoModal" tabindex="-1" aria-labelledby="infoModalLabel" aria-hidden="true">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content" style="max-height: 100%; overflow-y: auto">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="infoModalLabel">Информация</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body" style="text-align: justify">
+                                                    Първият слайдър е за определяне на броя върхове в графа - от 1 до 10. При промяна графът се изтрива и се появяват указания брой върхове на произволни места. Вторият плъзгач е за промяна на големината на върховете, като графът сам променя останалите характеристики в зависимост от тази големина.<br><br>
+                                                    Нов връх на графа се добавя с двойно натискане на празно място. Всеки връх може да се натисне, с което да се появят различни опции за работа с него. При влачене на връх, се появяват опорни позиции. Връх, който е пуснат близо до опорна позиция се придвижва автоматично там. Всяко ребро с изключение на примките, може да се персонализира с влачене. По този начин се променя кривината на реброто. При натискане на ребро също се появяват различни опции за него. Това става и при натискане на тегло (при претеглени графи).<br><br>
+                                                    Всички компоненти на графа като цвят, големина и т.н., могат да се персонализират чрез написване на съответeн CSS код след избиране на опция за добавяне на CSS стил. Отделно се поддържа възможност за връщане на всяка промяна, както и изпълняването ѝ отново чрез бутоните вляво от графа. Бутоните вдясно от графа са за качване на текстов файл, в който е описан граф, както и за изтегляне на направения граф в различни формати.
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                            <svg class="graph" viewBox="0 0 300 300"></svg>
+                            <div class="row">
+                                <div class="col graph-container">
+                                    <svg class="graph" viewBox="0 0 300 300"></svg>
+                                </div>
+                            </div>
                             <ul class="dropdown-menu vertex">
                                 <li><a class="dropdown-item unselectable remove-vertex">Изтрий върха</a></li>
                                 <li><a class="dropdown-item unselectable change-name">Промени името</a></li>

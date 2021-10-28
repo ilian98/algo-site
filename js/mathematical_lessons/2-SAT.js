@@ -119,7 +119,7 @@
         }
         graph.n=ind;
         graph.buildEdgeDataStructures(edgeList);    
-        graph.drawNewGraph(1,1,299,149,10,false);
+        graph.drawNewGraph(false,10);
     }
 
     function dfs1 (vr, adjList, edgeList, used, order) {

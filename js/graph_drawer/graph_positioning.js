@@ -206,17 +206,26 @@
                 graph.svgVertices[i++].coord=coord;
             }
         }
-        this.findRealWidth = function () {
-            return this.frameW-2*graph.vertexRad-graph.findStrokeWidth();
-        }
-        this.findRealHeight = function () {
-            return this.frameH-2*graph.vertexRad-graph.findStrokeWidth();
-        }
         this.findMinX = function () {
-            return this.frameX+graph.findStrokeWidth()/2;
+            let weightDist=(graph.isWeighted===true)?graph.vertexRad/2:0;
+            return Math.max(weightDist,this.frameX)+graph.findStrokeWidth()/2;
         }
         this.findMinY = function () {
-            return this.frameY+graph.findStrokeWidth()/2;
+            let loopDist=0;
+            for (let edge of graph.edgeList) {
+                if (edge.x===edge.y) {
+                    loopDist=graph.findLoopEdgeProperties()[0];
+                    break;
+                }
+            }
+            let weightDist=(graph.isWeighted===true)?graph.vertexRad/2:0;
+            return Math.max(Math.max(loopDist,weightDist),this.frameY)+graph.findStrokeWidth()/2;
+        }
+        this.findRealWidth = function () {
+            return this.frameW-2*graph.vertexRad-2*this.findMinX();
+        }
+        this.findRealHeight = function () {
+            return this.frameH-2*graph.vertexRad-2*this.findMinY();
         }
         this.distVertices=undefined; this.minX=undefined; this.minY=undefined;
         this.calcOriginalPos = function (minX = 0, minY = 0, dist = undefined) {
@@ -437,8 +446,8 @@
             }
             let lenX=maxX-minX,lenY=maxY-minY;
             let strokeWidth=graph.findStrokeWidth();
-            let addX=(this.findRealWidth()-this.frameX-lenX)/2+this.findMinX()+graph.vertexRad-minX;
-            let addY=(this.findRealHeight()-this.frameY-lenY)/2+this.findMinY()+graph.vertexRad-minY;
+            let addX=(this.findRealWidth()-lenX)/2+this.findMinX()+graph.vertexRad-minX;
+            let addY=(this.findRealHeight()-lenY)/2+this.findMinY()+graph.vertexRad-minY;
             for (let i=0; i<graph.n; i++) {
                 if (graph.vertices[i]===undefined) continue;
                 graph.svgVertices[i].coord[0]+=addX;

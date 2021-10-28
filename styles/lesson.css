@@ -71,6 +71,10 @@ code {
     background: #343a40 !important;
 }
 
+.graph-container {
+    margin-top: 1vh;
+    margin-bottom: 1vh;
+}
 .slidecontainer {
     width: 100%;
 }

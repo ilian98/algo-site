@@ -68,10 +68,11 @@
         return bezierPath(st, end, [(st[0]+end[0])/2, (st[1]+end[1])/2]);
     }
     function circlePath (cx, cy, r) {
-        let p="M"+cx+","+cy;
-        p+="m"+(-r)+",0";
-        p+="a"+r+","+r+" 0 1,0 "+(r*2)+",0";
-        p+="a"+r+","+r+" 0 1,0 "+-(r*2)+",0";
+        let p="M "+cx+" "+(cy-r);
+        p+=" A "+r+" "+r+" 0 0 0 "+cx+" "+(cy+r);
+        p+=" M "+cx+" "+(cy+r);
+        p+=" A "+r+" "+r+" 0 0 0 "+cx+" "+(cy-r);
+        p+=" Z";
         return p;
     }
     function loopPath (x, y, vertexRad, r, isDirected) {
@@ -159,8 +160,7 @@
     }
 
     function Graph () {
-        this.wrapperName=undefined;
-        this.svgName=undefined; this.s=undefined;
+        this.wrapperName=undefined; this.svgName=undefined; this.s=undefined;
         this.svgVertices=undefined; this.svgEdges=undefined;
         this.n=undefined; this.vertices=undefined;
         this.edgeList=undefined; this.adjList=undefined; this.adjMatrix=undefined;
@@ -348,11 +348,43 @@
             this.s.selectAll("*").remove();
         }
 
-        this.vertexRad=20; this.calcPositions=undefined;
-        this.drawNewGraph = function (frameX, frameY, frameW, frameH, vertexRad, addDraw = false) {
+        this.vertexRad=undefined; this.calcPositions=undefined; this.initViewBox=undefined;
+        this.drawNewGraph = function (addDraw = false, vertexRad, frameX, frameY, frameW, frameH) {
             this.erase();
-            if (vertexRad!==undefined) this.vertexRad=vertexRad;
-            if (this.calcPositions===undefined) this.calcPositions=new CalcPositions(this);
+            
+            let svgObject=$(this.svgName);
+            let viewBox=svgObject.prop("viewBox").baseVal;
+            if (vertexRad===undefined) vertexRad=Math.floor(Math.sqrt(viewBox.width*viewBox.height/225));
+            this.vertexRad=vertexRad;
+            
+            if (this.calcPositions===undefined) this.initViewBox=[viewBox.width, viewBox.height];
+            function changeViewBox () {
+                let viewBox=svgObject.prop("viewBox").baseVal;
+                svgObject.attr("viewBox",viewBox.x+" "+viewBox.y+" "+this.initViewBox[0]+" "+this.initViewBox[1]);
+                if (svgObject.outerWidth()!=svgObject.parent().width()) {
+                    let w=svgObject.parent().width()/svgObject.outerWidth()*viewBox.width;
+                    svgObject.attr("viewBox",viewBox.x+" "+viewBox.y+" "+w+" "+viewBox.height);
+                }
+                else if (svgObject.outerHeight()!=svgObject.parent().height()) {
+                    let h=svgObject.parent().height()/svgObject.outerHeight()*viewBox.height;
+                    svgObject.attr("viewBox",viewBox.x+" "+viewBox.y+" "+viewBox.width+" "+h);
+                }
+                if (this.calcPositions!==undefined) {
+                    this.calcPositions.frameW=viewBox.width;
+                    this.calcPositions.frameH=viewBox.height;
+                    this.calcPositions.calcOriginalPos(this.calcPositions.minX,this.calcPositions.minY);
+                }
+            }
+            changeViewBox.call(this);
+            viewBox=svgObject.prop("viewBox").baseVal;
+            if (frameX===undefined) frameX=viewBox.x;
+            if (frameY===undefined) frameY=viewBox.y;
+            if (frameW===undefined) frameW=viewBox.width;
+            if (frameH===undefined) frameH=viewBox.height;
+            if (this.calcPositions===undefined) {
+                $(window).on("resize",changeViewBox.bind(this));
+                this.calcPositions=new CalcPositions(this);
+            }
             this.calcPositions.init(frameX,frameY,frameW,frameH);
             this.undoStack.pop(); this.redoStack=[];
             this.draw(addDraw);
@@ -561,6 +593,9 @@
         this.findStrokeWidth = function (vertexRad = this.vertexRad) {
             return vertexRad/20*1.5;
         }
+        this.findLoopEdgeProperties = function (vertexRad = this.vertexRad) {
+            return [3*this.vertexRad/4, this.vertexRad/2];
+        }
         this.isDrawable=undefined; this.drawableGraph=undefined; 
         this.draw = function (addDraw, animateDraw = true, isStatic = false) { /// this functions expects that coordinates are already calculated
             let oldVersCoords=[],changedVers=[],cntAnimations=0;
@@ -625,8 +660,8 @@
                             [height, -height, 2*height, -2*height],
                             [height, -height, 2*height, -2*height, 0]];
             let loopEdges=[[],
-                           [3*this.vertexRad/4],
-                           [3*this.vertexRad/4, this.vertexRad/2]];
+                           [this.findLoopEdgeProperties()[0]],
+                           this.findLoopEdgeProperties()];
             this.svgEdges=[];
             for (let i=0; i<this.edgeList.length; i++) {
                 if (this.edgeList[i]===undefined) continue;

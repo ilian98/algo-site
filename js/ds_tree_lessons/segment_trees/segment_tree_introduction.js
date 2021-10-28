@@ -124,8 +124,8 @@
         let edgeList=[];
         makeEdgesAndNames(0,0,elements.length-1,edgeList,tree.vertices,elements,false);
         tree.buildEdgeDataStructures(edgeList);
-        if (elements.length<=8) tree.drawNewGraph(1,1,299,149,10,false);
-        else tree.drawNewGraph(1,1,299,149,7,false);
+        if (elements.length<=8) tree.drawNewGraph(false,10);
+        else tree.drawNewGraph(false,7);
 
         if ($(exampleName+" .indexes").text()=="Скрий номерата") addSegmentsLabels(0,1,elements.length,tree,true,false);
         else addSegmentsLabels(0,1,elements.length,tree,false,false);
@@ -136,7 +136,7 @@
         tree.initVertices(1);
         tree.vertices[0].name="0";
         tree.buildEdgeDataStructures([]);
-        tree.drawNewGraph(dynSegTree.frameX,1,300-dynSegTree.frameX,199,8,false);
+        tree.drawNewGraph(false,8,dynSegTree.frameX);
 
         if ($(exampleName+" .indexes").text()=="Скрий номерата") addSegmentsLabels(0,1,dynSegTree.maxC,tree,true,true);
         else addSegmentsLabels(0,1,dynSegTree.maxC,tree,false,true);
@@ -171,7 +171,7 @@
         let edgeList=[];
         makeEdgesAndNames(0,1,dynSegTree.maxC,edgeList,tree.vertices,[],true);
         tree.buildEdgeDataStructures(edgeList);
-        tree.drawNewGraph(dynSegTree.frameX,1,300-dynSegTree.frameX,199,8,false);
+        tree.drawNewGraph(false,8,dynSegTree.frameX);
 
         if ($(exampleName+" .indexes").text()=="Скрий номерата") addSegmentsLabels(0,1,maxC,tree,true,true);
         else addSegmentsLabels(0,1,maxC,tree,false,true);

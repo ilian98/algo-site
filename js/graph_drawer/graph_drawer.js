@@ -103,12 +103,13 @@
                     for (let pos of possiblePos) {
                         let circleVertex=graph.s.circle(pos[0],pos[1],graph.vertexRad).attr({
                             stroke: "green",
+                            "stroke-width": graph.findStrokeWidth(),
                             fill: "white",
                             "fill-opacity": 0.5
                         });
                         circleVertex.attr({opacity: 0});
                         let circle=graph.s.circle(pos[0]+(startMousePos[0]-graph.svgVertices[index].coord[0]),
-                                                  pos[1]+(startMousePos[1]-graph.svgVertices[index].coord[1]),15);
+                                                  pos[1]+(startMousePos[1]-graph.svgVertices[index].coord[1]),graph.vertexRad/2);
                         circle.attr({opacity: 0});
                         circle.mouseover(function () {
                             circleVertex.attr({opacity: 1});
@@ -169,7 +170,7 @@
             graph.svgEdges[startIndex].drawProperties[0]=height;
             graph.redrawEdge(graph.svgEdges[startIndex],st,end,startIndex);
             
-            if (Math.abs(height-graph.svgEdges[startIndex].drawProperties[2])<10) nearLine.attr({opacity: 1});
+            if (Math.abs(height-graph.svgEdges[startIndex].drawProperties[2])<graph.vertexRad/4) nearLine.attr({opacity: 1});
             else nearLine.attr({opacity: 0});
         }
         
@@ -275,7 +276,7 @@
                 let possiblePos=graph.calcPositions.calculatePossiblePos(false);
                 graph.svgVertices[ind].coord=[oldCoords[0]+dx, oldCoords[1]+dy];
                 for (let pos of possiblePos) {
-                    if (segmentLength(graph.svgVertices[ind].coord[0],graph.svgVertices[ind].coord[1],pos[0],pos[1])<15) {
+                    if (segmentLength(graph.svgVertices[ind].coord[0],graph.svgVertices[ind].coord[1],pos[0],pos[1])<graph.vertexRad/2) {
                         graph.svgVertices[ind].coord=[pos[0],pos[1]];
                         break;
                     }
@@ -301,7 +302,7 @@
                 return ;
             }
             
-            if (Math.abs(height-graph.svgEdges[startIndex].drawProperties[2])<10) height=undefined;
+            if (Math.abs(height-graph.svgEdges[startIndex].drawProperties[2])<graph.vertexRad/4) height=undefined;
             let oldCurveHeight=graph.edgeList[startIndex].curveHeight;
             if (oldCurveHeight!==height) {
                 graph.undoStack.push({
