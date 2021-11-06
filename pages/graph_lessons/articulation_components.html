@@ -43,7 +43,7 @@
                         <a href="/algo-site/pages/graph_lessons.html" class="link-danger">Графи</a>
                     </li>
                     <li class="breadcrumb-item active" aria-current="page">Артикулационни върхове и ребра</li>
-                    <li class="ms-auto">Последна промяна: 10.10.2021</li>
+                    <li class="ms-auto">Последна промяна: 06.11.2021</li>
                 </ol>
             </nav>
         </header>
@@ -74,7 +74,202 @@
                 <div class="lesson-part-position">
                     <button class="btn btn-secondary">2. Алгоритъм на Таржан</button>
                     <div id="secondPart">
-                        <p class="text-format"></p>
+                        <p class="text-format">Първо ще опишем алгоритъма за намиране на <i>мостове</i>, а от там лесно се получава и алгоритъм за намиране на <i>артикулационните точки</i>. Понятието, което разгледахме, беше общо - дори и за несвързани графи. Ясно е, че за намиране на всички мостове трябва да разглеждаме всяка компонента на свързаност по отделно, така че нека БОО (<a class="info">...</a><a class="info" style="display: none">без ограничение на общонстта, т.е. можем да разсъждаваме аналогично и без приемането на този факт</a>) приемем, че графът е свързан. Често, когато сме в неориентирани графи е полезно да разгледаме покриващо дърво на графа. Такъв е и случаят сега. Както знаем от темата за дървета, при намиране на покриващо дърво, ребрата на оригиналния неориентиран граф се разделят на две групи - <i>дървесни ребра</i> и <i>обратни ребра</i>. Нека първо разгледаме <i>обратните ребра</i>. Лесно се вижда, че те няма как да са <i>мостове</i> - при премахването на кое и да е, графът остава свързан, защото все още разпологаме с цялото покриващо дърво. Така получаваме, че единствено <i>дървесните ребра</i> са кандидати за мостове. От това следва, че мостовете на един свързан граф са най-много \(n-1\), като при граф, който е дърво, се достига точната горна оценка.</p>
+                        <p class="text-format">Сега остава да намерим хубаво условие за определяне дали дадено <i>дървесно ребро</i> \((x,y)\) е мост (да кажем, че \(x\) е баща на \(y\) в дървото). Нека си представим какво се случва, когато се премахне това ребро. Графът се разпада на потенциално две свързани компоненти - поддървото на връх \(y\) и останалата част (всичко от връх \(x\) нагоре и настрани). Ясно е, че поддървото си остава свързано, както и другата част остава свързана, заради наличието на останалите ребра от покриващото дърво. Така единствено трябва да установим дали двете части не остават свързани. Но тази свързаност може да се получи единствено от <i>обратно ребро</i>, насочено от поддървото на връх \(y\) към горната част над \(y\). Наистина, ако няма такова ребро, то няма как от поддървото да стигнем някъде по-нагоре от \(y\). Така получаваме следното условие. Едно ребро \((x,y)\) е мост \(\iff\) всички обратни ребра в поддървото на \(y\) остават в това поддърво (не достигат връх \(x\) и нагоре).</p>
+                        <p class="text-format">Лесно можем за поддървото на връх \(y\) да разберем дали обратните ребра остават в поддървото. Нека разгледаме \(in\)-времената на краищата на <i>обратните ребра</i>. Ако няма обратно ребро, така че края му да има \(in\)-време, по-малко от това на връх \(y\), то всички <i>обратни ребра</i> остават в поддървото. Така ако намерим минималното \(in\)-време от краищата на <i>обратните ребра</i>, то реброто ще е мост ако тази стойност е \(\ge\) от \(in\)-времето на \(y\). В противен случай, имаме ребро, което се качва над \(y\) и така със сигурност реброто не е мост. По този начин можем да формулираме лесен линеен алгоритъм по графа за намиране на мостовете, който всъщност е открит за първи път от Таржан. Цялото намиране се осъществява с един <i>DFS</i>, в който едновременно строим покриващо дърво и извършваме малко допълнителна работа за откриване на мостовете. Поддържаме два допълнителни масива - \(in\) и \(up\), съответно за \(in\)-времената на върховете и за минималното \(in\)-време на връх в поддървото. За всеки връх \(x\), \(up[x]\) намираме като минимума от \(in[x]\) и последователно при обхождане на съседите на връх \(x\) - за необходен съсед \(y\) (т.е. край на <i>дървесно ребро</i>) гледаме \(in[y]\), а за обходен съсед, който не е бащата на върха (т.е. e начало или край на <i>обратно ребро</i>), гледаме \(up[y]\). От вече казаното, <i>дървесното ребро</i> \((x,y)\) е мост \(\iff\) \(up[y] \ge in[y]\). Следва реализация на описания алгоритъм:</p>
+                        <div id="bridges" class="placeholder"></div>
+                        <div class="graphExample3 row" style="clear: both">
+                            <div class="col-sm">
+                                <p class="text-format">Следва интерактивeн пример на алгоритъма. Анимацията се пуска с бутона "Старт", като може да зададете от кой връх да започва обхождането (и съответно да е корен на покриващото дървото). Преди да започне анимацията, графът се пренарежда, така че да съответства на покриващото дърво, като съответно <i>обратните ребра</i> са изобразени с пунктир. Също така, преди натискане на "Старт", може да задавате ускорение от 1 до 9, а по време на анимацията да превъртате на предишна или следваща стъпка.</p>
+                                <div class="row">
+                                    <div class="col-auto mb-2">
+                                        <button class="btn btn-primary default">Начален пример</button>
+                                    </div>
+                                    <div class="col mb-2">
+                                        <div class="row form-group">
+                                            <label for="start-vertex" class="col-auto col-form-label pe-0 unselectable">Начален връх:</label>
+                                            <div class="col-auto">
+                                                <input class="form-control start-vertex" maxLength="1" style="width: 2.5rem; max-width: 100%"/>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>                
+                            </div>
+                            
+                            <div class="col-sm right-col">
+                                <ul class="dropdown-menu vertex">
+                                    <li><a class="dropdown-item unselectable remove-vertex">Изтрий върха</a></li>
+                                    <li><a class="dropdown-item unselectable change-name">Промени името</a></li>
+                                    <li><a class="dropdown-item unselectable add-css">Сложи CSS стил</a></li>
+                                    <li><a class="dropdown-item unselectable add-css-name">Сложи CSS стил на името</a></li>
+                                </ul>
+                                <ul class="dropdown-menu edge">
+                                    <li><a class="dropdown-item unselectable remove-edge">Изтрий реброто</a></li>
+                                    <li><a class="dropdown-item unselectable change-weight">Промени теглото</a></li>
+                                    <li><a class="dropdown-item unselectable add-css">Сложи CSS стил</a></li>
+                                </ul>
+                                <ul class="dropdown-menu save-menu">
+                                    <li><a class="dropdown-item unselectable txt">Изтегли като txt</a></li>
+                                    <li><a class="dropdown-item unselectable edge-list">Изтегли като сп. на ребрата</a></li>
+                                    <li><a class="dropdown-item unselectable svg">Изтегли като svg</a></li>
+                                    <li><a class="dropdown-item unselectable png">Изтегли като png</a></li>
+                                </ul>
+
+                                <div class="modal fade" id="settingsModal" tabindex="-1" aria-labelledby="settingsModalLabel" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content" style="max-height: 100%; overflow-y: auto">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="settingsModalLabel">Настройки на графа</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body" style="text-align: justify">
+                                                <div class="row mb-3">
+                                                    <div class="slidecontainer">
+                                                        <input type="range" min="1" max="10" value="5" class="slider range-vers" id="rangeVers">
+                                                    </div>
+                                                    <div class="slider-text unselectable">
+                                                        <span>Брой върхове: </span>
+                                                        <span class="slider-value-vers" style="color: red; font-weight: bold"></span>
+                                                    </div>
+                                                </div>
+                                                <div class="row mb-3">
+                                                    <div class="col-sm">
+                                                        <div class="form-check">
+                                                            <input class="form-check-input" type="radio" name="direction" id="undirected" checked>
+                                                            <label class="form-check-label unselectable" for="undirected">Неориентиран граф</label>
+                                                        </div>
+                                                        <div class="form-check">
+                                                            <input class="form-check-input" type="radio" name="direction" id="directed">
+                                                            <label class="form-check-label unselectable" for="directed">Ориентиран граф</label>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-sm">
+                                                        <div class="form-check">
+                                                            <input class="form-check-input" type="checkbox" value="" id="weighted">
+                                                            <label class="form-check-label unselectable" for="weighted">Претеглен граф</label>
+                                                        </div>
+                                                        <div class="form-check">
+                                                            <input class="form-check-input" type="checkbox" value="" id="multi">
+                                                            <label class="form-check-label unselectable" for="multi">Мултиграф</label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="row mb-3">
+                                                    <div class="slidecontainer">
+                                                        <input type="range" min="15" max="30" value="20" class="slider range-rad" id="rangeRad">
+                                                    </div>
+                                                    <div class="slider-text unselectable">
+                                                        <span>Големина на върховете: </span>
+                                                        <span class="slider-value-rad" style="color: red; font-weight: bold"></span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="modal fade" id="infoModal" tabindex="-1" aria-labelledby="infoModalLabel" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content" style="max-height: 100%; overflow-y: auto">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="infoModalLabel">Информация</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body" style="text-align: justify">
+                                                Суича в лентата за графа управлява действието, което се изпълнява при влачене на връх. Когато е изключен, се започва чертаене на ребро, а когато е включен се премества върха.<br><br>
+                                                Използвайте бутона за настройките, за да отворите прозорец за управление на графа. Първият слайдър там е за определяне на броя върхове в графа - от 1 до 10. При промяна графът се изтрива и се появяват указания брой върхове на произволни места. Вторият плъзгач е за промяна на големината на върховете, като графът сам променя останалите характеристики в зависимост от тази големина.<br><br>
+                                                Нов връх на графа се добавя с двойно натискане на празно място. Всеки връх може да се натисне, с което да се появят различни опции за работа с него. При влачене на връх, се появяват опорни позиции. Връх, който е пуснат близо до опорна позиция се придвижва автоматично там. Всяко ребро с изключение на примките, може да се персонализира с влачене. По този начин се променя кривината на реброто. При натискане на ребро също се появяват различни опции за него. Това става и при натискане на тегло (при претеглени графи).<br><br>
+                                                Всички компоненти на графа като цвят, големина и т.н., могат да се персонализират чрез написване на съответeн CSS код след избиране на опция за добавяне на CSS стил. Отделно се поддържа възможност за връщане на всяка промяна, както и изпълняването ѝ отново чрез бутоните в лявата част на функционалната лента. Бутоните в средата на лентата са за качване на текстов файл, в който е описан граф, както и за изтегляне на направения граф в различни формати.
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row mb-2">
+                                    <div class="col text-start undo-group">
+                                        <button class="btn p-0 undo undo-mini" title="Върни промяната">
+                                            <svg class="bi" width="20px" height="20px" fill="currentColor">
+                                                <use xlink:href="/algo-site/node_modules/bootstrap-icons/bootstrap-icons.svg#arrow-counterclockwise"/>
+                                            </svg>
+                                        </button>
+                                        <button class="btn p-0 redo redo-mini" title="Повтори промяната">
+                                            <svg class="bi" width="20px" height="20px" fill="currentColor">
+                                                <use xlink:href="/algo-site/node_modules/bootstrap-icons/bootstrap-icons.svg#arrow-clockwise"/>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                    <div class="col text-center save-group">
+                                        <input class="input-file" type="file" accept="text/plain" style="display: none"/>
+                                        <button class="btn p-0 import import-mini" title="Зареди граф">
+                                            <svg class="bi" width="20px" height="20px" fill="currentColor">
+                                                <use xlink:href="/algo-site/node_modules/bootstrap-icons/bootstrap-icons.svg#box-arrow-in-up"/>
+                                            </svg>
+                                        </button>
+                                        <svg class="svg-save" style="display: none"></svg>
+                                        <canvas class="canvas-save" style="display: none"></canvas>
+                                        <button class="btn p-0 save save-mini" title="Изтегли графа">
+                                            <svg class="bi" width="20px" height="20px" fill="currentColor">
+                                                <use xlink:href="/algo-site/node_modules/bootstrap-icons/bootstrap-icons.svg#download"/>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                    <div class="col">
+                                        <div class="row justify-content-end">
+                                            <div class="col-auto form-check form-switch d-flex p-0 m-0">
+                                                <input class="form-check-input mx-0 dragging-mini" type="checkbox">
+                                            </div>
+                                            <div class="col-auto d-flex">
+                                                <button class="btn d-flex p-0 my-auto settings" data-bs-toggle="modal" data-bs-target="#settingsModal" title="Настройки">
+                                                    <svg class="bi" width="20px" height="20px" fill="currentColor">
+                                                        <use xlink:href="/algo-site/node_modules/bootstrap-icons/bootstrap-icons.svg#card-checklist"/>
+                                                    </svg>
+                                                </button>
+                                            </div>
+                                            <div class="col-auto d-flex ps-0">
+                                                <button class="btn d-flex p-0 my-auto information" data-bs-toggle="modal" data-bs-target="#infoModal" title="Информация">
+                                                    <svg class="bi" width="20px" height="20px" fill="currentColor">
+                                                        <use xlink:href="/algo-site/node_modules/bootstrap-icons/bootstrap-icons.svg#info-circle-fill"/>
+                                                    </svg>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <p class="time" style="text-align: center; margin-bottom: 0"></p>
+                                <div class="row text-center">
+                                    <div class="graph-container" style="margin: 0">
+                                        <svg class="graph" viewBox="0 0 300 300" style="height: 60vh"></svg>
+                                    </div>
+                                </div>
+                                <p class="anim-text"></p>
+
+                                <div class="row mt-2">
+                                    <div class="col-auto">
+                                        <button class="btn btn-primary start">Старт!</button>
+                                    </div>
+                                    <div class="col text-end">
+                                        <div class="row form-group justify-content-end speed-wrapper">
+                                            <label for="speed" class="col-auto col-form-label pe-0 unselectable">Ускорение:</label>
+                                            <div class="col-auto">
+                                                <input class="form-control speed" maxLength="1" style="width: 2.5rem; max-width: 100%"/>
+                                            </div>
+                                        </div>
+                                        <button class="btn btn-primary pause">Пауза</button>
+                                        <button class="btn btn-primary previous" title="Предишна стъпка">
+                                            <svg class="bi" width="20px" height="20px" fill="currentColor">
+                                                <use xlink:href="/algo-site/node_modules/bootstrap-icons/bootstrap-icons.svg#skip-start-fill"/>
+                                            </svg>
+                                        </button>
+                                        <button class="btn btn-primary next" title="Следваща стъпка">
+                                            <svg class="bi" width="20px" height="20px" fill="currentColor">
+                                                <use xlink:href="/algo-site/node_modules/bootstrap-icons/bootstrap-icons.svg#skip-end-fill"/>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 

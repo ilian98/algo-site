@@ -259,7 +259,7 @@
                             graph.calcPositions.calculatePossiblePos(true);
                             if (graph.calcPositions.placeVertex(i,false)===false) {
                                 graph.svgVertices[i].coord=[oldCoords[0], oldCoords[1]];
-                                graph.calcPositions.init();
+                                graph.calcPositions.calc();
                             }
                         }
                         graph.draw(graph.isDrawable);

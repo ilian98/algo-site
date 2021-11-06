@@ -227,7 +227,7 @@
                         }
                         let lineDraw=graph.s.path(graph.svgEdges[ind].line.attr("d"));
                         let pathLength=lineDraw.getTotalLength();
-                        lineDraw.attr({fill: "none", stroke: "red", "stroke-width": graph.vertexRad/20*4});
+                        lineDraw.attr({fill: "none", stroke: "red", "stroke-width": graph.findStrokeWidth()*3});
                         lineDraw.attr({"stroke-dasharray": pathLength, "stroke-dashoffset": pathLength});
                         graph.s.append(obj1.group);
                         graph.s.append(obj2.group);
@@ -238,6 +238,25 @@
                             lineDraw.remove();
                         })];
                     }
+                }
+            },
+            edgeChangesAnimation: function (vr1, vr2, changes, speedCoeff = 1) {
+                let graph=this;
+                return function(callback, speed) {
+                    let ind=graph.edgeList.findIndex(function (e) { return ((e!==undefined)&&(e.x==vr1)&&(e.y==vr2)); });
+                    if ((ind==-1)&&(graph.isDirected===false)) {
+                        ind=graph.edgeList.findIndex(function (e) { return ((e!==undefined)&&(e.x==vr2)&&(e.y==vr1)); });
+                    }
+                    let obj=graph.svgEdges[ind].line;
+                    if (speed>0) {
+                        obj.animate(changes,speed*speedCoeff,callback);
+                        let minas=[];
+                        for (let anim of obj.inAnim()) {
+                            minas.push(anim.mina);
+                        }
+                        return minas;
+                    }
+                    obj.attr(changes);
                 }
             }
         }

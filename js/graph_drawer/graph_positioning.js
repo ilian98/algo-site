@@ -13,8 +13,8 @@
     function CalcPositions (graph) {
         let originalPos=[],possiblePos;
         
-        let tryDesperate;
-        this.vertexEdge = function (center, ind) {
+        let tryDesperate=false;
+        this.vertexEdge = function (center, ind, curvePath = "") {
             let dist;
             if (tryDesperate===false) {
                 if (graph.isWeight===true) dist=3*graph.vertexRad;
@@ -24,7 +24,7 @@
             else dist=0.1*graph.vertexRad;
             let x=graph.edgeList[ind].x,y=graph.edgeList[ind].y;
             let st=graph.svgVertices[x].coord,end=graph.svgVertices[y].coord;
-            if (graph.edgeList[ind].curveHeight===undefined) {
+            if ((graph.edgeList[ind].curveHeight===undefined)||(graph.edgeList[ind].curveHeight===0)) {
                 let area,height,sides=[];    
                 area=Math.abs(orientedArea(st[0],st[1],end[0],end[1],center[0],center[1]))/2;
                 sides[0]=segmentLength(st[0],st[1],end[0],end[1],2);
@@ -38,18 +38,21 @@
                 return true;
             }
             else {
-                let res=graph.calcCurvedEdge(st,end,graph.edgeList[ind].curveHeight,0);
-                if (Snap.path.intersection(res[0],circlePath(center[0],center[1],dist)).length>0) return false;
+                if (curvePath==="") curvePath=graph.calcCurvedEdge(st,end,graph.edgeList[ind].curveHeight,0)[0];
+                if (Snap.path.intersection(curvePath,circlePath(center[0],center[1],dist)).length>0) return false;
                 else return true;
             }
         }
         this.checkEdge = function (x, y, ind) {
+            let curvePath="";
+            if ((graph.edgeList[ind].curveHeight!==undefined)&&(graph.edgeList[ind].curveHeight!==0)) {
+                curvePath=graph.calcCurvedEdge(graph.svgVertices[x].coord,graph.svgVertices[y].coord,
+                                               graph.edgeList[ind].curveHeight,0)[0];
+            }
             for (let i=0; i<graph.n; i++) {
                 if (graph.vertices[i]===undefined) continue;
                 if ((i==x)||(i==y)||(graph.svgVertices[i].coord===undefined)) continue;
-                if (this.vertexEdge(graph.svgVertices[i].coord,ind)===false) {
-                    return false;
-                }
+                if (this.vertexEdge(graph.svgVertices[i].coord,ind,curvePath)===false) return false;
             }
             return true;
         }
@@ -148,30 +151,124 @@
             }
             return true;
         }
-        function findMaxDepth (vr, father, dep, adjList, edgeList) {
+        function findMaxDepth (vr, father, dep, adjList) {
             let max=dep;
-            for (let ind of adjList[vr]) {
-                let child=edgeList[ind].findEndPoint(vr);
+            for (let child of adjList[vr]) {
                 if (child!=father) {
-                    let value=findMaxDepth(child,vr,dep+1,adjList,edgeList);
+                    let value=findMaxDepth(child,vr,dep+1,adjList);
                     if (max<value) max=value;
                 }
             }
             return max;
         }
-        function fillVersDepth (vr, father, dep, maxDepth, adjList, edgeList, versDepth) {
+        function fillVersDepth (vr, father, dep, maxDepth, adjList, versDepth) {
             versDepth[dep].push(vr);
             let flagChildren=false;
             if (vr!=-1) {
-                for (let ind of adjList[vr]) {
-                    let child=edgeList[ind].findEndPoint(vr);
+                for (let child of adjList[vr]) {
                     if (child!==father) {
                         flagChildren=true;
-                        fillVersDepth(child,vr,dep+1,maxDepth,adjList,edgeList,versDepth);
+                        fillVersDepth(child,vr,dep+1,maxDepth,adjList,versDepth);
                     }
                 }
             }
-            if ((flagChildren===false)&&(dep<maxDepth)) fillVersDepth(-1,-2,dep+1,maxDepth,adjList,edgeList,versDepth);
+            if ((flagChildren===false)&&(dep<maxDepth)) fillVersDepth(-1,-2,dep+1,maxDepth,adjList,versDepth);
+        }
+        function findPositionsTree (root, treeEdges) {
+            let versDepth=[];
+            for (let i=0; i<graph.n; i++) {
+                if (graph.vertices[i]===undefined) continue;
+                versDepth[i]=[];
+                graph.svgVertices[i].coord=undefined;
+            }
+            let adjList=[];
+            for (let i=0; i<graph.n; i++) {
+                adjList.push([]);
+            }
+            for (let [x, y] of treeEdges) {
+                adjList[x].push(y);
+                if (graph.isDirected===false) adjList[y].push(x);
+            }
+            let maxDepth=findMaxDepth(root,-1,0,adjList);
+            fillVersDepth(root,-1,0,maxDepth,adjList,versDepth);
+
+            let x=0,y=(2*graph.vertexRad+this.distVertices)*maxDepth,distX;
+            if (versDepth[maxDepth].length>4) {
+                distX=this.findRealWidth()/(versDepth[maxDepth].length-1);
+                for (let vertex of versDepth[maxDepth]) {
+                    if (vertex!==-1) graph.svgVertices[vertex].coord=[x,y];
+                    x+=distX;
+                }
+            }
+            else {
+                distX=this.findRealWidth()/versDepth[maxDepth].length;
+                for (let vertex of versDepth[maxDepth]) {
+                    x+=distX;
+                    if (vertex!==-1) graph.svgVertices[vertex].coord=[x,y];
+                }
+            }
+            for (let i=maxDepth-1; i>=0; i--) {
+                y-=(2*graph.vertexRad+this.distVertices);
+                let ind=0;
+                while (versDepth[i+1][ind]===-1) {
+                    ind++;
+                }
+                for (let vertex of versDepth[i]) {
+                    if (vertex===-1) continue;
+                    if ((ind===versDepth[i+1].length)||(adjList[vertex].includes(versDepth[i+1][ind])===false)) {
+                       graph.svgVertices[vertex].coord=undefined;
+                       continue;
+                    }
+                    let sum=0,cnt=0;
+                    for (; ind<versDepth[i+1].length; ind++) {
+                        let child=versDepth[i+1][ind];
+                        if (child===-1) continue;
+                        if (adjList[vertex].includes(child)===false) break;
+                        sum+=graph.svgVertices[child].coord[0];
+                        cnt++;
+                    }
+                    graph.svgVertices[vertex].coord=[sum/cnt,y];
+                }
+                let prevX=0;
+                for (let j=0; j<versDepth[i].length; j++) {
+                    let v=versDepth[i][j];
+                    if ((v!==-1)&&(graph.svgVertices[v].coord!==undefined)) {
+                       prevX=graph.svgVertices[v].coord[0]+2*graph.vertexRad+this.distVertices;
+                       continue;
+                    }
+                    let nextX=this.frameW,cnt=0;
+                    for (let h=j; h<versDepth[i].length; h++) {
+                        let next=versDepth[i][h];
+                        if ((next!==-1)&&(graph.svgVertices[next].coord!==undefined)) {
+                           nextX=graph.svgVertices[next].coord[0];
+                           break;
+                        }
+                        cnt++;
+                    }
+                    let h;
+                    if ((nextX==this.frameW)||(2*graph.vertexRad+this.distVertices<=(nextX-(prevX-this.distVertices))/(cnt+1))) {
+                        prevX-=this.distVertices;
+                        let x=prevX;
+                        for (h=j; h<versDepth[i].length; h++) {
+                            let v=versDepth[i][h];
+                            if ((v!==-1)&&(graph.svgVertices[v].coord!==undefined)) break;
+                            if (nextX!=this.frameW) x+=(nextX-prevX)/(cnt+1);
+                            else x+=((nextX-graph.vertexRad-1)-prevX)/cnt;
+                            if (v!==-1) graph.svgVertices[v].coord=[x-graph.vertexRad,y];
+                        }
+                    }
+                    else {
+                        let x=prevX;
+                        for (h=j; h<versDepth[i].length; h++) {
+                            let v=versDepth[i][h];
+                            if ((v!==-1)&&(graph.svgVertices[v].coord!==undefined)) break;
+                            if (v!==-1) graph.svgVertices[v].coord=[x,y];
+                            x+=(nextX-prevX-this.distVertices)/cnt;
+                        }
+                    }
+                    j=h-1;
+                }
+            }
         }
 
         let maxTimes;
@@ -213,6 +310,7 @@
         this.findMinY = function () {
             let loopDist=0;
             for (let edge of graph.edgeList) {
+                if (edge===undefined) continue;
                 if (edge.x===edge.y) {
                     loopDist=graph.findLoopEdgeProperties()[0];
                     break;
@@ -255,7 +353,17 @@
                 }
             }
         }
-        function calc () {
+        function dfs (vr, adjList, edgeList, used, treeEdges) {
+            used[vr]=true;
+            for (let ind of adjList[vr]) {
+                let child=edgeList[ind].findEndPoint(vr);
+                if (used[child]===false) {
+                    dfs(child,adjList,edgeList,used,treeEdges);
+                    treeEdges.push([vr,child]);
+                }
+            }
+        }
+        this.calc = function (drawST = false, rootVertex = -1) {
             graph.undoStack.push({time: graph.undoTime, type: "new-positions", data: findPositions()});
             graph.undoTime++;
             graph.redoStack=[];
@@ -264,7 +372,7 @@
                 if (graph.vertices[i]===undefined) continue;
                 if (graph.svgVertices[i]===undefined) graph.initSvgVertex(i);
             }
-            if (graph.isTree===false) {
+            if (drawST===false) {
                 this.calcOriginalPos();
                 
                 let success=false,tryPlanner=false;
@@ -325,98 +433,126 @@
                 }
             }
             else {
-                let versDepth=[],inDegree=[],root=0;
-                for (let i=0; i<graph.n; i++) {
-                    if (graph.vertices[i]===undefined) continue;
-                    versDepth[i]=[];
-                    inDegree[i]=0;
-                    graph.svgVertices[i].coord=undefined;
-                }
-                if (graph.isDirected===true) {
-                    for (let i=0; i<graph.edgeList.length; i++) {
-                        if (graph.edgeList[i]===undefined) continue;
-                        let v=graph.edgeList[i].y;
-                        inDegree[v]++;
-                    }
+                if (rootVertex===-1) {
                     for (let i=0; i<graph.n; i++) {
-                        if (graph.vertices[i]===undefined) continue;
-                        if (inDegree[i]==0) {
-                            root=i;
+                        if (graph.vertices[i]!==undefined) {
+                            rootVertex=i;
                             break;
                         }
                     }
                 }
-                let maxDepth=findMaxDepth(root,-1,0,graph.adjList,graph.edgeList);
-                fillVersDepth(root,-1,0,maxDepth,graph.adjList,graph.edgeList,versDepth);
-
-                let x,y=(2*graph.vertexRad+this.distVertices)*maxDepth,distX;
-                x=0; distX=this.findRealWidth()/(versDepth[maxDepth].length-1);
-                for (let vertex of versDepth[maxDepth]) {
-                    if (vertex!==-1) graph.svgVertices[vertex].coord=[x,y];
-                    x+=distX;
-                }
-                for (let i=maxDepth-1; i>=0; i--) {
-                    y-=(2*graph.vertexRad+this.distVertices);
-                    let ind=0;
-                    while (versDepth[i+1][ind]===-1) {
-                        ind++;
+            
+                if (graph.isDirected===true) {
+                    let inDegree=[];
+                    for (let i=0; i<graph.n; i++) {
+                        inDegree[i]=0;
                     }
-                    for (let vertex of versDepth[i]) {
-                        if (vertex===-1) continue;
-                        if ((ind===versDepth[i+1].length)||(graph.adjMatrix[vertex][versDepth[i+1][ind]].length===0)) {
-                           graph.svgVertices[vertex].coord=undefined;
-                           continue;
-                        }
-                        let sum=0,cnt=0;
-                        for (; ind<versDepth[i+1].length; ind++) {
-                            let child=versDepth[i+1][ind];
-                            if (child===-1) continue;
-                            if (graph.adjMatrix[vertex][child].length===0) break;
-                            sum+=graph.svgVertices[child].coord[0];
-                            cnt++;
-                        }
-                        graph.svgVertices[vertex].coord=[sum/cnt,y];
+                    for (let edge of graph.edgeList) {
+                        inDegree[edge.y]++;
                     }
-                    let prevX=0;
-                    for (let j=0; j<versDepth[i].length; j++) {
-                        let v=versDepth[i][j];
-                        if ((v!==-1)&&(graph.svgVertices[v].coord!==undefined)) {
-                           prevX=graph.svgVertices[v].coord[0]+2*graph.vertexRad+this.distVertices;
-                           continue;
+                    for (let i=0; i<graph.n; i++) {
+                        if (graph.vertices[i]===undefined) continue;
+                        if (inDegree[i]===0) {
+                            rootVertex=i;
+                            break;
                         }
-                        let nextX=this.frameW,cnt=0;
-                        for (let h=j; h<versDepth[i].length; h++) {
-                            let next=versDepth[i][h];
-                            if ((next!==-1)&&(graph.svgVertices[next].coord!==undefined)) {
-                               nextX=graph.svgVertices[next].coord[0];
-                               break;
-                            }
-                            cnt++;
-                        }
-                        let h;
-                        if ((nextX==this.frameW)||(2*graph.vertexRad+this.distVertices<=(nextX-(prevX-this.distVertices))/(cnt+1))) {
-                            prevX-=this.distVertices;
-                            let x=prevX;
-                            for (h=j; h<versDepth[i].length; h++) {
-                                let v=versDepth[i][h];
-                                if ((v!==-1)&&(graph.svgVertices[v].coord!==undefined)) break;
-                                if (nextX!=this.frameW) x+=(nextX-prevX)/(cnt+1);
-                                else x+=((nextX-graph.vertexRad-1)-prevX)/cnt;
-                                if (v!==-1) graph.svgVertices[v].coord=[x-graph.vertexRad,y];
-                            }
-                        }
-                        else {
-                            let x=prevX;
-                            for (h=j; h<versDepth[i].length; h++) {
-                                let v=versDepth[i][h];
-                                if ((v!==-1)&&(graph.svgVertices[v].coord!==undefined)) break;
-                                if (v!==-1) graph.svgVertices[v].coord=[x,y];
-                                x+=(nextX-prevX-this.distVertices)/cnt;
-                            }
-                        }
-                        j=h-1;
                     }
                 }
+            
+                let used=[];
+                for (let i=0; i<graph.n; i++) {
+                    used[i]=false;
+                }
+                let treeEdges=[];
+                dfs(rootVertex,graph.adjList,graph.edgeList,used,treeEdges);
+                findPositionsTree.call(this,rootVertex,treeEdges);
+                
+                let boundaryPath="M0,0 "+this.frameX+",0 "+this.frameX+","+this.frameY+" 0,"+this.frameY+" Z";
+                graph.undoTime--;
+                for (let i=0; i<graph.edgeList.length; i++) {
+                    if (graph.edgeList[i]===undefined) continue;
+                    let x=graph.edgeList[i].x,y=graph.edgeList[i].y;
+                    let found=false;
+                    for (let edge of treeEdges) {
+                        if ((x===edge[0])&&(y===edge[1])) {
+                            found=true;
+                            break;
+                        }
+                        if ((graph.isDirected===false)&&(y===edge[0])&&(x===edge[1])) {
+                            found=true;
+                            break;
+                        }
+                    }
+                    graph.undoStack.push({
+                        time: graph.undoTime,
+                        type: "change-css-edge",
+                        data: [i, [graph.edgeList[i].addedCSS[0], graph.edgeList[i].addedCSS[1]]],
+                    });
+                    if (found===true) {
+                        let s=graph.edgeList[i].addedCSS[0];
+                        for (;;) {
+                            let beg=s.indexOf(";;stroke-dasharray: "),end;
+                            if (beg===-1) break;
+                            for (let j=beg+2; ; j++) {
+                                if (s[j]===';') {
+                                    end=j;
+                                    break;
+                                }
+                            }
+                            let remove=s.substring(beg,end+1);
+                            s=graph.edgeList[i].addedCSS[0]=s.replace(remove,"");
+                        }
+                        graph.edgeList[i].curveHeight=undefined;
+                        continue;
+                    }
+                    graph.edgeList[i].addedCSS[0]+="; ;;stroke-dasharray: "+(graph.vertexRad/2)+";";
+                    
+                    let oldCurveHeight=graph.edgeList[i].curveHeight;
+                    let flag=false;
+                    function checkCurveHeight (curveHeight) {
+                        let res=graph.calcCurvedEdge(graph.svgVertices[x].coord,graph.svgVertices[y].coord,curveHeight,0);
+                        if (Snap.path.intersection(res[0],boundaryPath).length>0) return 0;
+                        graph.edgeList[i].curveHeight=curveHeight;
+                        if (this.checkEdge(x,y,i)===true) return 1;
+                        return 2;
+                    }
+                    let inc=parseInt(Math.random()*2);
+                    if (inc===0) inc=-1;
+                    for (let curveHeight=0;;) {
+                        let res=checkCurveHeight.call(this,curveHeight);
+                        if (res===0) break;
+                        if (res===1) {
+                            flag=true;
+                            break;
+                        }
+                        curveHeight+=inc;
+                    }
+                    let prevCurveHeight=graph.edgeList[i].curveHeight;
+                    inc*=(-1);
+                    for (let curveHeight=inc;;) {
+                        let res=checkCurveHeight.call(this,curveHeight);
+                        if (res===0) break;
+                        if (res===1) {
+                            if ((flag===true)&&(Math.abs(prevCurveHeight)<Math.abs(curveHeight))) {
+                                graph.edgeList[i].curveHeight=prevCurveHeight;
+                                break;
+                            }
+                            flag=true;
+                            break;
+                        }
+                        curveHeight+=inc;
+                    }
+                    if (flag===false) {
+                        graph.edgeList[i].curveHeight=oldCurveHeight;
+                        continue;
+                    }
+                    graph.undoStack.push({
+                        time: graph.undoTime,
+                        type: "change-curve-height",
+                        data: [i, oldCurveHeight],
+                    });
+                }
+                graph.undoTime++;
             }
 
             centerGraph.call(this);
@@ -430,7 +566,6 @@
             }
             this.distVertices=graph.vertexRad*5/4+parseInt((Math.random())*graph.vertexRad/4);
             if (graph.isWeighted===true) this.distVertices*=2;
-            calc.call(this);
         }
         
         function centerGraph () {
@@ -448,6 +583,8 @@
             let strokeWidth=graph.findStrokeWidth();
             let addX=(this.findRealWidth()-lenX)/2+this.findMinX()+graph.vertexRad-minX;
             let addY=(this.findRealHeight()-lenY)/2+this.findMinY()+graph.vertexRad-minY;
+            if (minX+addX<this.findMinX()+graph.vertexRad) addX=this.findMinX()+graph.vertexRad-minX;
+            if (minY+addY<this.findMinY()+graph.vertexRad) addY=this.findMinY()+graph.vertexRad-minY;
             for (let i=0; i<graph.n; i++) {
                 if (graph.vertices[i]===undefined) continue;
                 graph.svgVertices[i].coord[0]+=addX;

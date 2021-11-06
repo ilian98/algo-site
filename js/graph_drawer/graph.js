@@ -164,10 +164,10 @@
         this.svgVertices=undefined; this.svgEdges=undefined;
         this.n=undefined; this.vertices=undefined;
         this.edgeList=undefined; this.adjList=undefined; this.adjMatrix=undefined;
-        this.isDirected=undefined; this.isMulti=undefined; this.isWeighted=undefined; this.isTree=undefined;
+        this.isDirected=undefined; this.isMulti=undefined; this.isWeighted=undefined;
         this.graphChange=undefined; // function to be called after changing the graph, for exampe adding new edge
         this.undoStack=undefined; this.undoTime=undefined; this.redoStack=undefined; this.redoTime=undefined;
-        this.init = function (wrapperName, n, isDirected, isTree = false, graphChange = () => {}) {
+        this.init = function (wrapperName, n, isDirected, graphChange = () => {}) {
             if (this.wrapperName===undefined) {
                 this.wrapperName=wrapperName;
                 if ($(wrapperName+" .graph").length===0) this.svgName=this.wrapperName;
@@ -202,14 +202,12 @@
 
             if (isDirected!==undefined) this.isDirected=isDirected;
             this.isMulti=false; this.isWeighted=false;
-            if (isTree!==undefined) this.isTree=isTree;
-            else this.isTree=false;
             
             addSaveFunctionality(wrapperName,this);
             addImportFunctionality(wrapperName,this);
             this.graphChange=graphChange;
             addUndoFunctionality(wrapperName,this);
-            $(wrapperName+" .settings").off("click.settings").on("click.settings",this.addSettings.bind(this));
+            $(wrapperName+" .settings").off("click.settings").on("click.settings",showSettings.bind(this));
         }
 
         function convertVertexToList (vertex) {
@@ -349,7 +347,7 @@
         }
 
         this.vertexRad=undefined; this.calcPositions=undefined; this.initViewBox=undefined;
-        this.drawNewGraph = function (addDraw = false, vertexRad, frameX, frameY, frameW, frameH) {
+        this.drawNewGraph = function (addDraw = false, vertexRad, drawST = false, frameX, frameY, frameW, frameH) {
             this.erase();
             
             let svgObject=$(this.svgName);
@@ -386,7 +384,14 @@
                 this.calcPositions=new CalcPositions(this);
             }
             this.calcPositions.init(frameX,frameY,frameW,frameH);
-            this.undoStack.pop(); this.redoStack=[];
+            let time=this.undoTime;
+            if ((drawST===false)||(drawST===true)) this.calcPositions.calc(drawST);
+            else this.calcPositions.calc(true,drawST);
+            for (;;) {
+                if (this.undoStack.length==0) break;
+                if (this.undoStack[this.undoStack.length-1].time!=time) break;
+                this.undoStack.pop();
+            }
             this.draw(addDraw);
         }
 
@@ -964,29 +969,9 @@
         }
         
         this.changeType=[true, true, true]; this.changeVers=true; this.changeRad=true;
-        function showSettings (changeType, changeVers, changeRad) {
-            if (changeType[0]===true) $("#undirected").parent().parent().show();
-            else $("#undirected").parent().parent().hide();
-            if (changeType[1]===true) $("#weighted").parent().show();
-            else $("#weighted").parent().hide();
-            if (changeType[2]===true) $("#multi").parent().show();
-            else $("#multi").parent().hide();
-            
-            if (changeVers===true) $(".range-vers").parent().parent().show();
-            else $(".range-vers").parent().parent().hide();
-            
-            if (changeRad===true) $(".range-rad").parent().parent().show();
-            else $(".range-rad").parent().parent().hide();
-        }
-        this.setSettings = function (changeType = [true, true, true], changeVers = true, changeRad = true) {
-            this.changeType=[changeType[0], changeType[1], changeType[2]];
-            this.changeVers=changeVers; this.changeRad=changeRad;
-            showSettings(changeType,changeVers,changeRad);
-        }
-        this.addSettings = function () {
-            showSettings(this.changeType,this.changeVers,this.changeRad);
-            
+        function showSettings () {
             let graph=this;
+            
             let sliderVers=$(".range-vers");
             let outputVers=$(".slider-value-vers");
             let cnt=0;
@@ -996,7 +981,28 @@
             }
             sliderVers.val(cnt);
             outputVers.html(cnt);
-
+            
+            if (this.changeType[0]===true) $("#undirected").parent().parent().show();
+            else $("#undirected").parent().parent().hide();
+            if (this.changeType[1]===true) $("#weighted").parent().show();
+            else $("#weighted").parent().hide();
+            if (this.changeType[2]===true) $("#multi").parent().show();
+            else $("#multi").parent().hide();
+            
+            if (this.changeVers===true) $(".range-vers").parent().parent().show();
+            else $(".range-vers").parent().parent().hide();
+            
+            if (this.changeRad===true) $(".range-rad").parent().parent().show();
+            else $(".range-rad").parent().parent().hide();
+        }
+        this.setSettings = function (changeType = [true, true, true], changeVers = true, changeRad = true) {
+            this.changeType=[changeType[0], changeType[1], changeType[2]];
+            this.changeVers=changeVers; this.changeRad=changeRad;
+            addSettings(this);
+        }
+        function addSettings (graph) {
+            let sliderVers=$(".range-vers");
+            let outputVers=$(".slider-value-vers");
             sliderVers.off("input").on("input", function() {
                 let n=parseInt($(this).val());
                 outputVers.html(n);
@@ -1005,7 +1011,7 @@
                     graph.vertices[i].name=(i+1).toString();
                 }
                 graph.buildEdgeDataStructures([]); graph.undoTime--;
-                graph.calcPositions.init();
+                graph.calcPositions.calc();
                 graph.draw(graph.isDrawable,false);
                 graph.graphChange();
             });
@@ -1069,6 +1075,8 @@
             let outputRad=$(".slider-value-rad");
             sliderRad.val(graph.vertexRad);
             outputRad.html(graph.vertexRad);
+            sliderRad.attr("min",parseInt(3*graph.vertexRad/4));
+            sliderRad.attr("max",parseInt(3*graph.vertexRad/2));
             sliderRad.off("input").on("input", function() {
                 let val=parseInt($(this).val());
                 outputRad.html(val);
@@ -1548,7 +1556,7 @@
                 if (graphProperties[3]!=graph.isMulti)
                     graph.undoStack.push({time: graph.undoTime, type: "change-property", data: ["isMulti", graphProperties[3]]});
                 
-                if (flagCoords===false) graph.calcPositions.init();
+                if (flagCoords===false) graph.calcPositions.calc();
                 else {
                     graph.calcPositions.changePositions([],versCoord);
                     if (posProperties===undefined) graph.calcPositions.calcOriginalPos();

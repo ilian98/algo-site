@@ -48,14 +48,14 @@
         if (l===r) {
            segment.attr({
                x: tree.svgVertices[index].coord[0], 
-               y: tree.svgVertices[index].coord[1]+tree.vertexRad+tree.findStrokeWidth()+2
+               y: tree.svgVertices[index].coord[1]+tree.vertexRad+tree.findStrokeWidth()/2+2
            });
            segment.attr({dy: 2*determineDy(segment.attr("text"),"Times New Roman",labelFontSize), "text-anchor": "middle"});
            return ;
         }
         segment.attr({
             x: tree.svgVertices[index].coord[0], 
-            y: tree.svgVertices[index].coord[1]-tree.vertexRad-2,
+            y: tree.svgVertices[index].coord[1]-tree.vertexRad-tree.findStrokeWidth()/2-2,
         });
         segment.attr({"text-anchor": "middle"});
         let mid=Math.floor((l+r)/2);
@@ -124,8 +124,8 @@
         let edgeList=[];
         makeEdgesAndNames(0,0,elements.length-1,edgeList,tree.vertices,elements,false);
         tree.buildEdgeDataStructures(edgeList);
-        if (elements.length<=8) tree.drawNewGraph(false,10);
-        else tree.drawNewGraph(false,7);
+        if (elements.length<=8) tree.drawNewGraph(false,10,true);
+        else tree.drawNewGraph(false,7,true);
 
         if ($(exampleName+" .indexes").text()=="Скрий номерата") addSegmentsLabels(0,1,elements.length,tree,true,false);
         else addSegmentsLabels(0,1,elements.length,tree,false,false);
@@ -136,7 +136,7 @@
         tree.initVertices(1);
         tree.vertices[0].name="0";
         tree.buildEdgeDataStructures([]);
-        tree.drawNewGraph(false,8,dynSegTree.frameX);
+        tree.drawNewGraph(false,8,true,dynSegTree.frameX);
 
         if ($(exampleName+" .indexes").text()=="Скрий номерата") addSegmentsLabels(0,1,dynSegTree.maxC,tree,true,true);
         else addSegmentsLabels(0,1,dynSegTree.maxC,tree,false,true);
@@ -171,7 +171,7 @@
         let edgeList=[];
         makeEdgesAndNames(0,1,dynSegTree.maxC,edgeList,tree.vertices,[],true);
         tree.buildEdgeDataStructures(edgeList);
-        tree.drawNewGraph(false,8,dynSegTree.frameX);
+        tree.drawNewGraph(false,8,true,dynSegTree.frameX);
 
         if ($(exampleName+" .indexes").text()=="Скрий номерата") addSegmentsLabels(0,1,maxC,tree,true,true);
         else addSegmentsLabels(0,1,maxC,tree,false,true);

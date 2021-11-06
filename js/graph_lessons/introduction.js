@@ -163,7 +163,7 @@
 
             let example4=new Graph ();
             $(".graphExample4 .default").on("click", function () {
-                example4.init(".graphExample4",5,false,false,displayDegree.bind(this,example4));
+                example4.init(".graphExample4",5,false,displayDegree.bind(this,example4));
                 example4.buildEdgeDataStructures([[0,0],[0,0],[1,1],[1,2],[1,3],[2,4],[3,4]]);
                 example4.drawNewGraph(true,20);
                 example4.setSettings([false, false, true]);
@@ -190,7 +190,7 @@
         else if (part===3) {
             let example7=new Graph ();
             $(".graphExample7 .default").on("click", function () {
-                example7.init(".graphExample7",5,false,false,displayMatrix.bind(this,example7));
+                example7.init(".graphExample7",5,false,displayMatrix.bind(this,example7));
                 example7.isMulti=true;
                 example7.buildEdgeDataStructures([[0,0],[1,2],[1,3],[1,4],[2,3]]);
                 example7.drawNewGraph(true,20);
@@ -200,7 +200,7 @@
 
             let example8=new Graph ();
             $(".graphExample8 .default").on("click", function () {
-                example8.init(".graphExample8",5,false,false,displayAdjacencyList.bind(this,example8));
+                example8.init(".graphExample8",5,false,displayAdjacencyList.bind(this,example8));
                 example8.buildEdgeDataStructures([[0,1,8],[0,1,9],[1,2,6],[1,3,7],[2,4,10],[3,4,11]]);
                 example8.drawNewGraph(true,20);
                 displayAdjacencyList(example8);
@@ -208,7 +208,7 @@
 
             let example9=new Graph ();
             $(".graphExample9 .default").on("click", function () {
-                example9.init(".graphExample9",4,true,false,displayEdgeList.bind(this,example9));
+                example9.init(".graphExample9",4,true,displayEdgeList.bind(this,example9));
                 example9.buildEdgeDataStructures([[0,1],[0,2],[1,2],[1,3],[2,1],[2,3]]);
                 example9.drawNewGraph(true,20);
                 example9.setSettings([false, false, true]);

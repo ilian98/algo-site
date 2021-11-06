@@ -46,8 +46,8 @@
         graph.drawNewGraph(true,vertexRad);
         graph.setSettings([true, false, true]);
 
-        $(".start-vertex").val("1");
-        animationObj.init(name,function findAnimation () {
+        $(name+" .start-vertex").val("1");
+        animationObj.init(name,function findAnimations () {
             let st=parseInt($(name+" .start-vertex").val()); st--;
             let used=[],found=false;
             for (let i=0; i<graph.n; i++) {
@@ -100,9 +100,9 @@
             graph.drawNewGraph(false,30);
 
             let graphDFS = new Graph();
-            let animationObjUndirected = new Animation();
+            let animationObj = new Animation();
             let exampleName=".graphExample2";
-            $(exampleName+" .default").off("click").on("click",defaultExample.bind(this,exampleName,graphDFS,animationObjUndirected,20)).click();
+            $(exampleName+" .default").off("click").on("click",defaultExample.bind(this,exampleName,graphDFS,animationObj,20)).click();
             $(exampleName+" .start-vertex").on("keydown",isDigit);
         }
         else if (part==3) {
