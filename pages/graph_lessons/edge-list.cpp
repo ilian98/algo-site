@@ -1,7 +1,7 @@
-int edges[MAXM][2],len=0;
+int edges[MAXM],len=0;
 int prev[MAXM],last[MAXN];
 void add_edge (int x, int y) {
-    edges[len][0]=x; edges[len][1]=y;
+    edges[len]=y;
     prev[len]=last[x];
     last[x]=len;
     len++;
@@ -19,7 +19,7 @@ int main () {
         add_edge(x,y);
     }
     for (int ind=last[0]; ind!=-1; ind=prev[ind]) { /// 0 съответства на връх 1
-        cout << edges[ind][1] << " "; /// edges[ind][0] е 0 и edges[ind][1] е съседа на връх 0 за това ребро
+        cout << edges[ind] << " "; /// edges[ind] е съседа на връх 0 за това ребро
     }
     cout << endl ;
     return 0;
