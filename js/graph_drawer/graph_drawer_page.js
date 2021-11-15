@@ -26,8 +26,9 @@
         });
         graph.buildEdgeDataStructures([[0,1],[1,2],[2,3],[3,4],[4,0]]);
         graph.drawNewGraph(true);
-        graph.addSettings();
+        graph.setSettings();
         graph.drawableGraph.addSettings();
+        graph.graphChange();
     }
     
     window.init = init;
