@@ -240,6 +240,20 @@
     }
 
     $(document).ready(function () {
+        const d=new Date();
+        const month=d.getMonth()+1,day=d.getDate()+1;
+        if (((month==12)&&(day>=22))||
+            (month==1)||(month==2)||
+            ((month==3)&&(day<21))) {
+            $("head").append('<link type="text/css" rel="stylesheet" href="/algo-site/styles/snow.css" media="screen,projection"/>');
+            if (home_page===true) $("body").append('<div id="winter"></div>');
+            else $("header").append('<div id="winter"></div>');
+            let winter=$("#winter");
+            for (let i=0; i<200; i++) {
+                winter.append('<div class="snow"></div>');
+            }
+        }
+    
         $.get(navigation_page, function (data) {
             $("#nav-placeholder").replaceWith(data);
             $("#nav-placeholder").ready(function () {

@@ -55,6 +55,9 @@ body {
     width: 100%;
     overflow-y: hidden;
 }
+header {
+    position: relative;
+}
 
 .bg-navbar-color {
     background-color: lightgreen;
