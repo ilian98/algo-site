@@ -111,22 +111,101 @@
         });
     }
     
+    let timeDCC;
+    function findBridges (vr, father, adjList, edgeList, used, up, inTime) {
+        inTime[vr]=timeDCC++; up[vr]=inTime[vr];
+        used[vr]=true;
+        for (let ind of adjList[vr]) {
+            let to=edgeList[ind].findEndPoint(vr);
+            if (used[to]===false) {
+                findBridges(to,vr,adjList,edgeList,used,up,inTime);
+                up[vr]=Math.min(up[vr],up[to]);
+                if (up[to]>=inTime[to]) edgeList[ind].bridge=true;
+            }
+            else if (to!=father) up[vr]=Math.min(up[vr],inTime[to]);
+        }
+    }
+    function findComponent (vr, adjList, edgeList, used, comp) {
+        comp.push(vr);
+        used[vr]=true;
+        for (let ind of adjList[vr]) {
+            let to=edgeList[ind].findEndPoint(vr);
+            if (edgeList[ind].hasOwnProperty("bridge")===true) continue;
+            if (used[to]===false) findComponent(to,adjList,edgeList,used,comp);
+        }
+    }
+    function findDCC (graph) {
+        let used=[],up=[],inTime=[];
+        for (let i=0; i<graph.n; i++) {
+            used[i]=false;
+        }
+        timeDCC=0;
+        for (let i=0; i<graph.n; i++) {
+            if (graph.vertices[i]===undefined) continue;
+            if (used[i]===true) continue;
+            findBridges(i,-1,graph.adjList,graph.edgeList,used,up,inTime);
+        }
+        for (let i=0; i<graph.n; i++) {
+            used[i]=false;
+        }
+        let comps=[];
+        for (let i=0; i<graph.n; i++) {
+            if (graph.vertices[i]===undefined) continue;
+            if (used[i]===true) continue;
+            let comp=[];
+            findComponent(i,graph.adjList,graph.edgeList,used,comp);
+            comps.push(comp);
+        }
+        for (let i=0; i<graph.edgeList.length; i++) {
+            if (graph.edgeList[i]===undefined) continue;
+            delete graph.edgeList[i].bridge;
+        }
+        return comps;
+    }
+    function colourDCC () {
+        let graph=this;
+        let colours=["#c76dbf","#99498a","#80447f","#513d66","#3653b3","#248ad4","#5fcaed","#82ebf5","#17b2e6","#306ec9",
+                     "#237040","#2d801b","#52992e","#66b324","#86cc14","#b0e627","#ffff69","#f7db02","#e8c00e","#f7aa25",
+                     "#ff8c00","#ff8c00","#f0690e","#f0cab6","#e8bb97","#e09e75","#c9794b","#b06838","#ad6615","#733405",
+                     "#542d01","#361c01","#574d43","#786e65","#b0a79d","#c7c5c3","#f2f2f2"];
+        let comps=findDCC(graph),num=comps.length;
+        let jump=Math.floor(colours.length/num),colour=0;
+        let versColour=[];
+        for (let i=0; i<num; i++) {
+            for (let j=0; j<comps[i].length; j++) {
+                let v=comps[i][j];
+                graph.svgVertices[v].circle.attr("fill",colours[colour]);
+                versColour[v]=colours[colour];
+            }
+            colour+=jump;
+        }
+        for (let i=0; i<graph.edgeList.length; i++) {
+            if (graph.edgeList[i]===undefined) continue;
+            let from=graph.edgeList[i].x,to=graph.edgeList[i].y;
+            if (versColour[from]===versColour[to]) graph.svgEdges[i].line.attr("stroke",versColour[from]);
+            else {
+                graph.svgEdges[i].line.attr("stroke","red");
+                graph.svgEdges[i].line.attr("stroke-width",graph.findStrokeWidth()*2);
+            }
+        }
+    }
+    
     function initExample (part) {
         if (part===1) {
-            let example1=new Graph ();
+            let example1=new Graph();
             example1.init(".graphExample1",6,false);
             example1.buildEdgeDataStructures([[0,1],[1,2],[2,0],[2,3],[3,4],[4,5],[5,3]]);
             example1.edgeList[3].addedCSS[0]="stroke: red";
             example1.drawNewGraph(false,25);
             
-            let example2=new Graph ();
+            let example2=new Graph();
             example2.init(".graphExample2",5,false);
             example2.buildEdgeDataStructures([[0,1],[1,2],[2,0],[2,3],[3,4],[4,2]]);
             example2.vertices[2].addedCSS[0]="stroke: red";
             example2.drawNewGraph(false,25);
         }
         else if (part===2) {
-            let example3=new Graph ();
+            let example3=new Graph();
             let animationObj = new Animation();
             $(".graphExample3 .default").on("click", function () {
                 example3.init(".graphExample3",8,false,function () {
@@ -189,6 +268,26 @@
                 });
             }).click();
             $("graphExample3 .start-vertex").on("keydown",isDigit);
+        }
+        else if (part===3) {
+            let example4=new Graph();
+            example4.init(".graphExample4",5,false);
+            example4.buildEdgeDataStructures([[0,1],[1,2],[2,0],[2,3],[3,4],[4,2]]);
+            example4.vertices[0].addedCSS[0]="fill: magenta";
+            example4.vertices[1].addedCSS[0]="fill: magenta";
+            example4.vertices[2].addedCSS[0]="fill: red";
+            example4.vertices[3].addedCSS[0]="fill: yellow";
+            example4.vertices[4].addedCSS[0]="fill: yellow";
+            example4.drawNewGraph(false,25);
+            
+            let example5=new Graph();
+            $(".graphExample5 .default").on("click", function () {
+                example5.init(".graphExample5",8,false,colourDCC.bind(example5));
+                example5.buildEdgeDataStructures([[0,1],[0,2],[1,2],[1,6],[2,3],[2,6],[3,4],[3,7],[4,7],[5,6]]);
+                example5.drawNewGraph(true,15,false,0,15);
+                example5.setSettings([false, false, true]);
+                colourDCC.call(example5);
+            }).click();
         }
     }
     

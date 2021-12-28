@@ -10,14 +10,16 @@
 		  gtag('config', 'G-Y8NQ36XMJS');
 		</script>
         
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+        
         <link rel="shortcut icon" href="/algo-site/images/favicon.ico">
         <link type="text/css" rel="stylesheet" href="/algo-site/node_modules/bootstrap/dist/css/bootstrap.min.css"  media="screen,projection"/>
         <link type="text/css" rel="stylesheet" href="/algo-site/styles/style.css"  media="screen,projection"/>
         <link type="text/css" rel="stylesheet" href="/algo-site/styles/lesson.css"  media="screen,projection"/>
         <link type="text/css" rel="stylesheet" href="/algo-site/styles/animation.css"  media="screen,projection"/>
         <link type="text/css" rel="stylesheet" href="/algo-site/node_modules/@highlightjs/cdn-assets/styles/github-dark.min.css">
-        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+        
         <script type="text/javascript" src="/algo-site/node_modules/jquery/dist/jquery.slim.min.js"></script>
         <script type="text/javascript" src="/algo-site/node_modules/jquery/dist/jquery.min.js"></script>
         <script type="text/javascript" src="/algo-site/node_modules/@popperjs/core/dist/umd/popper.min.js"></script>
@@ -52,6 +54,92 @@
             <div class="content">            
                 <h1 align="center">Артикулационни върхове и ребра</h1>
 
+                <ul class="dropdown-menu vertex">
+                    <li><a class="dropdown-item unselectable remove-vertex">Изтрий върха</a></li>
+                    <li><a class="dropdown-item unselectable change-name">Промени името</a></li>
+                    <li><a class="dropdown-item unselectable add-css">Сложи CSS стил</a></li>
+                    <li><a class="dropdown-item unselectable add-css-name">Сложи CSS стил на името</a></li>
+                </ul>
+                <ul class="dropdown-menu edge">
+                    <li><a class="dropdown-item unselectable remove-edge">Изтрий реброто</a></li>
+                    <li><a class="dropdown-item unselectable change-weight">Промени теглото</a></li>
+                    <li><a class="dropdown-item unselectable add-css">Сложи CSS стил</a></li>
+                </ul>
+                <ul class="dropdown-menu save-menu">
+                    <li><a class="dropdown-item unselectable txt">Изтегли като txt</a></li>
+                    <li><a class="dropdown-item unselectable edge-list">Изтегли като сп. на ребрата</a></li>
+                    <li><a class="dropdown-item unselectable svg">Изтегли като svg</a></li>
+                    <li><a class="dropdown-item unselectable png">Изтегли като png</a></li>
+                </ul>
+                <div class="modal fade" id="settingsModal" tabindex="-1" aria-labelledby="settingsModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content" style="max-height: 100%; overflow-y: auto">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="settingsModalLabel">Настройки на графа</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body" style="text-align: justify">
+                                <div class="row mb-3">
+                                    <div class="slidecontainer">
+                                        <input type="range" min="1" max="10" value="5" class="slider range-vers" id="rangeVers">
+                                    </div>
+                                    <div class="slider-text unselectable">
+                                        <span>Брой върхове: </span>
+                                        <span class="slider-value-vers" style="color: red; font-weight: bold"></span>
+                                    </div>
+                                </div>
+                                <div class="row mb-3">
+                                    <div class="col-sm">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="direction" id="undirected" checked>
+                                            <label class="form-check-label unselectable" for="undirected">Неориентиран граф</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="direction" id="directed">
+                                            <label class="form-check-label unselectable" for="directed">Ориентиран граф</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" value="" id="weighted">
+                                            <label class="form-check-label unselectable" for="weighted">Претеглен граф</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" value="" id="multi">
+                                            <label class="form-check-label unselectable" for="multi">Мултиграф</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row mb-3">
+                                    <div class="slidecontainer">
+                                        <input type="range" min="15" max="30" value="20" class="slider range-rad" id="rangeRad">
+                                    </div>
+                                    <div class="slider-text unselectable">
+                                        <span>Големина на върховете: </span>
+                                        <span class="slider-value-rad" style="color: red; font-weight: bold"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal fade" id="infoModal" tabindex="-1" aria-labelledby="infoModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content" style="max-height: 100%; overflow-y: auto">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="infoModalLabel">Информация</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body" style="text-align: justify">
+                                Суича в лентата за графа управлява действието, което се изпълнява при влачене на връх. Когато е изключен, се започва чертаене на ребро, а когато е включен се премества върха.<br><br>
+                                Използвайте бутона за настройките, за да отворите прозорец за управление на графа. Първият слайдър там е за определяне на броя върхове в графа - от 1 до 10. При промяна графът се изтрива и се появяват указания брой върхове на произволни места. Вторият плъзгач е за промяна на големината на върховете, като графът сам променя останалите характеристики в зависимост от тази големина.<br><br>
+                                Нов връх на графа се добавя с двойно натискане на празно място. Всеки връх може да се натисне, с което да се появят различни опции за работа с него. При влачене на връх, се появяват опорни позиции. Връх, който е пуснат близо до опорна позиция се придвижва автоматично там. Всяко ребро с изключение на примките, може да се персонализира с влачене. По този начин се променя кривината на реброто. При натискане на ребро също се появяват различни опции за него. Това става и при натискане на тегло (при претеглени графи).<br><br>
+                                Всички компоненти на графа като цвят, големина и т.н., могат да се персонализират чрез написване на съответeн CSS код след избиране на опция за добавяне на CSS стил. Отделно се поддържа възможност за връщане на всяка промяна, както и изпълняването ѝ отново чрез бутоните в лявата част на функционалната лента. Бутоните в средата на лентата са за качване на текстов файл, в който е описан граф, както и за изтегляне на направения граф в различни формати.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
                 <div class="lesson-part-position">
                     <button class="btn btn-secondary">1. Какво представляват артикулационните върхове и ребра?</button>
                     <div id="firstPart">
@@ -59,7 +147,11 @@
                             <div class="graph-container" style="width: 20%; float: right; margin-left: 2vw">
                                 <svg class="graphExample1" viewBox="0 0 300 300"></svg>
                             </div>
-                            <p class="text-format">Тези понятия възникват единствено в неориентираните графи. <i>Артикулационно ребро</i> е такова ребро на графа, при чието премахване графът увеличава броя на свързаните си компоненти. Наричат се още <i>мостове</i>, поради житейската аналогия. Най-често в тази ситуация разглеждаме свързани графи, при които премахването на <i>мост</i>, прави графа несвързан (<a class="info">...</a><a class="info" style="display: none">с 2 компоненти на свързаност</a>). Графът от примера има само едно артикулационно ребро - \((3,4)\). По аналогичен начин се дефинира <i>артикулационен връх</i> - връх на графа, при чието премахване (заедно с неговите ребра) графът увеличава броя на свързаните си компоненти. Наричат се още <i>артикулационни точки</i>.</p>
+                            <p class="text-format">Тези понятия възникват единствено в неориентираните графи.</p>
+                            <p class="text-format bold">Определение: Артикулационно ребро е такова ребро на графа, при чието премахване графът увеличава броя на свързаните си компоненти.</p>
+                            <p class="text-format">Наричат се още <i>мостове</i>, поради житейската аналогия. Най-често в тази ситуация разглеждаме свързани графи, при които премахването на <i>мост</i>, прави графа несвързан (<a class="info">...</a><a class="info" style="display: none">с 2 компоненти на свързаност</a>). Графът от примера има само едно артикулационно ребро - \((3,4)\). По аналогичен начин се дефинира <i>артикулационен връх</i>.
+                            <p class="text-format bold">Определение: Артикулационен връх е такъв връх на графа, при чието премахване (заедно с неговите ребра) графът увеличава броя на свързаните си компоненти.</p>
+                            <p class="text-format">Наричат се още <i>артикулационни точки</i>.</p>
                         </div>
                         <div style="clear: both">
                             <div class="graph-container" style="width: 20%; float: right; margin-left: 2vw">
@@ -102,94 +194,6 @@
                             </div>
                             
                             <div class="col-sm right-col">
-                                <ul class="dropdown-menu vertex">
-                                    <li><a class="dropdown-item unselectable remove-vertex">Изтрий върха</a></li>
-                                    <li><a class="dropdown-item unselectable change-name">Промени името</a></li>
-                                    <li><a class="dropdown-item unselectable add-css">Сложи CSS стил</a></li>
-                                    <li><a class="dropdown-item unselectable add-css-name">Сложи CSS стил на името</a></li>
-                                </ul>
-                                <ul class="dropdown-menu edge">
-                                    <li><a class="dropdown-item unselectable remove-edge">Изтрий реброто</a></li>
-                                    <li><a class="dropdown-item unselectable change-weight">Промени теглото</a></li>
-                                    <li><a class="dropdown-item unselectable add-css">Сложи CSS стил</a></li>
-                                </ul>
-                                <ul class="dropdown-menu save-menu">
-                                    <li><a class="dropdown-item unselectable txt">Изтегли като txt</a></li>
-                                    <li><a class="dropdown-item unselectable edge-list">Изтегли като сп. на ребрата</a></li>
-                                    <li><a class="dropdown-item unselectable svg">Изтегли като svg</a></li>
-                                    <li><a class="dropdown-item unselectable png">Изтегли като png</a></li>
-                                </ul>
-
-                                <div class="modal fade" id="settingsModal" tabindex="-1" aria-labelledby="settingsModalLabel" aria-hidden="true">
-                                    <div class="modal-dialog">
-                                        <div class="modal-content" style="max-height: 100%; overflow-y: auto">
-                                            <div class="modal-header">
-                                                <h5 class="modal-title" id="settingsModalLabel">Настройки на графа</h5>
-                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                            </div>
-                                            <div class="modal-body" style="text-align: justify">
-                                                <div class="row mb-3">
-                                                    <div class="slidecontainer">
-                                                        <input type="range" min="1" max="10" value="5" class="slider range-vers" id="rangeVers">
-                                                    </div>
-                                                    <div class="slider-text unselectable">
-                                                        <span>Брой върхове: </span>
-                                                        <span class="slider-value-vers" style="color: red; font-weight: bold"></span>
-                                                    </div>
-                                                </div>
-                                                <div class="row mb-3">
-                                                    <div class="col-sm">
-                                                        <div class="form-check">
-                                                            <input class="form-check-input" type="radio" name="direction" id="undirected" checked>
-                                                            <label class="form-check-label unselectable" for="undirected">Неориентиран граф</label>
-                                                        </div>
-                                                        <div class="form-check">
-                                                            <input class="form-check-input" type="radio" name="direction" id="directed">
-                                                            <label class="form-check-label unselectable" for="directed">Ориентиран граф</label>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-sm">
-                                                        <div class="form-check">
-                                                            <input class="form-check-input" type="checkbox" value="" id="weighted">
-                                                            <label class="form-check-label unselectable" for="weighted">Претеглен граф</label>
-                                                        </div>
-                                                        <div class="form-check">
-                                                            <input class="form-check-input" type="checkbox" value="" id="multi">
-                                                            <label class="form-check-label unselectable" for="multi">Мултиграф</label>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="row mb-3">
-                                                    <div class="slidecontainer">
-                                                        <input type="range" min="15" max="30" value="20" class="slider range-rad" id="rangeRad">
-                                                    </div>
-                                                    <div class="slider-text unselectable">
-                                                        <span>Големина на върховете: </span>
-                                                        <span class="slider-value-rad" style="color: red; font-weight: bold"></span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <div class="modal fade" id="infoModal" tabindex="-1" aria-labelledby="infoModalLabel" aria-hidden="true">
-                                    <div class="modal-dialog">
-                                        <div class="modal-content" style="max-height: 100%; overflow-y: auto">
-                                            <div class="modal-header">
-                                                <h5 class="modal-title" id="infoModalLabel">Информация</h5>
-                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                            </div>
-                                            <div class="modal-body" style="text-align: justify">
-                                                Суича в лентата за графа управлява действието, което се изпълнява при влачене на връх. Когато е изключен, се започва чертаене на ребро, а когато е включен се премества върха.<br><br>
-                                                Използвайте бутона за настройките, за да отворите прозорец за управление на графа. Първият слайдър там е за определяне на броя върхове в графа - от 1 до 10. При промяна графът се изтрива и се появяват указания брой върхове на произволни места. Вторият плъзгач е за промяна на големината на върховете, като графът сам променя останалите характеристики в зависимост от тази големина.<br><br>
-                                                Нов връх на графа се добавя с двойно натискане на празно място. Всеки връх може да се натисне, с което да се появят различни опции за работа с него. При влачене на връх, се появяват опорни позиции. Връх, който е пуснат близо до опорна позиция се придвижва автоматично там. Всяко ребро с изключение на примките, може да се персонализира с влачене. По този начин се променя кривината на реброто. При натискане на ребро също се появяват различни опции за него. Това става и при натискане на тегло (при претеглени графи).<br><br>
-                                                Всички компоненти на графа като цвят, големина и т.н., могат да се персонализират чрез написване на съответeн CSS код след избиране на опция за добавяне на CSS стил. Отделно се поддържа възможност за връщане на всяка промяна, както и изпълняването ѝ отново чрез бутоните в лявата част на функционалната лента. Бутоните в средата на лентата са за качване на текстов файл, в който е описан граф, както и за изтегляне на направения граф в различни формати.
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
                                 <div class="row mb-2">
                                     <div class="col text-start undo-group">
                                         <button class="btn p-0 undo undo-mini" title="Върни промяната">
@@ -283,9 +287,93 @@
                 </div>
                 
                 <div class="lesson-part-position">
-                    <button class="btn btn-secondary">3. Двусвързани компоненти в граф</button>
+                    <button class="btn btn-secondary">3. Двусвързани компоненти на граф</button>
                     <div id="thirdPart">
-                        <p class="text-format"></p>
+                        <p class="text-format">Първоначално говорихме, че един граф е свързан, ако всеки два върха в него са свързани. Това определение естествено може да се продължи, за да характеризира "по-силна" свързаност. Единият начин е да искаме върховете да останат свързани дори и точно един от върховете да бъдат изтрити.</p>
+                        <p class="text-format bold">Определение: Граф наричаме двусвързан \(\iff\) при премахването, на който и да е връх, всеки два от останалите върхове остават свързани.</p>
+                        <p class="text-format">Очевидно, за да може един граф да е двусвързан, той първо трябва да е (едно)свързан. В контекста на свързаност говорим за свързани компоненти. Тук аналогично можем да говорим за <i>двусвързани компоненти</i>, макар и да нямаме точно разпадане на компоненти.</p>
+                        <p class="text-format bold">Определение: Двусвързани компоненти на граф наричаме максималните по включване подграфи на началния граф, така че всеки подграф да е двусвързан.</p>
+                        <div class="graph-container" style="width: 20%; float: right; margin-left: 2vw">
+                            <svg class="graphExample4" viewBox="0 0 300 300"></svg>
+                        </div>
+                        <p class="text-format">Проблемът е, че за разлика от <i>свързаните компоненти</i>, които нямат общо помежду си, то <i>двусвързаните</i> могат да имат по един общ връх. Лесно може да се покаже, че всъщност общите върхове са точно <i>артикулационните точки</i> на графа. Показан е началният пример, в който са оцветени компонентите в пурпурен и жълт цвят, а общият връх (<i>артикулационна точка</i>) е в общия цвят на двете - червен. Самото разбиване има хубави свойства. По аналогия на ССК (<a class="info">...</a><a class="info" style="display: none">вижте първо урока за силно свързани компоненти</a>) можем да направим кондензиран граф с върхове тези компоненти, както и по един връх за всяка <i>артикулационна точка</i>, а ребрата са между връх на кондензирана <i>двусвързана компонента</i> и връх за <i>артикулационна точка</i> от тази компонента. Полученият кондензиран граф всъщност винаги е дърво. За нашето разглеждане, по-важни са друг вид подобни на <i>двусвързаните компоненти</i>, които ще разглеждаме в малко по-големи детайли в следващите абзаци.</p>
+                        <p class="text-format">Започнахме разглеждането с това, че единият начин да усилим свързаността, е като искаме свързаност при премахването на един връх. Вторият начин е ако искаме свързаност при махането, на което и да е ребро. Така имаме аналогични понятия на предните:</p>
+                        <p class="text-format bold" style="margin-top: -10px">Определения:</p>
+                        <ul style="margin-top: -10px">
+                            <li class="dashed-list bold">Граф наричаме двойно свързан \(\iff\) при премахването, на което и да е ребро, всеки два от върховете остават свързани.</li>
+                            <li class="dashed-list bold">Двойно свързани компоненти на граф наричаме максималните по включване подграфи на началния граф, така че всеки подграф да е двойно свързан.</li>
+                        </ul>
+                        <div class="graphExample5 row" style="clear: both">
+                            <div class="col-sm">
+                                <p class="text-format">Отново, за да може един граф да е двойно свързан, трябва да е поне свързан. По аналогия със съкращението ССК, тези компоненти ще наричаме ДСК (Двойно Свързани Компоненти) (<a class="info">...</a><a class="info" style="display: none">тук ще уточним, че на английски се използват малко по-различни наименования - 2-edge-connected graph и 2-edge-connected components; с цел по-кратко и приятно наименование и разлика с двусвързаните, ще ги наричаме двойно свързани</a>). При тези компоненти имаме хубавото разпадане, при което те нямат общи върхове и ребра. Всъщност ДСК се получават и много по-лесно. Достатъчно е първо да намерим всички <i>мостове</i> на графа, след което да премахнем намерените <i>мостове</i>. Така получените <i>свързани компоненти</i> са всъщност <i>двойно свързаните</i> на оригиналния граф. Лесно се вижда, че това е така - ако премахнем някое ребро от тези компоненти, то те остават свързани, защото иначе махнатото ребро би било <i>мост</i>, а ние махнахме всички <i>мостове</i>, за да ги образуваме. Показан е интерактивен пример, който се поддържа с оцветени двусвързани компоненти и <i>мостове</i>.</p>
+                            </div>
+                            
+                            <div class="col-sm right-col">
+                                <div class="row mb-2">
+                                    <div class="col text-start undo-group">
+                                        <button class="btn p-0 undo undo-mini" title="Върни промяната">
+                                            <svg class="bi" width="20px" height="20px" fill="currentColor">
+                                                <use xlink:href="/algo-site/node_modules/bootstrap-icons/bootstrap-icons.svg#arrow-counterclockwise"/>
+                                            </svg>
+                                        </button>
+                                        <button class="btn p-0 redo redo-mini" title="Повтори промяната">
+                                            <svg class="bi" width="20px" height="20px" fill="currentColor">
+                                                <use xlink:href="/algo-site/node_modules/bootstrap-icons/bootstrap-icons.svg#arrow-clockwise"/>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                    <div class="col text-center save-group">
+                                        <input class="input-file" type="file" accept="text/plain" style="display: none"/>
+                                        <button class="btn p-0 import import-mini" title="Зареди граф">
+                                            <svg class="bi" width="20px" height="20px" fill="currentColor">
+                                                <use xlink:href="/algo-site/node_modules/bootstrap-icons/bootstrap-icons.svg#box-arrow-in-up"/>
+                                            </svg>
+                                        </button>
+                                        <svg class="svg-save" style="display: none"></svg>
+                                        <canvas class="canvas-save" style="display: none"></canvas>
+                                        <button class="btn p-0 save save-mini" title="Изтегли графа">
+                                            <svg class="bi" width="20px" height="20px" fill="currentColor">
+                                                <use xlink:href="/algo-site/node_modules/bootstrap-icons/bootstrap-icons.svg#download"/>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                    <div class="col">
+                                        <div class="row justify-content-end">
+                                            <div class="col-auto form-check form-switch d-flex p-0 m-0">
+                                                <input class="form-check-input mx-0 dragging-mini" type="checkbox">
+                                            </div>
+                                            <div class="col-auto d-flex">
+                                                <button class="btn d-flex p-0 my-auto settings" data-bs-toggle="modal" data-bs-target="#settingsModal" title="Настройки">
+                                                    <svg class="bi" width="20px" height="20px" fill="currentColor">
+                                                        <use xlink:href="/algo-site/node_modules/bootstrap-icons/bootstrap-icons.svg#card-checklist"/>
+                                                    </svg>
+                                                </button>
+                                            </div>
+                                            <div class="col-auto d-flex ps-0">
+                                                <button class="btn d-flex p-0 my-auto information" data-bs-toggle="modal" data-bs-target="#infoModal" title="Информация">
+                                                    <svg class="bi" width="20px" height="20px" fill="currentColor">
+                                                        <use xlink:href="/algo-site/node_modules/bootstrap-icons/bootstrap-icons.svg#info-circle-fill"/>
+                                                    </svg>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row text-center">
+                                    <div class="graph-container" style="margin: 0">
+                                        <svg class="graph" viewBox="0 0 300 300" style="height: 60vh"></svg>
+                                    </div>
+                                </div>
+                                
+                                <div class="row justify-content-center mt-2">
+                                    <div class="col-auto">
+                                        <button class="btn btn-primary default" style="float: right">Начален пример</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="text-format">Самите <i>двойно свързани компенти</i> са свързани чрез мостовете на графа. Тук по-лесно можем да кондензираме компонентите и отново кондензирания граф се получава дърво, което се вижда лесно. Последно, ще кажем един полезен факт за двойно свързаните компоненти - за всеки два върха в една двойно свързана компонента, има поне два прости пътя без общи ребра.</p>
                     </div>
                 </div>
 
