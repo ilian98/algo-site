@@ -346,7 +346,8 @@
             });
             
             dropdown.find(".change-name").off("click").one("click",function () {
-                let name=prompt("Въведете ново име на върха",graph.vertices[index].name);
+                let name=prompt((language==="bg")?"Въведете ново име на върха":"Input new name of the vertex"
+                                ,graph.vertices[index].name);
                 if (graph.vertices[index].name!==name) {
                     graph.undoStack.push({time: graph.undoTime, type: "change-name", data: [index, graph.vertices[index].name]});
                     graph.undoTime++;
@@ -361,8 +362,9 @@
             
             dropdown.find(".add-css").off("click").one("click",function () {
                 let css=prompt(
-                    "Въведете CSS стил за върха"+
-                    ((graph.vertices[index].addedCSS[0]==="")?" (например за червен цвят fill: red)":""),
+                    ((language==="bg")?"Въведете CSS стил за върха":"Input CSS style for the vertex")+
+                    ((graph.vertices[index].addedCSS[0]==="")?
+                     ((language==="bg")?" (например за червен цвят fill: red)":" (for example for red colour - fill: red)"):""),
                     graph.vertices[index].addedCSS[0]
                 );
                 if (graph.vertices[index].addedCSS[0]!==css)
@@ -372,8 +374,9 @@
             
             dropdown.find(".add-css-name").off("click").one("click",function () {
                 let css=prompt(
-                    "Въведете CSS стил за името на върха"+
-                    ((graph.vertices[index].addedCSS[1]==="")?" (например за червен цвят fill: red)":""),
+                    ((language==="bg")?"Въведете CSS стил за името на върха":"Input CSS style for the name of the vertex")+
+                    ((graph.vertices[index].addedCSS[1]==="")?
+                     ((language==="bg")?" (например за червен цвят fill: red)":" (for example for red colour - fill: red)"):""),
                     graph.vertices[index].addedCSS[1]
                 );
                 if (graph.vertices[index].addedCSS[1]!==css)
@@ -389,7 +392,7 @@
                     break;
                 }
             }
-            let name=prompt("Въведете име на новия връх",ind+1);
+            let name=prompt((language==="bg")?"Въведете име на новия връх":"Input name of the new vertex",ind+1);
             if (name==="") return ;
             graph.addVertex(name);
             setSvgPoint(event);
@@ -399,7 +402,8 @@
             graph.graphChange();
         }
         function changeEdgeWeight (index) {
-            let weight=prompt("Въведете ново тегло на реброто",graph.edgeList[index].weight);
+            let weight=prompt((language==="bg")?"Въведете ново тегло на реброто":"Input new weight for the edge"
+                              ,graph.edgeList[index].weight);
             if (checkInteger(weight)===false) return ;
             if (graph.edgeList[index].weight!==weight) {
                 graph.undoStack.push({time: graph.undoTime, type: "change-weight", data: [index, graph.edgeList[index].weight]});
@@ -438,8 +442,9 @@
             
             dropdown.find(".add-css").off("click").one("click",function () {
                 let css=prompt(
-                    "Въведете CSS стил за реброто"+
-                    ((graph.edgeList[index].addedCSS[0]==="")?" (например за червен цвят stroke: red)":""),
+                    ((language==="bg")?"Въведете CSS стил за реброто":"Input CSS style for the edge")+
+                    ((graph.edgeList[index].addedCSS[0]==="")?
+                     ((language==="bg")?" (например за червен цвят stroke: red)":" (for example for red colour - stroke: red)"):""),
                     graph.edgeList[index].addedCSS[0]
                 );
                 let edge=graph.svgEdges[index];
@@ -467,8 +472,9 @@
             
             dropdown.find(".add-css").off("click").one("click",function () {
                 let css=prompt(
-                    "Въведете CSS стил за теглото"+
-                    ((graph.edgeList[index].addedCSS[1]==="")?" (например за червен цвят fill: red)":""),
+                    ((language==="bg")?"Въведете CSS стил за теглото":"Input CSS style for the weight")+
+                    ((graph.edgeList[index].addedCSS[1]==="")?
+                     ((language==="bg")?" (например за червен цвят fill: red)":" (for example for red colour - fill: red)"):""),
                     graph.edgeList[index].addedCSS[1]
                 );
                 let weight=graph.svgEdges[index].weight;
@@ -557,20 +563,20 @@
                     let dragSwitch=$(graph.wrapperName+" .dragging-mini");
                     if ((this.addVertexDrag===true)&&(dragSwitch.val()==="off")) {
                         dragSwitch.val("on");
-                        dragSwitch.parent().prop("title","Чертаене на ребра");
+                        dragSwitch.parent().prop("title",(language==="bg")?"Чертаене на ребра":"Drawing edges");
                     }
                     else if ((this.addVertexDrag===false)&&(dragSwitch.val()==="on")) {
                         dragSwitch.val("off");
-                        dragSwitch.parent().prop("title","Преместване на върховете");
+                        dragSwitch.parent().prop("title",(language==="bg")?"Преместване на върховете":"Moving the vertices");
                     }
                     $(graph.wrapperName+" .dragging-mini").off("click").on("click",function () {
                         if (this.addVertexDrag===true) {
                             this.addVertexDrag=false;
-                            dragSwitch.parent().prop("title","Преместване на върховете");
+                            dragSwitch.parent().prop("title",(language==="bg")?"Преместване на върховете":"Moving the vertices");
                         }
                         else {
                             this.addVertexDrag=true;
-                            dragSwitch.parent().prop("title","Чертаене на ребра");
+                            dragSwitch.parent().prop("title",(language==="bg")?"Чертаене на ребра":"Drawing edges");
                         }
                     }.bind(this));
                 }

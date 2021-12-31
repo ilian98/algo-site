@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-Y8NQ36XMJS"></script>
+		<script>
+		  window.dataLayer = window.dataLayer || [];
+		  function gtag(){dataLayer.push(arguments);}
+		  gtag('js', new Date());
+
+		  gtag('config', 'G-Y8NQ36XMJS');
+		</script>
+        
+        <link rel="shortcut icon" href="/algo-site/images/favicon.ico">
+        <link type="text/css" rel="stylesheet" href="/algo-site/node_modules/bootstrap/dist/css/bootstrap.min.css"  media="screen,projection"/>
+        <link type="text/css" rel="stylesheet" href="/algo-site/styles/style.css"  media="screen,projection"/>
+        <link type="text/css" rel="stylesheet" href="/algo-site/styles/lesson.css"  media="screen,projection"/>
+        <link type="text/css" rel="stylesheet" href="/algo-site/styles/graph_drawer.css"  media="screen,projection"/>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+        <script type="text/javascript" src="/algo-site/node_modules/jquery/dist/jquery.slim.min.js"></script>
+        <script type="text/javascript" src="/algo-site/node_modules/jquery/dist/jquery.min.js"></script>
+        <script type="text/javascript" src="/algo-site/node_modules/@popperjs/core/dist/umd/popper.min.js"></script>
+        <script type="text/javascript" src="/algo-site/node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
+        <script type="text/javascript" src="/algo-site/node_modules/snapsvg/dist/snap.svg-min.js"></script>
+        <script type="text/javascript" src="/algo-site/node_modules/opentype.js/dist/opentype.min.js"></script>
+        <script type="text/javascript" src="/algo-site/js/main.js"></script>
+        <script type="text/javascript" src="/algo-site/js/graph_drawer/graph.js"></script>
+        <script type="text/javascript" src="/algo-site/js/graph_drawer/graph_positioning.js"></script>
+        <script type="text/javascript" src="/algo-site/js/graph_drawer/graph_drawer.js"></script>
+        <script type="text/javascript" src="/algo-site/js/graph_drawer/graph_drawer_page.js"></script>
+        <title>Drawing graphs</title>
+    </head>
+    <body>
+        <header>
+            <div id="nav-placeholder"></div>
+        </header>
+        
+        <div class="wrapper" tabindex="-1">
+            <div class="content">
+                <h1 align="center">Drawing graphs</h1>
+                
+                <div id="firstPart" style="display: block">
+                    <div class="graph-drawer row">
+                        <div class="col-sm-5">
+                            <div class="row mb-3">
+                                <div class="slidecontainer">
+                                    <input type="range" min="1" max="10" value="5" class="slider range-vers" id="rangeVers">
+                                </div>
+                                <div class="slider-text unselectable">
+                                    <span>Number of vertices: </span>
+                                    <span class="slider-value-vers" style="color: red; font-weight: bold"></span>
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-sm">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="direction" id="undirected" checked>
+                                        <label class="form-check-label unselectable" for="undirected">Undirected graph</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="direction" id="directed">
+                                        <label class="form-check-label unselectable" for="directed">Directed graph</label>
+                                    </div>
+                                </div>
+                                <div class="col-sm">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" value="" id="weighted">
+                                        <label class="form-check-label unselectable" for="weighted">Weighted graph</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" value="" id="multi">
+                                        <label class="form-check-label unselectable" for="multi">Multigraph</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="slidecontainer">
+                                    <input type="range" min="15" max="30" value="20" class="slider range-rad" id="rangeRad">
+                                </div>
+                                <div class="slider-text unselectable">
+                                    <span>Vertices size: </span>
+                                    <span class="slider-value-rad" style="color: red; font-weight: bold"></span>
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-auto">
+                                    <p class="mb-1 unselectable">Set the action that will be performed when a vertex is hold:</p>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="dragging" id="edgeDraw" checked>
+                                        <label class="form-check-label unselectable" for="edgeDraw">Drawing edge from the vertex</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="dragging" id="vertexMove">
+                                        <label class="form-check-label unselectable" for="vertexMove">Moving the vertex</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-sm-7 text-center">
+                            <div class="row justify-content-end">
+                                <div class="col-auto">
+                                    <button class="btn p-0 information" data-bs-toggle="modal" data-bs-target="#infoModal" title="Information">
+                                        <svg class="bi" width="20px" height="20px" fill="currentColor">
+                                            <use xlink:href="/algo-site/node_modules/bootstrap-icons/bootstrap-icons.svg#info-circle-fill"/>
+                                        </svg>
+                                    </button>
+                                    <div class="modal fade" id="infoModal" tabindex="-1" aria-labelledby="infoModalLabel" aria-hidden="true">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content" style="max-height: 100%; overflow-y: auto">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="infoModalLabel">Information</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body" style="text-align: justify">
+                                                    The first slider is for changing the number of vertices in the graph - from 1 to 10. When this happens, the graph is erased and the specified number of new vertices are placed at random. The second slider is for changing the size of the vertices and the graph adjusts its characteristics according to that size.<br><br>
+                                                    A new vertex is added with a double click at an empty place. Every vertex can be clicked to open a menu with different options for it. When a vertex is moved, supporting position appear. A vertex that is left near a supporting position, automatically goes to that position. Every edge, excluding the loops, can be personalized by dragging it. In this way, the curve of the edge is changed. When an edge is clicked, different options appear for it. This happens when a weight (for weighted graphs) is clicked.<br><br>
+                                                    All components of the graph as colour, size and so on can be personalized with writing corresponding CSS code after choosing the option for adding css style. Also, there is a functionality for undo and redo with the buttons on the left from the graph. The buttons on the right are for uploading a text file with description of a graph and for downloading the drawns graph in different formats.
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col graph-container">
+                                    <svg class="graph" viewBox="0 0 300 300"></svg>
+                                </div>
+                            </div>
+                            <ul class="dropdown-menu vertex">
+                                <li><a class="dropdown-item unselectable remove-vertex">Remove the vertex</a></li>
+                                <li><a class="dropdown-item unselectable change-name">Change the name</a></li>
+                                <li><a class="dropdown-item unselectable add-css">Add CSS style</a></li>
+                                <li><a class="dropdown-item unselectable add-css-name">Add CSS style for the name</a></li>
+                            </ul>
+                            <ul class="dropdown-menu edge">
+                                <li><a class="dropdown-item unselectable remove-edge">Remove the edge</a></li>
+                                <li><a class="dropdown-item unselectable change-weight">Change the weight</a></li>
+                                <li><a class="dropdown-item unselectable add-css">Add CSS style</a></li>
+                            </ul>
+                            <ul class="dropdown-menu weight">
+                                <li><a class="dropdown-item unselectable change-weight">Change the weight</a></li>
+                                <li><a class="dropdown-item unselectable add-css">Add CSS style</a></li>
+                            </ul>
+                            <div class="row">
+                                <div class="col text-start">
+                                    <button class="btn btn-primary undo" title="Undo">
+                                        <svg class="bi" width="24px" height="24px" fill="currentColor">
+                                            <use xlink:href="/algo-site/node_modules/bootstrap-icons/bootstrap-icons.svg#arrow-counterclockwise"/>
+                                        </svg>
+                                    </button>
+                                    <button class="btn btn-primary redo" title="Redo">
+                                        <svg class="bi" width="24px" height="24px" fill="currentColor">
+                                            <use xlink:href="/algo-site/node_modules/bootstrap-icons/bootstrap-icons.svg#arrow-clockwise"/>
+                                        </svg>
+                                    </button>
+                                </div>
+                                <div class="col text-end">
+                                    <input class="input-file" type="file" accept="text/plain" style="display: none"/>
+                                    <button class="btn btn-primary import" title="Import graph">
+                                        <svg class="bi" width="24px" height="24px" fill="currentColor">
+                                            <use xlink:href="/algo-site/node_modules/bootstrap-icons/bootstrap-icons.svg#box-arrow-in-up"/>
+                                        </svg>
+                                    </button>
+                                    <svg class="svg-save" style="display: none"></svg>
+                                    <canvas class="canvas-save" style="display: none"></canvas>
+                                    <button class="btn btn-primary save" title="Donwload graph">
+                                        <svg class="bi" width="24px" height="24px" fill="currentColor">
+                                            <use xlink:href="/algo-site/node_modules/bootstrap-icons/bootstrap-icons.svg#download"/>
+                                        </svg>
+                                    </button>
+                                    <ul class="dropdown-menu save-menu">
+                                        <li><a class="dropdown-item unselectable txt">Download as txt</a></li>
+                                        <li><a class="dropdown-item unselectable edge-list">Download as an edge list</a></li>
+                                        <li><a class="dropdown-item unselectable svg">Download as svg</a></li>
+                                        <li><a class="dropdown-item unselectable png">Download as png</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="footer-placeholder"></div>
+        </div>
+    </body>
+</html>

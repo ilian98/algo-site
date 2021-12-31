@@ -228,6 +228,8 @@
     
     let navigation_page="/algo-site/navigation.html";
     if (page.endsWith("_en.html")===true) navigation_page="/algo-site/navigation_en.html";
+    let language="bg";
+    if (page.endsWith("_en.html")===true) language="en";
     function changeLanguage (language) {
         let s=document.URL;
         if (s.includes(".html")===false) {
@@ -354,4 +356,5 @@
     window.isSmallLatinLetter = isSmallLatinLetter;
     window.tableHTML = tableHTML;
     window.findNumbersFromText = findNumbersFromText;
+    window.language = language;
 })();

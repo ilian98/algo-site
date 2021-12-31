@@ -1093,7 +1093,6 @@
         let svg=$(graph.svgName);
         let canvas=$(wrapperName+" .canvas-save");
         let svgSave=$(wrapperName+" .svg-save");
-        svgSave.attr("viewBox",svg.attr("viewBox"));
         
         let saveButton=$(wrapperName+" .save");
         $(saveButton).off("click").on("click",function (event) {
@@ -1102,6 +1101,7 @@
                 let context=canvas[0].getContext('2d');
                 let svgWidth=2*svg.width(),svgHeight=2*svg.height();
                 
+                svgSave.attr("viewBox",svg.attr("viewBox"));
                 svgSave.attr("width",svgWidth);
                 svgSave.attr("height",svgHeight);
                 svgSave.html(svg.html());
@@ -1124,6 +1124,7 @@
 
             dropdown.find(".svg").off("click").one("click",function () {
                 $(".click-area").hide();
+                svgSave.attr("viewBox",svg.attr("viewBox"));
                 svgSave.removeAttr("width").removeAttr("height");
                 svgSave.html(svg.html());
                 svgSave[0].setAttribute("xmlns","http://www.w3.org/2000/svg");
