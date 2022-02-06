@@ -148,12 +148,20 @@
         if (text.length===0) return num;
         return text+","+num;
     }
+    let ordinals=["first","second","third","fourth"];
+    function initiateParts () {
+        let ind=0;
+        for (let btn of $(".lesson-part-position >.btn")) {
+            let name="#"+ordinals[ind]+"Part";
+            $(btn).parent().children("div:first").prop("id",name.substr(1,name.length-1));
+            ind++;
+        }
+    }
     function toggleParts () {
         let anchor=checkForAnchor();
         if (anchor.startsWith("part")) anchor=anchor.slice(4);
         else if (anchor.length!==0) return ;
         let parts=getParts(anchor);
-        let ordinals=["first","second","third","fourth"];
         let ind=0;
         for (let btn of $(".lesson-part-position >.btn")) {
             let name="#"+ordinals[ind]+"Part";
@@ -166,37 +174,41 @@
             ind++;
         }
     }
-    let ordinals=["first","second","third","fourth"];
     function checkLessonParts (beginning) {
         let anchor=checkForAnchor();
         if (anchor.startsWith("part")) anchor=anchor.slice(4);
         else if (anchor.length!==0) return ;
         let parts=getParts(anchor);
-        $(".anchor").remove();
         let ind=0;
         for (let btn of $(".lesson-part-position >.btn")) {
             let name="#"+ordinals[ind]+"Part";
+            let href;
             if (parts.includes(ind+1)) {
-                $(btn).append('<a class="anchor" href="#'+removePart(ind+1,anchor)+'"></a>');
+                href="#"+removePart(ind+1,anchor);
                 if ($(name).is(":hidden")===true) {
                     sessionStorage.setItem(page+name,"1");
                     $(name).show();
+                    $("#miniLesson"+ind).show();
                     if ((beginning===false)&&(typeof initExamples==="function")) initExamples(ind+1);
+                    if (parts[parts.length-1]===ind+1) {
+                        $(".wrapper").animate({
+                            scrollTop: $(btn)[0].offsetTop-$(".wrapper")[0].offsetTop
+                        },"slow");
+                    }
                 }
                 if ((beginning===true)&&(typeof initExamples==="function")) initExamples(ind+1);
-                if (parts[parts.length-1]!==ind+1) $(btn).prop("id","");
             }
             else {
-                $(btn).append('<a class="anchor" href="#part'+addPart(ind+1,anchor)+'"></a>');
-                $(btn).prop("id","part"+addPart(ind+1,anchor));
+                href="#part"+addPart(ind+1,anchor);
                 sessionStorage.setItem(page+name,"0");
                 $(name).hide();
+                $("#miniLesson"+ind).hide();
             }
-            let part=ind+1;
-            $(btn).off("click").on("click",function () {
-                $(btn).children(".anchor")[0].click();
-            });
             
+            $(btn).off("click").on("click",function () {
+                $(btn).off("click");
+                window.location.hash=href;
+            });
             ind++;
         }
         if ((ind===0)&&(typeof init==="function")) init();
@@ -242,20 +254,6 @@
     }
 
     $(document).ready(function () {
-        const d=new Date();
-        const month=d.getMonth()+1,day=d.getDate()+1;
-        if (((month==12)&&(day>=22))||
-            (month==1)||(month==2)||
-            ((month==3)&&(day<21))) {
-            $("head").append('<link type="text/css" rel="stylesheet" href="/algo-site/styles/snow.css" media="screen,projection"/>');
-            if (home_page===true) $("body").append('<div id="winter"></div>');
-            else $("header").append('<div id="winter"></div>');
-            let winter=$("#winter");
-            for (let i=0; i<200; i++) {
-                winter.append('<div class="snow"></div>');
-            }
-        }
-    
         $.get(navigation_page, function (data) {
             $("#nav-placeholder").replaceWith(data);
             $("#nav-placeholder").ready(function () {
@@ -271,6 +269,7 @@
             $.get(footer_page, function (data) {
                 $("#footer-placeholder").replaceWith(data);
                 
+                initiateParts();
                 toggleParts();
                 toggleInfos();
                 let lastCode="none";
@@ -302,11 +301,15 @@
                     opentype.load("/algo-site/fonts/TimesNewRoman.woff", (error, font) => {
                         window.font["Times New Roman"]=font;
                         checkLessonParts(true);
+                        unimportantWork();
                     });
                 });
             });
         }
-        else checkLessonParts(true);
+        else {
+            checkLessonParts(true);
+            unimportantWork();
+        }
     });
     
     $(window).on("pagehide visibilitychange", function() {
@@ -347,6 +350,39 @@
             if (part>=3) initExample(part);
         }
         else if (page==="articulation_components.html") initExample(part);
+    }
+    
+    function unimportantWork () {
+        const d=new Date();
+        const month=d.getMonth()+1,day=d.getDate()+1;
+        if (((month==12)&&(day>=22))||
+            (month==1)||(month==2)||
+            ((month==3)&&(day<21))) {
+            $("head").append('<link type="text/css" rel="stylesheet" href="/algo-site/styles/snow.css" media="screen,projection"/>');
+            if (home_page===true) $("body").append('<div id="winter"></div>');
+            else $("header").append('<div id="winter"></div>');
+            let winter=$("#winter");
+            for (let i=0; i<200; i++) {
+                winter.append('<div class="snow"></div>');
+            }
+        }
+        
+        $("header nav ol li .link-secondary").append('<div class="mini-menu"></div>');
+        let ind=0;
+        for (let btn of $(".lesson-part-position >.btn")) {
+            $(btn).clone().wrap('<div class="mini-btn" id="miniBtn'+ind+'"></div>').parent().appendTo(".mini-menu");
+            $(".mini-menu").append('<div class="mini-lesson-part" id="miniLesson'+ind+'"></div>');
+            if ($("#"+ordinals[ind]+"Part").is(":hidden")===true) $("#miniLesson"+ind).hide();
+            $("#miniBtn"+ind).on("click",function () {
+                $(btn).click();
+            });
+            ind++;
+        }
+        const h=$(".lesson-part-position .btn").height();
+        $(".mini-lesson-part").height(h).css({
+            "background-image": "radial-gradient(circle at "+h/2+"px "+h/2+"px, black 2px, transparent 0)",
+            "background-size": h+"px "+h+"px",
+        });
     }
     
     window.get_page = get_page;
