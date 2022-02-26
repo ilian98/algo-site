@@ -127,6 +127,10 @@ footer {
 }
 
 
+.site-heading, h1 {
+    margin-top: 3vh;
+    margin-bottom: 5vh;
+}
 .site-heading {
     font-family: "Lobster";
     font-size: 45px;

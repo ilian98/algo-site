@@ -1,0 +1,16 @@
+h3 a {
+    color: firebrick;
+    text-decoration: none;
+}
+h3 a:link {
+    color: firebrick;
+    text-decoration: none;
+}
+h3 a:visited {
+    color: firebrick;
+    text-decoration: none;
+}
+h3 a:hover {
+    color: firebrick;
+    text-decoration: underline;
+}

@@ -371,11 +371,16 @@
         let ind=0;
         for (let btn of $(".lesson-part-position >.btn")) {
             $(btn).clone().wrap('<div class="mini-btn" id="miniBtn'+ind+'"></div>').parent().appendTo(".mini-menu");
-            $(".mini-menu").append('<div class="mini-lesson-part" id="miniLesson'+ind+'"></div>');
-            if ($("#"+ordinals[ind]+"Part").is(":hidden")===true) $("#miniLesson"+ind).hide();
             $("#miniBtn"+ind).on("click",function () {
                 $(btn).click();
             });
+            $(".mini-menu").append('<div class="mini-lesson-part" id="miniLesson'+ind+'"></div>');
+            if ($("#"+ordinals[ind]+"Part").is(":hidden")===true) $("#miniLesson"+ind).hide();
+            $("#miniLesson"+ind).on("click",function (ind) {
+                $(".wrapper").animate({
+                    scrollTop: $("#"+ordinals[ind]+"Part")[0].offsetTop-$(".wrapper")[0].offsetTop
+                },"slow");
+            }.bind(this,ind));
             ind++;
         }
         const h=$(".lesson-part-position .btn").height();
