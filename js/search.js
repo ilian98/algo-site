@@ -56,7 +56,7 @@
         let matches=[];
         let curr=trie;
         for (let i=0; i<text.length; i++) {
-            let code=text.charCodeAt(i);
+            let code=text[i].toLowerCase().charCodeAt(0);
             while (curr!==trie) {
                 if (curr.children[code]!==undefined) break;
                 curr=curr.fail;
@@ -130,9 +130,11 @@
     
     $(document).ready(function () {
         let text=decodeURI(document.location.search).substring("?searched=".length);
+        if (text.length===0) return ;
         $("h1").append(text.replaceAll("+"," "));
         let words=text.split('+');
         for (let i=0; i<words.length; i++) {
+            words[i]=words[i].toLowerCase();
             addWord(words[i],i);
         }
         addLinks();
@@ -182,6 +184,8 @@
                         let text=matches[i];
                         for (let word of words) {
                             text=text.replaceAll(word,"<b>"+word+"</b>");
+                            let capitalWord=word[0].toUpperCase()+word.substr(1);
+                            text=text.replaceAll(capitalWord,"<b>"+capitalWord+"</b>");
                         }
                         text="... "+text+" ...";
                         card+='<p class="card-text mb-2">'+text+'</p>';

@@ -262,6 +262,10 @@
                 $(dropdown[1]).on("click",changeLanguage.bind(dropdown[1],"en"));
                 $(dropdown[2]).on("click",changeLanguage.bind(dropdown[2],"bg"));
                 $(dropdown[3]).on("click",changeLanguage.bind(dropdown[3],"en"));
+                
+                $("#search").submit(function (event) {
+                    if ($("#search input").val().length===0) event.preventDefault();
+                });
             });
         
             let footer_page="/algo-site/footer.html";
