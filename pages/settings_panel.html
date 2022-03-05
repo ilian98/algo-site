@@ -1,0 +1,48 @@
+<div class="col text-start undo-group">
+    <button class="btn p-0 undo undo-mini" title="Върни промяната">
+        <svg class="bi" width="20px" height="20px" fill="currentColor">
+            <use xlink:href="/algo-site/node_modules/bootstrap-icons/bootstrap-icons.svg#arrow-counterclockwise"/>
+        </svg>
+    </button>
+    <button class="btn p-0 redo redo-mini" title="Повтори промяната">
+        <svg class="bi" width="20px" height="20px" fill="currentColor">
+            <use xlink:href="/algo-site/node_modules/bootstrap-icons/bootstrap-icons.svg#arrow-clockwise"/>
+        </svg>
+    </button>
+</div>
+<div class="col text-center save-group">
+    <input class="input-file" type="file" accept="text/plain"/ style="display: none">
+    <button class="btn p-0 import import-mini" title="Зареди граф">
+        <svg class="bi" width="20px" height="20px" fill="currentColor">
+            <use xlink:href="/algo-site/node_modules/bootstrap-icons/bootstrap-icons.svg#box-arrow-in-up"/>
+        </svg>
+    </button>
+    <svg class="svg-save" style="display: none"></svg>
+    <canvas class="canvas-save" style="display: none"></canvas>
+    <button class="btn p-0 save save-mini" title="Изтегли графа">
+        <svg class="bi" width="20px" height="20px" fill="currentColor">
+            <use xlink:href="/algo-site/node_modules/bootstrap-icons/bootstrap-icons.svg#download"/>
+        </svg>
+    </button>
+</div>
+<div class="col">
+    <div class="row justify-content-end">
+        <div class="col-auto form-check form-switch d-flex p-0 m-0">
+            <input class="form-check-input mx-0 dragging-mini" type="checkbox">
+        </div>
+        <div class="col-auto d-flex">
+            <button class="btn d-flex p-0 my-auto settings" data-bs-toggle="modal" data-bs-target="#settingsModal" title="Настройки">
+                <svg class="bi" width="20px" height="20px" fill="currentColor">
+                    <use xlink:href="/algo-site/node_modules/bootstrap-icons/bootstrap-icons.svg#card-checklist"/>
+                </svg>
+            </button>
+        </div>
+        <div class="col-auto d-flex ps-0">
+            <button class="btn d-flex p-0 my-auto information" data-bs-toggle="modal" data-bs-target="#infoModal" title="Информация">
+                <svg class="bi" width="20px" height="20px" fill="currentColor">
+                    <use xlink:href="/algo-site/node_modules/bootstrap-icons/bootstrap-icons.svg#info-circle-fill"/>
+                </svg>
+            </button>
+        </div>
+    </div>
+</div>

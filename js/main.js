@@ -129,7 +129,9 @@
             if (URL[i]=='#') index=i;
         }
         if (index===-1) return "";
-        return URL.slice(index+1,URL.length);
+        let anchor=URL.slice(index+1,URL.length);
+        if (anchor.startsWith("part")) return anchor.slice(4);
+        return "";
     }
     function getParts (s) {
         let nums = [];
@@ -159,8 +161,7 @@
     }
     function toggleParts () {
         let anchor=checkForAnchor();
-        if (anchor.startsWith("part")) anchor=anchor.slice(4);
-        else if (anchor.length!==0) return ;
+        if (anchor.length===0) return ;
         let parts=getParts(anchor);
         let ind=0;
         for (let btn of $(".lesson-part-position >.btn")) {
@@ -174,11 +175,10 @@
             ind++;
         }
     }
-    function checkLessonParts (beginning) {
+    async function checkLessonParts (beginning) {
         let anchor=checkForAnchor();
-        if (anchor.startsWith("part")) anchor=anchor.slice(4);
-        else if (anchor.length!==0) return ;
         let parts=getParts(anchor);
+        let initFuncs=[];
         let ind=0;
         for (let btn of $(".lesson-part-position >.btn")) {
             let name="#"+ordinals[ind]+"Part";
@@ -189,14 +189,14 @@
                     sessionStorage.setItem(page+name,"1");
                     $(name).show();
                     $("#miniLesson"+ind).show();
-                    if ((beginning===false)&&(typeof initExamples==="function")) initExamples(ind+1);
+                    if ((beginning===false)&&(typeof initExamples==="function")) initFuncs.push(initExamples.bind(this,ind+1));
                     if (parts[parts.length-1]===ind+1) {
                         $(".wrapper").animate({
                             scrollTop: $(btn)[0].offsetTop-$(".wrapper")[0].offsetTop
                         },"slow");
                     }
                 }
-                if ((beginning===true)&&(typeof initExamples==="function")) initExamples(ind+1);
+                if ((beginning===true)&&(typeof initExamples==="function")) initFuncs.push(initExamples.bind(this,ind+1));
             }
             else {
                 href="#part"+addPart(ind+1,anchor);
@@ -211,7 +211,11 @@
             });
             ind++;
         }
+        if (typeof GraphLoadData!=="undefined") await GraphLoadData();
         if ((ind===0)&&(typeof init==="function")) init();
+        for (let initFunc of initFuncs) {
+            initFunc();
+        }
     }
     function triggerInfo (trigger, info, name) {
         if (trigger.is(":hidden")===false) {
@@ -296,24 +300,8 @@
             });
         });
         
-        if (typeof opentype!=="undefined") {
-            opentype.load("/algo-site/fonts/Consolas.woff", (error, font) => {
-                window.font=[];
-                window.font["Consolas"]=font;
-                opentype.load("/algo-site/fonts/Arial.woff", (error, font) => {
-                    window.font["Arial"]=font;
-                    opentype.load("/algo-site/fonts/TimesNewRoman.woff", (error, font) => {
-                        window.font["Times New Roman"]=font;
-                        checkLessonParts(true);
-                        unimportantWork();
-                    });
-                });
-            });
-        }
-        else {
-            checkLessonParts(true);
-            unimportantWork();
-        }
+        checkLessonParts(true);
+        unimportantWork();
     });
     
     $(window).on("pagehide visibilitychange", function() {
@@ -372,6 +360,7 @@
         }
         
         $("header nav ol li .link-secondary").append('<div class="mini-menu"></div>');
+        let parts=getParts(checkForAnchor());
         let ind=0;
         for (let btn of $(".lesson-part-position >.btn")) {
             $(btn).clone().wrap('<div class="mini-btn" id="miniBtn'+ind+'"></div>').parent().appendTo(".mini-menu");
@@ -379,7 +368,7 @@
                 $(btn).click();
             });
             $(".mini-menu").append('<div class="mini-lesson-part" id="miniLesson'+ind+'"></div>');
-            if ($("#"+ordinals[ind]+"Part").is(":hidden")===true) $("#miniLesson"+ind).hide();
+            if (parts.includes(ind+1)===false) $("#miniLesson"+ind).hide();
             $("#miniLesson"+ind).on("click",function (ind) {
                 $(".wrapper").animate({
                     scrollTop: $("#"+ordinals[ind]+"Part")[0].offsetTop-$(".wrapper")[0].offsetTop

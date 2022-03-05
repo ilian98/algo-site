@@ -179,57 +179,7 @@
                         <p class="text-format">Това понятие на повечето места се ползва за определението <i>изолиран връх</i> - връх \(v\) е изолиран \(\iff d(v)=0\), т.е. такъв връх не е свързан с други върхове от графа. Тук е момента да кажем, че това определение за изолиран връх пропуска един случай, в който също е удачно да се счита върха за изолиран. В графите има специални ребра наречени <i>примки</i>. Едно ребро е примка, когато е от вида \((v,v)\), т.е. свързва един и същ връх. Ако един връх има само ребра, които са примки, то той продължава да не е свързан с другите върхове. Затова определението за изолиран връх, което ние ще ползваме е следното: връх \(v\) е изолиран \(\iff |\{u \ne v \mid (u,v) \in E \) или \( (v,u) \in E\}|=0\). Също така ще отбележим, че понятието за степен на връх в неориентиран граф не е много точно, ако в графа може да има примки. Поради ред причини, всяка примка се брои два пъти в степента на съответния връх (за двата си края), т.е. в този случай степента на връх \(v\) е \(d(v)=|\{u \ne v \mid (v,u) \in E\}|+\) \(2*|\{u=v \mid (v,u) \in E\}|\). За да се изяснят тези неща, е даден примерен неориентиран граф с две примки на връх 1 и една примка на връх 2, където за всеки връх е записана степента, като графът може да се променя, а степените се обновяват автоматично.</p>
                         <div class="graphExample4 row">
                             <div class="col-sm text-center">
-                                <div class="row">
-                                    <div class="col text-start undo-group">
-                                        <button class="btn p-0 undo undo-mini" title="Върни промяната">
-                                            <svg class="bi" width="20px" height="20px" fill="currentColor">
-                                                <use xlink:href="/algo-site/node_modules/bootstrap-icons/bootstrap-icons.svg#arrow-counterclockwise"/>
-                                            </svg>
-                                        </button>
-                                        <button class="btn p-0 redo redo-mini" title="Повтори промяната">
-                                            <svg class="bi" width="20px" height="20px" fill="currentColor">
-                                                <use xlink:href="/algo-site/node_modules/bootstrap-icons/bootstrap-icons.svg#arrow-clockwise"/>
-                                            </svg>
-                                        </button>
-                                    </div>
-                                    <div class="col text-center save-group">
-                                        <input class="input-file" type="file" accept="text/plain" style="display: none"/>
-                                        <button class="btn p-0 import import-mini" title="Зареди граф">
-                                            <svg class="bi" width="20px" height="20px" fill="currentColor">
-                                                <use xlink:href="/algo-site/node_modules/bootstrap-icons/bootstrap-icons.svg#box-arrow-in-up"/>
-                                            </svg>
-                                        </button>
-                                        <svg class="svg-save" style="display: none"></svg>
-                                        <canvas class="canvas-save" style="display: none"></canvas>
-                                        <button class="btn p-0 save save-mini" title="Изтегли графа">
-                                            <svg class="bi" width="20px" height="20px" fill="currentColor">
-                                                <use xlink:href="/algo-site/node_modules/bootstrap-icons/bootstrap-icons.svg#download"/>
-                                            </svg>
-                                        </button>
-                                    </div>
-                                    <div class="col">
-                                        <div class="row justify-content-end">
-                                            <div class="col-auto form-check form-switch d-flex p-0 m-0">
-                                                <input class="form-check-input mx-0 dragging-mini" type="checkbox">
-                                            </div>
-                                            <div class="col-auto d-flex">
-                                                <button class="btn d-flex p-0 my-auto settings" data-bs-toggle="modal" data-bs-target="#settingsModal" title="Настройки">
-                                                    <svg class="bi" width="20px" height="20px" fill="currentColor">
-                                                        <use xlink:href="/algo-site/node_modules/bootstrap-icons/bootstrap-icons.svg#card-checklist"/>
-                                                    </svg>
-                                                </button>
-                                            </div>
-                                            <div class="col-auto d-flex ps-0">
-                                                <button class="btn d-flex p-0 my-auto information" data-bs-toggle="modal" data-bs-target="#infoModal" title="Информация">
-                                                    <svg class="bi" width="20px" height="20px" fill="currentColor">
-                                                        <use xlink:href="/algo-site/node_modules/bootstrap-icons/bootstrap-icons.svg#info-circle-fill"/>
-                                                    </svg>
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                
+                                <div class="row settings-panel"></div>
                                 <div class="graph-container">
                                     <svg class="graph" viewBox="0 0 300 300" style="height: 50vh; max-width: 100%"></svg>
                                 </div>
@@ -274,57 +224,7 @@
                                     </div>
                                 </div>
                                 <div class="col-sm text-center">
-                                    <div class="row">
-                                        <div class="col text-start undo-group">
-                                            <button class="btn p-0 undo undo-mini" title="Върни промяната">
-                                                <svg class="bi" width="20px" height="20px" fill="currentColor">
-                                                    <use xlink:href="/algo-site/node_modules/bootstrap-icons/bootstrap-icons.svg#arrow-counterclockwise"/>
-                                                </svg>
-                                            </button>
-                                            <button class="btn p-0 redo redo-mini" title="Повтори промяната">
-                                                <svg class="bi" width="20px" height="20px" fill="currentColor">
-                                                    <use xlink:href="/algo-site/node_modules/bootstrap-icons/bootstrap-icons.svg#arrow-clockwise"/>
-                                                </svg>
-                                            </button>
-                                        </div>
-                                        <div class="col text-center save-group">
-                                            <input class="input-file" type="file" accept="text/plain"/ style="display: none">
-                                            <button class="btn p-0 import import-mini" title="Зареди граф">
-                                                <svg class="bi" width="20px" height="20px" fill="currentColor">
-                                                    <use xlink:href="/algo-site/node_modules/bootstrap-icons/bootstrap-icons.svg#box-arrow-in-up"/>
-                                                </svg>
-                                            </button>
-                                            <svg class="svg-save" style="display: none"></svg>
-                                            <canvas class="canvas-save" style="display: none"></canvas>
-                                            <button class="btn p-0 save save-mini" title="Изтегли графа">
-                                                <svg class="bi" width="20px" height="20px" fill="currentColor">
-                                                    <use xlink:href="/algo-site/node_modules/bootstrap-icons/bootstrap-icons.svg#download"/>
-                                                </svg>
-                                            </button>
-                                        </div>
-                                        <div class="col">
-                                            <div class="row justify-content-end">
-                                                <div class="col-auto form-check form-switch d-flex p-0 m-0">
-                                                    <input class="form-check-input mx-0 dragging-mini" type="checkbox">
-                                                </div>
-                                                <div class="col-auto d-flex">
-                                                    <button class="btn d-flex p-0 my-auto settings" data-bs-toggle="modal" data-bs-target="#settingsModal" title="Настройки">
-                                                        <svg class="bi" width="20px" height="20px" fill="currentColor">
-                                                            <use xlink:href="/algo-site/node_modules/bootstrap-icons/bootstrap-icons.svg#card-checklist"/>
-                                                        </svg>
-                                                    </button>
-                                                </div>
-                                                <div class="col-auto d-flex ps-0">
-                                                    <button class="btn d-flex p-0 my-auto information" data-bs-toggle="modal" data-bs-target="#infoModal" title="Информация">
-                                                        <svg class="bi" width="20px" height="20px" fill="currentColor">
-                                                            <use xlink:href="/algo-site/node_modules/bootstrap-icons/bootstrap-icons.svg#info-circle-fill"/>
-                                                        </svg>
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
+                                    <div class="row settings-panel"></div>
                                     <div class="graph-container">
                                         <svg class="graph" viewBox="0 0 300 300" style="height: 40vh; max-width: 100%"></svg>
                                     </div>
@@ -351,57 +251,7 @@
                                 <p>Това е едно от най-простите представяния и донякъде по традиция се започва с него, макар и следващото представяне да е най-популярното. Нека първо говорим за непретеглени <i>прости</i> графи. Както се вижда от името, самото представяне е всъщност една матрица с размери \(n\)x\(n\), обикновено се бележи с \(A\). Всяка клетка \(A[u][v]\) има стойност 1 или 0 в зависимост от това дали имаме ребро \((u,v)\) или не. Когато разглеждаме мултиграфи, то представянето се разширява и във всяка клетка се пише по колко ребра има между съответните два върха - матрицата вече не е задължително булева. Предоставен е пример, където на графа могат да се добавят ребра (включително мултиребра) и да се наблюдава матрицата му на съседство:</p>
                                 <div class="graphExample7 row">
                                     <div class="col-sm text-center">
-                                        <div class="row">
-                                            <div class="col text-start undo-group">
-                                                <button class="btn p-0 undo undo-mini" title="Върни промяната">
-                                                    <svg class="bi" width="20px" height="20px" fill="currentColor">
-                                                        <use xlink:href="/algo-site/node_modules/bootstrap-icons/bootstrap-icons.svg#arrow-counterclockwise"/>
-                                                    </svg>
-                                                </button>
-                                                <button class="btn p-0 redo redo-mini" title="Повтори промяната">
-                                                    <svg class="bi" width="20px" height="20px" fill="currentColor">
-                                                        <use xlink:href="/algo-site/node_modules/bootstrap-icons/bootstrap-icons.svg#arrow-clockwise"/>
-                                                    </svg>
-                                                </button>
-                                            </div>
-                                            <div class="col text-center save-group">
-                                                <input class="input-file" type="file" accept="text/plain"/ style="display: none">
-                                                <button class="btn p-0 import import-mini" title="Зареди граф">
-                                                    <svg class="bi" width="20px" height="20px" fill="currentColor">
-                                                        <use xlink:href="/algo-site/node_modules/bootstrap-icons/bootstrap-icons.svg#box-arrow-in-up"/>
-                                                    </svg>
-                                                </button>
-                                                <svg class="svg-save" style="display: none"></svg>
-                                                <canvas class="canvas-save" style="display: none"></canvas>
-                                                <button class="btn p-0 save save-mini" title="Изтегли графа">
-                                                    <svg class="bi" width="20px" height="20px" fill="currentColor">
-                                                        <use xlink:href="/algo-site/node_modules/bootstrap-icons/bootstrap-icons.svg#download"/>
-                                                    </svg>
-                                                </button>
-                                            </div>
-                                            <div class="col">
-                                                <div class="row justify-content-end">
-                                                    <div class="col-auto form-check form-switch d-flex p-0 m-0">
-                                                        <input class="form-check-input mx-0 dragging-mini" type="checkbox">
-                                                    </div>
-                                                    <div class="col-auto d-flex">
-                                                        <button class="btn d-flex p-0 my-auto settings" data-bs-toggle="modal" data-bs-target="#settingsModal" title="Настройки">
-                                                            <svg class="bi" width="20px" height="20px" fill="currentColor">
-                                                                <use xlink:href="/algo-site/node_modules/bootstrap-icons/bootstrap-icons.svg#card-checklist"/>
-                                                            </svg>
-                                                        </button>
-                                                    </div>
-                                                    <div class="col-auto d-flex ps-0">
-                                                        <button class="btn d-flex p-0 my-auto information" data-bs-toggle="modal" data-bs-target="#infoModal" title="Информация">
-                                                            <svg class="bi" width="20px" height="20px" fill="currentColor">
-                                                                <use xlink:href="/algo-site/node_modules/bootstrap-icons/bootstrap-icons.svg#info-circle-fill"/>
-                                                            </svg>
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        
+                                        <div class="row settings-panel"></div>
                                         <div class="graph-container">
                                             <svg class="graph" viewBox="0 0 300 300" style="height: 50vh; max-width: 100%"></svg>
                                         </div>
@@ -419,57 +269,7 @@
                                 <p>Идеята на това представяне е за всеки връх да поддържаме списък на съседите му. Понеже обикновено върховете са номерирани с последователни числа от 1 до \(n\), то всъщност цялото представяне е масив от списъци - по този начин константно достъпваме списъка на всеки връх. Ако сме в неориентиран граф, то за реброто \((u,v)\), ще сложим връх \(v\) в списъка на \(u\), както и обратното - връх \(u\) в списъка на \(v\). При претеглени графи освен да слагаме връх в списък, слагаме и теглото на всяко ребро, обикновено двете заедно като наредена двойка (връх, тегло). Следва интерактивен пример за списъка на съседите на граф.</p>
                                 <div class="graphExample8 row">
                                     <div class="col-sm text-center">
-                                        <div class="row">
-                                            <div class="col text-start undo-group">
-                                                <button class="btn p-0 undo undo-mini" title="Върни промяната">
-                                                    <svg class="bi" width="20px" height="20px" fill="currentColor">
-                                                        <use xlink:href="/algo-site/node_modules/bootstrap-icons/bootstrap-icons.svg#arrow-counterclockwise"/>
-                                                    </svg>
-                                                </button>
-                                                <button class="btn p-0 redo redo-mini" title="Повтори промяната">
-                                                    <svg class="bi" width="20px" height="20px" fill="currentColor">
-                                                        <use xlink:href="/algo-site/node_modules/bootstrap-icons/bootstrap-icons.svg#arrow-clockwise"/>
-                                                    </svg>
-                                                </button>
-                                            </div>
-                                            <div class="col text-center save-group">
-                                                <input class="input-file" type="file" accept="text/plain"/ style="display: none">
-                                                <button class="btn p-0 import import-mini" title="Зареди граф">
-                                                    <svg class="bi" width="20px" height="20px" fill="currentColor">
-                                                        <use xlink:href="/algo-site/node_modules/bootstrap-icons/bootstrap-icons.svg#box-arrow-in-up"/>
-                                                    </svg>
-                                                </button>
-                                                <svg class="svg-save" style="display: none"></svg>
-                                                <canvas class="canvas-save" style="display: none"></canvas>
-                                                <button class="btn p-0 save save-mini" title="Изтегли графа">
-                                                    <svg class="bi" width="20px" height="20px" fill="currentColor">
-                                                        <use xlink:href="/algo-site/node_modules/bootstrap-icons/bootstrap-icons.svg#download"/>
-                                                    </svg>
-                                                </button>
-                                            </div>
-                                            <div class="col">
-                                                <div class="row justify-content-end">
-                                                    <div class="col-auto form-check form-switch d-flex p-0 m-0">
-                                                        <input class="form-check-input mx-0 dragging-mini" type="checkbox">
-                                                    </div>
-                                                    <div class="col-auto d-flex">
-                                                        <button class="btn d-flex p-0 my-auto settings" data-bs-toggle="modal" data-bs-target="#settingsModal" title="Настройки">
-                                                            <svg class="bi" width="20px" height="20px" fill="currentColor">
-                                                                <use xlink:href="/algo-site/node_modules/bootstrap-icons/bootstrap-icons.svg#card-checklist"/>
-                                                            </svg>
-                                                        </button>
-                                                    </div>
-                                                    <div class="col-auto d-flex ps-0">
-                                                        <button class="btn d-flex p-0 my-auto information" data-bs-toggle="modal" data-bs-target="#infoModal" title="Информация">
-                                                            <svg class="bi" width="20px" height="20px" fill="currentColor">
-                                                                <use xlink:href="/algo-site/node_modules/bootstrap-icons/bootstrap-icons.svg#info-circle-fill"/>
-                                                            </svg>
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        
+                                        <div class="row settings-panel"></div>
                                         <div class="graph-container">
                                             <svg class="graph" viewBox="0 0 300 300" style="height: 50vh; max-width: 100%"></svg>
                                         </div>
@@ -486,57 +286,7 @@
                                 <p>Тук поддържаме списък на ребрата (обикновено в задачите с графи, точно така се въвеждат данните за графа - като списък от ребрата му) чрез масив \(edges\). Понеже за повечето алгоритми в графи трябва лесно да достъпим съседите на даден връх, към това представяне се добавят два помощни масива - \(prev\) и \(last\). Първият масив е с размерност броя ребра. Ако схематично имаме \(edges[i]=(u,v)\), то \(prev[i]\) съдържа индекса на предното ребро, което излиза от връх \(u\). Вторият масив \(last\) е с размерност броя върхове и \(last[v]\) е всъщност индекса на последното ребро, което излиза от връх \(v\) в списъка \(edges\). За да стане по-ясно е показан интерактивен пример за ориентиран граф и съответната информация, която се записва.</p>
                                 <div class="graphExample9 row">
                                     <div class="col-sm text-center">
-                                        <div class="row">
-                                            <div class="col text-start undo-group">
-                                                <button class="btn p-0 undo undo-mini" title="Върни промяната">
-                                                    <svg class="bi" width="20px" height="20px" fill="currentColor">
-                                                        <use xlink:href="/algo-site/node_modules/bootstrap-icons/bootstrap-icons.svg#arrow-counterclockwise"/>
-                                                    </svg>
-                                                </button>
-                                                <button class="btn p-0 redo redo-mini" title="Повтори промяната">
-                                                    <svg class="bi" width="20px" height="20px" fill="currentColor">
-                                                        <use xlink:href="/algo-site/node_modules/bootstrap-icons/bootstrap-icons.svg#arrow-clockwise"/>
-                                                    </svg>
-                                                </button>
-                                            </div>
-                                            <div class="col text-center save-group">
-                                                <input class="input-file" type="file" accept="text/plain"/ style="display: none">
-                                                <button class="btn p-0 import import-mini" title="Зареди граф">
-                                                    <svg class="bi" width="20px" height="20px" fill="currentColor">
-                                                        <use xlink:href="/algo-site/node_modules/bootstrap-icons/bootstrap-icons.svg#box-arrow-in-up"/>
-                                                    </svg>
-                                                </button>
-                                                <svg class="svg-save" style="display: none"></svg>
-                                                <canvas class="canvas-save" style="display: none"></canvas>
-                                                <button class="btn p-0 save save-mini" title="Изтегли графа">
-                                                    <svg class="bi" width="20px" height="20px" fill="currentColor">
-                                                        <use xlink:href="/algo-site/node_modules/bootstrap-icons/bootstrap-icons.svg#download"/>
-                                                    </svg>
-                                                </button>
-                                            </div>
-                                            <div class="col">
-                                                <div class="row justify-content-end">
-                                                    <div class="col-auto form-check form-switch d-flex p-0 m-0">
-                                                        <input class="form-check-input mx-0 dragging-mini" type="checkbox">
-                                                    </div>
-                                                    <div class="col-auto d-flex">
-                                                        <button class="btn d-flex p-0 my-auto settings" data-bs-toggle="modal" data-bs-target="#settingsModal" title="Настройки">
-                                                            <svg class="bi" width="20px" height="20px" fill="currentColor">
-                                                                <use xlink:href="/algo-site/node_modules/bootstrap-icons/bootstrap-icons.svg#card-checklist"/>
-                                                            </svg>
-                                                        </button>
-                                                    </div>
-                                                    <div class="col-auto d-flex ps-0">
-                                                        <button class="btn d-flex p-0 my-auto information" data-bs-toggle="modal" data-bs-target="#infoModal" title="Информация">
-                                                            <svg class="bi" width="20px" height="20px" fill="currentColor">
-                                                                <use xlink:href="/algo-site/node_modules/bootstrap-icons/bootstrap-icons.svg#info-circle-fill"/>
-                                                            </svg>
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        
+                                        <div class="row settings-panel"></div>
                                         <div class="graph-container">
                                             <svg class="graph" viewBox="0 0 300 300" style="height: 50vh; max-width: 100%"></svg>
                                         </div>

@@ -90,7 +90,7 @@
     }
 
     function determineDy (text, fontFamily, fontSize) {
-        let bBox=window.font[fontFamily].getPath(text.toString(),0,0,fontSize).getBoundingBox();
+        let bBox=fonts[fontFamily].getPath(text.toString(),0,0,fontSize).getBoundingBox();
         let height=bBox.y2-bBox.y1;
         let underBaseline=bBox.y2;
         return height/2-underBaseline;
@@ -159,6 +159,37 @@
         this.drawProperties=undefined;
     }
 
+    let settingsPanel;
+    let fonts;
+    function loadFontData () {
+        return new Promise((resolve, reject) => {
+            if (typeof window.font==="undefined") {
+                fonts=[];
+                opentype.load("/algo-site/fonts/Consolas.woff", (error, font) => {
+                    fonts["Consolas"]=font;
+                    opentype.load("/algo-site/fonts/Arial.woff", (error, font) => {
+                        fonts["Arial"]=font;
+                        opentype.load("/algo-site/fonts/TimesNewRoman.woff", (error, font) => {
+                            fonts["Times New Roman"]=font;
+                            resolve();
+                        });
+                    });
+                });
+            }
+            else resolve();
+        });
+    }
+    async function GraphLoadData () {
+        return new Promise ((resolve, reject) => {
+            if (typeof settingsPanel==="undefined") {
+                $.get("/algo-site/pages/settings_panel.html", function (data) {
+                    settingsPanel=data;
+                }).then(loadFontData, () => { alert("Load data error!") })
+                .then(resolve, () => { alert("Load data error!") });
+            }
+            else resolve();
+        });
+    }
     function Graph () {
         this.wrapperName=undefined; this.svgName=undefined; this.s=undefined;
         this.svgVertices=undefined; this.svgEdges=undefined;
@@ -203,11 +234,8 @@
             if (isDirected!==undefined) this.isDirected=isDirected;
             this.isMulti=false; this.isWeighted=false;
             
-            addSaveFunctionality(wrapperName,this);
-            addImportFunctionality(wrapperName,this);
             this.graphChange=graphChange;
-            addUndoFunctionality(wrapperName,this);
-            $(wrapperName+" .settings").off("click.settings").on("click.settings",showSettings.bind(this));
+            addSettingspanel(wrapperName,this);
         }
 
         function convertVertexToList (vertex) {
@@ -971,7 +999,7 @@
         this.changeType=[true, true, true]; this.changeVers=true; this.changeRad=true;
         function showSettings () {
             let graph=this;
-            
+            addSettings(graph);
             let sliderVers=$(".range-vers");
             let outputVers=$(".slider-value-vers");
             let cnt=0;
@@ -998,7 +1026,7 @@
         this.setSettings = function (changeType = [true, true, true], changeVers = true, changeRad = true) {
             this.changeType=[changeType[0], changeType[1], changeType[2]];
             this.changeVers=changeVers; this.changeRad=changeRad;
-            addSettings(this);
+            if ($(this.wrapperName+" .settings-panel").length===0) addSettings(this);
         }
         function addSettings (graph) {
             let sliderVers=$(".range-vers");
@@ -1086,6 +1114,12 @@
                 graph.vertexRad=val;
                 graph.draw(graph.isDrawable);
             });
+        }
+        function addSettingspanel (wrapperName, graph) {
+            if ($(wrapperName+" .settings-panel").length!==0) $(wrapperName+" .settings-panel").html(settingsPanel);
+            addImportFunctionality(wrapperName,graph);
+            addUndoFunctionality(wrapperName,graph);
+            $(wrapperName+" .settings").off("click.settings").on("click.settings",showSettings.bind(graph));
         }
     }
 
@@ -1573,6 +1607,7 @@
     }
     
     
+    window.GraphLoadData=GraphLoadData;
     window.Graph=Graph;
     window.segmentLength=segmentLength;
     window.circlePath=circlePath;

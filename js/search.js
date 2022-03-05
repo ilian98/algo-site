@@ -186,6 +186,7 @@
                             text=text.replaceAll(word,"<b>"+word+"</b>");
                             let capitalWord=word[0].toUpperCase()+word.substr(1);
                             text=text.replaceAll(capitalWord,"<b>"+capitalWord+"</b>");
+                            text=text.replaceAll(word.toUpperCase(),"<b>"+word.toUpperCase()+"</b>");
                         }
                         text="... "+text+" ...";
                         card+='<p class="card-text mb-2">'+text+'</p>';

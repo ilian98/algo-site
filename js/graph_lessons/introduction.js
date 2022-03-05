@@ -190,7 +190,7 @@
         else if (part===3) {
             let example7=new Graph ();
             $(".graphExample7 .default").on("click", function () {
-                example7.init(".graphExample7",5,false,displayMatrix.bind(this,example7));
+                example7.init(".graphExample7",5,true,displayMatrix.bind(this,example7));
                 example7.isMulti=true;
                 example7.buildEdgeDataStructures([[0,0],[1,2],[1,3],[1,4],[2,3]]);
                 example7.drawNewGraph(true,20);
