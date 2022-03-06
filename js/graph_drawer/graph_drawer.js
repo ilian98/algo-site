@@ -248,12 +248,8 @@
                         let ind=graph.addEdge(startIndex,i,weight);
                         if (graph.calcPositions.checkEdge(startIndex,i,ind)===false) {
                             let oldCoords=[graph.svgVertices[i].coord[0], graph.svgVertices[i].coord[1]];
-                            graph.undoStack.push({
-                                time: graph.undoTime-1,
-                                type: "new-pos",
-                                data: [i, oldCoords]
-                            });
-                            graph.redoStack=[];
+                            if (graph.graphController!==undefined) 
+                                graph.graphController.addChange("new-pos",[i, oldCoords],graph.graphController.undoTime-1,false);
                             
                             graph.svgVertices[i].coord=undefined;
                             graph.calcPositions.calculatePossiblePos(true);
@@ -282,13 +278,8 @@
                     }
                 }
                 if ((oldCoords[0]!=graph.svgVertices[ind].coord[0])||(oldCoords[1]!=graph.svgVertices[ind].coord[1])) {
-                    graph.undoStack.push({
-                        time: graph.undoTime,
-                        type: "new-pos",
-                        data: [ind, [oldCoords[0], oldCoords[1]]]
-                    });
-                    graph.undoTime++;
-                    graph.redoStack=[];
+                    if (graph.graphController!==undefined) 
+                        graph.graphController.addChange("new-pos",[ind, [oldCoords[0], oldCoords[1]]]);
                 }
                 graph.draw(graph.isDrawable,false);
                 graph.graphChange();
@@ -305,13 +296,8 @@
             if (Math.abs(height-graph.svgEdges[startIndex].drawProperties[2])<graph.vertexRad/4) height=undefined;
             let oldCurveHeight=graph.edgeList[startIndex].curveHeight;
             if (oldCurveHeight!==height) {
-                graph.undoStack.push({
-                    time: graph.undoTime,
-                    type: "change-curve-height",
-                    data: [startIndex, oldCurveHeight],
-                });
-                graph.undoTime++;
-                graph.redoStack=[];
+                if (graph.graphController!==undefined)
+                    graph.graphController.addChange("change-curve-height",[startIndex, oldCurveHeight]);
             }
             
             graph.edgeList[startIndex].curveHeight=height;
@@ -323,9 +309,8 @@
             let oldCSS;
             if (typeName==="vertex") oldCSS=[graph.vertices[ind].addedCSS[0], graph.vertices[ind].addedCSS[1]];
             else oldCSS=[graph.edgeList[ind].addedCSS[0], graph.edgeList[ind].addedCSS[1]];
-            graph.undoStack.push({time: graph.undoTime, type: "change-css-"+typeName, data: [ind, oldCSS]});
-            graph.undoTime++;
-            graph.redoStack=[];
+            if (graph.graphController!==undefined)
+                graph.graphController.addChange("change-css-"+typeName,[ind, oldCSS]);
             
             obj.addClass("temp");
             $(".temp").attr("style",defaultCSS+" ; "+newCSS);
@@ -349,9 +334,8 @@
                 let name=prompt((language==="bg")?"Въведете ново име на върха":"Input new name of the vertex"
                                 ,graph.vertices[index].name);
                 if (graph.vertices[index].name!==name) {
-                    graph.undoStack.push({time: graph.undoTime, type: "change-name", data: [index, graph.vertices[index].name]});
-                    graph.undoTime++;
-                    graph.redoStack=[];
+                    if (graph.graphController!==undefined)
+                        graph.graphController.addChange("change-name",[index, graph.vertices[index].name]);
                     
                     graph.vertices[index].name=name;
                     graph.drawVertexText(index,name);
@@ -406,9 +390,8 @@
                               ,graph.edgeList[index].weight);
             if (checkInteger(weight)===false) return ;
             if (graph.edgeList[index].weight!==weight) {
-                graph.undoStack.push({time: graph.undoTime, type: "change-weight", data: [index, graph.edgeList[index].weight]});
-                graph.undoTime++;
-                graph.redoStack=[];
+                if (graph.graphController!==undefined)
+                    graph.graphController.addChange("change-weight",[index, graph.edgeList[index].weight]);
                 
                 graph.edgeList[index].weight=weight;
                 graph.svgEdges[index].line.remove();

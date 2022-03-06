@@ -284,18 +284,8 @@
             return [originalPos.slice(), oldCoords];
         }
         this.changePositions = function (allPositions, versCoord, undoType) {
-            let undoObj={type: "new-positions", data: findPositions()};
-            if ((undoType===undefined)||(undoType==="redo")) {
-                undoObj.time=graph.undoTime;
-                graph.undoStack.push(undoObj);
-                graph.undoTime++;
-                if (undoType===undefined) graph.redoStack=[];
-            }
-            else {
-                undoObj.time=graph.redoTime;
-                graph.redoStack.push(undoObj);
-                graph.redoTime++;
-            }
+            if (graph.graphController!==undefined) graph.graphController.registerAction("new-positions",findPositions(),undoType);
+            
             if (allPositions.length>0) originalPos=allPositions;
             let i=0;
             for (let coord of versCoord) {
@@ -364,9 +354,8 @@
             }
         }
         this.calc = function (drawST = false, rootVertex = -1) {
-            graph.undoStack.push({time: graph.undoTime, type: "new-positions", data: findPositions()});
-            graph.undoTime++;
-            graph.redoStack=[];
+            if (graph.graphController!==undefined)
+                graph.graphController.registerAction("new-positions",findPositions());
             
             for (let i=0; i<graph.n; i++) {
                 if (graph.vertices[i]===undefined) continue;
@@ -468,7 +457,7 @@
                 findPositionsTree.call(this,rootVertex,treeEdges);
                 
                 let boundaryPath="M0,0 "+this.frameX+",0 "+this.frameX+","+this.frameY+" 0,"+this.frameY+" Z";
-                graph.undoTime--;
+                if (graph.graphController!==undefined) graph.graphController.undoTime--;
                 for (let i=0; i<graph.edgeList.length; i++) {
                     if (graph.edgeList[i]===undefined) continue;
                     let x=graph.edgeList[i].x,y=graph.edgeList[i].y;
@@ -483,11 +472,11 @@
                             break;
                         }
                     }
-                    graph.undoStack.push({
-                        time: graph.undoTime,
-                        type: "change-css-edge",
-                        data: [i, [graph.edgeList[i].addedCSS[0], graph.edgeList[i].addedCSS[1]]],
-                    });
+                    if (graph.graphController!==undefined) 
+                        graph.graphController.addChange("change-css-edge",
+                                                        [i, [graph.edgeList[i].addedCSS[0], graph.edgeList[i].addedCSS[1]]],
+                                                        undefined,
+                                                        false);
                     if (found===true) {
                         let s=graph.edgeList[i].addedCSS[0];
                         for (;;) {
@@ -546,13 +535,10 @@
                         graph.edgeList[i].curveHeight=oldCurveHeight;
                         continue;
                     }
-                    graph.undoStack.push({
-                        time: graph.undoTime,
-                        type: "change-curve-height",
-                        data: [i, oldCurveHeight],
-                    });
+                    if (graph.graphController!==undefined) 
+                        graph.graphController.addChange("change-curve-height",[i, oldCurveHeight],undefined,false);
                 }
-                graph.undoTime++;
+                if (graph.graphController!==undefined) graph.graphController.undoTime++;
             }
 
             centerGraph.call(this);
