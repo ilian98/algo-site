@@ -202,16 +202,23 @@
         
         let solution=document.querySelector(".twoSATexample"+part+" .solution"),text;
         text="\\("; values=[];
-        for (let i=0; i<graph.n; i++) {
-            if (graph.vertices[i].name[0]==='!') continue;
-            let comp=[nums[i], nums[i+1]];
+        for (let i=0; i<graph.n; i+=2) {
+            let comp,name;
+            if (graph.vertices[i].name[0]==='!') {
+                comp=[nums[i+1], nums[i]];
+                name=graph.vertices[i+1].name;
+            }
+            else {
+                comp=[nums[i], nums[i+1]];
+                name=graph.vertices[i].name;
+            }
             if (comp[0]===comp[1]) {
-                text="Няма решение, защото в силно-свързаната компонента на връх \\("+graph.vertices[i].name+"\\) има и неговото отрицание!";
+                text="Няма решение, защото в силно-свързаната компонента на връх \\("+name+"\\) има и неговото отрицание!";
                 values=[];
                 break;
             }
             if (text!="\\(") text+=", ";
-            text+=graph.vertices[i].name;
+            text+=name;
             if (comp[0]>comp[1]) {
                 text+=" = 1";
                 values[i]=true; values[i+1]=false;

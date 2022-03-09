@@ -143,7 +143,7 @@
         }
         this.addChanges = function (changes, increaseTime = true, undoType) {
             for (let [type, data] of changes) {
-                this.addChanges(type,data,undefined,false,undoType);
+                this.addChange(type,data,undefined,false,undoType);
             }
             if (increaseTime===true) this.undoTime++;
         }
