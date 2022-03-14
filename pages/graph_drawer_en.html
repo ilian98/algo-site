@@ -27,7 +27,9 @@
         <script type="text/javascript" src="/algo-site/js/graph_drawer/graph.js"></script>
         <script type="text/javascript" src="/algo-site/js/graph_drawer/graph_positioning.js"></script>
         <script type="text/javascript" src="/algo-site/js/graph_drawer/graph_drawer.js"></script>
+        <script type="text/javascript" src="/algo-site/js/graph_drawer/graph_controller.js"></script>
         <script type="text/javascript" src="/algo-site/js/graph_drawer/graph_drawer_page.js"></script>
+        <script type="text/javascript" src="/algo-site/js/dropdown.js"></script>
         <title>Drawing graphs</title>
     </head>
     <body>
@@ -39,7 +41,7 @@
             <div class="content">
                 <h1 align="center">Drawing graphs</h1>
                 
-                <div id="lesson-part" style="display: block">
+                <div class="lesson-part" style="display: block">
                     <div class="graph-drawer row">
                         <div class="col-sm-5">
                             <div class="row mb-3">
@@ -127,21 +129,6 @@
                                     <svg class="graph" viewBox="0 0 300 300"></svg>
                                 </div>
                             </div>
-                            <ul class="dropdown-menu vertex">
-                                <li><a class="dropdown-item unselectable remove-vertex">Remove the vertex</a></li>
-                                <li><a class="dropdown-item unselectable change-name">Change the name</a></li>
-                                <li><a class="dropdown-item unselectable add-css">Add CSS style</a></li>
-                                <li><a class="dropdown-item unselectable add-css-name">Add CSS style for the name</a></li>
-                            </ul>
-                            <ul class="dropdown-menu edge">
-                                <li><a class="dropdown-item unselectable remove-edge">Remove the edge</a></li>
-                                <li><a class="dropdown-item unselectable change-weight">Change the weight</a></li>
-                                <li><a class="dropdown-item unselectable add-css">Add CSS style</a></li>
-                            </ul>
-                            <ul class="dropdown-menu weight">
-                                <li><a class="dropdown-item unselectable change-weight">Change the weight</a></li>
-                                <li><a class="dropdown-item unselectable add-css">Add CSS style</a></li>
-                            </ul>
                             <div class="row">
                                 <div class="col text-start">
                                     <button class="btn btn-primary undo" title="Undo">
@@ -169,12 +156,6 @@
                                             <use xlink:href="/algo-site/node_modules/bootstrap-icons/bootstrap-icons.svg#download"/>
                                         </svg>
                                     </button>
-                                    <ul class="dropdown-menu save-menu">
-                                        <li><a class="dropdown-item unselectable txt">Download as txt</a></li>
-                                        <li><a class="dropdown-item unselectable edge-list">Download as an edge list</a></li>
-                                        <li><a class="dropdown-item unselectable svg">Download as svg</a></li>
-                                        <li><a class="dropdown-item unselectable png">Download as png</a></li>
-                                    </ul>
                                 </div>
                             </div>
                         </div>

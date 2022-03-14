@@ -30,10 +30,6 @@
                     animText: ""
                 });
 
-                if ($(".dropdown-menu.save-menu").length!==0) {
-                    $(".dropdown-menu.save-menu .txt").hide();
-                    $(".dropdown-menu.save-menu .edge-list").hide();
-                }
                 flagStart=true; this.html("Стоп");
                 speedObj.hide();
                 if (speedInput.val()==="") speed=4000/2;
@@ -59,10 +55,6 @@
                 globalObj.start();
             }
             else {
-                if ($(".dropdown-menu.save-menu").length!==0) {
-                    $(".dropdown-menu.save-menu .txt").show();
-                    $(".dropdown-menu.save-menu .edge-list").show();
-                }
                 flagStart=false; this.html("Старт!");
                 speedObj.show();
                 if (speedInput.val()==="") speedInput.val("2");

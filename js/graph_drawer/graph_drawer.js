@@ -7,6 +7,12 @@
         }
         return true;
     }
+    function getObjectForCoordinates (event) {
+        if (window.isMobile==="false") return event;
+        else if (event.changedTouches!==undefined) return event.changedTouches[0];
+        else if (event.touches!==undefined) return event.touches[0];
+        else return event;
+    }
     
     function DrawableGraph (graph) {
         let globalObj=this; 
@@ -50,7 +56,7 @@
         
         function mouseDown (type, index, event) {
             event.preventDefault();
-            closePreviousDropdown();
+            graph.dropdowns.closeDropdowns();
             if (window.isMobile==="false") {
                 if (event.button!==0) return ;
                 graph.s.mousemove((type==="vertex")?trackMouseVertex:trackMouseEdge);
@@ -316,58 +322,56 @@
             $(".temp").attr("style",defaultCSS+" ; "+newCSS);
             obj.removeClass("temp");
         }
+        function removeVertex (index) {
+            for (let ind of graph.adjList[index]) {
+                edgeClickAreas[ind].remove();
+            }
+            for (let ind of graph.reverseAdjList[index]) {
+                edgeClickAreas[ind].remove();
+            }
+            graph.removeVertex(index);
+            graph.graphChange();
+        }
+        function changeVertexName (index) {
+            let name=prompt((language==="bg")?"Въведете ново име на върха":"Input new name of the vertex"
+                            ,graph.vertices[index].name);
+            if (graph.vertices[index].name!==name) {
+                if (graph.graphController!==undefined)
+                    graph.graphController.addChange("change-name",[index, graph.vertices[index].name]);
+
+                graph.vertices[index].name=name;
+                graph.drawVertexText(index,name);
+                addVertexEvents(index);
+                graph.graphChange();
+            }
+        }
+        function addCSSVertex (index) {
+            let css=prompt(
+                ((language==="bg")?"Въведете CSS стил за върха":"Input CSS style for the vertex")+
+                ((graph.vertices[index].addedCSS[0]==="")?
+                 ((language==="bg")?" (например за червен цвят fill: red)":" (for example for red colour - fill: red)"):""),
+                graph.vertices[index].addedCSS[0]
+            );
+            if (graph.vertices[index].addedCSS[0]!==css)
+                addCSS(graph.svgVertices[index].circle,graph.vertices[index].defaultCSS[0],css,"vertex",index);
+            graph.vertices[index].addedCSS[0]=css;
+        }
+        function addCSSVertexName (index) {
+            let css=prompt(
+                ((language==="bg")?"Въведете CSS стил за името на върха":"Input CSS style for the name of the vertex")+
+                ((graph.vertices[index].addedCSS[1]==="")?
+                 ((language==="bg")?" (например за червен цвят fill: red)":" (for example for red colour - fill: red)"):""),
+                graph.vertices[index].addedCSS[1]
+            );
+            if (graph.vertices[index].addedCSS[1]!==css)
+                addCSS(graph.svgVertices[index].text,graph.vertices[index].defaultCSS[1],css,"vertex",index);
+            graph.vertices[index].addedCSS[1]=css;
+        }
         function vertexClick (index, event) {
             if (trackedMouse===true) return ;
-            let dropdown=dropdownMenu(".dropdown-menu.vertex",event);
-            dropdown.find(".remove-vertex").off("click").one("click",function () {
-                for (let ind of graph.adjList[index]) {
-                    edgeClickAreas[ind].remove();
-                }
-                for (let ind of graph.reverseAdjList[index]) {
-                    edgeClickAreas[ind].remove();
-                }
-                graph.removeVertex(index);
-                graph.graphChange();
-            });
-            
-            dropdown.find(".change-name").off("click").one("click",function () {
-                let name=prompt((language==="bg")?"Въведете ново име на върха":"Input new name of the vertex"
-                                ,graph.vertices[index].name);
-                if (graph.vertices[index].name!==name) {
-                    if (graph.graphController!==undefined)
-                        graph.graphController.addChange("change-name",[index, graph.vertices[index].name]);
-                    
-                    graph.vertices[index].name=name;
-                    graph.drawVertexText(index,name);
-                    addVertexEvents(index);
-                    graph.graphChange();
-                }
-            });
-            
-            dropdown.find(".add-css").off("click").one("click",function () {
-                let css=prompt(
-                    ((language==="bg")?"Въведете CSS стил за върха":"Input CSS style for the vertex")+
-                    ((graph.vertices[index].addedCSS[0]==="")?
-                     ((language==="bg")?" (например за червен цвят fill: red)":" (for example for red colour - fill: red)"):""),
-                    graph.vertices[index].addedCSS[0]
-                );
-                if (graph.vertices[index].addedCSS[0]!==css)
-                    addCSS(graph.svgVertices[index].circle,graph.vertices[index].defaultCSS[0],css,"vertex",index);
-                graph.vertices[index].addedCSS[0]=css;
-            });
-            
-            dropdown.find(".add-css-name").off("click").one("click",function () {
-                let css=prompt(
-                    ((language==="bg")?"Въведете CSS стил за името на върха":"Input CSS style for the name of the vertex")+
-                    ((graph.vertices[index].addedCSS[1]==="")?
-                     ((language==="bg")?" (например за червен цвят fill: red)":" (for example for red colour - fill: red)"):""),
-                    graph.vertices[index].addedCSS[1]
-                );
-                if (graph.vertices[index].addedCSS[1]!==css)
-                    addCSS(graph.svgVertices[index].text,graph.vertices[index].defaultCSS[1],css,"vertex",index);
-                graph.vertices[index].addedCSS[1]=css;
-            });
+            graph.dropdowns.showDropdown("vertex",event,index);
         }
+                               
         function addNewVertex (event) {
             let ind;
             for (let i=0; i<=graph.n; i++) {
@@ -384,6 +388,12 @@
             graph.drawVertex(ind);
             addVertexEvents(ind);
             graph.graphChange();
+        }
+        
+        function removeEdge (index) {
+            graph.removeEdge(index);
+            graph.graphChange();
+            edgeClickAreas[index].remove();
         }
         function changeEdgeWeight (index) {
             let weight=prompt((language==="bg")?"Въведете ново тегло на реброто":"Input new weight for the edge"
@@ -403,71 +413,54 @@
                 graph.svgEdges[index].weight.prependTo(graph.s);
                 addEdgeEvents(index);
             }
+            graph.graphChange();
+        }
+        function addCSSEdge (index) {
+            let css=prompt(
+                ((language==="bg")?"Въведете CSS стил за реброто":"Input CSS style for the edge")+
+                ((graph.edgeList[index].addedCSS[0]==="")?
+                 ((language==="bg")?" (например за червен цвят stroke: red)":" (for example for red colour - stroke: red)"):""),
+                graph.edgeList[index].addedCSS[0]
+            );
+            let edge=graph.svgEdges[index];
+            if (graph.edgeList[index].addedCSS[0]!==css)
+                addCSS(edge.line,graph.edgeList[index].defaultCSS[0],css,"edge",index);
+            graph.edgeList[index].addedCSS[0]=css;
+            if (graph.isDirected===true) {
+                let marker=edge.line.markerEnd;
+                marker.attr("fill",graph.svgEdges[index].line.attr("stroke"));
+            }
+            if (graph.isWeighted===true) {
+                if (graph.edgeList[index].addedCSS[1].indexOf("fill")===-1) {
+                    graph.svgEdges[index].weight.attr("fill",graph.svgEdges[index].line.attr("stroke"));
+                }
+            }
         }
         function edgeClick (index, event) {
             if (trackedMouse===true) return ;
-            let dropdown=dropdownMenu(".dropdown-menu.edge",event);
-            if (graph.isWeighted===true) dropdown.find(".change-weight").show();
-            else dropdown.find(".change-weight").hide();
-            
-            dropdown.find(".remove-edge").off("click").one("click",function () {
-                graph.removeEdge(index);
-                graph.graphChange();
-                edgeClickAreas[index].remove();
-            });
-            
-            if (graph.isWeighted===true) {
-                dropdown.find(".change-weight").off("click").one("click",function () {
-                    changeEdgeWeight(index);
-                    graph.graphChange();
-                });
-            }
-            
-            dropdown.find(".add-css").off("click").one("click",function () {
-                let css=prompt(
-                    ((language==="bg")?"Въведете CSS стил за реброто":"Input CSS style for the edge")+
-                    ((graph.edgeList[index].addedCSS[0]==="")?
-                     ((language==="bg")?" (например за червен цвят stroke: red)":" (for example for red colour - stroke: red)"):""),
-                    graph.edgeList[index].addedCSS[0]
-                );
-                let edge=graph.svgEdges[index];
-                if (graph.edgeList[index].addedCSS[0]!==css)
-                    addCSS(edge.line,graph.edgeList[index].defaultCSS[0],css,"edge",index);
-                graph.edgeList[index].addedCSS[0]=css;
-                if (graph.isDirected===true) {
-                    let marker=edge.line.markerEnd;
-                    marker.attr("fill",graph.svgEdges[index].line.attr("stroke"));
-                }
-                if (graph.isWeighted===true) {
-                    if (graph.edgeList[index].addedCSS[1].indexOf("fill")===-1) {
-                        graph.svgEdges[index].weight.attr("fill",graph.svgEdges[index].line.attr("stroke"));
-                    }
-                }
-            });
+            if (graph.isWeighted===true) graph.dropdowns.menus["edge"].find(".change-weight").show();
+            else graph.dropdowns.menus["edge"].find(".change-weight").hide();
+            graph.dropdowns.showDropdown("edge",event,index);
         }
         
+        function addCSSWeight (index) {
+            let css=prompt(
+                ((language==="bg")?"Въведете CSS стил за теглото":"Input CSS style for the weight")+
+                ((graph.edgeList[index].addedCSS[1]==="")?
+                 ((language==="bg")?" (например за червен цвят fill: red)":" (for example for red colour - fill: red)"):""),
+                graph.edgeList[index].addedCSS[1]
+            );
+            let weight=graph.svgEdges[index].weight;
+            if (graph.edgeList[index].addedCSS[1]!==css)
+                addCSS(weight,graph.edgeList[index].defaultCSS[1],css,"edge",index);
+            if (css.indexOf("fill")===-1) {
+                weight.attr("fill",graph.svgEdges[index].line.attr("stroke"));
+            }
+            graph.edgeList[index].addedCSS[1]=css;
+        }
         function weightClick (index, event) {
-            let dropdown=dropdownMenu(".dropdown-menu.weight",event);
-            dropdown.find(".change-weight").off("click").one("click",function () {
-                changeEdgeWeight(index);
-                graph.graphChange();
-            });
-            
-            dropdown.find(".add-css").off("click").one("click",function () {
-                let css=prompt(
-                    ((language==="bg")?"Въведете CSS стил за теглото":"Input CSS style for the weight")+
-                    ((graph.edgeList[index].addedCSS[1]==="")?
-                     ((language==="bg")?" (например за червен цвят fill: red)":" (for example for red colour - fill: red)"):""),
-                    graph.edgeList[index].addedCSS[1]
-                );
-                let weight=graph.svgEdges[index].weight;
-                if (graph.edgeList[index].addedCSS[1]!==css)
-                    addCSS(weight,graph.edgeList[index].defaultCSS[1],css,"edge",index);
-                if (css.indexOf("fill")===-1) {
-                    weight.attr("fill",graph.svgEdges[index].line.attr("stroke"));
-                }
-                graph.edgeList[index].addedCSS[1]=css;
-            });
+            if (trackedMouse===true) return ;
+            graph.dropdowns.showDropdown("weight",event,index);
         }
 
         function addVertexEvents (ind) {
@@ -515,13 +508,31 @@
                 graph.svgEdges[ind].weight.click(weightClick.bind(graph.svgEdges[ind],ind));
             }
         }
+        
         this.init = function () {
             svgPoint=graph.s.paper.node.createSVGPoint();
+            
+            let dropdowns=graph.dropdowns;
+            dropdowns.addNewDropdown("vertex",[
+                ["remove-vertex", ((language==="bg")?"Изтрий върха":"Remove the vertex"), removeVertex],
+                ["change-name", ((language==="bg")?"Промени името":"Change the name"), changeVertexName],
+                ["add-css", ((language==="bg")?"Сложи CSS стил":"Add CSS style"), addCSSVertex],
+                ["add-css-name", ((language==="bg")?"Сложи CSS стил на името":"Add CSS style for the name"), addCSSVertexName]
+            ]);
+            dropdowns.addNewDropdown("edge",[
+                ["remove-edge", ((language==="bg")?"Изтрий реброто":"Remove the edge"),removeEdge],
+                ["change-weight", ((language==="bg")?"Промени теглото":"Change the weight"), changeEdgeWeight],
+                ["add-css", ((language==="bg")?"Сложи CSS стил":"Add CSS style"), addCSSEdge]
+            ]);
+            dropdowns.addNewDropdown("weight",[
+                ["change-weight", ((language==="bg")?"Промени теглото":"Change the weight"), changeEdgeWeight],
+                ["add-css", ((language==="bg")?"Сложи CSS стил":"Add CSS style"), addCSSWeight]
+            ]);
+            
             for (let i=0; i<graph.n; i++) {
                 if (graph.vertices[i]===undefined) continue;
                 addVertexEvents(i);
             }
-            
             for (let i=0; i<graph.edgeList.length; i++) {
                 if (graph.edgeList[i]===undefined) continue;
                 addEdgeEvents(i);

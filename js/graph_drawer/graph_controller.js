@@ -118,7 +118,7 @@
     }
     function addSettingsPanel (wrapperName, graph, graphController) {
         if ($(wrapperName+" .settings-panel").length!==0) $(wrapperName+" .settings-panel").html(settingsPanel);
-        addSaveFunctionality(wrapperName,graph);
+        addSaveFunctionality(graph);
         addImportFunctionality(wrapperName,graph);
         addUndoFunctionality(wrapperName,graph,graphController);
         $(wrapperName+" .settings").off("click.settings").on("click.settings",showSettings.bind(graph,graphController));
@@ -276,88 +276,91 @@
             graph.graphChange();
         }
     }
-    function addSaveFunctionality (wrapperName, graph) {
+    
+    function savePng (graph) {
         let svg=$(graph.svgName);
-        let canvas=$(wrapperName+" .canvas-save");
-        let svgSave=$(wrapperName+" .svg-save");
+        let canvas=$(graph.wrapperName+" .canvas-save");
+        let svgSave=$(graph.wrapperName+" .svg-save");
+        let context=canvas[0].getContext('2d');
+        let svgWidth=2*svg.width(),svgHeight=2*svg.height();
 
-        let saveButton=$(wrapperName+" .save");
-        $(saveButton).off("click").on("click",function (event) {
-            let dropdown=dropdownMenu(".dropdown-menu.save-menu",event);
-            dropdown.find(".png").off("click").one("click",function () {
-                let context=canvas[0].getContext('2d');
-                let svgWidth=2*svg.width(),svgHeight=2*svg.height();
+        svgSave.attr("viewBox",svg.attr("viewBox"));
+        svgSave.attr("width",svgWidth);
+        svgSave.attr("height",svgHeight);
+        svgSave.html(svg.html());
+        canvas.prop("width",svgWidth);
+        canvas.prop("height",svgHeight);
 
-                svgSave.attr("viewBox",svg.attr("viewBox"));
-                svgSave.attr("width",svgWidth);
-                svgSave.attr("height",svgHeight);
-                svgSave.html(svg.html());
-                canvas.prop("width",svgWidth);
-                canvas.prop("height",svgHeight);
-
-                svgSave.show();
-                let svgString=(new XMLSerializer()).serializeToString(svgSave[0]);
-                svgSave.hide();
-                let image=$("<img>").prop("src","data:image/svg+xml; charset=utf8, "+encodeURIComponent(svgString));
-                image.on("load", function () {
-                    context.drawImage(image[0],0,0);
-                    let imageURI=canvas[0].toDataURL("image/png").replace("image/png","image/octet-stream");
-                    $("<a>").prop("download","graph.png")
-                        .prop("href",imageURI)
-                        .prop("target","_blank")[0].click();
-                    svgSave.empty();
-                });
-            });
-
-            dropdown.find(".svg").off("click").one("click",function () {
-                $(".click-area").hide();
-                svgSave.attr("viewBox",svg.attr("viewBox"));
-                svgSave.removeAttr("width").removeAttr("height");
-                svgSave.html(svg.html());
-                svgSave[0].setAttribute("xmlns","http://www.w3.org/2000/svg");
-                let svgData=svgSave[0].outerHTML.replaceAll("cursor: pointer;","")
-                    .replace("border-style: dotted","border-style: none")
-                    .replace("display: none","");
-                let preface='<?xml version="1.0" standalone="no"?>\r\n';
-                let svgBlob=new Blob([preface, svgData], {type: "image/svg+xml;charset=utf-8"});
-                let svgURL=URL.createObjectURL(svgBlob);
-                $("<a>").prop("download","graph.svg")
-                    .prop("href",svgURL)
-                    .prop("target","_black")[0].click();
-                $(".click-area").show();
-                svgSave.empty();
-            });
-
-            dropdown.find(".edge-list").off("click").one("click", function () {
-                let vers=0;
-                for (let vertex of graph.vertices) {
-                    if (vertex===undefined) continue;
-                    vers++;
-                }
-                let edges=[];
-                for (let edge of graph.edgeList) {
-                    if (edge===undefined) continue;
-                    if (edge.weight==="") edges.push([graph.vertices[edge.x].name,graph.vertices[edge.y].name]);
-                    else edges.push([graph.vertices[edge.x].name,graph.vertices[edge.y].name,edge.weight]);
-                }
-                let text=vers+" "+edges.length+"\n";
-                for (let edge of edges) {
-                    text+=edge[0]+" "+edge[1];
-                    if (edge.length===3) text+=" "+edge[2];
-                    text+="\n";
-                }
-                $("<a>").prop("download","edge_list.txt")
-                    .prop("href","data:text/plain;charset=utf-8,"+encodeURIComponent(text))
-                    .prop("target","_black")[0].click();
-            });
-
-            dropdown.find(".txt").off("click").on("click", function () {
-                dropdown.find(".txt").off("click");
-
-                $("<a>").prop("download","graph.txt")
-                    .prop("href","data:text/plain;charset=utf-8,"+encodeURIComponent(graph.export()))
-                    .prop("target","_black")[0].click();
-            });
+        svgSave.show();
+        let svgString=(new XMLSerializer()).serializeToString(svgSave[0]);
+        svgSave.hide();
+        let image=$("<img>").prop("src","data:image/svg+xml; charset=utf8, "+encodeURIComponent(svgString));
+        image.on("load", function () {
+            context.drawImage(image[0],0,0);
+            let imageURI=canvas[0].toDataURL("image/png").replace("image/png","image/octet-stream");
+            $("<a>").prop("download","graph.png")
+                .prop("href",imageURI)
+                .prop("target","_blank")[0].click();
+            svgSave.empty();
+        });
+    }
+    function saveSvg (graph) {
+        let svg=$(graph.svgName);
+        let svgSave=$(graph.wrapperName+" .svg-save");
+        
+        $(".click-area").hide();
+        svgSave.attr("viewBox",svg.attr("viewBox"));
+        svgSave.removeAttr("width").removeAttr("height");
+        svgSave.html(svg.html());
+        svgSave[0].setAttribute("xmlns","http://www.w3.org/2000/svg");
+        let svgData=svgSave[0].outerHTML.replaceAll("cursor: pointer;","")
+            .replace("border-style: dotted","border-style: none")
+            .replace("display: none","");
+        let preface='<?xml version="1.0" standalone="no"?>\r\n';
+        let svgBlob=new Blob([preface, svgData], {type: "image/svg+xml;charset=utf-8"});
+        let svgURL=URL.createObjectURL(svgBlob);
+        $("<a>").prop("download","graph.svg")
+            .prop("href",svgURL)
+            .prop("target","_black")[0].click();
+        $(".click-area").show();
+        svgSave.empty();
+    }
+    function saveEdgeList (graph) {
+        let vers=0;
+        for (let vertex of graph.vertices) {
+            if (vertex===undefined) continue;
+            vers++;
+        }
+        let edges=[];
+        for (let edge of graph.edgeList) {
+            if (edge===undefined) continue;
+            if (edge.weight==="") edges.push([graph.vertices[edge.x].name,graph.vertices[edge.y].name]);
+            else edges.push([graph.vertices[edge.x].name,graph.vertices[edge.y].name,edge.weight]);
+        }
+        let text=vers+" "+edges.length+"\n";
+        for (let edge of edges) {
+            text+=edge[0]+" "+edge[1];
+            if (edge.length===3) text+=" "+edge[2];
+            text+="\n";
+        }
+        $("<a>").prop("download","edge_list.txt")
+            .prop("href","data:text/plain;charset=utf-8,"+encodeURIComponent(text))
+            .prop("target","_black")[0].click();
+    }
+    function saveTxt (graph) {
+        $("<a>").prop("download","graph.txt")
+                .prop("href","data:text/plain;charset=utf-8,"+encodeURIComponent(graph.export()))
+                .prop("target","_black")[0].click();
+    }
+    function addSaveFunctionality (graph) {
+        graph.dropdowns.addNewDropdown("save-menu",[
+            ["txt", ((language==="bg")?"Изтегли като txt":"Download as txt"), saveTxt],
+            ["edge-list", ((language==="bg")?"Изтегли като сп. от ребрата":"Download as edge list"), saveEdgeList],
+            ["svg", ((language==="bg")?"Изтегли като svg":"Download as svg"), saveSvg],
+            ["png", ((language==="bg")?"Изтегли като png":"Download as png"), savePng]
+        ]);
+        $(graph.wrapperName+" .save").off("click").on("click",function (event) {
+            graph.dropdowns.showDropdown("save-menu",event,graph);
         });
     }
     

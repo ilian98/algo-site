@@ -89,42 +89,30 @@
         else return [p2,p1];
     }
 
+    let fonts;
+    function loadFontData () {
+        return new Promise((resolve, reject) => {
+            if (typeof window.font==="undefined") {
+                fonts=[];
+                opentype.load("/algo-site/fonts/Consolas.woff", (error, font) => {
+                    fonts["Consolas"]=font;
+                    opentype.load("/algo-site/fonts/Arial.woff", (error, font) => {
+                        fonts["Arial"]=font;
+                        opentype.load("/algo-site/fonts/TimesNewRoman.woff", (error, font) => {
+                            fonts["Times New Roman"]=font;
+                            resolve();
+                        });
+                    });
+                });
+            }
+            else resolve();
+        });
+    }
     function determineDy (text, fontFamily, fontSize) {
         let bBox=fonts[fontFamily].getPath(text.toString(),0,0,fontSize).getBoundingBox();
         let height=bBox.y2-bBox.y1;
         let underBaseline=bBox.y2;
         return height/2-underBaseline;
-    }
-    
-    function getObjectForCoordinates (event) {
-        if (window.isMobile==="false") return event;
-        else if (event.changedTouches!==undefined) return event.changedTouches[0];
-        else if (event.touches!==undefined) return event.touches[0];
-        else return event;
-    }
-    let previousDropdown=undefined;
-    function closePreviousDropdown () {
-        if (previousDropdown!==undefined) previousDropdown.removeClass("show");
-    }
-    function dropdownMenu (name, event) {
-        let dropdown=$(name);
-        closePreviousDropdown();
-        previousDropdown=dropdown;
-        let bodyOffsets=document.body.getBoundingClientRect();
-        let obj=getObjectForCoordinates(event);
-        let diffX=0,diffY=0;
-        if (obj.clientY+dropdown.outerHeight()>$(window).height()) diffY=dropdown.outerHeight();
-        if (obj.clientX+dropdown.outerWidth()>$(window).width()) {
-            diffX=obj.clientX+dropdown.outerWidth()-$(window).width();
-        }
-        dropdown.css({"top": obj.pageY-diffY, "left": obj.pageX-diffX});
-        dropdown.addClass("show");
-        event.stopPropagation();
-        event.preventDefault();
-        $(window).one("click",function () {
-            dropdown.removeClass("show");
-        });
-        return dropdown;
     }
 
     function Vertex (name, css=["",""]) {
@@ -159,25 +147,6 @@
         this.drawProperties=undefined;
     }
 
-    let fonts;
-    function loadFontData () {
-        return new Promise((resolve, reject) => {
-            if (typeof window.font==="undefined") {
-                fonts=[];
-                opentype.load("/algo-site/fonts/Consolas.woff", (error, font) => {
-                    fonts["Consolas"]=font;
-                    opentype.load("/algo-site/fonts/Arial.woff", (error, font) => {
-                        fonts["Arial"]=font;
-                        opentype.load("/algo-site/fonts/TimesNewRoman.woff", (error, font) => {
-                            fonts["Times New Roman"]=font;
-                            resolve();
-                        });
-                    });
-                });
-            }
-            else resolve();
-        });
-    }
     async function GraphLoadData () {
         return new Promise ((resolve, reject) => {
             if (typeof fonts==="undefined") {
@@ -197,7 +166,7 @@
         this.edgeList=undefined; this.adjList=undefined; this.adjMatrix=undefined;
         this.isDirected=undefined; this.isMulti=undefined; this.isWeighted=undefined;
         this.graphChange=undefined; // function to be called after changing the graph, for exampe adding new edge
-        this.graphController=undefined;
+        this.graphController=undefined; this.dropdowns=undefined;
         this.init = function (wrapperName, n, isDirected, graphChange = () => {}) {
             if (this.wrapperName===undefined) {
                 this.wrapperName=wrapperName;
@@ -214,8 +183,9 @@
             this.erase();
             this.svgVertices=[]; this.svgEdges=[];
             
+            this.dropdowns = new Dropdowns();
             if ((typeof GraphController==="function")&&
-                (($(wrapperName+" .settings-panel").length!=0)||($(wrapperName+" .undo").length!==0))) {
+                (($(wrapperName+" .settings-panel").length!=0)||($(wrapperName+" .save").length!==0))) {
                 this.graphController = new GraphController(this);
                 this.graphController.init();
             }
@@ -987,6 +957,8 @@
         this.setSettings = function (changeType = [true, true, true], changeVers = true, changeRad = true) {
             this.graphController.setSettings(changeType,changeVers,changeRad);
         }
+        
+        this.dropdowns=undefined;
     }
     
     
@@ -994,8 +966,5 @@
     window.Graph=Graph;
     window.segmentLength=segmentLength;
     window.circlePath=circlePath;
-    window.getObjectForCoordinates=getObjectForCoordinates;
-    window.closePreviousDropdown=closePreviousDropdown;
-    window.dropdownMenu=dropdownMenu;
     window.determineDy=determineDy;
 })();

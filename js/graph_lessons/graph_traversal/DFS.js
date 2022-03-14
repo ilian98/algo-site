@@ -72,6 +72,9 @@
 
         animationObj.startButton.off("click.bonus").on("click.bonus", function () {
             if ($(this).html()==="Стоп") {
+                graph.dropdowns.menus["save-menu"].find(".txt").hide();
+                graph.dropdowns.menus["save-menu"].find(".edge-list").hide();
+                    
                 $(name+" .default").parent().hide();
                 $(name+" .undo-group").hide();
                 $(name+" .import").hide();
@@ -80,6 +83,9 @@
                 $(name+" .settings").parent().removeClass("d-flex").addClass("d-none");
             }
             else {
+                graph.dropdowns.menus["save-menu"].find(".txt").show();
+                graph.dropdowns.menus["save-menu"].find(".edge-list").show();
+                
                 $(name+" .default").parent().show();
                 $(name+" .undo-group").show();
                 $(name+" .import").show();

@@ -235,12 +235,16 @@
             endButton.hide();
             animationObj.startButton.on("click.bonus", function () {
                 if (animationObj.startButton.html()==="Стоп") { // first click handler is in animationObj
+                    tree.dropdowns.menus["save-menu"].find(".txt").hide();
+                    tree.dropdowns.menus["save-menu"].find(".edge-list").hide();
                     if (exampleName==".segTreeExample2") {
                         endButton.show();
                         endButton.on("click",endAnimation.bind(endButton,tree,animationObj,elements,pos,val));
                     }
                 }
                 else {
+                    tree.dropdowns.menus["save-menu"].find(".txt").show();
+                    tree.dropdowns.menus["save-menu"].find(".edge-list").show();
                     if (exampleName==".segTreeExample2") {
                         endButton.hide();
                     }
