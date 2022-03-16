@@ -43,7 +43,7 @@
                 
                 <div class="lesson-part" style="display: block">
                     <div class="graph-drawer row">
-                        <div class="col-sm-5">
+                        <div class="col-sm-5 graph-settings">
                             <div class="row mb-3">
                                 <div class="slidecontainer">
                                     <input type="range" min="1" max="10" value="5" class="slider range-vers" id="rangeVers">
@@ -107,21 +107,6 @@
                                             <use xlink:href="/algo-site/node_modules/bootstrap-icons/bootstrap-icons.svg#info-circle-fill"/>
                                         </svg>
                                     </button>
-                                    <div class="modal fade" id="infoModal" tabindex="-1" aria-labelledby="infoModalLabel" aria-hidden="true">
-                                        <div class="modal-dialog">
-                                            <div class="modal-content" style="max-height: 100%; overflow-y: auto">
-                                                <div class="modal-header">
-                                                    <h5 class="modal-title" id="infoModalLabel">Информация</h5>
-                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                </div>
-                                                <div class="modal-body" style="text-align: justify">
-                                                    Първият слайдър е за определяне на броя върхове в графа - от 1 до 10. При промяна графът се изтрива и се появяват указания брой върхове на произволни места. Вторият плъзгач е за промяна на големината на върховете, като графът сам променя останалите характеристики в зависимост от тази големина.<br><br>
-                                                    Нов връх на графа се добавя с двойно натискане на празно място. Всеки връх може да се натисне, с което да се появят различни опции за работа с него. При влачене на връх, се появяват опорни позиции. Връх, който е пуснат близо до опорна позиция се придвижва автоматично там. Всяко ребро с изключение на примките, може да се персонализира с влачене. По този начин се променя кривината на реброто. При натискане на ребро също се появяват различни опции за него. Това става и при натискане на тегло (при претеглени графи).<br><br>
-                                                    Всички компоненти на графа като цвят, големина и т.н., могат да се персонализират чрез написване на съответeн CSS код след избиране на опция за добавяне на CSS стил. Отделно се поддържа възможност за връщане на всяка промяна, както и изпълняването ѝ отново чрез бутоните вляво от графа. Бутоните вдясно от графа са за качване на текстов файл, в който е описан граф, както и за изтегляне на направения граф в различни формати.
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
                                 </div>
                             </div>
                             <div class="row">

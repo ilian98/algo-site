@@ -1,0 +1,52 @@
+<div class="modal fade" id="settingsModal" tabindex="-1" aria-labelledby="settingsModalLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content" style="max-height: 100%; overflow-y: auto">
+			<div class="modal-header">
+				<h5 class="modal-title" id="settingsModalLabel">Настройки на графа</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body" style="text-align: justify">
+				<div class="row mb-3">
+					<div class="slidecontainer">
+						<input type="range" min="1" max="10" value="5" class="slider range-vers" id="rangeVers">
+					</div>
+					<div class="slider-text unselectable">
+						<span>Брой върхове: </span>
+						<span class="slider-value-vers" style="color: red; font-weight: bold"></span>
+					</div>
+				</div>
+				<div class="row mb-3">
+					<div class="col-sm">
+						<div class="form-check">
+							<input class="form-check-input" type="radio" name="direction" id="undirected" checked>
+							<label class="form-check-label unselectable" for="undirected">Неориентиран граф</label>
+						</div>
+						<div class="form-check">
+							<input class="form-check-input" type="radio" name="direction" id="directed">
+							<label class="form-check-label unselectable" for="directed">Ориентиран граф</label>
+						</div>
+					</div>
+					<div class="col-sm">
+						<div class="form-check">
+							<input class="form-check-input" type="checkbox" value="" id="weighted">
+							<label class="form-check-label unselectable" for="weighted">Претеглен граф</label>
+						</div>
+						<div class="form-check">
+							<input class="form-check-input" type="checkbox" value="" id="multi">
+							<label class="form-check-label unselectable" for="multi">Мултиграф</label>
+						</div>
+					</div>
+				</div>
+				<div class="row mb-3">
+					<div class="slidecontainer">
+						<input type="range" min="15" max="30" value="20" class="slider range-rad" id="rangeRad">
+					</div>
+					<div class="slider-text unselectable">
+						<span>Големина на върховете: </span>
+						<span class="slider-value-rad" style="color: red; font-weight: bold"></span>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

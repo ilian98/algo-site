@@ -26,7 +26,7 @@
         }
         function prompt (text, defaultValue) {
             let s=window.prompt(text,defaultValue);
-            if (s===null) s="";
+            if (s===null) s=defaultValue;
             return s;
         }
         

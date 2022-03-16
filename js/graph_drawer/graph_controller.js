@@ -123,6 +123,55 @@
         addUndoFunctionality(wrapperName,graph,graphController);
         $(wrapperName+" .settings").off("click.settings").on("click.settings",showSettings.bind(graph,graphController));
     }
+    function addSettingsModal () {
+        if ($("#settingsModal").length!==0) return ;
+        $.get("/algo-site/pages/settings_modal.html", function (data) {
+            $("body").append(data);
+        });
+    }
+    function addInfoModal (wrapperName, graphController) {
+        $(wrapperName+" .information").off("click").on("click", function () {
+            let text="";
+            if ($(wrapperName+" .dragging-mini").length!==0) {
+                text+=((language==="bg")?
+                      "Суича в лентата за графа управлява действието, което се изпълнява при влачене на връх. Когато е изключен, се започва чертаене на ребро, а когато е включен се премества върха.<br>Използвайте бутона за настройките, за да отворите прозорец за управление на графа. Следващите инструкции се отнасят за този прозорец.<br>":
+                      "The switch in the graph control panel is for the action to be performed when a vertex is dragged. When it is off, an edge is started to be drawn and when it is on, the vertex is being moved.<br><br>Use the button for the settings to open a window for controlling the graph. The folloing instructions are for that window.<br>");
+            }
+            
+            if (graphController.changeVers===true) {
+                text+=((language==="bg")?
+                       "Има плъзгач за определяне на броя върхове в графа - от 1 до 10. При такава промяна графът се изтрива и се появяват указаният брой върхове на произволни места.<br>":
+                       "There is a slider for changing the number of vertices in the graph - from 1 to 10. When this happens, the graph is erased and the specified number of new vertices are placed at random.<br>");
+            }
+            if (graphController.changeRad===true) {
+                text+=((language==="bg")?
+                       "Има  плъзгач за промяна на големината на върховете, като графът сам променя останалите характеристики в зависимост от тази големина.<br>":
+                       "There is a slider for changing the size of the vertices and the graph adjusts its characteristics according to that size.<br>");
+            }
+            
+            text+=((language==="bg")?
+                   "Нов връх на графа се добавя с двойно натискане на празно място. Всеки връх може да се натисне, с което да се появят различни опции за работа с него. При влачене на връх, се появяват опорни позиции. Връх, който е пуснат близо до опорна позиция се придвижва автоматично там. Всяко ребро с изключение на примките, може да се персонализира с влачене. По този начин се променя кривината на реброто. При натискане на ребро също се появяват различни опции за него. Това става и при натискане на тегло (при претеглени графи).<br><br>":
+                   "A new vertex is added with a double click at an empty place. Every vertex can be clicked to open a menu with different options for it. When a vertex is moved, supporting positions appear. A vertex that is left near a supporting position, automatically goes to that position. Every edge, excluding the loops, can be personalized by dragging it. In this way, the curve of the edge is changed. When an edge is clicked, different options appear for it. This happens when a weight (for weighted graphs) is clicked.<br><br>");
+            text+=((language==="bg")?
+                   "Всички компоненти на графа като цвят, големина и т.н., могат да се персонализират чрез написване на съответeн CSS код след избиране на опция за добавяне на CSS стил. Отделно се поддържа възможност за връщане на всяка промяна, както и изпълняването ѝ отново чрез бутоните със стрелки. Има бутон за качване на текстов файл, в който е описан граф, както и за изтегляне на направения граф в различни формати.<br>":
+                   "All components of the graph as colour, size and so on can be personalized with writing corresponding CSS code after choosing the option for adding CSS style. Also, there is a functionality for undo and redo with the arrow buttons. There is a button for uploading a text file with description of a graph and for downloading the drawned graph in different formats.<br>");
+            $("#infoModal .modal-body").html(text);
+        });
+        if ($("#infoModal").length!==0) return ;
+        let modal=`
+        <div class="modal fade" id="infoModal" tabindex="-1" aria-labelledby="infoModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content" style="max-height: 100%; overflow-y: auto">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="infoModalLabel">`+((language==="bg")?"Информация":"Information")+`</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body" style="text-align: justify"></div>
+                </div>
+            </div>
+        </div>`;
+        $("body").append($(modal));
+    }
     
     function GraphController (graph) {
         this.undoStack=undefined; this.undoTime=undefined;
@@ -130,6 +179,8 @@
         this.init = function () {
             this.undoStack=[]; this.undoTime=0; this.redoStack=[]; this.redoTime=0;
             addSettingsPanel(graph.wrapperName,graph,this);
+            if ($(graph.wrapperName+" .graph-settings").length===0) addSettingsModal();
+            if ($(graph.wrapperName+" .information").length!==0) addInfoModal(graph.wrapperName,this);
         }
         this.addChange = function (type, data, time, increaseTime = true, undoType) {
             if (time===undefined) time=this.undoTime;
@@ -274,6 +325,43 @@
 
             graph.draw(graph.isDrawable);
             graph.graphChange();
+        }
+    
+        let isDrawable;
+        this.hasAnimation = function (animationObj) {
+            let wrapperName=graph.wrapperName+" .settings-panel";
+            let oldStart=animationObj.startFunc;
+            animationObj.startFunc = function () {
+                isDrawable=graph.isDrawable;
+                $(wrapperName+" .undo-group").hide();
+                $(wrapperName+" .import").hide();
+                $(wrapperName+" .save-group").removeClass("text-center").addClass("text-start");
+                $(wrapperName+" .dragging-mini").parent().removeClass("d-flex").addClass("d-none");
+                $(wrapperName+" .settings").parent().removeClass("d-flex").addClass("d-none");
+                
+                if (graph.dropdowns.menus["save-menu"]!==undefined) {
+                    graph.dropdowns.menus["save-menu"].find(".txt").hide();
+                    graph.dropdowns.menus["save-menu"].find(".edge-list").hide();
+                }
+                
+                oldStart();
+            };
+            let oldStop=animationObj.stopFunc;
+            animationObj.stopFunc = function () {
+                $(wrapperName+" .undo-group").show();
+                $(wrapperName+" .import").show();
+                $(wrapperName+" .save-group").addClass("text-center").removeClass("text-start");
+                $(wrapperName+" .dragging-mini").parent().removeClass("d-none").addClass("d-flex");
+                $(wrapperName+" .settings").parent().removeClass("d-none").addClass("d-flex");
+                graph.draw(isDrawable);
+                
+                if (graph.dropdowns.menus["save-menu"]!==undefined) {
+                    graph.dropdowns.menus["save-menu"].find(".txt").show();
+                    graph.dropdowns.menus["save-menu"].find(".edge-list").show();
+                }
+                
+                oldStop();
+            }
         }
     }
     

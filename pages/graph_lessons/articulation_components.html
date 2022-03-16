@@ -57,75 +57,6 @@
         <div class="wrapper" tabindex="-1">
             <div class="content">            
                 <h1 align="center">Артикулационни върхове и ребра</h1>
-
-                <div class="modal fade" id="settingsModal" tabindex="-1" aria-labelledby="settingsModalLabel" aria-hidden="true">
-                    <div class="modal-dialog">
-                        <div class="modal-content" style="max-height: 100%; overflow-y: auto">
-                            <div class="modal-header">
-                                <h5 class="modal-title" id="settingsModalLabel">Настройки на графа</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body" style="text-align: justify">
-                                <div class="row mb-3">
-                                    <div class="slidecontainer">
-                                        <input type="range" min="1" max="10" value="5" class="slider range-vers" id="rangeVers">
-                                    </div>
-                                    <div class="slider-text unselectable">
-                                        <span>Брой върхове: </span>
-                                        <span class="slider-value-vers" style="color: red; font-weight: bold"></span>
-                                    </div>
-                                </div>
-                                <div class="row mb-3">
-                                    <div class="col-sm">
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="radio" name="direction" id="undirected" checked>
-                                            <label class="form-check-label unselectable" for="undirected">Неориентиран граф</label>
-                                        </div>
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="radio" name="direction" id="directed">
-                                            <label class="form-check-label unselectable" for="directed">Ориентиран граф</label>
-                                        </div>
-                                    </div>
-                                    <div class="col-sm">
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" value="" id="weighted">
-                                            <label class="form-check-label unselectable" for="weighted">Претеглен граф</label>
-                                        </div>
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" value="" id="multi">
-                                            <label class="form-check-label unselectable" for="multi">Мултиграф</label>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="row mb-3">
-                                    <div class="slidecontainer">
-                                        <input type="range" min="15" max="30" value="20" class="slider range-rad" id="rangeRad">
-                                    </div>
-                                    <div class="slider-text unselectable">
-                                        <span>Големина на върховете: </span>
-                                        <span class="slider-value-rad" style="color: red; font-weight: bold"></span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal fade" id="infoModal" tabindex="-1" aria-labelledby="infoModalLabel" aria-hidden="true">
-                    <div class="modal-dialog">
-                        <div class="modal-content" style="max-height: 100%; overflow-y: auto">
-                            <div class="modal-header">
-                                <h5 class="modal-title" id="infoModalLabel">Информация</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body" style="text-align: justify">
-                                Суича в лентата за графа управлява действието, което се изпълнява при влачене на връх. Когато е изключен, се започва чертаене на ребро, а когато е включен се премества върха.<br><br>
-                                Използвайте бутона за настройките, за да отворите прозорец за управление на графа. Първият слайдър там е за определяне на броя върхове в графа - от 1 до 10. При промяна графът се изтрива и се появяват указания брой върхове на произволни места. Вторият плъзгач е за промяна на големината на върховете, като графът сам променя останалите характеристики в зависимост от тази големина.<br><br>
-                                Нов връх на графа се добавя с двойно натискане на празно място. Всеки връх може да се натисне, с което да се появят различни опции за работа с него. При влачене на връх, се появяват опорни позиции. Връх, който е пуснат близо до опорна позиция се придвижва автоматично там. Всяко ребро с изключение на примките, може да се персонализира с влачене. По този начин се променя кривината на реброто. При натискане на ребро също се появяват различни опции за него. Това става и при натискане на тегло (при претеглени графи).<br><br>
-                                Всички компоненти на графа като цвят, големина и т.н., могат да се персонализират чрез написване на съответeн CSS код след избиране на опция за добавяне на CSS стил. Отделно се поддържа възможност за връщане на всяка промяна, както и изпълняването ѝ отново чрез бутоните в лявата част на функционалната лента. Бутоните в средата на лентата са за качване на текстов файл, в който е описан граф, както и за изтегляне на направения граф в различни формати.
-                            </div>
-                        </div>
-                    </div>
-                </div>
                 
                 <div class="lesson-part-position">
                     <button class="btn btn-secondary">1. Какво представляват артикулационните върхове и ребра?</button>
@@ -190,30 +121,7 @@
                                 </div>
                                 <p class="anim-text"></p>
 
-                                <div class="row mt-2">
-                                    <div class="col-auto">
-                                        <button class="btn btn-primary start">Старт!</button>
-                                    </div>
-                                    <div class="col text-end">
-                                        <div class="row form-group justify-content-end speed-wrapper">
-                                            <label for="speed" class="col-auto col-form-label pe-0 unselectable">Ускорение:</label>
-                                            <div class="col-auto">
-                                                <input class="form-control speed" maxLength="1" style="width: 2.5rem; max-width: 100%"/>
-                                            </div>
-                                        </div>
-                                        <button class="btn btn-primary pause">Пауза</button>
-                                        <button class="btn btn-primary previous" title="Предишна стъпка">
-                                            <svg class="bi" width="20px" height="20px" fill="currentColor">
-                                                <use xlink:href="/algo-site/node_modules/bootstrap-icons/bootstrap-icons.svg#skip-start-fill"/>
-                                            </svg>
-                                        </button>
-                                        <button class="btn btn-primary next" title="Следваща стъпка">
-                                            <svg class="bi" width="20px" height="20px" fill="currentColor">
-                                                <use xlink:href="/algo-site/node_modules/bootstrap-icons/bootstrap-icons.svg#skip-end-fill"/>
-                                            </svg>
-                                        </button>
-                                    </div>
-                                </div>
+                                <div class="row mt-2 animation-panel"></div>
                             </div>
                         </div>
                         <p class="text-format">Описаният алгоритъм има един пропуск единствено, когато имаме мултиграф. Нека например разглеждаме граф, който се състои само от две мултиребра \((1,2)\) и коренът на покриващото дърво е връх 1. В този граф е ясно, че няма нито един <i>мост</i>, но алгоритъмът ще каже, че едно от двете ребра е мост. Това се получава, защото той приема, че когато види ребро на връх, което сочи баща му, то това ребро е <i>дървесно</i>, а при мултиграф това не е винаги вярно. Затова, когато приключим с връх 2, ще имаме \(up[2]=in[2]\), а правилното е \(up[2]=in[1]\) (<a class="info">...</a><a class="info" style="display: none">пропускаме да забележим едното ребро \((1,2)\), което се явява <i>обратно</i></a>). Най-добрият начин да отстраним този проблем е параметърът на <i>DFS</i>, който отразява бащата, да е всъщност номерът на <i>дървесното ребро</i> и така, като сме на връх 2 ще отчетем едното ребро, че е <i>обратно</i>, а другото, че е <i>дървесно</i>.</p>

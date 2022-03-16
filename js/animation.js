@@ -11,18 +11,17 @@
     }
 
     function Animation () {
-        this.startButton=undefined; this.pauseButton=undefined;
-        this.previousButton=undefined; this.nextButton=undefined;
+        let startButton,pauseButton,finishButton;
+        let previousButton,nextButton;
         
         let flagStart,flagPause,flagStep;
         let animations;
-        function startButtonFunc (globalObj, name, findAnimations, initialState) {
-            stopAnimations();
-            initialState();
-
-            let speedInput=$(name+" .speed");
-
+        function startButtonFunc (findAnimations, initialState) {
             if (flagStart===false) {
+                this.startFunc();
+                stopAnimations();
+                initialState();
+                
                 animations=findAnimations();
                 if (animations.length===0) return ;
                 animations.push({
@@ -30,7 +29,9 @@
                     animText: ""
                 });
 
-                flagStart=true; this.html("Стоп");
+                flagStart=true; startButton.html("Стоп");
+                if (this.finishFunc!==emptyFunc) finishButton.show();
+                
                 speedObj.hide();
                 if (speedInput.val()==="") speed=4000/2;
                 else speed=4000/parseInt(speedInput.val());
@@ -45,23 +46,29 @@
                 animText.text("");
                 animText.height(maxH);
 
-                globalObj.pauseButton.show();
+                pauseButton.show();
                 flagPause=false; flagStep=false;
-                globalObj.pauseButton.html("Пауза");
+                pauseButton.html("Пауза");
 
-                globalObj.previousButton.show();
-                globalObj.nextButton.show();
+                previousButton.show();
+                nextButton.show();
 
-                globalObj.start();
+                this.start();
             }
-            else {
-                flagStart=false; this.html("Старт!");
-                speedObj.show();
-                if (speedInput.val()==="") speedInput.val("2");
-                animText.hide();
+            else finishButtonFunc.call(this,false,initialState);
+        }
+        function finishButtonFunc (flagFinish, initialState) {
+            stopAnimations();
+            initialState();
+            
+            flagStart=false; startButton.html("Старт!");
+            speedObj.show();
+            if (speedInput.val()==="") speedInput.val("2");
+            animText.hide();
 
-                globalObj.clear();
-            }
+            this.clear();
+            this.stopFunc();
+            if (flagFinish===true) this.finishFunc();
         }
         function pauseButtonFunc () {
             if (flagPause===false) {
@@ -83,7 +90,7 @@
                 flagStep=false;
             }
         }
-        function stepButtonFunc (pauseButton, initialState, step) {
+        function stepButtonFunc (initialState, step) {
             if (currAnimation!==undefined) {
                 flagPause=false; flagStep=true;
                 pauseButton[0].click();
@@ -102,32 +109,54 @@
             }
         }
         
-        let speed,speedObj,animText;
-        this.init = function (name, findAnimations, initialState) {
-            speed=2000;
+        let emptyFunc = () => {};
+        let speed,speedObj,speedInput,animText;
+        this.startFunc=undefined; this.stopFunc=undefined; this.finishFunc=undefined;
+        this.init = async function (name, findAnimations, initialState, start = emptyFunc, stop = emptyFunc, finish = emptyFunc) {
+            function initialWork () {
+                speed=2000;
 
-            let startButton=this.startButton=$(name+" .start");
-            let pauseButton=this.pauseButton=$(name+" .pause");
-            let previousButton=this.previousButton=$(name+" .previous");
-            let nextButton=this.nextButton=$(name+" .next");
-            speedObj=$(name+" .speed-wrapper");
-            animText=$(name+" .anim-text");
-            animText.hide();
-
-            this.clear();
-            $(name+" .speed").val("2");
-            $(name+" .speed").on("keydown",isDigit);
-            startButton.flag=false; startButton.off("click.start").on("click.start",startButtonFunc.bind(startButton,this,name,findAnimations,initialState));
-            pauseButton.off("click.pause").on("click.pause",pauseButtonFunc);
-            previousButton.off("click.prev").on("click.prev",stepButtonFunc.bind(previousButton,pauseButton,initialState,-1));
-            nextButton.off("click.next").on("click.next",stepButtonFunc.bind(nextButton,pauseButton,initialState,+1));
+                startButton=$(name+" .animation-panel .start");
+                pauseButton=$(name+" .animation-panel .pause");
+                finishButton=$(name+" .animation-panel .finish");
+                previousButton=$(name+" .animation-panel .previous");
+                nextButton=$(name+" .animation-panel .next");
+                speedObj=$(name+" .animation-panel .speed-wrapper");
+                speedInput=$(name+ " .animation-panel .speed");
+                animText=$(name+" .anim-text");
+            }
+            function otherWork () {
+                this.startFunc=start; this.stopFunc=stop; this.finishFunc=finish;
+                animText.hide();
+                this.clear();
+                $(name+" .animation-panel .speed").val("2");
+                $(name+" .animation-panel .speed").on("keydown",isDigit);
+                startButton.flag=false; startButton.off("click").on("click",startButtonFunc.bind(this,findAnimations,initialState));
+                pauseButton.off("click").on("click",pauseButtonFunc);
+                finishButton.off("click").on("click",finishButtonFunc.bind(this,true,initialState));
+                previousButton.off("click").on("click",stepButtonFunc.bind(this,initialState,-1));
+                nextButton.off("click").on("click",stepButtonFunc.bind(this,initialState,+1));
+            }
+            
+            return new Promise((resolve, reject) => {
+                if ($(name+" .animation-panel").html().length===0) {
+                    $.get("/algo-site/pages/animation_panel.html", function (data) {
+                        $(name+" .animation-panel").html(data);
+                        initialWork();
+                        otherWork.call(this);
+                    }.bind(this)).then(resolve, () => { alert("Load data error!") });
+                }
+                else {
+                    otherWork.bind(this);
+                    resolve();
+                }
+            });
         }
 
         let minas,currAnimation;
         let animFuncs;
         this.start = function () {
             minas=[]; currAnimation=0;
-            let pauseButton=this.pauseButton;
             animFuncs=[];
             for (let i=animations.length-1; i>=0; i--) {
                 let index=i;
@@ -170,13 +199,14 @@
             stopAnimations();
             animations=[];
             minas=[]; animFuncs=[];
-            if (this.startButton!==undefined) {
+            if (startButton!==undefined) {
                 flagStart=false;
-                this.startButton.html("Старт!");
+                startButton.html("Старт!");
             }
-            if (this.pauseButton!==undefined) this.pauseButton.hide();
-            if (this.previousButton!==undefined) this.previousButton.hide();
-            if (this.nextButton!==undefined) this.nextButton.hide();
+            if (pauseButton!==undefined) pauseButton.hide();
+            if (finishButton!==undefined) finishButton.hide();
+            if (previousButton!==undefined) previousButton.hide();
+            if (nextButton!==undefined) nextButton.hide();
             if (speedObj!==undefined) speedObj.show();
             if (animText!==undefined) {
                 animText.text("");

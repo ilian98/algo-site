@@ -207,7 +207,7 @@
         else if (part===2) {
             let example3=new Graph();
             let animationObj = new Animation();
-            $(".graphExample3 .default").on("click", function () {
+            $(".graphExample3 .default").on("click", async function () {
                 example3.init(".graphExample3",8,false,function () {
                     example3.calcPositions.frameY=example3.vertexRad;
                 });
@@ -217,7 +217,7 @@
                 
                 $(".graphExample3 .start-vertex").val("1");
                 $(".graphExample3 .time").hide();
-                animationObj.init(".graphExample3",function findAnimations () {
+                await animationObj.init(".graphExample3",function findAnimations () {
                     let st=parseInt($(".graphExample3 .start-vertex").val()); st--;
                     let used=[],found=false;
                     for (let i=0; i<example3.n; i++) {
@@ -241,31 +241,14 @@
                     return animations;
                 },function initialState () {
                     example3.draw(false,false,true);
+                },function startFunction () {
+                    $(".graphExample3 .default").parent().hide();
+                    $(".graphExample3 .time").show();
+                },function stopFunction () {
+                    $(".graphExample3 .default").parent().show();
+                    $(".graphExample3 .time").hide();
                 });
-
-                animationObj.startButton.off("click.bonus").on("click.bonus", function () {
-                    if ($(this).html()==="Стоп") {
-                        $(".graphExample3 .default").parent().hide();
-                        $(".graphExample3 .undo-group").hide();
-                        $(".graphExample3 .import").hide();
-                        $(".graphExample3 .save-group").removeClass("text-center").addClass("text-start");
-                        $(".graphExample3 .dragging-mini").parent().removeClass("d-flex").addClass("d-none");
-                        $(".graphExample3 .settings").parent().removeClass("d-flex").addClass("d-none");
-                        
-                        $(".graphExample3 .time").show();
-                    }
-                    else {
-                        $(".graphExample3 .default").parent().show();
-                        $(".graphExample3 .undo-group").show();
-                        $(".graphExample3 .import").show();
-                        $(".graphExample3 .save-group").addClass("text-center").removeClass("text-start");
-                        $(".graphExample3 .dragging-mini").parent().removeClass("d-none").addClass("d-flex");
-                        $(".graphExample3 .settings").parent().removeClass("d-none").addClass("d-flex");
-                        example3.draw(true);
-                        
-                        $(".graphExample3 .time").hide();
-                    }
-                });
+                example3.graphController.hasAnimation(animationObj);
             }).click();
             $("graphExample3 .start-vertex").on("keydown",isDigit);
         }

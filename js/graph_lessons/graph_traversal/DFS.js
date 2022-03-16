@@ -40,14 +40,14 @@
         });
     }
 
-    function defaultExample (name, graph, animationObj, vertexRad) {
+    async function defaultExample (name, graph, animationObj, vertexRad) {
         graph.init(name,5,false);
         graph.buildEdgeDataStructures([[0,1],[0,2],[0,3],[0,4],[1,2]]);
         graph.drawNewGraph(true,vertexRad);
         graph.setSettings([true, false, true]);
 
         $(name+" .start-vertex").val("1");
-        animationObj.init(name,function findAnimations () {
+        await animationObj.init(name,function findAnimations () {
             let st=parseInt($(name+" .start-vertex").val()); st--;
             let used=[],found=false;
             for (let i=0; i<graph.n; i++) {
@@ -69,32 +69,7 @@
         },function initialState () {
             graph.draw(false,false,true);
         });
-
-        animationObj.startButton.off("click.bonus").on("click.bonus", function () {
-            if ($(this).html()==="Стоп") {
-                graph.dropdowns.menus["save-menu"].find(".txt").hide();
-                graph.dropdowns.menus["save-menu"].find(".edge-list").hide();
-                    
-                $(name+" .default").parent().hide();
-                $(name+" .undo-group").hide();
-                $(name+" .import").hide();
-                $(name+" .save-group").removeClass("text-center").addClass("text-start");
-                $(name+" .dragging-mini").parent().removeClass("d-flex").addClass("d-none");
-                $(name+" .settings").parent().removeClass("d-flex").addClass("d-none");
-            }
-            else {
-                graph.dropdowns.menus["save-menu"].find(".txt").show();
-                graph.dropdowns.menus["save-menu"].find(".edge-list").show();
-                
-                $(name+" .default").parent().show();
-                $(name+" .undo-group").show();
-                $(name+" .import").show();
-                $(name+" .save-group").addClass("text-center").removeClass("text-start");
-                $(name+" .dragging-mini").parent().removeClass("d-none").addClass("d-flex");
-                $(name+" .settings").parent().removeClass("d-none").addClass("d-flex");
-                graph.draw(true);
-            }
-        });
+        graph.graphController.hasAnimation(animationObj);
     }
 
     function initExample (part) {

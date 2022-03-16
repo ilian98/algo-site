@@ -43,7 +43,7 @@
                 
                 <div class="lesson-part" style="display: block">
                     <div class="graph-drawer row">
-                        <div class="col-sm-5">
+                        <div class="col-sm-5 graph-settings">
                             <div class="row mb-3">
                                 <div class="slidecontainer">
                                     <input type="range" min="1" max="10" value="5" class="slider range-vers" id="rangeVers">
@@ -107,21 +107,6 @@
                                             <use xlink:href="/algo-site/node_modules/bootstrap-icons/bootstrap-icons.svg#info-circle-fill"/>
                                         </svg>
                                     </button>
-                                    <div class="modal fade" id="infoModal" tabindex="-1" aria-labelledby="infoModalLabel" aria-hidden="true">
-                                        <div class="modal-dialog">
-                                            <div class="modal-content" style="max-height: 100%; overflow-y: auto">
-                                                <div class="modal-header">
-                                                    <h5 class="modal-title" id="infoModalLabel">Information</h5>
-                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                </div>
-                                                <div class="modal-body" style="text-align: justify">
-                                                    The first slider is for changing the number of vertices in the graph - from 1 to 10. When this happens, the graph is erased and the specified number of new vertices are placed at random. The second slider is for changing the size of the vertices and the graph adjusts its characteristics according to that size.<br><br>
-                                                    A new vertex is added with a double click at an empty place. Every vertex can be clicked to open a menu with different options for it. When a vertex is moved, supporting position appear. A vertex that is left near a supporting position, automatically goes to that position. Every edge, excluding the loops, can be personalized by dragging it. In this way, the curve of the edge is changed. When an edge is clicked, different options appear for it. This happens when a weight (for weighted graphs) is clicked.<br><br>
-                                                    All components of the graph as colour, size and so on can be personalized with writing corresponding CSS code after choosing the option for adding css style. Also, there is a functionality for undo and redo with the buttons on the left from the graph. The buttons on the right are for uploading a text file with description of a graph and for downloading the drawns graph in different formats.
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
                                 </div>
                             </div>
                             <div class="row">
@@ -129,6 +114,7 @@
                                     <svg class="graph" viewBox="0 0 300 300"></svg>
                                 </div>
                             </div>
+                            
                             <div class="row">
                                 <div class="col text-start">
                                     <button class="btn btn-primary undo" title="Undo">

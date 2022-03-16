@@ -5,10 +5,8 @@
         frameX: 2,
     };
     
-    function endAnimation (tree, animationObj, elements, pos, val) {
-        this.hide();
-
-        animationObj.clear();
+    function endAnimation (tree, elements, pos, val) {
+        pos=parseInt(pos.val()); val=parseInt(val.val());
         elements[pos-1]=val;
         makeEdgesAndNames(0,0,elements.length-1,[],tree.vertices,elements,false);
         tree.draw(false);
@@ -95,10 +93,7 @@
         }
     }
     function makeSegTree (exampleName, tree, elements, animationObj) {
-        if (animationObj!==undefined) {
-            animationObj.clear();
-            if (exampleName===".segTreeExample2") $(".treeExample .end").hide();
-        }
+        if (animationObj!==undefined) animationObj.clear();
         tree.erase();
         
         elements.splice(0,elements.length);
@@ -176,7 +171,7 @@
         if ($(exampleName+" .indexes").text()=="Скрий номерата") addSegmentsLabels(0,1,maxC,tree,true,true);
         else addSegmentsLabels(0,1,maxC,tree,false,true);
     }
-    function defaultExample (exampleName, tree, elements, animationObj) {
+    async function defaultExample (exampleName, tree, elements, animationObj) {
         if (exampleName==".segTreeExample1") {
             $(exampleName+" .array").val("7,9,1,2,4,8,5,16");
             makeSegTree(exampleName,tree,elements);
@@ -192,15 +187,13 @@
                 $(exampleName+" .qr").val("7");
             }
 
-            let pos,val;
-            let ql,qr;
             makeSegTree(exampleName,tree,elements,animationObj);
 
-            animationObj.init(exampleName+" .treeExample",function findAnimations () {
+            await animationObj.init(exampleName+" .treeExample",function findAnimations () {
                 let animations=[];
                 if (exampleName===".segTreeExample2") {
-                    pos=parseInt($(exampleName+" .pos").val());
-                    val=parseInt($(exampleName+" .val").val());
+                    let pos=parseInt($(exampleName+" .pos").val());
+                    let val=parseInt($(exampleName+" .val").val());
                     if ((Number.isNaN(pos))||(Number.isNaN(val))||(pos<1)||(pos>elements.length)) {
                         alert("Невалидна позиция");
                         return animations;
@@ -213,8 +206,8 @@
                     update(0,1,elements.length,pos,val,tree,animations);
                 }
                 else {
-                    ql=parseInt($(exampleName+" .ql").val());
-                    qr=parseInt($(exampleName+" .qr").val());
+                    let ql=parseInt($(exampleName+" .ql").val());
+                    let qr=parseInt($(exampleName+" .qr").val());
                     if ((Number.isNaN(ql))||(Number.isNaN(qr))||(ql<1)||(qr<ql)||(qr>elements.length)) {
                         alert("Невалидни позиции");
                         return animations;
@@ -230,26 +223,11 @@
                 makeEdgesAndNames(0,0,elements.length-1,[],tree.vertices,elements,false);
                 tree.draw(false);
                 addSegmentsLabels(0,1,elements.length,tree,false,false);
-            });
-            let endButton=$(".treeExample .end");
-            endButton.hide();
-            animationObj.startButton.on("click.bonus", function () {
-                if (animationObj.startButton.html()==="Стоп") { // first click handler is in animationObj
-                    tree.dropdowns.menus["save-menu"].find(".txt").hide();
-                    tree.dropdowns.menus["save-menu"].find(".edge-list").hide();
-                    if (exampleName==".segTreeExample2") {
-                        endButton.show();
-                        endButton.on("click",endAnimation.bind(endButton,tree,animationObj,elements,pos,val));
-                    }
-                }
-                else {
-                    tree.dropdowns.menus["save-menu"].find(".txt").show();
-                    tree.dropdowns.menus["save-menu"].find(".edge-list").show();
-                    if (exampleName==".segTreeExample2") {
-                        endButton.hide();
-                    }
-                }
-            });
+            },undefined,undefined,
+                              (exampleName==".segTreeExample2")?
+                              endAnimation.bind(this,tree,elements,$(exampleName+" .pos"),$(exampleName+" .val")):undefined
+            );
+            tree.graphController.hasAnimation(animationObj);
         }
         else if (exampleName==".segTreeExample4") {
             $(exampleName+" .c").val("42");
