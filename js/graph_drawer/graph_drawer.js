@@ -1,6 +1,7 @@
 "use strict";
 (function () {
     function checkInteger (s) {
+        if (s===null) return false;
         if (s.length===0) return false;
         for (let c of s) {
             if ((c<'0')||(c>'9')) return false;
@@ -26,7 +27,6 @@
         }
         function prompt (text, defaultValue) {
             let s=window.prompt(text,defaultValue);
-            if (s===null) s=defaultValue;
             return s;
         }
         
@@ -335,6 +335,7 @@
         function changeVertexName (index) {
             let name=prompt((language==="bg")?"Въведете ново име на върха":"Input new name of the vertex"
                             ,graph.vertices[index].name);
+            if (name===null) return ;
             if (graph.vertices[index].name!==name) {
                 if (graph.graphController!==undefined)
                     graph.graphController.addChange("change-name",[index, graph.vertices[index].name]);
@@ -352,6 +353,7 @@
                  ((language==="bg")?" (например за червен цвят fill: red)":" (for example for red colour - fill: red)"):""),
                 graph.vertices[index].addedCSS[0]
             );
+            if (css===null) return ;
             if (graph.vertices[index].addedCSS[0]!==css)
                 addCSS(graph.svgVertices[index].circle,graph.vertices[index].defaultCSS[0],css,"vertex",index);
             graph.vertices[index].addedCSS[0]=css;
@@ -363,6 +365,7 @@
                  ((language==="bg")?" (например за червен цвят fill: red)":" (for example for red colour - fill: red)"):""),
                 graph.vertices[index].addedCSS[1]
             );
+            if (css===null) return ;
             if (graph.vertices[index].addedCSS[1]!==css)
                 addCSS(graph.svgVertices[index].text,graph.vertices[index].defaultCSS[1],css,"vertex",index);
             graph.vertices[index].addedCSS[1]=css;
@@ -381,7 +384,7 @@
                 }
             }
             let name=prompt((language==="bg")?"Въведете име на новия връх":"Input name of the new vertex",ind+1);
-            if (name==="") return ;
+            if (name===null) return ;
             graph.addVertex(name);
             setSvgPoint(event);
             graph.svgVertices[ind].coord=[svgPoint.x, svgPoint.y];
@@ -422,6 +425,7 @@
                  ((language==="bg")?" (например за червен цвят stroke: red)":" (for example for red colour - stroke: red)"):""),
                 graph.edgeList[index].addedCSS[0]
             );
+            if (css===null) return ;
             let edge=graph.svgEdges[index];
             if (graph.edgeList[index].addedCSS[0]!==css)
                 addCSS(edge.line,graph.edgeList[index].defaultCSS[0],css,"edge",index);
@@ -450,6 +454,7 @@
                  ((language==="bg")?" (например за червен цвят fill: red)":" (for example for red colour - fill: red)"):""),
                 graph.edgeList[index].addedCSS[1]
             );
+            if (css===null) return ;
             let weight=graph.svgEdges[index].weight;
             if (graph.edgeList[index].addedCSS[1]!==css)
                 addCSS(weight,graph.edgeList[index].defaultCSS[1],css,"edge",index);
