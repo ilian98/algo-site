@@ -861,7 +861,7 @@
             }
         }
         
-        this.import = function (isDirected, isTree, isWeighted, isMulti, n, vers, edges) {
+        this.import = function (isDirected, isTree, isWeighted, isMulti, n, vers, edges, flagCoords) {
             let graphProperties=[this.isDirected, this.isTree, this.isWeighted, this.isMulti];
             this.isDirected=isDirected; this.isTree=isTree;
             this.isWeighted=isWeighted; this.isMulti=isMulti;

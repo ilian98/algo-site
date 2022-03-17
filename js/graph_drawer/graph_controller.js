@@ -704,7 +704,7 @@
                     curr++;
                 }
                 
-                graph.import(isDirected,isTree,isWeighted,isMulti,n,vers,edges);
+                graph.import(isDirected,isTree,isWeighted,isMulti,n,vers,edges,flagCoords);
             }
             reader.readAsText(event.target.files[0]);
             $(input).val("");
