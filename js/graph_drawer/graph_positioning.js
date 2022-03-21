@@ -475,7 +475,6 @@
                     if (graph.graphController!==undefined) 
                         graph.graphController.addChange("change-css-edge",
                                                         [i, [graph.edgeList[i].addedCSS[0], graph.edgeList[i].addedCSS[1]]],
-                                                        undefined,
                                                         false);
                     if (found===true) {
                         let s=graph.edgeList[i].addedCSS[0];
@@ -536,7 +535,7 @@
                         continue;
                     }
                     if (graph.graphController!==undefined) 
-                        graph.graphController.addChange("change-curve-height",[i, oldCurveHeight],undefined,false);
+                        graph.graphController.addChange("change-curve-height",[i, oldCurveHeight],false);
                 }
                 if (graph.graphController!==undefined) graph.graphController.undoTime++;
             }

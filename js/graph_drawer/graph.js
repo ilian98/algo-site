@@ -861,7 +861,7 @@
             }
         }
         
-        this.import = function (isDirected, isTree, isWeighted, isMulti, n, vers, edges, flagCoords) {
+        this.import = function (isDirected, isTree, isWeighted, isMulti, n, vers, edges, flagCoords, versCoord, posProperties) {
             let graphProperties=[this.isDirected, this.isTree, this.isWeighted, this.isMulti];
             this.isDirected=isDirected; this.isTree=isTree;
             this.isWeighted=isWeighted; this.isMulti=isMulti;
@@ -883,13 +883,13 @@
             if (this.graphController!==undefined) {
                 this.graphController.undoTime--;
                 if (graphProperties[0]!=this.isDirected) 
-                    this.graphController.addChange("change-property",["isDirected", graphProperties[0]]);
+                    this.graphController.addChange("change-property",["isDirected", graphProperties[0]],false);
                 if (graphProperties[1]!=this.isTree)
-                    this.graphController.addChange("change-property",["isTree", graphProperties[1]]);
+                    this.graphController.addChange("change-property",["isTree", graphProperties[1]],false);
                 if (graphProperties[2]!=this.isWeighted)
-                    this.graphController.addChange("change-property",["isWeighted", graphProperties[2]]);
+                    this.graphController.addChange("change-property",["isWeighted", graphProperties[2]],false);
                 if (graphProperties[3]!=this.isMulti)
-                    this.graphController.addChange("change-property",["isMulti", graphProperties[3]]);
+                    this.graphController.addChange("change-property",["isMulti", graphProperties[3]],false);
             }
 
             if (flagCoords===false) this.calcPositions.calc();

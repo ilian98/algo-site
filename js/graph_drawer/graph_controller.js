@@ -182,8 +182,7 @@
             if ($(graph.wrapperName+" .graph-settings").length===0) addSettingsModal();
             if ($(graph.wrapperName+" .information").length!==0) addInfoModal(graph.wrapperName,this);
         }
-        this.addChange = function (type, data, time, increaseTime = true, undoType) {
-            if (time===undefined) time=this.undoTime;
+        this.addChange = function (type, data, increaseTime = true, undoType) {
             this.undoStack.push({
                 time: this.undoTime, 
                 type: type, 
@@ -194,7 +193,7 @@
         }
         this.addChanges = function (changes, increaseTime = true, undoType) {
             for (let [type, data] of changes) {
-                this.addChange(type,data,undefined,false,undoType);
+                this.addChange(type,data,false,undoType);
             }
             if (increaseTime===true) this.undoTime++;
         }
@@ -219,7 +218,7 @@
             }
         }
         this.registerAction = function (type, data, undoType) {
-            if ((undoType===undefined)||(undoType==="redo")) this.addChange(type,data,undefined,true,undoType);
+            if ((undoType===undefined)||(undoType==="redo")) this.addChange(type,data,true,undoType);
             else this.redoChange(type,data);
         }
         
@@ -479,235 +478,276 @@
         }
         return tokens;
     }
-    function addImportFunctionality (wrapperName, graph) {
-        let importButton=$(wrapperName+" .import");
-        let input=$(wrapperName+" .input-file");
-        input.hide();
-        $(importButton).off("click").on("click",function () {
-            input.click();
-        });
-        input.off("change").on("change",function (event) {
-            if (event.target.files.length===0) return ;
-            let reader=new FileReader();
-            reader.onload = function (event) {
-                let text=event.target.result.replaceAll("\r\n","\n");
-                let lines=removeEmpty(text.split("\n"));
-                let nums=removeEmpty(lines[0].split(" "));
-                if (nums.length!==2) {
-                    alert("Очаквани са две числа за максимален номер на връх и брой ребра при: "+lines[0]);
-                    return ;
-                }
-                let n=parseInt(nums[0]),m=parseInt(nums[1]);
-                if (n<1) {
-                    alert("Очакван е положителен максимален номер на връх при: "+lines[0]);
-                    return ;
-                }
-                let curr=1,edges=[];
-                for (let i=1; i<=m; i++) {
-                    if (lines.length===curr) {
-                        alert("Има липсващи ребра!");
+    function importGraph (text, graph) {
+        let lines=removeEmpty(text.split("\n"));
+        let nums=removeEmpty(lines[0].split(" "));
+        if (nums.length!==2) {
+            alert("Очаквани са две числа за максимален номер на връх и брой ребра при: "+lines[0]);
+            return ;
+        }
+        let n=parseInt(nums[0]),m=parseInt(nums[1]);
+        if (n<1) {
+            alert("Очакван е положителен максимален номер на връх при: "+lines[0]);
+            return ;
+        }
+        let curr=1,edges=[];
+        for (let i=1; i<=m; i++) {
+            if (lines.length===curr) {
+                alert("Има липсващи ребра!");
+                return ;
+            }
+            let tokens=removeEmpty(getTokens(lines[curr]));
+            if (tokens.length<2) {
+                alert("Трябват поне върхове за реброто: "+lines[curr]);
+                return ;
+            }
+            let x=parseInt(tokens[0]),y=parseInt(tokens[1]);
+            if (!((x>=1)&&(x<=n)&&(y>=1)&&(y<=n))) {
+                alert("Невалиден номер на връх за: "+lines[curr]);
+                return ;
+            }
+            let weight="",addedCSS=["",""],curveHeight=undefined;
+            if (tokens.length>=3) {
+                let ind=2;
+                if (tokens[ind][0]!=='[') weight=tokens[ind++];
+                if (tokens.length>ind) {
+                    if ((tokens[ind][0]!=='[')||(tokens[ind][tokens[ind].length-1]!==']')) {
+                        alert("Очаква се свойството да е оградено от квадратни скоби при: "+lines[curr]);
                         return ;
                     }
-                    let tokens=removeEmpty(getTokens(lines[curr]));
-                    if (tokens.length<2) {
-                        alert("Трябват поне върхове за реброто: "+lines[curr]);
-                        return ;
-                    }
-                    let x=parseInt(tokens[0]),y=parseInt(tokens[1]);
-                    if (!((x>=1)&&(x<=n)&&(y>=1)&&(y<=n))) {
-                        alert("Невалиден номер на връх за: "+lines[curr]);
-                        return ;
-                    }
-                    let weight="",addedCSS=["",""],curveHeight=undefined;
-                    if (tokens.length>=3) {
-                        let ind=2;
-                        if (tokens[ind][0]!=='[') weight=tokens[ind++];
+                    if (tokens[ind][1]!='[') curveHeight=parseFloat(tokens[ind].slice(1,tokens[ind].length-1));
+                    else {
+                        let css=removeEmpty(tokens[ind].split(","));
+                        if (css.length!==2) {
+                            alert("Очаква се да има два CSS-а, разделени със запетайка при: "+lines[curr]);
+                            return ;
+                        }
+                        addedCSS[0]=css[0].slice(2,css[0].length-1);
+                        addedCSS[1]=css[1].slice(1,css[1].length-2);
+                        ind++;
                         if (tokens.length>ind) {
                             if ((tokens[ind][0]!=='[')||(tokens[ind][tokens[ind].length-1]!==']')) {
                                 alert("Очаква се свойството да е оградено от квадратни скоби при: "+lines[curr]);
                                 return ;
                             }
-                            if (tokens[ind][1]!='[') curveHeight=parseFloat(tokens[ind].slice(1,tokens[ind].length-1));
-                            else {
-                                let css=removeEmpty(tokens[ind].split(","));
-                                if (css.length!==2) {
-                                    alert("Очаква се да има два CSS-а, разделени със запетайка при: "+lines[curr]);
-                                    return ;
-                                }
-                                addedCSS[0]=css[0].slice(2,css[0].length-1);
-                                addedCSS[1]=css[1].slice(1,css[1].length-2);
-                                ind++;
-                                if (tokens.length>ind) {
-                                    if ((tokens[ind][0]!=='[')||(tokens[ind][tokens[ind].length-1]!==']')) {
-                                        alert("Очаква се свойството да е оградено от квадратни скоби при: "+lines[curr]);
-                                        return ;
-                                    }
-                                    curveHeight=parseFloat(tokens[ind].slice(1,tokens[ind].length-1));
-                                    ind++;
-                                    if (tokens.length>ind) {
-                                        alert("Твърде много свойства при: "+lines[curr]);
-                                        return ;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    edges.push([x-1,y-1,weight,addedCSS,curveHeight]);
-                    curr++;
-                }
-                
-                let vers=[],flagCoords=false,versCoord=[];
-                if ((lines.length>curr)&&(lines[curr][0]>='0')&&(lines[curr][0]<='9')) {
-                    let num=removeEmpty(lines[curr].split(" "));
-                    if (num.length!==1) {
-                        alert("Очаквано е само едно число за брой върхове при: "+lines[curr]);
-                        return ;
-                    }
-                    curr++;
-                    for (let i=1; i<=n; i++) {
-                        vers.push(undefined);
-                        versCoord.push(undefined);
-                    }
-                    flagCoords=true;
-                    for (let i=1; i<=num[0]; i++) {
-                        if (lines.length===curr) {
-                            alert("Има липсваща информация за връх!");
-                            return ;
-                        }
-                        let tokens=removeEmpty(getTokens(lines[curr]));
-                        if (tokens.length<1) {
-                            alert("Трябва поне номер на връх: "+lines[curr]);
-                            return ;
-                        }
-                        let x=parseInt(tokens[0]);
-                        if (!((x>=1)&&(x<=n))) {
-                            alert("Невалиден номер на връх за: "+lines[curr]);
-                            return ;
-                        }
-                        let name=x.toString(),coord=undefined,addedCSS=["",""];
-                        if (tokens.length>=2) {
-                            let ind=1;
-                            if (tokens[ind][0]!=='[') name=tokens[ind++];
+                            curveHeight=parseFloat(tokens[ind].slice(1,tokens[ind].length-1));
+                            ind++;
                             if (tokens.length>ind) {
-                                if ((tokens[ind][0]!=='[')||(tokens[ind][tokens[ind].length-1]!==']')) {
-                                    alert("Очаква се свойството да е оградено от квадратни скоби при: "+lines[curr]);
-                                    return ;
-                                }
-                                if (tokens[ind][1]!='[') {
-                                    let coords=removeEmpty(tokens[ind].split(","));
-                                    if (coords.length!==2) {
-                                        alert("Очаква се да има две координати, разделени със запетайка при: "+lines[curr]);
-                                        return ;
-                                    }
-                                    coord=[];
-                                    coord[0]=parseFloat(coords[0].slice(1,coords[0].length));
-                                    coord[1]=parseFloat(coords[1].slice(0,coords[1].length-1));
-                                    ind++;
-                                }
-                            
-                                if (tokens.length>ind) {
-                                    if ((tokens[ind][0]!=='[')||(tokens[ind][tokens[ind].length-1]!==']')) {
-                                        alert("Очаква се свойството да е оградено от квадратни скоби при: "+lines[curr]);
-                                        return ;
-                                    }
-                                    let css=removeEmpty(tokens[ind].split(","));
-                                    if (css.length!==2) {
-                                        alert("Очаква се да има два CSS-а, разделени със запетайка при: "+lines[curr]);
-                                        return ;
-                                    }
-                                    addedCSS[0]=css[0].slice(2,css[0].length-1);
-                                    addedCSS[1]=css[1].slice(1,css[1].length-2);
-                                    ind++;
-                                    if (tokens.length>ind) {
-                                        alert("Твърде много свойства при: "+lines[curr]);
-                                        return ;
-                                    }
-                                }
+                                alert("Твърде много свойства при: "+lines[curr]);
+                                return ;
                             }
                         }
-                        if (coord===undefined) flagCoords=false;
-                        vers[x-1]=[name,addedCSS];
-                        versCoord[x-1]=coord;
-                        curr++;
                     }
                 }
-                else {
-                    for (let i=1; i<=n; i++) {
-                        vers.push([i.toString(), ["",""]]);
-                    }
+            }
+            edges.push([x-1,y-1,weight,addedCSS,curveHeight]);
+            curr++;
+        }
+
+        let vers=[],flagCoords=false,versCoord=[];
+        if ((lines.length>curr)&&(lines[curr][0]>='0')&&(lines[curr][0]<='9')) {
+            let num=removeEmpty(lines[curr].split(" "));
+            if (num.length!==1) {
+                alert("Очаквано е само едно число за брой върхове при: "+lines[curr]);
+                return ;
+            }
+            curr++;
+            for (let i=1; i<=n; i++) {
+                vers.push(undefined);
+                versCoord.push(undefined);
+            }
+            flagCoords=true;
+            for (let i=1; i<=num[0]; i++) {
+                if (lines.length===curr) {
+                    alert("Има липсваща информация за връх!");
+                    return ;
                 }
-                
-                let posProperties=undefined;
-                if (curr<lines.length) {
-                    let words=removeEmpty(lines[curr].split(" "));
-                    if ((words.length===1)&&(words[0].length>2)&&(words[0][0]=='[')&&(words[0][words[0].length-1]==']')) {
-                        let tokens=words[0].slice(1,words[0].length-1).split(",");
-                        if (tokens.length===3) {
-                            posProperties=[parseFloat(tokens[0]), parseFloat(tokens[1]), parseFloat(tokens[2])];
-                            if ((isNaN(posProperties[0])===true)||
-                                (isNaN(posProperties[1])===true)||
-                                (isNaN(posProperties[2])===true)) posProperties=undefined;
-                            else curr++;
+                let tokens=removeEmpty(getTokens(lines[curr]));
+                if (tokens.length<1) {
+                    alert("Трябва поне номер на връх: "+lines[curr]);
+                    return ;
+                }
+                let x=parseInt(tokens[0]);
+                if (!((x>=1)&&(x<=n))) {
+                    alert("Невалиден номер на връх за: "+lines[curr]);
+                    return ;
+                }
+                let name=x.toString(),coord=undefined,addedCSS=["",""];
+                if (tokens.length>=2) {
+                    let ind=1;
+                    if (tokens[ind][0]!=='[') name=tokens[ind++];
+                    if (tokens.length>ind) {
+                        if ((tokens[ind][0]!=='[')||(tokens[ind][tokens[ind].length-1]!==']')) {
+                            alert("Очаква се свойството да е оградено от квадратни скоби при: "+lines[curr]);
+                            return ;
+                        }
+                        if (tokens[ind][1]!='[') {
+                            let coords=removeEmpty(tokens[ind].split(","));
+                            if (coords.length!==2) {
+                                alert("Очаква се да има две координати, разделени със запетайка при: "+lines[curr]);
+                                return ;
+                            }
+                            coord=[];
+                            coord[0]=parseFloat(coords[0].slice(1,coords[0].length));
+                            coord[1]=parseFloat(coords[1].slice(0,coords[1].length-1));
+                            ind++;
+                        }
+
+                        if (tokens.length>ind) {
+                            if ((tokens[ind][0]!=='[')||(tokens[ind][tokens[ind].length-1]!==']')) {
+                                alert("Очаква се свойството да е оградено от квадратни скоби при: "+lines[curr]);
+                                return ;
+                            }
+                            let css=removeEmpty(tokens[ind].split(","));
+                            if (css.length!==2) {
+                                alert("Очаква се да има два CSS-а, разделени със запетайка при: "+lines[curr]);
+                                return ;
+                            }
+                            addedCSS[0]=css[0].slice(2,css[0].length-1);
+                            addedCSS[1]=css[1].slice(1,css[1].length-2);
+                            ind++;
+                            if (tokens.length>ind) {
+                                alert("Твърде много свойства при: "+lines[curr]);
+                                return ;
+                            }
                         }
                     }
                 }
-                
-                let isDirected=graph.isDirected,isWeighted=graph.isWeighted,isMulti=graph.isMulti,isTree=graph.isTree;
-                for (;;) {
-                    if (lines.length===curr) break;
-                    let words=removeEmpty(lines[curr].split(" "));
-                    if (words.length!==1) {
-                        alert("Очаквано е само една дума, описващо свойство на графа, при: "+lines[curr]);
+                if (coord===undefined) flagCoords=false;
+                vers[x-1]=[name,addedCSS];
+                versCoord[x-1]=coord;
+                curr++;
+            }
+        }
+        else {
+            for (let i=1; i<=n; i++) {
+                vers.push([i.toString(), ["",""]]);
+            }
+        }
+
+        let posProperties=undefined;
+        if (curr<lines.length) {
+            let words=removeEmpty(lines[curr].split(" "));
+            if ((words.length===1)&&(words[0].length>2)&&(words[0][0]=='[')&&(words[0][words[0].length-1]==']')) {
+                let tokens=words[0].slice(1,words[0].length-1).split(",");
+                if (tokens.length===3) {
+                    posProperties=[parseFloat(tokens[0]), parseFloat(tokens[1]), parseFloat(tokens[2])];
+                    if ((isNaN(posProperties[0])===true)||
+                        (isNaN(posProperties[1])===true)||
+                        (isNaN(posProperties[2])===true)) posProperties=undefined;
+                    else curr++;
+                }
+            }
+        }
+
+        let isDirected=graph.isDirected,isWeighted=graph.isWeighted,isMulti=graph.isMulti,isTree=graph.isTree;
+        for (;;) {
+            if (lines.length===curr) break;
+            let words=removeEmpty(lines[curr].split(" "));
+            if (words.length!==1) {
+                alert("Очаквано е само една дума, описващо свойство на графа, при: "+lines[curr]);
+                return ;
+            }
+            if (words[0]==="Directed") {
+                if (isDirected===false) {
+                    if (graph.graphController.changeType[0]===false) {
+                        alert("Графът трябва да е неориентиран!");
                         return ;
                     }
-                    if (words[0]==="Directed") {
-                        if (isDirected===false) {
-                            if (graph.changeType[0]===false) {
-                                alert("Графът трябва да е неориентиран!");
-                                return ;
-                            }
-                            isDirected=true;
-                        }
-                    }
-                    else if (words[0]==="Undirected") {
-                        if (isDirected===true) {
-                            if (graph.changeType[0]===false) {
-                                alert("Графът трябва да е ориентиран!");
-                                return ;
-                            }
-                            isDirected=false;
-                        }
-                    }
-                    else if (words[0]==="Weighted") {
-                        if (isWeighted===false) {
-                            if (graph.changeType[1]===false) {
-                                alert("Графът трябва да е непретеглен!");
-                                return ;
-                            }
-                            isWeighted=true;
-                        }
-                    }
-                    else if (words[0]==="Multigraph") {
-                        if (isMulti===false) {
-                            if (graph.changeType[2]===false) {
-                                alert("Графът не трябва да е мулти!");
-                                return ;
-                            }
-                            isMulti=true;
-                        }
-                    }
-                    else if (words[0]==="Tree") isTree=true;
-                    else {
-                        alert("Неочаквано свойство на графа при: "+lines[curr]);
+                    isDirected=true;
+                }
+            }
+            else if (words[0]==="Undirected") {
+                if (isDirected===true) {
+                    if (graph.graphController.changeType[0]===false) {
+                        alert("Графът трябва да е ориентиран!");
                         return ;
                     }
-                    curr++;
+                    isDirected=false;
                 }
-                
-                graph.import(isDirected,isTree,isWeighted,isMulti,n,vers,edges,flagCoords);
+            }
+            else if (words[0]==="Weighted") {
+                if (isWeighted===false) {
+                    if (graph.graphController.changeType[1]===false) {
+                        alert("Графът трябва да е непретеглен!");
+                        return ;
+                    }
+                    isWeighted=true;
+                }
+            }
+            else if (words[0]==="Multigraph") {
+                if (isMulti===false) {
+                    if (graph.graphController.changeType[2]===false) {
+                        alert("Графът не трябва да е мулти!");
+                        return ;
+                    }
+                    isMulti=true;
+                }
+            }
+            else if (words[0]==="Tree") isTree=true;
+            else {
+                alert("Неочаквано свойство на графа при: "+lines[curr]);
+                return ;
+            }
+            curr++;
+        }
+
+        graph.import(isDirected,isTree,isWeighted,isMulti,n,vers,edges,flagCoords,versCoord,posProperties);
+    }
+    function addImportFunctionality (wrapperName, graph) {
+        let input=$(wrapperName+" .input-file");
+        input.hide();
+        input.off("change").on("change",function (event) {
+            if (event.target.files.length===0) return ;
+            let reader=new FileReader();
+            reader.onload = function (event) {
+                let text=event.target.result.replaceAll("\r\n","\n");
+                importGraph(text,graph);
             }
             reader.readAsText(event.target.files[0]);
             $(input).val("");
+        });
+        let graphText="";
+        if ($("#importModal").length===0) {
+            let modal=`
+            <div class="modal fade" id="importModal" tabindex="-1" aria-labelledby="importModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="importModalLabel">`+((language==="bg")?"Зареди или промени графа":"Import or change the graph")+`</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <form>
+                                <div class="form-group">
+                                    <label for="message-text" class="col-form-label">Текст:</label>
+                                    <textarea class="form-control" id="import-message-text" rows="11"></textarea>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-primary import">`+((language==="bg")?"Зареди":"Import")+`</button>
+                        </div>
+                    </div>
+                </div>
+            </div>`;
+            $("body").append($(modal));
+            $("#importModal .import").on("click",function () {
+                let text=$("#import-message-text").val();
+                if (graphText!==text) importGraph(text,graph);
+                $("#importModal").modal("toggle");
+            });
+        }
+        
+        graph.dropdowns.addNewDropdown("import-menu",[
+            ["file", ((language==="bg")?"Зареди от файл":"Import from file"), () => { input.click() }],
+            ["text", ((language==="bg")?"Зареди от текстово поле":"Import from text field"), () => {
+                graphText=graph.export();
+                $("#import-message-text").val(graphText);
+                $("#importModal").modal("toggle");
+            }]]);
+        $(graph.wrapperName+" .import").off("click").on("click",function (event) {
+            graph.dropdowns.showDropdown("import-menu",event,graph);
         });
     }
           
