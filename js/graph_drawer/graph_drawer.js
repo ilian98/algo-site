@@ -220,7 +220,8 @@
         function mouseUpVertex (event) {
             if (trackedMouse===false) { // click event
                 clearClickParameters("vertex");
-                if ((window.isMobile==="true")&&(graph.isDrawable===true)) vertexClick(startIndex,event);
+                if ((window.isMobile==="true")&&(graph.isDrawable===true)) 
+                    vertexClick.call(graph.svgVertices[startIndex].group,event);
                 return ;
             }
             clearClickParameters("vertex");
@@ -298,7 +299,7 @@
             let height=graph.svgEdges[startIndex].drawProperties[0];
             if (trackedMouse===false) { // click event
                 clearClickParameters("edge");
-                if ((window.isMobile==="true")&&(graph.isDrawable===true)) edgeClick(startIndex,event);
+                if ((window.isMobile==="true")&&(graph.isDrawable===true)) edgeClick.call(graph.svgEdges[startIndex].line,event);
                 return ;
             }
             clearClickParameters("edge");

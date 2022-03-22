@@ -330,7 +330,7 @@
             }
             if (undoType==="undo") this.redoTime++;
             else this.undoTime++;
-
+            
             graph.draw(graph.isDrawable);
         }
     
@@ -715,7 +715,6 @@
             reader.readAsText(event.target.files[0]);
             $(input).val("");
         });
-        let graphText="";
         if ($("#importModal").length===0) {
             let modal=`
             <div class="modal fade" id="importModal" tabindex="-1" aria-labelledby="importModalLabel" aria-hidden="true">
@@ -740,18 +739,18 @@
                 </div>
             </div>`;
             $("body").append($(modal));
-            $("#importModal .import").on("click",function () {
-                let text=$("#import-message-text").val();
-                if (graphText!==text) importGraph(text,graph);
-                $("#importModal").modal("toggle");
-            });
         }
         
         graph.dropdowns.addNewDropdown("import-menu",[
             ["file", ((language==="bg")?"Зареди от файл":"Import from file"), () => { input.click() }],
             ["text", ((language==="bg")?"Зареди от текстово поле":"Import from text field"), () => {
-                graphText=graph.export();
+                let graphText=graph.export();
                 $("#import-message-text").val(graphText);
+                $("#importModal .import").off("click").on("click",function () {
+                    let text=$("#import-message-text").val().replaceAll("\r\n","\n");
+                    if (graphText!==text) importGraph(text,graph);
+                    $("#importModal").modal("toggle");
+                });
                 $("#importModal").modal("toggle");
             }]]);
         $(graph.wrapperName+" .import").off("click").on("click",function (event) {
