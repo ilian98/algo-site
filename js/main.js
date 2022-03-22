@@ -175,7 +175,7 @@
             ind++;
         }
     }
-    async function checkLessonParts (beginning) {
+    function checkLessonParts (beginning) {
         let anchor=checkForAnchor();
         let parts=getParts(anchor);
         let initFuncs=[];
@@ -211,7 +211,7 @@
             });
             ind++;
         }
-        if (typeof GraphLoadData!=="undefined") await GraphLoadData();
+        if (typeof GraphLoadData==="function") GraphLoadData();
         if ((ind===0)&&(typeof init==="function")) init();
         for (let initFunc of initFuncs) {
             initFunc();
@@ -258,49 +258,64 @@
     }
 
     $(document).ready(function () {
+        let finishedWork=[];
+        let cnt=2;
+        for (let elem of $(".placeholder")) {
+            cnt++;
+        }
+        function checkForFinish () {
+            let flag=true;
+            for (let i=0; i<cnt; i++) {
+                if (finishedWork[i]!==true) {
+                    flag=false;
+                    break;
+                }
+            }
+            if (flag===true) {
+                if (typeof MathJax!=="undefined") MathJax.typeset([".hljs-comment"]);  
+                pageSetup();
+            }
+        }
+        
         $.get(navigation_page, function (data) {
+            finishedWork[0]=true;
             $("#nav-placeholder").replaceWith(data);
-            $("#nav-placeholder").ready(function () {
-                let dropdown=$('[aria-labelledby="languages"] .dropdown-item');
-                $(dropdown[0]).on("click",changeLanguage.bind(dropdown[0],"bg"));
-                $(dropdown[1]).on("click",changeLanguage.bind(dropdown[1],"en"));
-                $(dropdown[2]).on("click",changeLanguage.bind(dropdown[2],"bg"));
-                $(dropdown[3]).on("click",changeLanguage.bind(dropdown[3],"en"));
+            let dropdown=$('[aria-labelledby="languages"] .dropdown-item');
+            $(dropdown[0]).on("click",changeLanguage.bind(dropdown[0],"bg"));
+            $(dropdown[1]).on("click",changeLanguage.bind(dropdown[1],"en"));
+            $(dropdown[2]).on("click",changeLanguage.bind(dropdown[2],"bg"));
+            $(dropdown[3]).on("click",changeLanguage.bind(dropdown[3],"en"));
                 
-                $("#search").submit(function (event) {
-                    if ($("#search input").val().length===0) event.preventDefault();
-                });
+            $("#search").submit(function (event) {
+                if ($("#search input").val().length===0) event.preventDefault();
             });
         
             let footer_page="/algo-site/footer.html";
             if (page.endsWith("_en.html")===true) footer_page="/algo-site/footer_en.html";
             $.get(footer_page, function (data) {
+                finishedWork[1]=true; checkForFinish();
                 $("#footer-placeholder").replaceWith(data);
+                pageSetup();
                 
-                initiateParts();
-                toggleParts();
-                toggleInfos();
-                let lastCode="none";
-                for (let elem of $(".placeholder")) {
-                    lastCode=elem;
-                }
-                for (let elem of $(".placeholder")) {
-                    let codeName=$(elem).prop("id")+".cpp";
-                    $.get(codeName, function (code) {
-                        let data=hljs.highlight(code,{language: "cpp"}).value;
-                        $(elem).replaceWith('<pre><code class="language-cpp hljs">'+data+'</code></pre>');
-
-                        if (elem===lastCode) {
-                            if (typeof MathJax!=="undefined") MathJax.typeset([".hljs-comment"]);  
-                            pageSetup();
-                        }
-                    });
-                }
-                if (lastCode==="none") pageSetup();
             });
         });
+        let ind=0;
+        for (let elem of $(".placeholder")) {
+            let codeName=$(elem).prop("id")+".cpp";
+            let index=2+ind;
+            $.get(codeName, function (code) {
+                let data=hljs.highlight(code,{language: "cpp"}).value;
+                $(elem).replaceWith('<pre><code class="language-cpp hljs">'+data+'</code></pre>');
+                finishedWork[index]=true; checkForFinish();
+            });
+            ind++;
+        }
         
+        initiateParts();
+        toggleParts();
         checkLessonParts(true);
+        
+        toggleInfos();
         unimportantWork();
     });
     

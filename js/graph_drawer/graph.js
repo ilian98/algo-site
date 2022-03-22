@@ -109,10 +109,13 @@
         });
     }
     function determineDy (text, fontFamily, fontSize) {
-        let bBox=fonts[fontFamily].getPath(text.toString(),0,0,fontSize).getBoundingBox();
-        let height=bBox.y2-bBox.y1;
-        let underBaseline=bBox.y2;
-        return height/2-underBaseline;
+        if (typeof fonts[fontFamily]!=="undefined") {
+            let bBox=fonts[fontFamily].getPath(text.toString(),0,0,fontSize).getBoundingBox();
+            let height=bBox.y2-bBox.y1;
+            let underBaseline=bBox.y2;
+            return height/2-underBaseline;
+        }
+        return 8*(fontSize/20);
     }
 
     function Vertex (name, css=["",""]) {
@@ -147,17 +150,14 @@
         this.drawProperties=undefined;
     }
 
+    let graphs = new Map();
     async function GraphLoadData () {
-        return new Promise ((resolve, reject) => {
-            if (typeof fonts==="undefined") {
-                if (typeof GraphController==="function") {
-                    GraphControllerLoadData().then(loadFontData, () => { alert("Load data error!") })
-                    .then(resolve, () => { alert("Load data error!") });
-                }
-                else loadFontData().then(resolve, () => { alert("Load data error!") });
+        loadFontData().then(() => {
+            for (let [name, graph] of graphs) {
+                graph.draw(graph.isDrawable,false);
             }
-            else resolve();
-        });
+        }, () => { alert("Load font data error!") });
+        GraphControllerLoadData();
     }
     function Graph () {
         this.wrapperName=undefined; this.svgName=undefined; this.s=undefined;
@@ -205,11 +205,12 @@
                     this.adjMatrix[i][j]=[];
                 }
             }
-
             if (isDirected!==undefined) this.isDirected=isDirected;
             this.isMulti=false; this.isWeighted=false;
             
             this.graphChange=graphChange;
+            
+            graphs.set(wrapperName,this);
         }
 
         function convertVertexToList (vertex) {
@@ -371,7 +372,7 @@
             
             if (this.graphController!==undefined) this.graphController.removeChanges();
             
-            this.draw(addDraw);
+            this.draw(addDraw,false);
         }
 
         function calcStraightEdge (st, end, isDrawn, endDist, vertexRad) {
@@ -580,8 +581,13 @@
         this.findLoopEdgeProperties = function (vertexRad = this.vertexRad) {
             return [3*this.vertexRad/4, this.vertexRad/2];
         }
-        this.isDrawable=undefined; this.drawableGraph=undefined; 
-        this.draw = function (addDraw, animateDraw = true, isStatic = false) { /// this functions expects that coordinates are already calculated
+        this.isDrawable=undefined; this.drawableGraph=undefined; this.isStatic=false;
+        this.draw = function (addDraw, animateDraw = true, isStatic = undefined) { /// this functions expects that coordinates are already calculated
+            if (this.drawableGraph!==undefined) this.drawableGraph.clear();
+            
+            if (isStatic===undefined) isStatic=this.isStatic;
+            else this.isStatic=isStatic;
+            
             let oldVersCoords=[],changedVers=[],cntAnimations=0;
             let oldRad=this.vertexRad;
             let oldEdgesPaths=[],oldDy=[],oldWeightsPaths=[];
@@ -761,6 +767,7 @@
                         }
                         if (this.drawableGraph!==undefined) this.drawableGraph.init();
                     }
+                    this.graphChange();
                 }
             }
             if (cntAnimations===0) animationsEnd.call(this);
@@ -899,8 +906,6 @@
                 else this.calcPositions.calcOriginalPos(posProperties[0],posProperties[1],posProperties[2]);
             }
             this.draw(this.isDrawable,false);
-
-            this.graphChange();
         }
         this.export = function () {
             let edges=[];

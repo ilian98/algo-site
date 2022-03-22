@@ -47,7 +47,6 @@
             }
             for (let ind of graph.adjList[startIndex]) {
                 redrawEdge(ind);
-                
             }
             for (let ind of graph.reverseAdjList[startIndex]) {
                 redrawEdge(ind);
@@ -271,7 +270,6 @@
                             else if (graph.graphController!==undefined) graph.graphController.undoTime++;
                         }
                         graph.draw(graph.isDrawable);
-                        graph.graphChange();
                         break;
                     }
                 }
@@ -294,7 +292,6 @@
                         graph.graphController.addChange("new-pos",[ind, [oldCoords[0], oldCoords[1]]]);
                 }
                 graph.draw(graph.isDrawable,false);
-                graph.graphChange();
             }
         }
         function mouseUpEdge (event) {
@@ -315,7 +312,6 @@
             
             graph.edgeList[startIndex].curveHeight=height;
             graph.draw(graph.isDrawable,false);
-            graph.graphChange();
         }
         
         function addCSS (obj, defaultCSS, newCSS, typeName, ind) {
@@ -615,6 +611,9 @@
                 }
             }
             else this.addVertexDrag=true;
+        }
+        this.clear = function () {
+            $(graph.svgName).off("dblclick");
         }
         
         this.addSettings = function () {

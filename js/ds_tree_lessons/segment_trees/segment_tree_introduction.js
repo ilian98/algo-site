@@ -9,12 +9,10 @@
         pos=parseInt(pos.val()); val=parseInt(val.val());
         elements[pos-1]=val;
         makeEdgesAndNames(0,0,elements.length-1,[],tree.vertices,elements,false);
-        tree.draw(false);
-        addSegmentsLabels(0,1,elements.length,tree,false,false);
+        tree.draw(false,false);
     }
     function toggleIndexes (tree, elements, isDynamic) {
         if ((isDynamic===false)&&(elements.length===0)) return ;
-        tree.draw(false);
         let flagIndexes;
         if (this.text()=="Покажи номерата") {
             this.text("Скрий номерата");
@@ -24,9 +22,7 @@
             this.text("Покажи номерата");
             flagIndexes=false;
         }
-    
-        if (isDynamic===false) addSegmentsLabels(0,1,elements.length,tree,flagIndexes,isDynamic);
-        else addSegmentsLabels(0,1,dynSegTree.maxC,tree,flagIndexes,isDynamic);
+        tree.draw(false,false);
     }
     function addSegmentsLabels (index, l, r, tree, flagIndex, isDynamic) {
         if (flagIndex===true) {
@@ -38,6 +34,7 @@
                 y: tree.svgVertices[index].coord[1]-tree.vertexRad+1,
             });
             textIndex.attr({dy: 2*determineDy(index+1,"Times New Roman",indexFontSize), "text-anchor": "middle"});
+            tree.svgVertices[index].group=tree.s.group(tree.svgVertices[index].group,textIndex);
         }
 
         let labelFontSize=tree.vertexRad*5/6;
@@ -49,6 +46,7 @@
                y: tree.svgVertices[index].coord[1]+tree.vertexRad+tree.findStrokeWidth()/2+2
            });
            segment.attr({dy: 2*determineDy(segment.attr("text"),"Times New Roman",labelFontSize), "text-anchor": "middle"});
+           tree.svgVertices[index].group=tree.s.group(tree.svgVertices[index].group,segment);
            return ;
         }
         segment.attr({
@@ -56,6 +54,7 @@
             y: tree.svgVertices[index].coord[1]-tree.vertexRad-tree.findStrokeWidth()/2-2,
         });
         segment.attr({"text-anchor": "middle"});
+        tree.svgVertices[index].group=tree.s.group(tree.svgVertices[index].group,segment);
         let mid=Math.floor((l+r)/2);
         if (isDynamic===false) {
             addSegmentsLabels(2*index+1,l,mid,tree,flagIndex,isDynamic);
@@ -121,20 +120,14 @@
         tree.buildEdgeDataStructures(edgeList);
         if (elements.length<=8) tree.drawNewGraph(false,10,true);
         else tree.drawNewGraph(false,7,true);
-
-        if ($(exampleName+" .indexes").text()=="Скрий номерата") addSegmentsLabels(0,1,elements.length,tree,true,false);
-        else addSegmentsLabels(0,1,elements.length,tree,false,false);
     }
-    function makeDynSegTree (exampleName, tree) {
+    function makeDynSegTree (tree) {
         tree.erase();
 
         tree.initVertices(1);
         tree.vertices[0].name="0";
         tree.buildEdgeDataStructures([]);
         tree.drawNewGraph(false,8,true,dynSegTree.frameX);
-
-        if ($(exampleName+" .indexes").text()=="Скрий номерата") addSegmentsLabels(0,1,dynSegTree.maxC,tree,true,true);
-        else addSegmentsLabels(0,1,dynSegTree.maxC,tree,false,true);
     }
     function updateDyn (index, l, r, c, tree) {
         tree.vertices[index].name=(parseInt(tree.vertices[index].name)+1).toString();
@@ -167,11 +160,8 @@
         makeEdgesAndNames(0,1,dynSegTree.maxC,edgeList,tree.vertices,[],true);
         tree.buildEdgeDataStructures(edgeList);
         tree.drawNewGraph(false,8,true,dynSegTree.frameX);
-
-        if ($(exampleName+" .indexes").text()=="Скрий номерата") addSegmentsLabels(0,1,maxC,tree,true,true);
-        else addSegmentsLabels(0,1,maxC,tree,false,true);
     }
-    async function defaultExample (exampleName, tree, elements, animationObj) {
+    function defaultExample (exampleName, tree, elements, animationObj) {
         if (exampleName==".segTreeExample1") {
             $(exampleName+" .array").val("7,9,1,2,4,8,5,16");
             makeSegTree(exampleName,tree,elements);
@@ -189,7 +179,7 @@
 
             makeSegTree(exampleName,tree,elements,animationObj);
 
-            await animationObj.init(exampleName+" .treeExample",function findAnimations () {
+            animationObj.init(exampleName+" .treeExample",function findAnimations () {
                 let animations=[];
                 if (exampleName===".segTreeExample2") {
                     let pos=parseInt($(exampleName+" .pos").val());
@@ -221,25 +211,28 @@
                 return animations;
             },function initialState () {
                 makeEdgesAndNames(0,0,elements.length-1,[],tree.vertices,elements,false);
-                tree.draw(false);
-                addSegmentsLabels(0,1,elements.length,tree,false,false);
+                tree.draw(false,false,true);
             },undefined,undefined,
                               (exampleName==".segTreeExample2")?
                               endAnimation.bind(this,tree,elements,$(exampleName+" .pos"),$(exampleName+" .val")):undefined
-            );
-            tree.graphController.hasAnimation(animationObj);
+            ).then(
+            () => { tree.graphController.hasAnimation(animationObj) },
+            () => { alert("Failed loading animation data!") });
         }
         else if (exampleName==".segTreeExample4") {
             $(exampleName+" .c").val("42");
-            makeDynSegTree(exampleName,tree);
+            makeDynSegTree(tree);
         }
     }
     function initExample (part) {
         if (part==2) {
-            let tree=new Graph();
             let exampleName=".segTreeExample1";
-            tree.init(exampleName+" .treeExample",8,false,true);
             let elements=[];
+            let tree=new Graph();
+            tree.init(exampleName+" .treeExample",8,false,() => {
+                if ($(exampleName+" .indexes").text()=="Скрий номерата") addSegmentsLabels(0,1,elements.length,tree,true,false);
+                else addSegmentsLabels(0,1,elements.length,tree,false,false);
+            });
             $(exampleName+" .default").off("click").on("click",defaultExample.bind(this,exampleName,tree,elements));
             $(exampleName+" .make").off("click").on("click",makeSegTree.bind(this,exampleName,tree,elements,undefined));
             $(exampleName+" .indexes").off("click").on("click",toggleIndexes.bind($(exampleName+" .indexes"),tree,elements,false));
@@ -249,11 +242,13 @@
             defaultExample(exampleName,tree,elements);
         }
         else if (part==3) {
-            let tree1=new Graph();
             let exampleName1=".segTreeExample2";
-            tree1.init(exampleName1+" .treeExample",8,false,true);
-            let animationObj1=new Animation();
             let elements1=[];
+            let tree1=new Graph();
+            tree1.init(exampleName1+" .treeExample",8,false,() => {
+                addSegmentsLabels(0,1,elements1.length,tree1,false,false);
+            });
+            let animationObj1=new Animation();
             $(exampleName1+" .default").off("click").on("click",defaultExample.bind(this,exampleName1,tree1,elements1,animationObj1));
             $(exampleName1+" .make").off("click").on("click",makeSegTree.bind(this,exampleName1,tree1,elements1,animationObj1));
 
@@ -264,11 +259,13 @@
             defaultExample(exampleName1,tree1,elements1,animationObj1);
 
 
-            let tree2=new Graph();
             let exampleName2=".segTreeExample3";
-            tree2.init(exampleName2+" .treeExample",8,false,true);
-            let animationObj2=new Animation();
             let elements2=[];
+            let tree2=new Graph();
+            tree2.init(exampleName2+" .treeExample",8,false,() => {
+               addSegmentsLabels(0,1,elements2.length,tree2,false,false);
+            });
+            let animationObj2=new Animation();
             $(exampleName2+" .default").off("click").on("click",defaultExample.bind(this,exampleName2,tree2,elements2,animationObj2));
             $(exampleName2+" .make").off("click").on("click",makeSegTree.bind(this,exampleName2,tree2,elements2,animationObj2));
 
@@ -279,9 +276,12 @@
             defaultExample(exampleName2,tree2,elements2,animationObj2);
         }
         else if (part==4) {
-            let tree=new Graph();
             let exampleName=".segTreeExample4";
-            tree.init(exampleName+" .treeExample",1,false,true);
+            let tree=new Graph();
+            tree.init(exampleName+" .treeExample",1,false,() => {
+                if ($(exampleName+" .indexes").text()=="Скрий номерата") addSegmentsLabels(0,1,dynSegTree.maxC,tree,true,true);
+                else addSegmentsLabels(0,1,dynSegTree.maxC,tree,false,true);
+            });
             let elements=[];
             $(exampleName+" .default").off("click").on("click",defaultExample.bind(this,exampleName,tree,elements));
             $(exampleName+" .add").off("click").on("click",addPoint.bind(this,exampleName,tree));

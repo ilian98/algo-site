@@ -1,10 +1,16 @@
 "use strict";
 (function () {
+    let graphs = new Map();
     let settingsPanel;
     async function GraphControllerLoadData () {
         return new Promise ((resolve, reject) => {
             $.get("/algo-site/pages/settings_panel.html", function (data) {
                 settingsPanel=data;
+                for (let [name, graph] of graphs) {
+                    addSettingsPanel(name,graph,graph.graphController);
+                    if ($(name+" .graph-settings").length===0) addSettingsModal();
+                    if ($(name+" .information").length!==0) addInfoModal(name,graph.graphController);
+                }
             }).then(resolve, () => { alert("Load data error!") });
         });
     }
@@ -178,9 +184,12 @@
         this.redoStack=undefined; this.redoTime=undefined;
         this.init = function () {
             this.undoStack=[]; this.undoTime=0; this.redoStack=[]; this.redoTime=0;
-            addSettingsPanel(graph.wrapperName,graph,this);
-            if ($(graph.wrapperName+" .graph-settings").length===0) addSettingsModal();
-            if ($(graph.wrapperName+" .information").length!==0) addInfoModal(graph.wrapperName,this);
+            if (typeof settingsPanel!=="undefined") {
+                addSettingsPanel(graph.wrapperName,graph,this);
+                if ($(graph.wrapperName+" .graph-settings").length===0) addSettingsModal();
+                if ($(graph.wrapperName+" .information").length!==0) addInfoModal(graph.wrapperName,this);
+            }
+            else graphs.set(graph.wrapperName,graph);
         }
         this.addChange = function (type, data, increaseTime = true, undoType) {
             this.undoStack.push({
@@ -323,15 +332,14 @@
             else this.undoTime++;
 
             graph.draw(graph.isDrawable);
-            graph.graphChange();
         }
     
-        let isDrawable;
+        let isDrawable,isStatic;
         this.hasAnimation = function (animationObj) {
             let wrapperName=graph.wrapperName+" .settings-panel";
             let oldStart=animationObj.startFunc;
             animationObj.startFunc = function () {
-                isDrawable=graph.isDrawable;
+                isDrawable=graph.isDrawable; isStatic=graph.isStatic;
                 $(wrapperName+" .undo-group").hide();
                 $(wrapperName+" .import").hide();
                 $(wrapperName+" .save-group").removeClass("text-center").addClass("text-start");
@@ -352,7 +360,7 @@
                 $(wrapperName+" .save-group").addClass("text-center").removeClass("text-start");
                 $(wrapperName+" .dragging-mini").parent().removeClass("d-none").addClass("d-flex");
                 $(wrapperName+" .settings").parent().removeClass("d-none").addClass("d-flex");
-                graph.draw(isDrawable);
+                graph.draw(isDrawable,false,isStatic);
                 
                 if (graph.dropdowns.menus["save-menu"]!==undefined) {
                     graph.dropdowns.menus["save-menu"].find(".txt").show();
@@ -720,7 +728,7 @@
                         <div class="modal-body">
                             <form>
                                 <div class="form-group">
-                                    <label for="message-text" class="col-form-label">Текст:</label>
+                                    <label for="message-text" class="col-form-label">`+((language==="bg")?"Текст":"Text")+`:</label>
                                     <textarea class="form-control" id="import-message-text" rows="11"></textarea>
                                 </div>
                             </form>

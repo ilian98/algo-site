@@ -207,7 +207,7 @@
         else if (part===2) {
             let example3=new Graph();
             let animationObj = new Animation();
-            $(".graphExample3 .default").on("click", async function () {
+            $(".graphExample3 .default").on("click", function () {
                 example3.init(".graphExample3",8,false,function () {
                     example3.calcPositions.frameY=example3.vertexRad;
                 });
@@ -217,7 +217,7 @@
                 
                 $(".graphExample3 .start-vertex").val("1");
                 $(".graphExample3 .time").hide();
-                await animationObj.init(".graphExample3",function findAnimations () {
+                animationObj.init(".graphExample3",function findAnimations () {
                     let st=parseInt($(".graphExample3 .start-vertex").val()); st--;
                     let used=[],found=false;
                     for (let i=0; i<example3.n; i++) {
@@ -247,8 +247,10 @@
                 },function stopFunction () {
                     $(".graphExample3 .default").parent().show();
                     $(".graphExample3 .time").hide();
-                });
-                example3.graphController.hasAnimation(animationObj);
+                }).then(
+                    () => { example3.graphController.hasAnimation(animationObj) },
+                    () => { alert("Failed loading animation data!") }
+                );
             }).click();
             $("graphExample3 .start-vertex").on("keydown",isDigit);
         }

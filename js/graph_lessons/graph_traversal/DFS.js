@@ -40,14 +40,14 @@
         });
     }
 
-    async function defaultExample (name, graph, animationObj, vertexRad) {
+    function defaultExample (name, graph, animationObj, vertexRad) {
         graph.init(name,5,false);
         graph.buildEdgeDataStructures([[0,1],[0,2],[0,3],[0,4],[1,2]]);
         graph.drawNewGraph(true,vertexRad);
         graph.setSettings([true, false, true]);
 
         $(name+" .start-vertex").val("1");
-        await animationObj.init(name,function findAnimations () {
+        animationObj.init(name,function findAnimations () {
             let st=parseInt($(name+" .start-vertex").val()); st--;
             let used=[],found=false;
             for (let i=0; i<graph.n; i++) {
@@ -68,8 +68,9 @@
             return animations;
         },function initialState () {
             graph.draw(false,false,true);
-        });
-        graph.graphController.hasAnimation(animationObj);
+        }).then(
+            () => { graph.graphController.hasAnimation(animationObj) },
+            () => { alert("Failed loading animation data!") });
     }
 
     function initExample (part) {
