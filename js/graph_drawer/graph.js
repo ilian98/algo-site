@@ -164,7 +164,7 @@
         this.svgVertices=undefined; this.svgEdges=undefined;
         this.n=undefined; this.vertices=undefined;
         this.edgeList=undefined; this.adjList=undefined; this.adjMatrix=undefined;
-        this.isDirected=undefined; this.isMulti=undefined; this.isWeighted=undefined;
+        this.isDirected=undefined; this.isMulti=undefined; this.isWeighted=undefined; this.isNetwork=false;
         this.graphChange=undefined; // function to be called after changing the graph, for exampe adding new edge
         this.graphController=undefined; this.dropdowns=undefined;
         this.init = function (wrapperName, n, isDirected, graphChange = () => {}) {
@@ -442,6 +442,10 @@
             else weight.attr({dy: (isLoop===false)?-7:-3});
             return pathForWeight;
         }
+        function weightName (edge, isNetwork) {
+            if (isNetwork===false) return edge.weight.toString();
+            return (edge.flow+"/"+edge.weight).toString();
+        }
         this.redrawEdge = function (edge, st, end, edgeInd = -1) {
             let properties=edge.drawProperties[0];
             let isLoop=false,isDrawn=(edgeInd===-1);
@@ -525,7 +529,7 @@
             if (this.isDirected===true) edge.line.markerEnd.attr("fill",edge.line.attr("stroke"));
 
             if ((isDrawn===false)&&(this.isWeighted===true)) {
-                edge.weight=this.s.text(0,0,this.edgeList[edgeInd].weight.toString());
+                edge.weight=this.s.text(0,0,weightName(this.edgeList[edgeInd],this.isNetwork));
                 edge.weight.attr({
                     "font-size": this.vertexRad,
                     "font-family": "Arial",
@@ -583,7 +587,7 @@
         }
         this.isDrawable=undefined; this.drawableGraph=undefined; this.isStatic=false;
         this.draw = function (addDraw, animateDraw = true, isStatic = undefined) { /// this functions expects that coordinates are already calculated
-            if (this.drawableGraph!==undefined) this.drawableGraph.clear();
+            if ((this.drawableGraph!==undefined)&&(addDraw===false)) this.drawableGraph.clear();
             
             if (isStatic===undefined) isStatic=this.isStatic;
             else this.isStatic=isStatic;

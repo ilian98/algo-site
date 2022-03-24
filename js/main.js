@@ -357,6 +357,7 @@
             if (part>=3) initExample(part);
         }
         else if (page==="articulation_components.html") initExample(part);
+        else if (page==="min_cut.html") initExample(part);
     }
     
     function unimportantWork () {

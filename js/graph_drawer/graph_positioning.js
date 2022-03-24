@@ -123,7 +123,27 @@
             return possiblePos;
         }
         this.placeVertex = function (vr, tryPlanner) {
-            let currPossiblePos=possiblePos.slice();
+            let currPossiblePos;
+            if (graph.isNetwork===false) currPossiblePos=possiblePos.slice();
+            else {
+                if ((vr===graph.source)||(vr===graph.sink)) {
+                    currPossiblePos=[];
+                    if (possiblePos.length>0) {
+                        let minX=possiblePos[0][0],maxX=possiblePos[0][0];
+                        for (let pos of possiblePos) {
+                            if (minX>pos[0]) minX=pos[0];
+                            if (maxX<pos[0]) maxX=pos[0];
+                        }
+                        currPossiblePos=[];
+                        for (let pos of possiblePos) {
+                            if ((vr===graph.source)&&(minX===pos[0])) currPossiblePos.push(pos);
+                            if ((vr===graph.sink)&&(maxX===pos[0])) currPossiblePos.push(pos);
+                        }
+                    }
+                }
+                else currPossiblePos=possiblePos.slice();
+            }
+            
             for (;;) {
                 if (currPossiblePos.length===0) return false;
                 let ind=parseInt(Math.random()*(10*currPossiblePos.length))%currPossiblePos.length;
@@ -378,8 +398,19 @@
                     }
                     return true;
                 }
+                let cntUniqueEdges=0;
+                for (let i=0; i<graph.n; i++) {
+                    for (let j=0; j<graph.n; j++) {
+                        if (i===j) continue;
+                        if (graph.adjMatrix[i][j].length>0) {
+                            if ((i<j)||((i>j)&&(graph.adjMatrix[j][i].length===0))) {
+                            cntUniqueEdges++;
+                            }
+                        }
+                    }
+                }
                 for (let time=1; time<=maxTimes; time++) {
-                    if ((time<=maxTimes/2)&&((graph.n<=2)||((graph.n>=3)&&(graph.edgeList.length<=3*graph.n-6)))) tryPlanner=true;
+                    if ((time<=maxTimes/2)&&((graph.n<=2)||((graph.n>=3)&&(cntUniqueEdges<=3*graph.n-6)))) tryPlanner=true;
                     if (tryCalc.call(this,tryPlanner)===true) {
                         success=true;
                         break;
@@ -551,6 +582,7 @@
             }
             this.distVertices=graph.vertexRad*5/4+parseInt((Math.random())*graph.vertexRad/4);
             if (graph.isWeighted===true) this.distVertices*=2;
+            if (graph.isNetwork===true) this.distVertices*=2;
         }
         
         function centerGraph () {

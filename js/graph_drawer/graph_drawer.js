@@ -16,8 +16,6 @@
     }
     
     function DrawableGraph (graph) {
-        let globalObj=this; 
-        
         let svgPoint;
         function setSvgPoint (event) {
             let obj=getObjectForCoordinates(event);
@@ -30,10 +28,10 @@
             return s;
         }
         
-        this.addVertexDrag=false;
-        let addVertexDrag,startIndex;
+        let addVertexDrag=false,startIndex=undefined;
         let currEdgeDraw=undefined;
-        let startMousePos,drawProperties;
+        let startMousePos;
+        let drawProperties=undefined;
         
         function redrawEdges (dx, dy) {
             let coords=[graph.svgVertices[startIndex].coord[0]+dx,
@@ -64,8 +62,7 @@
             setSvgPoint(event);
             startMousePos=[svgPoint.x, svgPoint.y];
             
-            if (type==="vertex") addVertexDrag=globalObj.addVertexDrag;
-            else drawProperties=graph.svgEdges[index].drawProperties[0];
+            if (type==="edge") drawProperties=graph.svgEdges[index].drawProperties[0];
             let mouseOut = function (event) {
                 if (event===undefined) return ;
                 let boundBox = {
@@ -194,17 +191,23 @@
                         circles[0].remove();
                         circles[1].remove();
                     }
-                    graph.svgVertices[startIndex].group.transform("t0 0");
-                    redrawEdges(0,0);
+                    if ((drawProperties===undefined)&&(startIndex!==undefined)) {
+                        graph.svgVertices[startIndex].group.transform("t0 0");
+                        redrawEdges(0,0);
+                    }
                 }
+                nearCircles=[];
             }
             else {
                 if (nearLine!==undefined) nearLine.remove();
-                let x=graph.edgeList[startIndex].x,y=graph.edgeList[startIndex].y;
-                let st=graph.svgVertices[x].coord,end=graph.svgVertices[y].coord;
-                graph.svgEdges[startIndex].drawProperties[0]=drawProperties;
-                graph.redrawEdge(graph.svgEdges[startIndex],st,end,startIndex);
+                if ((drawProperties!==undefined)&&(startIndex!==undefined)) {
+                    let x=graph.edgeList[startIndex].x,y=graph.edgeList[startIndex].y;
+                    let st=graph.svgVertices[x].coord,end=graph.svgVertices[y].coord;
+                    graph.svgEdges[startIndex].drawProperties[0]=drawProperties;
+                    graph.redrawEdge(graph.svgEdges[startIndex],st,end,startIndex);
+                }
             }
+            drawProperties=undefined;
             trackedMouse=false;
             $(window).off("mousemove.mouse-out").off("touchmove.mouse-out");
             if (window.isMobile==="false") {
@@ -446,9 +449,20 @@
         }
         function edgeClick (event) {
             if (trackedMouse===true) return ;
+            let ind=this.index;
             if (graph.isWeighted===true) graph.dropdowns.menus["edge"].find(".change-weight").show();
             else graph.dropdowns.menus["edge"].find(".change-weight").hide();
-            graph.dropdowns.showDropdown("edge",event,this.index);
+            if (graph.isNetwork===true) {
+                if (graph.edgeList[ind].real===true) {
+                    graph.dropdowns.menus["edge"].find(".remove-edge").show();
+                    graph.dropdowns.menus["edge"].find(".change-weight").show();
+                }
+                else {
+                    graph.dropdowns.menus["edge"].find(".remove-edge").hide();
+                    graph.dropdowns.menus["edge"].find(".change-weight").hide();
+                }
+            }
+            graph.dropdowns.showDropdown("edge",event,ind);
         }
         
         function addCSSWeight (index) {
@@ -469,25 +483,21 @@
         }
         function weightClick (event) {
             if (trackedMouse===true) return ;
-            graph.dropdowns.showDropdown("weight",event,this.index);
+            let ind=this.index;
+            if (graph.isNetwork===true) {
+                if (graph.edgeList[ind].real===true) graph.dropdowns.menus["weight"].find(".change-weight").show();
+                else graph.dropdowns.menus["weight"].find(".change-weight").hide();
+            }
+            graph.dropdowns.showDropdown("weight",event,ind);
         }
 
         function addVertexEvents (ind) {
             graph.svgVertices[ind].group.attr({cursor: "pointer"});
             graph.svgVertices[ind].group.type="vertex";
             graph.svgVertices[ind].group.index=ind;
-            if (window.isMobile==="false") {
-                graph.svgVertices[ind].group.unmousedown(mouseDown);
-                graph.svgVertices[ind].group.mousedown(mouseDown);
-            }
-            else {
-                graph.svgVertices[ind].group.untouchstart(mouseDown);
-                graph.svgVertices[ind].group.touchstart(mouseDown);
-            }
-            if (graph.isDrawable===true) {
-                graph.svgVertices[ind].group.unclick(vertexClick);
-                graph.svgVertices[ind].group.click(vertexClick);
-            }
+            if (window.isMobile==="false") graph.svgVertices[ind].group.mousedown(mouseDown);
+            else graph.svgVertices[ind].group.touchstart(mouseDown);
+            if (graph.isDrawable===true) graph.svgVertices[ind].group.click(vertexClick);
         }
         let edgeClickAreas=[];
         function addEdgeEvents (ind) {
@@ -516,33 +526,27 @@
             graph.svgEdges[ind].line.type="edge";
             graph.svgEdges[ind].line.index=ind;
             if (window.isMobile==="false") {
-                clickArea.unmousedown(mouseDown);
                 clickArea.mousedown(mouseDown);
-                graph.svgEdges[ind].line.unmousedown(mouseDown);
                 graph.svgEdges[ind].line.mousedown(mouseDown);
             }
             else {
-                clickArea.untouchstart(mouseDown);
                 clickArea.touchstart(mouseDown);
-                graph.svgEdges[ind].line.untouchstart(mouseDown);
                 graph.svgEdges[ind].line.touchstart(mouseDown);
             }
             if (graph.isDrawable===true) {
-                clickArea.unclick(edgeClick);
                 clickArea.click(edgeClick);
-                graph.svgEdges[ind].line.unclick(edgeClick);
                 graph.svgEdges[ind].line.click(edgeClick);
             }
             if ((graph.isDrawable===true)&&(graph.svgEdges[ind].weight!==undefined)) {
                 graph.svgEdges[ind].weight.index=ind;
                 graph.svgEdges[ind].weight.attr({cursor: "pointer"});
                 graph.edgeList[ind].defaultCSS[1]+=" ; cursor: pointer";
-                graph.svgEdges[ind].weight.unclick(weightClick);
                 graph.svgEdges[ind].weight.click(weightClick);
             }
         }
         
         this.init = function () {
+            this.clear();
             svgPoint=graph.s.paper.node.createSVGPoint();
             
             let dropdowns=graph.dropdowns;
@@ -588,21 +592,21 @@
                 }
                 if ($(graph.wrapperName+" .dragging-mini").length!==0) {
                     let dragSwitch=$(graph.wrapperName+" .dragging-mini");
-                    if ((this.addVertexDrag===true)&&(dragSwitch.val()==="off")) {
+                    if ((addVertexDrag===true)&&(dragSwitch.val()==="off")) {
                         dragSwitch.val("on");
                         dragSwitch.parent().prop("title",(language==="bg")?"Чертаене на ребра":"Drawing edges");
                     }
-                    else if ((this.addVertexDrag===false)&&(dragSwitch.val()==="on")) {
+                    else if ((addVertexDrag===false)&&(dragSwitch.val()==="on")) {
                         dragSwitch.val("off");
                         dragSwitch.parent().prop("title",(language==="bg")?"Преместване на върховете":"Moving the vertices");
                     }
                     $(graph.wrapperName+" .dragging-mini").off("click").on("click",function () {
-                        if (this.addVertexDrag===true) {
-                            this.addVertexDrag=false;
+                        if (addVertexDrag===true) {
+                            addVertexDrag=false;
                             dragSwitch.parent().prop("title",(language==="bg")?"Преместване на върховете":"Moving the vertices");
                         }
                         else {
-                            this.addVertexDrag=true;
+                            addVertexDrag=true;
                             dragSwitch.parent().prop("title",(language==="bg")?"Чертаене на ребра":"Drawing edges");
                         }
                     }.bind(this));
@@ -611,20 +615,56 @@
                     $(graph.wrapperName+" .settings").off("click.draw-settings").on("click.draw-settings",this.addSettings.bind(this));
                 }
             }
-            else this.addVertexDrag=true;
+            else addVertexDrag=true;
         }
         this.clear = function () {
-            $(graph.svgName).off("dblclick");
+            let svgElement=$(graph.svgName);
+            svgElement.off("dblclick");
+            svgElement.off("touchstart.add-vertex");
+            if ($(graph.wrapperName+" .dragging-mini").length!==0) $(graph.wrapperName+" .dragging-mini").off("click");
+            else $(graph.wrapperName+" .settings").off("click.draw-settings");
+            
+            clearClickParameters("vertex");
+            clearClickParameters("edge");
+            startIndex=undefined;
+            
+            for (let i=0; i<graph.n; i++) {
+                if ((graph.vertices[i]===undefined)||(graph.svgVertices[i]===undefined)) continue;
+                graph.svgVertices[i].group.attr({cursor: "auto"});
+                delete graph.svgVertices[i].group.type;
+                delete graph.svgVertices[i].group.index;
+                if (window.isMobile==="false") graph.svgVertices[i].group.unmousedown(mouseDown);
+                else graph.svgVertices[i].group.untouchstart(mouseDown);
+                graph.svgVertices[i].group.unclick(vertexClick);
+            }
+            for (let i=0; i<graph.edgeList.length; i++) {
+                if (edgeClickAreas[i]!==undefined) edgeClickAreas[i].remove();
+                if ((graph.edgeList[i]===undefined)||(graph.svgEdges[i]===undefined)) continue;
+                
+                graph.svgEdges[i].line.attr({cursor: "auto"});
+                delete graph.svgEdges[i].line.type;
+                delete graph.svgEdges[i].line.index;
+                if (window.isMobile==="false") graph.svgEdges[i].line.unmousedown(mouseDown);
+                else graph.svgEdges[i].line.untouchstart(mouseDown);
+                graph.svgEdges[i].line.unclick(edgeClick);
+                if (graph.svgEdges[i].weight!==undefined) {
+                    delete graph.svgEdges[i].weight.index;
+                    graph.svgEdges[i].weight.attr({cursor: "auto"});
+                    graph.svgEdges[i].weight.unclick(weightClick);
+                }
+            }
+            $(".click-area").remove();
+            edgeClickAreas=[];
         }
         
         this.addSettings = function () {
-            if (this.addVertexDrag===false) $("#edgeDraw").click();
+            if (addVertexDrag===false) $("#edgeDraw").click();
             else $("#vertexMove").click();
             $("#edgeDraw").off("click").on("click",function () {
-                this.addVertexDrag=false;
+                addVertexDrag=false;
             }.bind(this));
             $("#vertexMove").off("click").on("click",function () {
-                this.addVertexDrag=true;
+                addVertexDrag=true;
             }.bind(this));
         }
     }
