@@ -777,7 +777,7 @@
             if (cntAnimations===0) animationsEnd.call(this);
         }
         
-        this.addEdge = function (x, y, weight, css = ["",""], curveHeight=undefined, prevInd = undefined, undoType) {
+        this.addEdge = function (x, y, weight, css = ["",""], curveHeight=undefined, prevInd = undefined, undoType, isReal = true, revData = []) {
             let ind;
             if (prevInd!==undefined) ind=prevInd;
             else {
@@ -788,7 +788,8 @@
                     }
                 }
             }
-            if (this.graphController!==undefined) this.graphController.registerAction("add-edge",[ind],undoType);
+            if ((this.graphController!==undefined)&&(isReal===true))
+                this.graphController.registerAction("add-edge",[ind],undoType);
             
             this.edgeList[ind]=new Edge(x,y,weight,css,curveHeight);
             this.adjList[x].push(ind);
@@ -796,12 +797,19 @@
             this.adjMatrix[x][y].push(ind);
             if ((this.isDirected===false)&&(x!==y)) this.adjMatrix[y][x].push(ind);
             if (this.isDirected===true) this.reverseAdjList[y].push(ind);
+            
+            if ((this.isNetwork===true)&&(isReal===true)) this.addReverseEdge(ind,revData);
             return ind;
         }
         this.removeEdge = function (index, undoType) {
-            let edge=this.edgeList[index];
-            if (this.graphController!==undefined) 
-                this.graphController.registerAction("remove-edge",[index, convertEdgeToList(edge)],undoType);
+            let edge=this.edgeList[index],revData=[];
+            if ((this.isNetwork===true)&&(edge.real===true)) {
+                let l=convertEdgeToList(this.edgeList[edge.rev]);
+                revData=[l[3], l[4], edge.rev];
+                this.removeEdge(edge.rev);
+            }
+            if ((this.graphController!==undefined)&&((this.isNetwork===false)||(edge.real===true)))
+                this.graphController.registerAction("remove-edge",[index, convertEdgeToList(edge), revData],undoType);
             
             this.adjMatrix[edge.x][edge.y].splice(this.adjMatrix[edge.x][edge.y].indexOf(index),1);
             this.adjList[edge.x].splice(this.adjList[edge.x].indexOf(index),1);
@@ -844,10 +852,12 @@
         this.removeVertex = function (x, undoType) {
             let removeEdges=[];
             for (let ind of this.adjList[x]) {
+                if ((this.isNetwork===true)&&(this.edgeList[ind].real===false)) continue;
                 removeEdges.push(ind);
             }
             if (this.isDirected===true) {
                 for (let ind of this.reverseAdjList[x]) {
+                    if ((this.isNetwork===true)&&(this.edgeList[ind].real===false)) continue;
                     removeEdges.push(ind);
                 }
             }

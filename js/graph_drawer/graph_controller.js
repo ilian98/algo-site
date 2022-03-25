@@ -265,6 +265,17 @@
                 if (curr.type==="vertex-list") graph.initVertices(curr.data[0],curr.data[1],undoType);
                 else if (curr.type==="edge-list") graph.buildEdgeDataStructures(curr.data,undoType);
                 else if (curr.type==="new-positions") graph.calcPositions.changePositions(curr.data[0],curr.data[1],undoType);
+                else if (curr.type==="network-conversion") {
+                    pushOther(curr.type, [graph.isNetwork, graph.source, graph.sink]);
+                    if (graph.isNetwork===false) graph.convertToNetwork(curr.data[1],curr.data[2],true,undoType);
+                    else {
+                        for (let i=0; i<graph.edgeList.length; i++) {
+                            if (graph.edgeList[i]===undefined) continue;
+                            if (graph.edgeList[i].real===false) graph.removeEdge(i);
+                        }
+                        graph.isNetwork=false;
+                    }
+                }
                 else {
                     let ind=curr.data[0];
                     if (curr.type==="new-pos") {
@@ -274,7 +285,7 @@
                     else if (curr.type==="add-edge") graph.removeEdge(ind,undoType);
                     else if (curr.type==="remove-edge") {
                         let edgeData=curr.data[1];
-                        graph.addEdge(edgeData[0],edgeData[1],edgeData[2],edgeData[3],edgeData[4],ind,undoType);
+                        graph.addEdge(edgeData[0],edgeData[1],edgeData[2],edgeData[3],edgeData[4],ind,undoType,true,curr.data[2]);
                     }
                     else if (curr.type==="add-vertex") graph.removeVertex(ind,undoType);
                     else if (curr.type==="remove-vertex") {
