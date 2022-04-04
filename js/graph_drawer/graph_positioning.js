@@ -303,8 +303,8 @@
             }
             return [originalPos.slice(), oldCoords];
         }
-        this.changePositions = function (allPositions, versCoord, undoType) {
-            if (graph.graphController!==undefined) graph.graphController.registerAction("new-positions",findPositions(),undoType);
+        this.changePositions = function (allPositions, versCoord) {
+            if (graph.graphController!==undefined) graph.graphController.registerAction("new-positions",findPositions());
             
             if (allPositions.length>0) originalPos=allPositions;
             let i=0;

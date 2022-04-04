@@ -10,15 +10,15 @@
                 curveHeight=data[1];
                 prevInd=data[2];
             }
-            let rev=this.addEdge(y,x,0,css,curveHeight,prevInd,undefined,false);
+            let rev=this.addEdge(y,x,0,css,curveHeight,prevInd,false);
             this.edgeList[ind].flow=0; this.edgeList[ind].rev=rev; this.edgeList[ind].real=true;
             this.edgeList[rev].flow=0; this.edgeList[rev].rev=ind; this.edgeList[rev].real=false;
         },
-        convertToNetwork: function (source, sink, separateChange = true, undoType) {
-            if ((this.graphController!==undefined)&&(undoType===undefined)) {
+        convertToNetwork: function (source, sink, separateChange = true) {
+            if (this.graphController!==undefined) {
                 if (separateChange===false) this.graphController.undoTime--;
                 this.graphController.addChange("network-conversion",
-                                               [this.isNetwork, this.source, this.sink],true,undoType);
+                                               [this.isNetwork, this.source, this.sink],true);
             }
             
             this.isNetwork=true;

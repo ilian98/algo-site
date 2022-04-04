@@ -227,9 +227,9 @@
             }
             return vers;
         }
-        this.initVertices = function (n, vers, undoType) {
+        this.initVertices = function (n, vers) {
             if (this.graphController!==undefined) 
-                this.graphController.registerAction("vertex-list",[this.n, this.convertSimpleVertexList()],undoType);
+                this.graphController.registerAction("vertex-list",[this.n, this.convertSimpleVertexList()]);
             
             this.n=n; this.vertices=[];
             for (let i=0; i<this.n; i++) {
@@ -259,9 +259,9 @@
             }
             return edges;
         }
-        this.buildEdgeDataStructures = function (edges, undoType) {
+        this.buildEdgeDataStructures = function (edges) {
             if (this.graphController!==undefined) 
-                this.graphController.registerAction("edge-list",this.convertSimpleEdgeList(),undoType);
+                this.graphController.registerAction("edge-list",this.convertSimpleEdgeList());
             
             let edgeList=this.edgeList=[];
             for (let edge of edges) {
@@ -340,6 +340,7 @@
             
             if (this.calcPositions===undefined) this.initViewBox=[viewBox.width, viewBox.height];
             function changeViewBox () {
+                if (svgObject.is(":hidden")===true) return ;
                 let viewBox=svgObject.prop("viewBox").baseVal;
                 svgObject.attr("viewBox",viewBox.x+" "+viewBox.y+" "+this.initViewBox[0]+" "+this.initViewBox[1]);
                 if (svgObject.outerWidth()!=svgObject.parent().width()) {
@@ -608,8 +609,8 @@
                         (this.svgVertices[i].group!==undefined)&&(this.svgVertices[i].coord!==undefined)&&
                         (this.svgVertices[i].group.removed!==true)) {
                         oldVersCoords[i]=this.svgVertices[i].group.getBBox();
-                        if ((oldVersCoords[i].x+oldRad!=this.svgVertices[i].coord[0])||
-                            (oldVersCoords[i].y+oldRad!=this.svgVertices[i].coord[1])) {
+                        if ((Math.abs(oldVersCoords[i].x+oldRad-this.svgVertices[i].coord[0])>0.0001)||
+                            (Math.abs(oldVersCoords[i].y+oldRad-this.svgVertices[i].coord[1])>0.0001)) {
                             changedVers[i]=true;
                         }
                         else changedVers[i]=false;
@@ -730,6 +731,7 @@
                     this.svgVertices[i].group.animate({transform: "t 0 0"},500,animationsEnd.bind(this));
                 }
             }
+            this.graphChange();
             for (let i=this.n; i<this.svgVertices.length; i++) {
                 this.svgVertices[i]=undefined;
             }
@@ -771,13 +773,12 @@
                         }
                         if (this.drawableGraph!==undefined) this.drawableGraph.init();
                     }
-                    this.graphChange();
                 }
             }
             if (cntAnimations===0) animationsEnd.call(this);
         }
         
-        this.addEdge = function (x, y, weight, css = ["",""], curveHeight=undefined, prevInd = undefined, undoType, isReal = true, revData = []) {
+        this.addEdge = function (x, y, weight, css = ["",""], curveHeight=undefined, prevInd = undefined, isReal = true, revData = []) {
             let ind;
             if (prevInd!==undefined) ind=prevInd;
             else {
@@ -789,7 +790,7 @@
                 }
             }
             if ((this.graphController!==undefined)&&(isReal===true))
-                this.graphController.registerAction("add-edge",[ind],undoType);
+                this.graphController.registerAction("add-edge",[ind]);
             
             this.edgeList[ind]=new Edge(x,y,weight,css,curveHeight);
             this.adjList[x].push(ind);
@@ -801,7 +802,7 @@
             if ((this.isNetwork===true)&&(isReal===true)) this.addReverseEdge(ind,revData);
             return ind;
         }
-        this.removeEdge = function (index, undoType) {
+        this.removeEdge = function (index) {
             let edge=this.edgeList[index],revData=[];
             if ((this.isNetwork===true)&&(edge.real===true)) {
                 let l=convertEdgeToList(this.edgeList[edge.rev]);
@@ -809,7 +810,7 @@
                 this.removeEdge(edge.rev);
             }
             if ((this.graphController!==undefined)&&((this.isNetwork===false)||(edge.real===true)))
-                this.graphController.registerAction("remove-edge",[index, convertEdgeToList(edge), revData],undoType);
+                this.graphController.registerAction("remove-edge",[index, convertEdgeToList(edge), revData]);
             
             this.adjMatrix[edge.x][edge.y].splice(this.adjMatrix[edge.x][edge.y].indexOf(index),1);
             this.adjList[edge.x].splice(this.adjList[edge.x].indexOf(index),1);
@@ -823,7 +824,7 @@
             this.svgEdges[index]=undefined;
             this.edgeList[index]=undefined;
         }
-        this.addVertex = function (name, css = ["",""], prevInd = undefined, undoType) {
+        this.addVertex = function (name, css = ["",""], prevInd = undefined) {
             let ind;
             if (prevInd!==undefined) ind=prevInd;
             else {
@@ -834,7 +835,7 @@
                     }
                 }
             }
-            if (this.graphController!==undefined) this.graphController.registerAction("add-vertex",[ind],undoType);
+            if (this.graphController!==undefined) this.graphController.registerAction("add-vertex",[ind]);
             
             this.vertices[ind]=new Vertex(name,css);
             if (ind===this.n) {
@@ -849,7 +850,7 @@
             }
             this.svgVertices[ind]=new SvgVertex();
         }
-        this.removeVertex = function (x, undoType) {
+        this.removeVertex = function (x) {
             let removeEdges=[];
             for (let ind of this.adjList[x]) {
                 if ((this.isNetwork===true)&&(this.edgeList[ind].real===false)) continue;
@@ -861,17 +862,16 @@
                     removeEdges.push(ind);
                 }
             }
+            if (this.graphController!==undefined) this.graphController.freezeTime();
             for (let ind of removeEdges) {
-                this.removeEdge(ind,undoType);
-                if (this.graphController!==undefined) {
-                    if ((undoType===undefined)||(undoType==="redo")) this.graphController.undoTime--;
-                    else this.graphController.redoTime--;
-                }
+                this.removeEdge(ind);
             }
             
-            if (this.graphController!==undefined)
+            if (this.graphController!==undefined) {
                 this.graphController.registerAction("remove-vertex",
-                                                    [x, [this.svgVertices[x].coord[0], this.svgVertices[x].coord[1]], convertVertexToList(this.vertices[x])],undoType);
+                                                    [x, [this.svgVertices[x].coord[0], this.svgVertices[x].coord[1]], convertVertexToList(this.vertices[x])]);
+                this.graphController.advanceTime();
+            }
             
             this.svgVertices[x].group.remove();
             this.svgVertices[x]=undefined;
@@ -886,8 +886,8 @@
             let graphProperties=[this.isDirected, this.isTree, this.isWeighted, this.isMulti];
             this.isDirected=isDirected; this.isTree=isTree;
             this.isWeighted=isWeighted; this.isMulti=isMulti;
+            if (this.graphController!==undefined) this.freezeTime();
             this.initVertices(n,vers);
-            if (this.graphController!==undefined) this.graphController.undoTime--;
             this.buildEdgeDataStructures(edges);
             if (this.graphController!==undefined) {
                 if ((this.graphController.changeType[1]===false)&&(this.isWeighted!==isWeighted)) {
@@ -902,7 +902,6 @@
                 }
             }
             if (this.graphController!==undefined) {
-                this.graphController.undoTime--;
                 if (graphProperties[0]!=this.isDirected) 
                     this.graphController.addChange("change-property",["isDirected", graphProperties[0]],false);
                 if (graphProperties[1]!=this.isTree)
@@ -919,6 +918,7 @@
                 if (posProperties===undefined) this.calcPositions.calcOriginalPos();
                 else this.calcPositions.calcOriginalPos(posProperties[0],posProperties[1],posProperties[2]);
             }
+            if (this.graphController!==undefined) this.graphController.advanceTime();
             this.draw(this.isDrawable,false);
         }
         this.export = function () {

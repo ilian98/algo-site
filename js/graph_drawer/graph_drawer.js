@@ -179,35 +179,38 @@
             else nearLine.attr({opacity: 0});
         }
         
-        function clearClickParameters (type) {
-            $(graph.svgName).css({"border-color": "transparent"});
-            if (type==="vertex") {
-                if (addVertexDrag===false) {
-                    if (currEdgeDraw!==undefined) currEdgeDraw.line.remove();
-                    currEdgeDraw=undefined;
-                }
-                else {
-                    for (let circles of nearCircles) {
-                        circles[0].remove();
-                        circles[1].remove();
-                    }
-                    if ((drawProperties===undefined)&&(startIndex!==undefined)) {
-                        graph.svgVertices[startIndex].group.transform("t0 0");
-                        redrawEdges(0,0);
-                    }
-                }
-                nearCircles=[];
+        function clearVertexParameters () {
+            if (addVertexDrag===false) {
+                if (currEdgeDraw!==undefined) currEdgeDraw.line.remove();
+                currEdgeDraw=undefined;
             }
             else {
-                if (nearLine!==undefined) nearLine.remove();
-                if ((drawProperties!==undefined)&&(startIndex!==undefined)) {
-                    let x=graph.edgeList[startIndex].x,y=graph.edgeList[startIndex].y;
-                    let st=graph.svgVertices[x].coord,end=graph.svgVertices[y].coord;
-                    graph.svgEdges[startIndex].drawProperties[0]=drawProperties;
-                    graph.redrawEdge(graph.svgEdges[startIndex],st,end,startIndex);
+                for (let circles of nearCircles) {
+                    circles[0].remove();
+                    circles[1].remove();
+                }
+                if ((drawProperties===undefined)&&(startIndex!==undefined)) {
+                    graph.svgVertices[startIndex].group.transform("t0 0");
+                    redrawEdges(0,0);
                 }
             }
-            drawProperties=undefined;
+            nearCircles=[];
+        }
+        function clearEdgeParameters () {
+            if (nearLine!==undefined) nearLine.remove();
+            if ((drawProperties!==undefined)&&(startIndex!==undefined)) {
+                let x=graph.edgeList[startIndex].x,y=graph.edgeList[startIndex].y;
+                let st=graph.svgVertices[x].coord,end=graph.svgVertices[y].coord;
+                graph.svgEdges[startIndex].drawProperties[0]=drawProperties;
+                graph.redrawEdge(graph.svgEdges[startIndex],st,end,startIndex);
+            }
+        }
+        function clearClickParameters (type) {
+            if (type==="vertex") clearVertexParameters();
+            else if (type==="edge") clearEdgeParameters();
+            
+            $(graph.svgName).css({"border-color": "transparent"});
+            drawProperties=undefined; startIndex=undefined;
             trackedMouse=false;
             $(window).off("mousemove.mouse-out").off("touchmove.mouse-out");
             if (window.isMobile==="false") {
@@ -221,10 +224,11 @@
         }
         
         function mouseUpVertex (event) {
+            let index=startIndex;
             if (trackedMouse===false) { // click event
                 clearClickParameters("vertex");
                 if ((window.isMobile==="true")&&(graph.isDrawable===true)) 
-                    vertexClick.call(graph.svgVertices[startIndex].group,event);
+                    vertexClick.call(graph.svgVertices[index].group,event);
                 return ;
             }
             clearClickParameters("vertex");
@@ -235,20 +239,20 @@
                     if (segmentLength(svgPoint.x,svgPoint.y,
                                       graph.svgVertices[i].coord[0],
                                       graph.svgVertices[i].coord[1])<graph.vertexRad) {
-                        if ((startIndex===i)&&
+                        if ((index===i)&&
                             (segmentLength(svgPoint.x,svgPoint.y,startMousePos[0],startMousePos[1])<graph.vertexRad/2)) return ;
-                        if ((graph.isMulti===false)&&(graph.adjMatrix[startIndex][i].length>=1)) return ;
+                        if ((graph.isMulti===false)&&(graph.adjMatrix[index][i].length>=1)) return ;
                         
                         if (graph.isMulti===true) {
-                            if (startIndex!==i) {
+                            if (index!==i) {
                                 let maxEdges=(graph.isWeighted===true)?2:5;
-                                if ((graph.isDirected===false)&&(graph.adjMatrix[startIndex][i].length===maxEdges)) return ;
+                                if ((graph.isDirected===false)&&(graph.adjMatrix[index][i].length===maxEdges)) return ;
                                 if ((graph.isDirected===true)&&
-                                    (graph.adjMatrix[startIndex][i].length+graph.adjMatrix[i][startIndex].length===maxEdges)) 
+                                    (graph.adjMatrix[index][i].length+graph.adjMatrix[i][index].length===maxEdges)) 
                                     return ;
                             }
                             else {
-                                if (graph.adjMatrix[startIndex][i].length===2) return ;
+                                if (graph.adjMatrix[index][i].length===2) return ;
                             }
                         }
 
@@ -259,8 +263,8 @@
                             weight=parseInt(weight);
                             if (weight===0) return ;
                         }
-                        let ind=graph.addEdge(startIndex,i,weight);
-                        if (graph.calcPositions.checkEdge(startIndex,i,ind)===false) {
+                        let ind=graph.addEdge(index,i,weight);
+                        if (graph.calcPositions.checkEdge(index,i,ind)===false) {
                             let oldCoords=[graph.svgVertices[i].coord[0], graph.svgVertices[i].coord[1]];
                             if (graph.graphController!==undefined) 
                                 graph.graphController.addChange("new-pos",[i, oldCoords],false);
@@ -279,7 +283,7 @@
                 }
             }
             else {
-                let ind=startIndex;
+                let ind=index;
                 let dx=svgPoint.x-startMousePos[0],dy=svgPoint.y-startMousePos[1];
                 let oldCoords=[graph.svgVertices[ind].coord[0], graph.svgVertices[ind].coord[1]];
                 graph.svgVertices[ind].coord=undefined;
@@ -299,22 +303,23 @@
             }
         }
         function mouseUpEdge (event) {
-            let height=graph.svgEdges[startIndex].drawProperties[0];
+            let index=startIndex;
+            let height=graph.svgEdges[index].drawProperties[0];
             if (trackedMouse===false) { // click event
                 clearClickParameters("edge");
-                if ((window.isMobile==="true")&&(graph.isDrawable===true)) edgeClick.call(graph.svgEdges[startIndex].line,event);
+                if ((window.isMobile==="true")&&(graph.isDrawable===true)) edgeClick.call(graph.svgEdges[index].line,event);
                 return ;
             }
             clearClickParameters("edge");
             
-            if (Math.abs(height-graph.svgEdges[startIndex].drawProperties[2])<graph.vertexRad/4) height=undefined;
-            let oldCurveHeight=graph.edgeList[startIndex].curveHeight;
+            if (Math.abs(height-graph.svgEdges[index].drawProperties[2])<graph.vertexRad/4) height=undefined;
+            let oldCurveHeight=graph.edgeList[index].curveHeight;
             if (oldCurveHeight!==height) {
                 if (graph.graphController!==undefined)
-                    graph.graphController.addChange("change-curve-height",[startIndex, oldCurveHeight]);
+                    graph.graphController.addChange("change-curve-height",[index, oldCurveHeight]);
             }
             
-            graph.edgeList[startIndex].curveHeight=height;
+            graph.edgeList[index].curveHeight=height;
             graph.draw(graph.isDrawable,false);
         }
         
@@ -624,9 +629,9 @@
             if ($(graph.wrapperName+" .dragging-mini").length!==0) $(graph.wrapperName+" .dragging-mini").off("click");
             else $(graph.wrapperName+" .settings").off("click.draw-settings");
             
-            clearClickParameters("vertex");
-            clearClickParameters("edge");
-            startIndex=undefined;
+            clearVertexParameters();
+            clearEdgeParameters();
+            clearClickParameters("vertex&edge");
             
             for (let i=0; i<graph.n; i++) {
                 if ((graph.vertices[i]===undefined)||(graph.svgVertices[i]===undefined)) continue;

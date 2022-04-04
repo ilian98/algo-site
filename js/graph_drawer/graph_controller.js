@@ -191,18 +191,21 @@
             }
             else graphs.set(graph.wrapperName,graph);
         }
-        this.addChange = function (type, data, increaseTime = true, undoType) {
+        this.undoType="default"; this.increaseTime=true;
+        this.addChange = function (type, data, increaseTime = true) {
+            if (this.increaseTime===false) increaseTime=false;
             this.undoStack.push({
                 time: this.undoTime, 
                 type: type, 
                 data: data
             });
             if (increaseTime===true) this.undoTime++;
-            if (undoType===undefined) this.redoStack=[];
+            if (this.undoType==="default") this.redoStack=[];
         }
-        this.addChanges = function (changes, increaseTime = true, undoType) {
+        this.addChanges = function (changes, increaseTime = true) {
+            if (this.increaseTime===false) increaseTime=false;
             for (let [type, data] of changes) {
-                this.addChange(type,data,false,undoType);
+                this.addChange(type,data,false);
             }
             if (increaseTime===true) this.undoTime++;
         }
@@ -212,7 +215,7 @@
                 type: type,
                 data: data
             });
-            this.redoTime++;
+            if (this.increaseTime===true) this.redoTime++;
         }
         this.removeChange = function () {
             this.undoStack.pop();
@@ -226,9 +229,17 @@
                 this.removeChange();
             }
         }
-        this.registerAction = function (type, data, undoType) {
-            if ((undoType===undefined)||(undoType==="redo")) this.addChange(type,data,true,undoType);
+        this.registerAction = function (type, data) {
+            if ((this.undoType==="default")||(this.undoType==="redo")) this.addChange(type,data,true);
             else this.redoChange(type,data);
+        }
+        this.freezeTime = function () {
+            this.increaseTime=false;
+        }
+        this.advanceTime = function () {
+            this.increaseTime=true;
+            if ((this.undoType==="default")||(this.undoType==="redo")) this.undoTime++;
+            else this.redoTime++;
         }
         
         this.changeType=[true, true, true]; this.changeVers=true; this.changeRad=true;
@@ -239,6 +250,9 @@
         }
         
         this.undoAction = function (undoType) {
+            this.undoType=undoType;
+            this.increaseTime=true;
+            
             let stack,otherStack;
             if (undoType==="undo") stack=this.undoStack, otherStack=this.redoStack;
             else stack=this.redoStack, otherStack=this.undoStack;
@@ -262,13 +276,13 @@
                 let curr=stack[stack.length-1];
                 if (curr.time!==currTime) break;
                 stack.pop();
-                if (curr.type==="vertex-list") graph.initVertices(curr.data[0],curr.data[1],undoType);
-                else if (curr.type==="edge-list") graph.buildEdgeDataStructures(curr.data,undoType);
-                else if (curr.type==="new-positions") graph.calcPositions.changePositions(curr.data[0],curr.data[1],undoType);
+                if (curr.type==="vertex-list") graph.initVertices(curr.data[0],curr.data[1]);
+                else if (curr.type==="edge-list") graph.buildEdgeDataStructures(curr.data);
+                else if (curr.type==="new-positions") graph.calcPositions.changePositions(curr.data[0],curr.data[1]);
                 else if (curr.type==="network-conversion") {
-                    pushOther(curr.type, [graph.isNetwork, graph.source, graph.sink]);
-                    if (graph.isNetwork===false) graph.convertToNetwork(curr.data[1],curr.data[2],true,undoType);
+                    if (graph.isNetwork===false) graph.convertToNetwork(curr.data[1],curr.data[2],true);
                     else {
+                        pushOther(curr.type, [graph.isNetwork, graph.source, graph.sink]);
                         for (let i=0; i<graph.edgeList.length; i++) {
                             if (graph.edgeList[i]===undefined) continue;
                             if (graph.edgeList[i].real===false) graph.removeEdge(i);
@@ -282,14 +296,14 @@
                         pushOther(curr.type,[ind, [graph.svgVertices[ind].coord[0], graph.svgVertices[ind].coord[1]]]);
                         graph.svgVertices[ind].coord=curr.data[1];
                     }
-                    else if (curr.type==="add-edge") graph.removeEdge(ind,undoType);
+                    else if (curr.type==="add-edge") graph.removeEdge(ind);
                     else if (curr.type==="remove-edge") {
                         let edgeData=curr.data[1];
-                        graph.addEdge(edgeData[0],edgeData[1],edgeData[2],edgeData[3],edgeData[4],ind,undoType,true,curr.data[2]);
+                        graph.addEdge(edgeData[0],edgeData[1],edgeData[2],edgeData[3],edgeData[4],ind,true,curr.data[2]);
                     }
-                    else if (curr.type==="add-vertex") graph.removeVertex(ind,undoType);
+                    else if (curr.type==="add-vertex") graph.removeVertex(ind);
                     else if (curr.type==="remove-vertex") {
-                        graph.addVertex(curr.data[2][0],curr.data[2][1],ind,undoType);
+                        graph.addVertex(curr.data[2][0],curr.data[2][1],ind);
                         graph.svgVertices[ind].coord=curr.data[1];
                     }
                     else if (curr.type==="change-curve-height") {
@@ -341,6 +355,7 @@
             }
             if (undoType==="undo") this.redoTime++;
             else this.undoTime++;
+            this.undoType="default";
             
             graph.draw(graph.isDrawable);
         }
