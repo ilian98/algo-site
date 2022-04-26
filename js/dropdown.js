@@ -8,6 +8,7 @@
         else return event;
     }
     
+    let dropdowns=[];
     function Dropdowns () {
         let dropdowns = new Map();
         this.menus=[];
@@ -64,4 +65,5 @@
     
 
     window.Dropdowns = Dropdowns;
+    window.dropdowns = dropdowns;
 })();

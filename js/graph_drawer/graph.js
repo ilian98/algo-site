@@ -154,6 +154,7 @@
     async function GraphLoadData () {
         loadFontData().then(() => {
             for (let [name, graph] of graphs) {
+                if (graph.svgVertices.length===0) continue;
                 graph.draw(graph.isDrawable,false);
             }
         }, () => { alert("Load font data error!") });
@@ -166,7 +167,7 @@
         this.edgeList=undefined; this.adjList=undefined; this.adjMatrix=undefined;
         this.isDirected=undefined; this.isMulti=undefined; this.isWeighted=undefined; this.isNetwork=false;
         this.graphChange=undefined; // function to be called after changing the graph, for exampe adding new edge
-        this.graphController=undefined; this.dropdowns=undefined;
+        this.graphController=undefined;
         this.init = function (wrapperName, n, isDirected, graphChange = () => {}) {
             if (this.wrapperName===undefined) {
                 this.wrapperName=wrapperName;
@@ -183,7 +184,7 @@
             this.erase();
             this.svgVertices=[]; this.svgEdges=[];
             
-            this.dropdowns = new Dropdowns();
+            dropdowns[wrapperName] = new Dropdowns();
             if ((typeof GraphController==="function")&&
                 (($(wrapperName+" .settings-panel").length!=0)||($(wrapperName+" .save").length!==0))) {
                 this.graphController = new GraphController(this);
@@ -416,7 +417,7 @@
             let arrowWidth=3*arrowHeight/2;
             return [arrowHeight, arrowWidth, strokeWidth/arrowHeight*arrowWidth];
         }
-        function addMarkerEnd (line, isLoop, strokeWidth, st, properties) {
+        this.addMarkerEnd = function (line, isLoop, strokeWidth, st, properties) {
             let [arrowHeight, arrowWidth, arrowDist]=calculateArrowProperties(isLoop,strokeWidth,st,this.vertexRad,properties);
             let arrowEnd=[3*arrowHeight/2,arrowHeight/2];
             let arrow=this.s.polygon([0,0,arrowEnd[0],arrowEnd[1],0,arrowHeight,0,0]).attr({fill: line.attr("stroke")});
@@ -525,7 +526,7 @@
             }
 
             edge.line.attr({fill: "none", stroke: "black", "stroke-width": strokeWidth});
-            if (this.isDirected===true) addMarkerEnd.call(this,edge.line,isLoop,strokeWidth,st,properties);
+            if (this.isDirected===true) this.addMarkerEnd(edge.line,isLoop,strokeWidth,st,properties);
             if (isDrawn===false) this.edgeList[edgeInd].defaultCSS[0]=setStyle(edge.line,this.edgeList[edgeInd].addedCSS[0]);
             if (this.isDirected===true) edge.line.markerEnd.attr("fill",edge.line.attr("stroke"));
 
@@ -573,7 +574,6 @@
             let x=this.svgVertices[i].coord[0],y=this.svgVertices[i].coord[1];
             this.svgVertices[i].circle=this.s.circle(x,y,this.vertexRad);
             this.svgVertices[i].circle.attr({fill: "white", stroke: "black", "stroke-width": this.findStrokeWidth()});
-            this.svgVertices[i].circle.animate({"stroke-width": 100},500);
             this.vertices[i].defaultCSS[0]=setStyle(this.svgVertices[i].circle,this.vertices[i].addedCSS[0]);
             this.drawVertexText(i,this.vertices[i].name);
         }
@@ -755,7 +755,7 @@
                         if (this.isDirected===true) {
                             let x=this.edgeList[i].x,y=this.edgeList[i].y;
                             this.svgEdges[i].line.markerEnd.remove();
-                            addMarkerEnd.call(this,this.svgEdges[i].line,(x===y),this.findStrokeWidth(val),
+                            this.addMarkerEnd(this.svgEdges[i].line,(x===y),this.findStrokeWidth(val),
                                               this.svgVertices[x].coord,this.svgEdges[i].drawProperties[0]);
                         }
                         if (this.svgEdges[i].weight!==undefined) this.svgEdges[i].weight.attr({"font-size": val});
@@ -886,7 +886,7 @@
             let graphProperties=[this.isDirected, this.isTree, this.isWeighted, this.isMulti];
             this.isDirected=isDirected; this.isTree=isTree;
             this.isWeighted=isWeighted; this.isMulti=isMulti;
-            if (this.graphController!==undefined) this.freezeTime();
+            if (this.graphController!==undefined) this.graphController.freezeTime();
             this.initVertices(n,vers);
             this.buildEdgeDataStructures(edges);
             if (this.graphController!==undefined) {
@@ -976,8 +976,6 @@
         this.setSettings = function (changeType = [true, true, true], changeVers = true, changeRad = true) {
             this.graphController.setSettings(changeType,changeVers,changeRad);
         }
-        
-        this.dropdowns=undefined;
     }
     
     

@@ -372,9 +372,9 @@
                 $(wrapperName+" .dragging-mini").parent().removeClass("d-flex").addClass("d-none");
                 $(wrapperName+" .settings").parent().removeClass("d-flex").addClass("d-none");
                 
-                if (graph.dropdowns.menus["save-menu"]!==undefined) {
-                    graph.dropdowns.menus["save-menu"].find(".txt").hide();
-                    graph.dropdowns.menus["save-menu"].find(".edge-list").hide();
+                if (dropdowns[graph.wrapperName].menus["save-menu"]!==undefined) {
+                    dropdowns[graph.wrapperName].menus["save-menu"].find(".txt").hide();
+                    dropdowns[graph.wrapperName].menus["save-menu"].find(".edge-list").hide();
                 }
                 
                 oldStart();
@@ -388,9 +388,9 @@
                 $(wrapperName+" .settings").parent().removeClass("d-none").addClass("d-flex");
                 graph.draw(isDrawable,false,isStatic);
                 
-                if (graph.dropdowns.menus["save-menu"]!==undefined) {
-                    graph.dropdowns.menus["save-menu"].find(".txt").show();
-                    graph.dropdowns.menus["save-menu"].find(".edge-list").show();
+                if (dropdowns[graph.wrapperName].menus["save-menu"]!==undefined) {
+                    dropdowns[graph.wrapperName].menus["save-menu"].find(".txt").show();
+                    dropdowns[graph.wrapperName].menus["save-menu"].find(".edge-list").show();
                 }
                 
                 oldStop();
@@ -474,14 +474,14 @@
                 .prop("target","_black")[0].click();
     }
     function addSaveFunctionality (graph) {
-        graph.dropdowns.addNewDropdown("save-menu",[
+        dropdowns[graph.wrapperName].addNewDropdown("save-menu",[
             ["txt", ((language==="bg")?"Изтегли като txt":"Download as txt"), saveTxt],
             ["edge-list", ((language==="bg")?"Изтегли като сп. от ребрата":"Download as edge list"), saveEdgeList],
             ["svg", ((language==="bg")?"Изтегли като svg":"Download as svg"), saveSvg],
             ["png", ((language==="bg")?"Изтегли като png":"Download as png"), savePng]
         ]);
         $(graph.wrapperName+" .save").off("click").on("click",function (event) {
-            graph.dropdowns.showDropdown("save-menu",event,graph);
+            dropdowns[graph.wrapperName].showDropdown("save-menu",event,graph);
         });
     }
     
@@ -767,7 +767,7 @@
             $("body").append($(modal));
         }
         
-        graph.dropdowns.addNewDropdown("import-menu",[
+        dropdowns[graph.wrapperName].addNewDropdown("import-menu",[
             ["file", ((language==="bg")?"Зареди от файл":"Import from file"), () => { input.click() }],
             ["text", ((language==="bg")?"Зареди от текстово поле":"Import from text field"), () => {
                 let graphText=graph.export();
@@ -780,7 +780,7 @@
                 $("#importModal").modal("toggle");
             }]]);
         $(graph.wrapperName+" .import").off("click").on("click",function (event) {
-            graph.dropdowns.showDropdown("import-menu",event,graph);
+            dropdowns[graph.wrapperName].showDropdown("import-menu",event,graph);
         });
     }
           

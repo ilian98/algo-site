@@ -54,7 +54,10 @@
             this.edgeList[i].flow=0;
         }
         let maxFlow=0;
+        let count=0;
         for (;;) {
+            count++;
+            if (count>10) break;
             bfs(this);
             if (dist[this.sink]===0) break;
             ind=[];
@@ -73,15 +76,23 @@
         
         for (let i=0; i<this.n; i++) {
             if (this.vertices[i]===undefined) continue;
-            if (seen[i]===true) this.svgVertices[i].circle.attr("fill","green");
-            else this.svgVertices[i].circle.attr("fill","yellow");
+            if (seen[i]===true) {
+                this.svgVertices[i].circle.attr("fill","green");
+                if (i===this.source) this.svgVertices[i].text.attr("fill","white");
+                else this.svgVertices[i].text.attr("fill","black");
+            }
+            else {
+                this.svgVertices[i].circle.attr("fill","yellow");
+                if (i===this.sink) this.svgVertices[i].text.attr("fill","#6495ED");
+                else this.svgVertices[i].text.attr("fill","black");
+            }
         }
         for (let i=0; i<this.edgeList.length; i++) {
             if (this.edgeList[i]===undefined) continue;
             let edge=this.edgeList[i];
             this.svgEdges[i].weight.attr("textpath").node.innerHTML=(edge.flow+"/"+edge.weight).toString();
             if (edge.real===true) {
-                if (seen[edge.x]!==seen[edge.y]) {
+                if ((seen[edge.x]===true)&&(seen[edge.y]!==true)) {
                     this.svgEdges[i].line.attr("stroke","red");
                     this.svgEdges[i].line.markerEnd.attr("fill","red");
                 }
@@ -91,7 +102,51 @@
                 }
             }
         }
-        $(".graphExample1 .value").text("Максималният поток = минималният срез = "+maxFlow);
+        this.edgeNetworkView();
+        return [maxFlow, seen];
+    }
+    function findSolution () {
+        let text=$(".graphExample2 #inputArea").val().replaceAll("\r\n","\n");
+        let lines=text.split("\n");
+        let nums=[];
+        for (let line of lines) {
+            nums.push(line.split(" "));
+        }
+        let n=parseInt(nums[0][0]);
+        if (n>6) {
+            alert("Твърде много играчи");
+            return ;
+        }
+        let edges=[];
+        let sum=0;
+        for (let i=1; i<=n; i++) {
+            edges.push([0,i,parseInt(nums[1][i-1])]);
+            edges.push([i,n+1,parseInt(nums[2][i-1])]);
+            sum+=parseInt(nums[1][i-1])+parseInt(nums[2][i-1]);
+        }
+        for (let i=3; i<nums.length; i++) {
+            edges.push([parseInt(nums[i][0]),parseInt(nums[i][1]),parseInt(nums[i][2])]);
+        }
+        this.n=n+2;
+        this.buildEdgeDataStructures(edges);
+        if (this.n>8) {
+            alert("Твърде много играчи");
+            return ;
+        }
+        this.convertToNetwork(0,n+1,false);
+        this.drawNewGraph(false,12);
+        let [flow, cut]=findFlowCut.call(this);
+        $(".graphExample2 .value").text("Отговорът е \\("+sum+"-"+flow+"=sum-flow="+(sum-flow)+"\\).");
+        $(".graphExample2 .value").append("Той се получава със следното разпределение:<br>");
+        $(".graphExample2 .value").append('Отбор на "добрите":');
+        for (let i=1; i<=n; i++) {
+            if (seen[i]===true) $(".graphExample2 .value").append(" "+i);
+        }
+        $(".graphExample2 .value").append('<br>Отбор на "лошите":');
+        for (let i=1; i<=n; i++) {
+            if (seen[i]!==true) $(".graphExample2 .value").append(" "+i);
+        }
+        if (typeof MathJax!=="undefined") MathJax.typeset([".graphExample2 .value"]);
     }
     
     function initExample (part) {
@@ -106,11 +161,42 @@
                 example1.setSettings([false, false, false]);
                 
                 $(".graphExample1 .src").val("1");
+                $(".graphExample1 .src").off("input").on("input",() => {
+                    let v=parseInt($(".graphExample1 .src").val());
+                    if ((v<1)||(v>example1.n)) return ;
+                    v--;
+                    if (example1.vertices[v]===undefined) return ;
+                    example1.source=v;
+                    findFlowCut.call(example1);
+                });
                 $(".graphExample1 .sink").val("5");
+                $(".graphExample1 .sink").off("input").on("input",() => {
+                    let v=parseInt($(".graphExample1 .sink").val());
+                    if ((v<1)||(v>example1.n)) return ;
+                    v--;
+                    if (example1.vertices[v]===undefined) return ;
+                    example1.sink=v;
+                    let [flow, cut]=findFlowCut.call(example1);
+                    $(".graphExample1 .value").text("Максималният поток = минималният срез = "+flow);
+                });
             }).click();
         }
         else if (part===3) {
-            
+            let example2=new Graph();
+            $(".graphExample2 .default").on("click", function () {
+                example2.init(".graphExample2",7,true);
+                example2.vertexRad=12;
+                example2.setSettings([false, false, false]);
+                
+                $(".graphExample2 #inputArea").val(`5 4
+10 15 22 20 31
+10 14 10 25 31
+1 4 10
+2 4 10
+1 3 2
+4 5 10`);
+                $(".graphExample2 .calc").off("click").on("click",findSolution.bind(example2)).click();
+            }).click();
         }
     }
     

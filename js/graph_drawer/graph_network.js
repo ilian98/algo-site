@@ -31,6 +31,21 @@
             for (let ind of edges) {
                 this.addReverseEdge(ind);
             }
+        },
+        edgeNetworkView : function () {
+            let max=1;
+            for (let i=0; i<this.edgeList.length; i++) {
+                if (this.edgeList[i]===undefined) continue;
+                max=Math.max(max,this.edgeList[i].flow);
+            }
+            for (let i=0; i<this.edgeList.length; i++) {
+                if (this.edgeList[i]===undefined) continue;
+                let strokeWidth=this.findStrokeWidth();
+                let curr=strokeWidth/2+(Math.abs(this.edgeList[i].flow)/max)*(1.5*strokeWidth);
+                this.svgEdges[i].line.attr({"stroke-width": curr});
+                this.addMarkerEnd(this.svgEdges[i].line,false,curr,
+                                  this.svgVertices[this.edgeList[i].x].coord,this.svgEdges[i].drawProperties[0]);
+            }
         }
     }
 })();

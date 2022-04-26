@@ -55,7 +55,7 @@
             let type=this.type,index=this.index;
             
             event.preventDefault();
-            graph.dropdowns.closeDropdowns();
+            dropdowns[graph.wrapperName].closeDropdowns();
             
             trackedMouse=false;
             startIndex=index;
@@ -384,7 +384,7 @@
         }
         function vertexClick (event) {
             if (trackedMouse===true) return ;
-            graph.dropdowns.showDropdown("vertex",event,this.index);
+            dropdowns[graph.wrapperName].showDropdown("vertex",event,this.index);
         }
                                
         function addNewVertex (event) {
@@ -455,19 +455,19 @@
         function edgeClick (event) {
             if (trackedMouse===true) return ;
             let ind=this.index;
-            if (graph.isWeighted===true) graph.dropdowns.menus["edge"].find(".change-weight").show();
-            else graph.dropdowns.menus["edge"].find(".change-weight").hide();
+            if (graph.isWeighted===true) dropdowns[graph.wrapperName].menus["edge"].find(".change-weight").show();
+            else dropdowns[graph.wrapperName].menus["edge"].find(".change-weight").hide();
             if (graph.isNetwork===true) {
                 if (graph.edgeList[ind].real===true) {
-                    graph.dropdowns.menus["edge"].find(".remove-edge").show();
-                    graph.dropdowns.menus["edge"].find(".change-weight").show();
+                    dropdowns[graph.wrapperName].menus["edge"].find(".remove-edge").show();
+                    dropdowns[graph.wrapperName].menus["edge"].find(".change-weight").show();
                 }
                 else {
-                    graph.dropdowns.menus["edge"].find(".remove-edge").hide();
-                    graph.dropdowns.menus["edge"].find(".change-weight").hide();
+                    dropdowns[graph.wrapperName].menus["edge"].find(".remove-edge").hide();
+                    dropdowns[graph.wrapperName].menus["edge"].find(".change-weight").hide();
                 }
             }
-            graph.dropdowns.showDropdown("edge",event,ind);
+            dropdowns[graph.wrapperName].showDropdown("edge",event,ind);
         }
         
         function addCSSWeight (index) {
@@ -490,10 +490,10 @@
             if (trackedMouse===true) return ;
             let ind=this.index;
             if (graph.isNetwork===true) {
-                if (graph.edgeList[ind].real===true) graph.dropdowns.menus["weight"].find(".change-weight").show();
-                else graph.dropdowns.menus["weight"].find(".change-weight").hide();
+                if (graph.edgeList[ind].real===true) dropdowns[graph.wrapperName].menus["weight"].find(".change-weight").show();
+                else dropdowns[graph.wrapperName].menus["weight"].find(".change-weight").hide();
             }
-            graph.dropdowns.showDropdown("weight",event,ind);
+            dropdowns[graph.wrapperName].showDropdown("weight",event,ind);
         }
 
         function addVertexEvents (ind) {
@@ -554,19 +554,19 @@
             this.clear();
             svgPoint=graph.s.paper.node.createSVGPoint();
             
-            let dropdowns=graph.dropdowns;
-            dropdowns.addNewDropdown("vertex",[
+            let menus=dropdowns[graph.wrapperName];
+            menus.addNewDropdown("vertex",[
                 ["remove-vertex", ((language==="bg")?"Изтрий върха":"Remove the vertex"), removeVertex],
                 ["change-name", ((language==="bg")?"Промени името":"Change the name"), changeVertexName],
                 ["add-css", ((language==="bg")?"Сложи CSS стил":"Add CSS style"), addCSSVertex],
                 ["add-css-name", ((language==="bg")?"Сложи CSS стил на името":"Add CSS style for the name"), addCSSVertexName]
             ]);
-            dropdowns.addNewDropdown("edge",[
+            menus.addNewDropdown("edge",[
                 ["remove-edge", ((language==="bg")?"Изтрий реброто":"Remove the edge"),removeEdge],
                 ["change-weight", ((language==="bg")?"Промени теглото":"Change the weight"), changeEdgeWeight],
                 ["add-css", ((language==="bg")?"Сложи CSS стил":"Add CSS style"), addCSSEdge]
             ]);
-            dropdowns.addNewDropdown("weight",[
+            menus.addNewDropdown("weight",[
                 ["change-weight", ((language==="bg")?"Промени теглото":"Change the weight"), changeEdgeWeight],
                 ["add-css", ((language==="bg")?"Сложи CSS стил":"Add CSS style"), addCSSWeight]
             ]);
