@@ -108,9 +108,12 @@
             else resolve();
         });
     }
+    function textBBox (text, fontFamily, fontSize) {
+        return fonts[fontFamily].getPath(text.toString(),0,0,fontSize).getBoundingBox();
+    }
     function determineDy (text, fontFamily, fontSize) {
         if (typeof fonts[fontFamily]!=="undefined") {
-            let bBox=fonts[fontFamily].getPath(text.toString(),0,0,fontSize).getBoundingBox();
+            let bBox=textBBox(text,fontFamily,fontSize);
             let height=bBox.y2-bBox.y1;
             let underBaseline=bBox.y2;
             return height/2-underBaseline;
@@ -118,6 +121,22 @@
         return 8*(fontSize/20);
     }
 
+    function styleToObj (style) {
+        let regex=/([\w-]*)\s*:\s*([^;]*)/g;
+        let match,properties={};
+        while (match=regex.exec(style)) {
+            properties[match[1]]=match[2].trim();
+        }
+        return properties;
+    }
+    function objToStyle (obj) {
+        let style="";
+        for (let [attr, value] of Object.entries(obj)) {
+            style+=attr+": "+value+";";
+        }
+        return style;
+    }
+    
     function Vertex (name, css=["",""]) {
         this.name=name;
         
@@ -156,6 +175,7 @@
             for (let [name, graph] of graphs) {
                 if (graph.svgVertices.length===0) continue;
                 graph.draw(graph.isDrawable,false);
+                graph.graphChange("font-load");
             }
         }, () => { alert("Load font data error!") });
         GraphControllerLoadData();
@@ -440,7 +460,7 @@
                                             [middle.x+weight.width+2*5, middle.y]);
                 weight.attr({dy: weight.dyCenter});
             }
-            else if ((isLoop===false)&&(properties<0)) weight.attr({dy: weight.height-2});
+            else if ((isLoop===false)&&(properties<0)) weight.attr({dy: weight.height+7});
             else weight.attr({dy: (isLoop===false)?-7:-3});
             return pathForWeight;
         }
@@ -463,7 +483,7 @@
             }
             else {
                 if (isLoop===true) { /// loop
-                    edge.line.attr("d",loopPath(st[0],st[1]-this.vertexRad,this.vertexRad,properties,this.isDirected));
+                    edge.line.attr("d",loopPath(st[0],st[1]-this.vertexRad,this.vertexRad,properties,this.isDirected||this.isNetwork));
                     pathForWeight=loopPath(st[0],st[1]-this.vertexRad,this.vertexRad,properties,false);
                 }
                 else { /// multiedge
@@ -483,15 +503,13 @@
             return edge;
         }
         function setStyle (obj, css) {
-            obj.addClass("temp");
-            let style=$(".temp").attr("style");
-            $(".temp").attr("style",style+" ; "+css);
-            obj.removeClass("temp");
+            let style=obj.attr("style");
+            obj.attr("style",style+" ; "+css);
             return style;
         }
         this.drawEdge = function (st, end, edgeInd = -1, properties = 0) {
             let strokeWidth=this.findStrokeWidth();
-            let isLoop=false,isDrawn=(edgeInd===-1);
+            let isLoop=false,isDrawn=(edgeInd===-1),isDirected=this.isDirected||this.isNetwork;
             if ((isDrawn===false)&&(this.edgeList[edgeInd].x===this.edgeList[edgeInd].y)) isLoop=true;
             
             let edge=new SvgEdge();
@@ -499,7 +517,7 @@
             edge.drawProperties[0]=properties;
 
             let endDist=0;
-            if (this.isDirected===true) {
+            if (isDirected===true) {
                 let arrowDist=calculateArrowProperties(isLoop,strokeWidth,st,this.vertexRad,properties)[2];
                 endDist=strokeWidth/2+arrowDist;
             }
@@ -513,7 +531,7 @@
             }
             else {
                 if (isLoop===true) { /// loop
-                    edge.line=this.s.path(loopPath(st[0],st[1]-this.vertexRad,this.vertexRad,properties,this.isDirected));
+                    edge.line=this.s.path(loopPath(st[0],st[1]-this.vertexRad,this.vertexRad,properties,isDirected));
                     pathForWeight=loopPath(st[0],st[1]-this.vertexRad,this.vertexRad,properties,false);
                 }
                 else { /// multiedge
@@ -526,9 +544,9 @@
             }
 
             edge.line.attr({fill: "none", stroke: "black", "stroke-width": strokeWidth});
-            if (this.isDirected===true) this.addMarkerEnd(edge.line,isLoop,strokeWidth,st,properties);
+            if (isDirected===true) this.addMarkerEnd(edge.line,isLoop,strokeWidth,st,properties);
             if (isDrawn===false) this.edgeList[edgeInd].defaultCSS[0]=setStyle(edge.line,this.edgeList[edgeInd].addedCSS[0]);
-            if (this.isDirected===true) edge.line.markerEnd.attr("fill",edge.line.attr("stroke"));
+            if (isDirected===true) edge.line.markerEnd.attr("fill",edge.line.attr("stroke"));
 
             if ((isDrawn===false)&&(this.isWeighted===true)) {
                 edge.weight=this.s.text(0,0,weightName(this.edgeList[edgeInd],this.isNetwork));
@@ -540,7 +558,11 @@
                     fill: edge.line.attr("stroke"),
                 });
                 edge.weight.width=edge.weight.getBBox().width;
-                edge.weight.height=edge.weight.getBBox().height;
+                if (typeof fonts["Arial"]!=="undefined") {
+                    let bBox=textBBox(edge.weight.attr("text"),"Arial",this.vertexRad);
+                    edge.weight.height=bBox.y2-bBox.y1;
+                }
+                else edge.weight.height=edge.weight.getBBox().height;
                 edge.weight.dyCenter=determineDy(this.edgeList[edgeInd].weight.toString(),"Arial",this.vertexRad);
                 
                 pathForWeight=calcWeightPosition.call(this,edge.weight,
@@ -731,7 +753,7 @@
                     this.svgVertices[i].group.animate({transform: "t 0 0"},500,animationsEnd.bind(this));
                 }
             }
-            this.graphChange();
+            this.graphChange("draw");
             for (let i=this.n; i<this.svgVertices.length; i++) {
                 this.svgVertices[i]=undefined;
             }
@@ -766,6 +788,7 @@
             function animationsEnd () {
                 cntAnimations--;
                 if (cntAnimations<=0) {
+                    if (this.isNetwork===true) this.networkView();
                     this.isDrawable=addDraw;
                     if (isStatic===false) {
                         if ((this.drawableGraph===undefined)&&(typeof DrawableGraph!=="undefined")) {
@@ -794,10 +817,10 @@
             
             this.edgeList[ind]=new Edge(x,y,weight,css,curveHeight);
             this.adjList[x].push(ind);
-            if ((this.isDirected===false)&&(x!==y)) this.adjList[y].push(ind);
+            if ((this.isDirected===false)&&(this.isNetwork===false)&&(x!==y)) this.adjList[y].push(ind);
             this.adjMatrix[x][y].push(ind);
-            if ((this.isDirected===false)&&(x!==y)) this.adjMatrix[y][x].push(ind);
-            if (this.isDirected===true) this.reverseAdjList[y].push(ind);
+            if ((this.isDirected===false)&&(this.isNetwork===false)&&(x!==y)) this.adjMatrix[y][x].push(ind);
+            if ((this.isDirected===true)||(this.isNetwork===true)) this.reverseAdjList[y].push(ind);
             
             if ((this.isNetwork===true)&&(isReal===true)) this.addReverseEdge(ind,revData);
             return ind;
@@ -814,11 +837,12 @@
             
             this.adjMatrix[edge.x][edge.y].splice(this.adjMatrix[edge.x][edge.y].indexOf(index),1);
             this.adjList[edge.x].splice(this.adjList[edge.x].indexOf(index),1);
-            if ((this.isDirected===false)&&(edge.x!==edge.y)) {
+            if ((this.isDirected===false)&&(this.isNetwork===false)&&(edge.x!==edge.y)) {
                 this.adjMatrix[edge.y][edge.x].splice(this.adjMatrix[edge.y][edge.x].indexOf(index),1);
                 this.adjList[edge.y].splice(this.adjList[edge.y].indexOf(index),1);
             }
-            if (this.isDirected===true) this.reverseAdjList[edge.y].splice(this.reverseAdjList[edge.y].indexOf(index),1);
+            if ((this.isDirected===true)||(this.isNetwork===true)) 
+                this.reverseAdjList[edge.y].splice(this.reverseAdjList[edge.y].indexOf(index),1);
             this.svgEdges[index].line.remove();
             if (this.svgEdges[index].weight!==undefined) this.svgEdges[index].weight.remove();
             this.svgEdges[index]=undefined;
@@ -984,4 +1008,6 @@
     window.segmentLength=segmentLength;
     window.circlePath=circlePath;
     window.determineDy=determineDy;
+    window.styleToObj=styleToObj;
+    window.objToStyle=objToStyle;
 })();

@@ -329,10 +329,7 @@
             else oldCSS=[graph.edgeList[ind].addedCSS[0], graph.edgeList[ind].addedCSS[1]];
             if (graph.graphController!==undefined)
                 graph.graphController.addChange("change-css-"+typeName,[ind, oldCSS]);
-            
-            obj.addClass("temp");
-            $(".temp").attr("style",defaultCSS+" ; "+newCSS);
-            obj.removeClass("temp");
+            obj.attr("style",defaultCSS+" ; "+newCSS);
         }
         function removeVertex (index) {
             for (let ind of graph.adjList[index]) {
@@ -342,7 +339,7 @@
                 edgeClickAreas[ind].remove();
             }
             graph.removeVertex(index);
-            graph.graphChange();
+            graph.graphChange("remove-vertex");
         }
         function changeVertexName (index) {
             let name=prompt((language==="bg")?"Въведете ново име на върха":"Input new name of the vertex"
@@ -355,7 +352,7 @@
                 graph.vertices[index].name=name;
                 graph.drawVertexText(index,name);
                 addVertexEvents(index);
-                graph.graphChange();
+                graph.graphChange("change-vertex-name");
             }
         }
         function addCSSVertex (index) {
@@ -366,6 +363,7 @@
                 graph.vertices[index].addedCSS[0]
             );
             if (css===null) return ;
+            css=objToStyle(styleToObj(css));
             if (graph.vertices[index].addedCSS[0]!==css)
                 addCSS(graph.svgVertices[index].circle,graph.vertices[index].defaultCSS[0],css,"vertex",index);
             graph.vertices[index].addedCSS[0]=css;
@@ -378,12 +376,15 @@
                 graph.vertices[index].addedCSS[1]
             );
             if (css===null) return ;
+            css=objToStyle(styleToObj(css));
             if (graph.vertices[index].addedCSS[1]!==css)
                 addCSS(graph.svgVertices[index].text,graph.vertices[index].defaultCSS[1],css,"vertex",index);
             graph.vertices[index].addedCSS[1]=css;
         }
         function vertexClick (event) {
             if (trackedMouse===true) return ;
+            if (graph.isDrawable===true) dropdowns[graph.wrapperName].menus["vertex"].find(".remove-vertex").show();
+            else dropdowns[graph.wrapperName].menus["vertex"].find(".remove-vertex").hide();
             dropdowns[graph.wrapperName].showDropdown("vertex",event,this.index);
         }
                                
@@ -402,12 +403,12 @@
             graph.svgVertices[ind].coord=[svgPoint.x, svgPoint.y];
             graph.drawVertex(ind);
             addVertexEvents(ind);
-            graph.graphChange();
+            graph.graphChange("add-vertex");
         }
         
         function removeEdge (index) {
             graph.removeEdge(index);
-            graph.graphChange();
+            graph.graphChange("remove-edge");
             edgeClickAreas[index].remove();
         }
         function changeEdgeWeight (index) {
@@ -428,7 +429,7 @@
                 graph.svgEdges[index].weight.prependTo(graph.s);
                 addEdgeEvents(index);
             }
-            graph.graphChange();
+            graph.graphChange("change-weight");
         }
         function addCSSEdge (index) {
             let css=prompt(
@@ -438,11 +439,12 @@
                 graph.edgeList[index].addedCSS[0]
             );
             if (css===null) return ;
+            css=objToStyle(styleToObj(css));
             let edge=graph.svgEdges[index];
             if (graph.edgeList[index].addedCSS[0]!==css)
                 addCSS(edge.line,graph.edgeList[index].defaultCSS[0],css,"edge",index);
             graph.edgeList[index].addedCSS[0]=css;
-            if (graph.isDirected===true) {
+            if ((graph.isDirected===true)||(graph.isNetwork===true)) {
                 let marker=edge.line.markerEnd;
                 marker.attr("fill",graph.svgEdges[index].line.attr("stroke"));
             }
@@ -455,10 +457,11 @@
         function edgeClick (event) {
             if (trackedMouse===true) return ;
             let ind=this.index;
-            if (graph.isWeighted===true) dropdowns[graph.wrapperName].menus["edge"].find(".change-weight").show();
+            if ((graph.isWeighted===true)&&(graph.isDrawable===true)) 
+                dropdowns[graph.wrapperName].menus["edge"].find(".change-weight").show();
             else dropdowns[graph.wrapperName].menus["edge"].find(".change-weight").hide();
             if (graph.isNetwork===true) {
-                if (graph.edgeList[ind].real===true) {
+                if ((graph.edgeList[ind].real===true)&&(graph.isDrawable===true)) {
                     dropdowns[graph.wrapperName].menus["edge"].find(".remove-edge").show();
                     dropdowns[graph.wrapperName].menus["edge"].find(".change-weight").show();
                 }
@@ -478,6 +481,7 @@
                 graph.edgeList[index].addedCSS[1]
             );
             if (css===null) return ;
+            css=objToStyle(styleToObj(css));
             let weight=graph.svgEdges[index].weight;
             if (graph.edgeList[index].addedCSS[1]!==css)
                 addCSS(weight,graph.edgeList[index].defaultCSS[1],css,"edge",index);
@@ -490,7 +494,8 @@
             if (trackedMouse===true) return ;
             let ind=this.index;
             if (graph.isNetwork===true) {
-                if (graph.edgeList[ind].real===true) dropdowns[graph.wrapperName].menus["weight"].find(".change-weight").show();
+                if ((graph.edgeList[ind].real===true)&&(graph.isDrawable===true)) 
+                    dropdowns[graph.wrapperName].menus["weight"].find(".change-weight").show();
                 else dropdowns[graph.wrapperName].menus["weight"].find(".change-weight").hide();
             }
             dropdowns[graph.wrapperName].showDropdown("weight",event,ind);
@@ -502,7 +507,7 @@
             graph.svgVertices[ind].group.index=ind;
             if (window.isMobile==="false") graph.svgVertices[ind].group.mousedown(mouseDown);
             else graph.svgVertices[ind].group.touchstart(mouseDown);
-            if (graph.isDrawable===true) graph.svgVertices[ind].group.click(vertexClick);
+            graph.svgVertices[ind].group.click(vertexClick);
         }
         let edgeClickAreas=[];
         function addEdgeEvents (ind) {
@@ -538,16 +543,13 @@
                 clickArea.touchstart(mouseDown);
                 graph.svgEdges[ind].line.touchstart(mouseDown);
             }
-            if (graph.isDrawable===true) {
-                clickArea.click(edgeClick);
-                graph.svgEdges[ind].line.click(edgeClick);
-            }
-            if ((graph.isDrawable===true)&&(graph.svgEdges[ind].weight!==undefined)) {
-                graph.svgEdges[ind].weight.index=ind;
-                graph.svgEdges[ind].weight.attr({cursor: "pointer"});
-                graph.edgeList[ind].defaultCSS[1]+=" ; cursor: pointer";
-                graph.svgEdges[ind].weight.click(weightClick);
-            }
+            clickArea.click(edgeClick);
+            graph.svgEdges[ind].line.click(edgeClick);
+            
+            graph.svgEdges[ind].weight.index=ind;
+            graph.svgEdges[ind].weight.attr({cursor: "pointer"});
+            graph.edgeList[ind].defaultCSS[1]+=" ; cursor: pointer";
+            graph.svgEdges[ind].weight.click(weightClick);
         }
         
         this.init = function () {
@@ -597,6 +599,7 @@
                 }
                 if ($(graph.wrapperName+" .dragging-mini").length!==0) {
                     let dragSwitch=$(graph.wrapperName+" .dragging-mini");
+                    dragSwitch.show();
                     if ((addVertexDrag===true)&&(dragSwitch.val()==="off")) {
                         dragSwitch.val("on");
                         dragSwitch.parent().prop("title",(language==="bg")?"Чертаене на ребра":"Drawing edges");
@@ -620,7 +623,10 @@
                     $(graph.wrapperName+" .settings").off("click.draw-settings").on("click.draw-settings",this.addSettings.bind(this));
                 }
             }
-            else addVertexDrag=true;
+            else {
+                addVertexDrag=true;
+                $(graph.wrapperName+" .dragging-mini").hide();
+            }
         }
         this.clear = function () {
             let svgElement=$(graph.svgName);
@@ -634,7 +640,8 @@
             clearClickParameters("vertex&edge");
             
             for (let i=0; i<graph.n; i++) {
-                if ((graph.vertices[i]===undefined)||(graph.svgVertices[i]===undefined)) continue;
+                if ((graph.vertices[i]===undefined)||(graph.svgVertices[i]===undefined)||(graph.svgVertices[i].group===undefined))
+                    continue;
                 graph.svgVertices[i].group.attr({cursor: "auto"});
                 delete graph.svgVertices[i].group.type;
                 delete graph.svgVertices[i].group.index;

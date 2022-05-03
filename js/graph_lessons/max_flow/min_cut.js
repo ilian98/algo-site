@@ -54,10 +54,7 @@
             this.edgeList[i].flow=0;
         }
         let maxFlow=0;
-        let count=0;
         for (;;) {
-            count++;
-            if (count>10) break;
             bfs(this);
             if (dist[this.sink]===0) break;
             ind=[];
@@ -94,18 +91,18 @@
             if (edge.real===true) {
                 if ((seen[edge.x]===true)&&(seen[edge.y]!==true)) {
                     this.svgEdges[i].line.attr("stroke","red");
-                    this.svgEdges[i].line.markerEnd.attr("fill","red");
+                    if (this.svgEdges[i].line.markerEnd!==undefined) this.svgEdges[i].line.markerEnd.attr("fill","red");
                 }
                 else {
                     this.svgEdges[i].line.attr("stroke","black");
-                    this.svgEdges[i].line.markerEnd.attr("fill","black");
+                    if (this.svgEdges[i].line.markerEnd!==undefined) this.svgEdges[i].line.markerEnd.attr("fill","black");
                 }
             }
         }
-        this.edgeNetworkView();
+        this.networkView();
         return [maxFlow, seen];
     }
-    function findSolution () {
+    function findSolution (change) {
         let text=$(".graphExample2 #inputArea").val().replaceAll("\r\n","\n");
         let lines=text.split("\n");
         let nums=[];
@@ -127,16 +124,20 @@
         for (let i=3; i<nums.length; i++) {
             edges.push([parseInt(nums[i][0]),parseInt(nums[i][1]),parseInt(nums[i][2])]);
         }
-        this.n=n+2;
-        this.buildEdgeDataStructures(edges);
-        if (this.n>8) {
-            alert("Твърде много играчи");
-            return ;
+        if (change==="outside") {
+            this.initVertices(n+2);
+            for (let i=0; i<n+2; i++) {
+                this.vertices[i].name=i.toString();
+            }
+            this.edgeList=[];
+            this.graphController.undoStack=[];
+            this.graphController.redoStack=[];
+            this.buildEdgeDataStructures(edges);
+            this.convertToNetwork(0,n+1,false);
+            this.drawNewGraph(false,12);
         }
-        this.convertToNetwork(0,n+1,false);
-        this.drawNewGraph(false,12);
         let [flow, cut]=findFlowCut.call(this);
-        $(".graphExample2 .value").text("Отговорът е \\("+sum+"-"+flow+"=sum-flow="+(sum-flow)+"\\).");
+        $(".graphExample2 .value").text("Отговорът е \\("+sum+"-"+flow+"\\) \\(=sum-flow="+(sum-flow)+"\\). ");
         $(".graphExample2 .value").append("Той се получава със следното разпределение:<br>");
         $(".graphExample2 .value").append('Отбор на "добрите":');
         for (let i=1; i<=n; i++) {
@@ -155,7 +156,6 @@
             $(".graphExample1 .default").on("click", function () {
                 example1.init(".graphExample1",5,true,findFlowCut);
                 example1.buildEdgeDataStructures([[0,1,5],[0,2,1],[1,3,5],[2,4,2],[3,2,2],[3,4,2]]);
-                example1.vertexRad=25;
                 example1.convertToNetwork(0,4,false);
                 example1.drawNewGraph(true,25);
                 example1.setSettings([false, false, false]);
@@ -184,9 +184,8 @@
         else if (part===3) {
             let example2=new Graph();
             $(".graphExample2 .default").on("click", function () {
-                example2.init(".graphExample2",7,true);
-                example2.vertexRad=12;
-                example2.setSettings([false, false, false]);
+                example2.init(".graphExample2",7,false,findSolution.bind(example2));
+                example2.setSettings([false, false, false],false);
                 
                 $(".graphExample2 #inputArea").val(`5 4
 10 15 22 20 31
@@ -195,7 +194,7 @@
 2 4 10
 1 3 2
 4 5 10`);
-                $(".graphExample2 .calc").off("click").on("click",findSolution.bind(example2)).click();
+                $(".graphExample2 .calc").off("click").on("click",findSolution.bind(example2,"outside")).click();
             }).click();
         }
     }

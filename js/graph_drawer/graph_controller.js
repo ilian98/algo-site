@@ -9,7 +9,7 @@
                 for (let [name, graph] of graphs) {
                     addSettingsPanel(name,graph,graph.graphController);
                     if ($(name+" .graph-settings").length===0) addSettingsModal();
-                    if ($(name+" .information").length!==0) addInfoModal(name,graph.graphController);
+                    if ($(name+" .information").length!==0) addInfoModal(name,graph.graphController,graph);
                 }
             }).then(resolve, () => { alert("Load data error!") });
         });
@@ -28,7 +28,7 @@
             graph.buildEdgeDataStructures([]); graphController.undoTime--;
             graph.calcPositions.calc();
             graph.draw(graph.isDrawable,false);
-            graph.graphChange();
+            graph.graphChange("slider");
         });
 
         if (graph.isDirected===false) $("#undirected").click();
@@ -46,7 +46,7 @@
             graph.isWeighted=isWeighted;
             graph.isMulti=isMulti;
             graph.draw(graph.isDrawable);
-            graph.graphChange();
+            graph.graphChange("toggle-direction");
         }
         $("#undirected").off("click").on("click",function () {
             if (graph.isDirected===true) changeDirection(false);
@@ -60,13 +60,13 @@
                 graphController.addChange("change-property", ["isWeighted", false]);
                 graph.isWeighted=true;
                 graph.draw(graph.isDrawable);
-                graph.graphChange();
+                graph.graphChange("toggle-weighted");
             }
             else if ((this.checked===false)&&(graph.isWeighted===true)) {
                 graphController.addChange("change-property", ["isWeighted", true]);
                 graph.isWeighted=false;
                 graph.draw(graph.isDrawable);
-                graph.graphChange();
+                graph.graphChange("toggle-weighted");
             }
         });
         $("#multi").prop("checked",graph.isMulti);
@@ -135,10 +135,10 @@
             $("body").append(data);
         });
     }
-    function addInfoModal (wrapperName, graphController) {
+    function addInfoModal (wrapperName, graphController, graph) {
         $(wrapperName+" .information").off("click").on("click", function () {
             let text="";
-            if ($(wrapperName+" .dragging-mini").length!==0) {
+            if (($(wrapperName+" .dragging-mini").length!==0)&&($(wrapperName+" .dragging-mini").is(":hidden")===false)) {
                 text+=((language==="bg")?
                       "Суича в лентата за графа управлява действието, което се изпълнява при влачене на връх. Когато е изключен, се започва чертаене на ребро, а когато е включен се премества върха.<br>Използвайте бутона за настройките, за да отворите прозорец за управление на графа. Следващите инструкции се отнасят за този прозорец.<br>":
                       "The switch in the graph control panel is for the action to be performed when a vertex is dragged. When it is off, an edge is started to be drawn and when it is on, the vertex is being moved.<br><br>Use the button for the settings to open a window for controlling the graph. The folloing instructions are for that window.<br>");
@@ -155,9 +155,11 @@
                        "There is a slider for changing the size of the vertices and the graph adjusts its characteristics according to that size.<br>");
             }
             
-            text+=((language==="bg")?
-                   "Нов връх на графа се добавя с двойно натискане на празно място. Всеки връх може да се натисне, с което да се появят различни опции за работа с него. При влачене на връх, се появяват опорни позиции. Връх, който е пуснат близо до опорна позиция се придвижва автоматично там. Всяко ребро с изключение на примките, може да се персонализира с влачене. По този начин се променя кривината на реброто. При натискане на ребро също се появяват различни опции за него. Това става и при натискане на тегло (при претеглени графи).<br><br>":
-                   "A new vertex is added with a double click at an empty place. Every vertex can be clicked to open a menu with different options for it. When a vertex is moved, supporting positions appear. A vertex that is left near a supporting position, automatically goes to that position. Every edge, excluding the loops, can be personalized by dragging it. In this way, the curve of the edge is changed. When an edge is clicked, different options appear for it. This happens when a weight (for weighted graphs) is clicked.<br><br>");
+            if (graph.isDrawable===true) {
+                text+=((language==="bg")?
+                       "Нов връх на графа се добавя с двойно натискане на празно място. Всеки връх може да се натисне, с което да се появят различни опции за работа с него. При влачене на връх, се появяват опорни позиции. Връх, който е пуснат близо до опорна позиция се придвижва автоматично там. Всяко ребро с изключение на примките, може да се персонализира с влачене. По този начин се променя кривината на реброто. При натискане на ребро също се появяват различни опции за него. Това става и при натискане на тегло (при претеглени графи).<br><br>":
+                       "A new vertex is added with a double click at an empty place. Every vertex can be clicked to open a menu with different options for it. When a vertex is moved, supporting positions appear. A vertex that is left near a supporting position, automatically goes to that position. Every edge, excluding the loops, can be personalized by dragging it. In this way, the curve of the edge is changed. When an edge is clicked, different options appear for it. This happens when a weight (for weighted graphs) is clicked.<br><br>");
+            }
             text+=((language==="bg")?
                    "Всички компоненти на графа като цвят, големина и т.н., могат да се персонализират чрез написване на съответeн CSS код след избиране на опция за добавяне на CSS стил. Отделно се поддържа възможност за връщане на всяка промяна, както и изпълняването ѝ отново чрез бутоните със стрелки. Има бутон за качване на текстов файл, в който е описан граф, както и за изтегляне на направения граф в различни формати.<br>":
                    "All components of the graph as colour, size and so on can be personalized with writing corresponding CSS code after choosing the option for adding CSS style. Also, there is a functionality for undo and redo with the arrow buttons. There is a button for uploading a text file with description of a graph and for downloading the drawned graph in different formats.<br>");
@@ -187,7 +189,7 @@
             if (typeof settingsPanel!=="undefined") {
                 addSettingsPanel(graph.wrapperName,graph,this);
                 if ($(graph.wrapperName+" .graph-settings").length===0) addSettingsModal();
-                if ($(graph.wrapperName+" .information").length!==0) addInfoModal(graph.wrapperName,this);
+                if ($(graph.wrapperName+" .information").length!==0) addInfoModal(graph.wrapperName,this,graph);
             }
             else graphs.set(graph.wrapperName,graph);
         }
