@@ -54,7 +54,12 @@
             this.edgeList[i].flow=0;
         }
         let maxFlow=0;
+        let count=0;
         for (;;) {
+            count++; if (count>10) {
+                console.log(count);
+                break;
+            }
             bfs(this);
             if (dist[this.sink]===0) break;
             ind=[];
@@ -62,7 +67,10 @@
                 if (this.vertices[i]===undefined) continue;
                 ind[i]=0;
             }
+            let counter=0;
             for (;;) {
+                counter++;
+                if (counter>10) { console.log(counter,this.sink); break; }
                 let flow=dfs(this.source,1e9,this.adjList,this.edgeList,this.sink);
                 maxFlow+=flow;
                 if (flow===0) break;
@@ -167,7 +175,12 @@
                     v--;
                     if (example1.vertices[v]===undefined) return ;
                     example1.source=v;
-                    findFlowCut.call(example1);
+                    if (example1.source===example1.sink) {
+                        alert("Не трябва да съвпадат източника и приемника!");
+                        return ;
+                    }
+                    let [flow, cut]=findFlowCut.call(example1);
+                    $(".graphExample1 .value").text("Максималният поток = минималният срез = "+flow);
                 });
                 $(".graphExample1 .sink").val("5");
                 $(".graphExample1 .sink").off("input").on("input",() => {
@@ -176,6 +189,10 @@
                     v--;
                     if (example1.vertices[v]===undefined) return ;
                     example1.sink=v;
+                    if (example1.source===example1.sink) {
+                        alert("Не трябва да съвпадат източника и приемника!");
+                        return ;
+                    }
                     let [flow, cut]=findFlowCut.call(example1);
                     $(".graphExample1 .value").text("Максималният поток = минималният срез = "+flow);
                 });

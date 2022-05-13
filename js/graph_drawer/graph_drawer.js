@@ -546,10 +546,12 @@
             clickArea.click(edgeClick);
             graph.svgEdges[ind].line.click(edgeClick);
             
-            graph.svgEdges[ind].weight.index=ind;
-            graph.svgEdges[ind].weight.attr({cursor: "pointer"});
-            graph.edgeList[ind].defaultCSS[1]+=" ; cursor: pointer";
-            graph.svgEdges[ind].weight.click(weightClick);
+            if (graph.svgEdges[ind].weight!==undefined) {
+                graph.svgEdges[ind].weight.index=ind;
+                graph.svgEdges[ind].weight.attr({cursor: "pointer"});
+                graph.edgeList[ind].defaultCSS[1]+=" ; cursor: pointer";
+                graph.svgEdges[ind].weight.click(weightClick);
+            }
         }
         
         this.init = function () {

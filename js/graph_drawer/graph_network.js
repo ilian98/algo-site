@@ -81,7 +81,7 @@
                     else if (this.edgeList[i].curveHeight===undefined) {
                         let x=this.edgeList[i].x,y=this.edgeList[i].y;
                         let st=this.svgVertices[x].coord,end=this.svgVertices[y].coord;
-                        this.svgEdges[i].drawProperties[0]=1;
+                        this.svgEdges[i].drawProperties[0]=0; this.edgeList[i].curveHeight=0;
                         if (this.edgeList[i].flow===0) this.svgEdges[i].endDist=0;
                         this.redrawEdge(this.svgEdges[i],st,end,i);
                     }
