@@ -8,6 +8,7 @@
         }
         return true;
     }
+    window.checkWeightValue = checkInteger;
     function getObjectForCoordinates (event) {
         if (window.isMobile==="false") return event;
         else if (event.changedTouches!==undefined) return event.changedTouches[0];
@@ -259,8 +260,8 @@
                         let weight="";
                         if (graph.isWeighted===true) {
                             weight=prompt("Въведете тегло на реброто","1");
-                            if (checkInteger(weight)===false) return ;
-                            weight=parseInt(weight);
+                            if (checkWeightValue(weight)===false) return ;
+                            if (checkWeightValue===checkInteger) weight=parseInt(weight);
                             if (weight===0) return ;
                         }
                         let ind=graph.addEdge(index,i,weight);
@@ -414,7 +415,7 @@
         function changeEdgeWeight (index) {
             let weight=prompt((language==="bg")?"Въведете ново тегло на реброто":"Input new weight for the edge"
                               ,graph.edgeList[index].weight);
-            if (checkInteger(weight)===false) return ;
+            if (checkWeightValue(weight)===false) return ;
             if (graph.edgeList[index].weight!==weight) {
                 if (graph.graphController!==undefined)
                     graph.graphController.addChange("change-weight",[index, graph.edgeList[index].weight]);

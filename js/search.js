@@ -183,10 +183,10 @@
                     for (let i=0; i<Math.min(5,matches.length); i++) {
                         let text=matches[i];
                         for (let word of words) {
-                            text=text.replaceAll(word,"<b>"+word+"</b>");
+                            text=text.replaceAll(word,'<span style="background-color: orange">'+word+'</span>');
                             let capitalWord=word[0].toUpperCase()+word.substr(1);
-                            text=text.replaceAll(capitalWord,"<b>"+capitalWord+"</b>");
-                            text=text.replaceAll(word.toUpperCase(),"<b>"+word.toUpperCase()+"</b>");
+                            text=text.replaceAll(capitalWord,'<span style="background-color: orange">'+capitalWord+'</span>');
+                            text=text.replaceAll(word.toUpperCase(),'<span style="background-color: orange">'+word.toUpperCase()+'</span>');
                         }
                         text="... "+text+" ...";
                         card+='<p class="card-text mb-2">'+text+'</p>';

@@ -31,6 +31,11 @@ ul {
     margin-left: -20px;
     margin-right: 10px;
 }
+.task-list:before {
+    content: '\2014';
+    margin-left: -40px;
+    margin-right: 10px;
+}
 .tilded-list:before {
     content: '\223C';
     margin-left: -40px;

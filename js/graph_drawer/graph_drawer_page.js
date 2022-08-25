@@ -28,6 +28,11 @@
         graph.drawNewGraph(true);
         graph.setSettings();
         graph.drawableGraph.addSettings();
+        window.checkWeightValue = function (s) {
+            if (s===null) return false;
+            if (s.length===0) return false;
+            return true;
+        }
         graph.graphChange();
     }
     

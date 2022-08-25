@@ -108,6 +108,8 @@
             }
         }
         this.networkView();
+        if (this.wrapperName===".graphExample1") 
+            $(".graphExample1 .value").text("Максималният поток = минималният срез = "+maxFlow);
         return [maxFlow, seen];
     }
     function findSolution (change) {
@@ -180,7 +182,6 @@
                         return ;
                     }
                     let [flow, cut]=findFlowCut.call(example1);
-                    $(".graphExample1 .value").text("Максималният поток = минималният срез = "+flow);
                 });
                 $(".graphExample1 .sink").val("5");
                 $(".graphExample1 .sink").off("input").on("input",() => {
@@ -194,7 +195,6 @@
                         return ;
                     }
                     let [flow, cut]=findFlowCut.call(example1);
-                    $(".graphExample1 .value").text("Максималният поток = минималният срез = "+flow);
                 });
             }).click();
         }
