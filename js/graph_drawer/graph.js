@@ -3,7 +3,7 @@
     function circlesIntersection (x1, y1, r1, x2, y2, r2) {
         x2-=x1; y2-=y1;
         let flag=false;
-        if (y2==0) {
+        if (y2===0) {
             [x1, y1]=[y1, x1];
             [x2, y2]=[y2, x2];
             flag=true;
