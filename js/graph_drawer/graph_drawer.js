@@ -356,26 +356,30 @@
                 graph.graphChange("change-vertex-name");
             }
         }
-        function addCSSVertex (index) {
-            let css=prompt(
-                ((language==="bg")?"Въведете CSS стил за върха":"Input CSS style for the vertex")+
-                ((graph.vertices[index].addedCSS[0]==="")?
-                 ((language==="bg")?" (например за червен цвят fill: red)":" (for example for red colour - fill: red)"):""),
-                graph.vertices[index].addedCSS[0]
-            );
+        this.addCSSVertex = function (index, css) {
+            if (css===undefined)
+                css=prompt(
+                    ((language==="bg")?"Въведете CSS стил за върха":"Input CSS style for the vertex")+
+                    ((graph.vertices[index].addedCSS[0]==="")?
+                     ((language==="bg")?" (например за червен цвят fill: red)":" (for example for red colour - fill: red)"):""),
+                    graph.vertices[index].addedCSS[0]
+                );
+            else css=graph.vertices[index].addedCSS[0]+" ; "+css;
             if (css===null) return ;
             css=objToStyle(styleToObj(css));
             if (graph.vertices[index].addedCSS[0]!==css)
                 addCSS(graph.svgVertices[index].circle,graph.vertices[index].defaultCSS[0],css,"vertex",index);
             graph.vertices[index].addedCSS[0]=css;
         }
-        function addCSSVertexName (index) {
-            let css=prompt(
-                ((language==="bg")?"Въведете CSS стил за името на върха":"Input CSS style for the name of the vertex")+
-                ((graph.vertices[index].addedCSS[1]==="")?
-                 ((language==="bg")?" (например за червен цвят fill: red)":" (for example for red colour - fill: red)"):""),
-                graph.vertices[index].addedCSS[1]
-            );
+        this.addCSSVertexName = function (index, css) {
+            if (css===undefined) 
+                css=prompt(
+                    ((language==="bg")?"Въведете CSS стил за името на върха":"Input CSS style for the name of the vertex")+
+                    ((graph.vertices[index].addedCSS[1]==="")?
+                     ((language==="bg")?" (например за червен цвят fill: red)":" (for example for red colour - fill: red)"):""),
+                    graph.vertices[index].addedCSS[1]
+                );
+            else css=graph.vertices[index].addedCSS[1]+" ; "+css;
             if (css===null) return ;
             css=objToStyle(styleToObj(css));
             if (graph.vertices[index].addedCSS[1]!==css)
@@ -432,13 +436,15 @@
             }
             graph.graphChange("change-weight");
         }
-        function addCSSEdge (index) {
-            let css=prompt(
-                ((language==="bg")?"Въведете CSS стил за реброто":"Input CSS style for the edge")+
-                ((graph.edgeList[index].addedCSS[0]==="")?
-                 ((language==="bg")?" (например за червен цвят stroke: red)":" (for example for red colour - stroke: red)"):""),
-                graph.edgeList[index].addedCSS[0]
-            );
+        this.addCSSEdge = function (index, css) {
+            if (css===undefined)
+                css=prompt(
+                    ((language==="bg")?"Въведете CSS стил за реброто":"Input CSS style for the edge")+
+                    ((graph.edgeList[index].addedCSS[0]==="")?
+                     ((language==="bg")?" (например за червен цвят stroke: red)":" (for example for red colour - stroke: red)"):""),
+                    graph.edgeList[index].addedCSS[0]
+                );
+            else css=graph.edgeList[index].addedCSS[0]+" ; "+css;
             if (css===null) return ;
             css=objToStyle(styleToObj(css));
             let edge=graph.svgEdges[index];
@@ -474,13 +480,15 @@
             dropdowns[graph.wrapperName].showDropdown("edge",event,ind);
         }
         
-        function addCSSWeight (index) {
-            let css=prompt(
-                ((language==="bg")?"Въведете CSS стил за теглото":"Input CSS style for the weight")+
-                ((graph.edgeList[index].addedCSS[1]==="")?
-                 ((language==="bg")?" (например за червен цвят fill: red)":" (for example for red colour - fill: red)"):""),
-                graph.edgeList[index].addedCSS[1]
-            );
+        this.addCSSWeight = function (index, css) {
+            if (css===undefined)
+                css=prompt(
+                    ((language==="bg")?"Въведете CSS стил за теглото":"Input CSS style for the weight")+
+                    ((graph.edgeList[index].addedCSS[1]==="")?
+                     ((language==="bg")?" (например за червен цвят fill: red)":" (for example for red colour - fill: red)"):""),
+                    graph.edgeList[index].addedCSS[1]
+                );
+            else css=graph.edgeList[index].addedCSS[1]+" ; "+css;
             if (css===null) return ;
             css=objToStyle(styleToObj(css));
             let weight=graph.svgEdges[index].weight;
@@ -563,17 +571,17 @@
             menus.addNewDropdown("vertex",[
                 ["remove-vertex", ((language==="bg")?"Изтрий върха":"Remove the vertex"), removeVertex],
                 ["change-name", ((language==="bg")?"Промени името":"Change the name"), changeVertexName],
-                ["add-css", ((language==="bg")?"Сложи CSS стил":"Add CSS style"), addCSSVertex],
-                ["add-css-name", ((language==="bg")?"Сложи CSS стил на името":"Add CSS style for the name"), addCSSVertexName]
+                ["add-css", ((language==="bg")?"Сложи CSS стил":"Add CSS style"), this.addCSSVertex],
+                ["add-css-name", ((language==="bg")?"Сложи CSS стил на името":"Add CSS style for the name"), this.addCSSVertexName]
             ]);
             menus.addNewDropdown("edge",[
                 ["remove-edge", ((language==="bg")?"Изтрий реброто":"Remove the edge"),removeEdge],
                 ["change-weight", ((language==="bg")?"Промени теглото":"Change the weight"), changeEdgeWeight],
-                ["add-css", ((language==="bg")?"Сложи CSS стил":"Add CSS style"), addCSSEdge]
+                ["add-css", ((language==="bg")?"Сложи CSS стил":"Add CSS style"), this.addCSSEdge]
             ]);
             menus.addNewDropdown("weight",[
                 ["change-weight", ((language==="bg")?"Промени теглото":"Change the weight"), changeEdgeWeight],
-                ["add-css", ((language==="bg")?"Сложи CSS стил":"Add CSS style"), addCSSWeight]
+                ["add-css", ((language==="bg")?"Сложи CSS стил":"Add CSS style"), this.addCSSWeight]
             ]);
             
             for (let i=0; i<graph.n; i++) {

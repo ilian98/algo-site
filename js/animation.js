@@ -234,20 +234,17 @@
                     obj.attr({fill: colour});
                 }
             },
-            edgeAnimation: function (vr1, vr2, speedCoeff = 1) {
+            edgeAnimation: function (vr1, vr2, ind, speedCoeff = 1) {
                 let graph=this;
                 return function(callback, speed) {
                     if (speed>0) {
                         let obj1=graph.svgVertices[vr1];
                         let obj2=graph.svgVertices[vr2];
 
-                        let ind=graph.edgeList.findIndex(function (e) { return ((e!==undefined)&&(e.x==vr1)&&(e.y==vr2)); });
                         let reverse=false;
-                        if ((ind==-1)&&(graph.isDirected===false)) {
-                            reverse=true;
-                            ind=graph.edgeList.findIndex(function (e) { return ((e!==undefined)&&(e.x==vr2)&&(e.y==vr1)); });
-                        }
+                        if ((graph.isDirected===false)&&(graph.edgeList[ind].x!=vr1)) reverse=true;
                         let lineDraw=graph.s.path(graph.svgEdges[ind].line.attr("d"));
+                        
                         let pathLength=lineDraw.getTotalLength();
                         lineDraw.attr({fill: "none", stroke: "red", "stroke-width": graph.findStrokeWidth()*3});
                         lineDraw.attr({"stroke-dasharray": pathLength, "stroke-dashoffset": pathLength});

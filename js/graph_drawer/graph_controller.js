@@ -436,6 +436,7 @@
         svgSave.removeAttr("width").removeAttr("height");
         svgSave.html(svg.html());
         svgSave[0].setAttribute("xmlns","http://www.w3.org/2000/svg");
+        svgSave[0].setAttribute("xmlns:xlink","http://www.w3.org/1999/xlink");
         let svgData=svgSave[0].outerHTML.replaceAll("cursor: pointer;","")
             .replace("border-style: dotted","border-style: none")
             .replace("display: none","");

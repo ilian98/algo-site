@@ -8,7 +8,7 @@
                 animations.push({
                     animFunctions: [graph.vertexAnimation(vr,"grey","circle"),
                                     graph.vertexAnimation(vr,"white","text"),
-                                    graph.edgeAnimation(vr,to)],
+                                    graph.edgeAnimation(vr,to,ind)],
                     animText: "Напускаме връх "+(vr+1)+" и отиваме в "+(to+1)+"."
                 });
 
@@ -28,7 +28,7 @@
             }
             else {
                 animations.push({
-                    animFunctions: [graph.edgeAnimation(vr,to)],
+                    animFunctions: [graph.edgeAnimation(vr,to,ind)],
                     animText: "Oказва се, че съседът с номер "+(to+1)+" вече е обходен."
                 });
             }

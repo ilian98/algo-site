@@ -445,7 +445,9 @@
             let marker=arrow.marker(0,0,arrowEnd[0],arrowHeight,(isLoop===false)?arrowEnd[0]-arrowDist:0,arrowEnd[1]).attr({markerUnits: "userSpaceOnUse"});
             line.attr({"marker-end": marker});
         }
-        function calcWeightPosition (weight, isVertical, isLoop, pathForWeight, properties) {
+        function calcWeightPosition (weight, dx, isLoop, pathForWeight, properties) {
+            let isVertical=false;
+            if (Math.abs(dx)<=2*this.vertexRad) isVertical=true;
             if (isVertical===true) {
                 let tempPath=this.s.path(pathForWeight).attr({
                     fill: "none",
@@ -496,8 +498,7 @@
             }
 
             if ((isDrawn===false)&&(this.isWeighted===true)) {
-                pathForWeight=calcWeightPosition.call(this,edge.weight,
-                                                      ((isLoop===false)&&(st[0]===end[0])),isLoop,pathForWeight,properties);
+                pathForWeight=calcWeightPosition.call(this,edge.weight,st[0]-end[0],isLoop,pathForWeight,properties);
                 this.s.select(edge.weight.textPath.attr("href")).attr("d",pathForWeight);
             }
             return edge;
@@ -565,8 +566,7 @@
                 else edge.weight.height=edge.weight.getBBox().height;
                 edge.weight.dyCenter=determineDy(this.edgeList[edgeInd].weight.toString(),"Arial",this.vertexRad);
                 
-                pathForWeight=calcWeightPosition.call(this,edge.weight,
-                                                      ((isLoop===false)&&(st[0]===end[0])),isLoop,pathForWeight,properties);
+                pathForWeight=calcWeightPosition.call(this,edge.weight,st[0]-end[0],isLoop,pathForWeight,properties);
                 edge.weight.attr({textpath: pathForWeight});
                 edge.weight.textPath.attr({"startOffset": "50%"});
                 
