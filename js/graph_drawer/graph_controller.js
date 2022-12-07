@@ -235,13 +235,19 @@
             if ((this.undoType==="default")||(this.undoType==="redo")) this.addChange(type,data,true);
             else this.redoChange(type,data);
         }
+        this.freezes=0;
         this.freezeTime = function () {
+            this.freezes++;
             this.increaseTime=false;
         }
         this.advanceTime = function () {
-            this.increaseTime=true;
-            if ((this.undoType==="default")||(this.undoType==="redo")) this.undoTime++;
-            else this.redoTime++;
+            this.freezes--;
+            if (this.freezes==0) {
+                this.increaseTime=true;
+                if ((this.undoType==="default")||(this.undoType==="redo")) this.undoTime++;
+                else this.redoTime++;
+            }
+            else if (this.freezes<0) this.freezes=0;
         }
         
         this.changeType=[true, true, true]; this.changeVers=true; this.changeRad=true;

@@ -332,7 +332,7 @@
                 graph.graphController.addChange("change-css-"+typeName,[ind, oldCSS]);
             obj.attr("style",defaultCSS+" ; "+newCSS);
         }
-        function removeVertex (index) {
+        this.removeVertex = function (index) {
             for (let ind of graph.adjList[index]) {
                 edgeClickAreas[ind].remove();
             }
@@ -393,7 +393,7 @@
             dropdowns[graph.wrapperName].showDropdown("vertex",event,this.index);
         }
                                
-        function addNewVertex (event) {
+        this.addNewVertex = function (event, name) {
             let ind;
             for (let i=0; i<=graph.n; i++) {
                 if (graph.vertices[i]===undefined) {
@@ -401,23 +401,34 @@
                     break;
                 }
             }
-            let name=prompt((language==="bg")?"Въведете име на новия връх":"Input name of the new vertex",ind+1);
+            let flag=false;
+            if (name===undefined) {
+                name=prompt((language==="bg")?"Въведете име на новия връх":"Input name of the new vertex",ind+1);
+                flag=true;
+            }
             if (name===null) return ;
             graph.addVertex(name);
-            setSvgPoint(event);
-            graph.svgVertices[ind].coord=[svgPoint.x, svgPoint.y];
+            if (flag===true) {
+                setSvgPoint(event);
+                graph.svgVertices[ind].coord=[svgPoint.x, svgPoint.y];
+            }
+            else {
+                graph.calcPositions.calculatePossiblePos(true);
+                graph.calcPositions.placeVertex(ind,false);
+            }
             graph.drawVertex(ind);
             addVertexEvents(ind);
             graph.graphChange("add-vertex");
         }
         
-        function removeEdge (index) {
+        this.removeEdge = function (index) {
             graph.removeEdge(index);
             graph.graphChange("remove-edge");
             edgeClickAreas[index].remove();
         }
-        function changeEdgeWeight (index) {
-            let weight=prompt((language==="bg")?"Въведете ново тегло на реброто":"Input new weight for the edge"
+        this.changeEdgeWeight = function (index, weight) {
+            if (weight===undefined) 
+                weight=prompt((language==="bg")?"Въведете ново тегло на реброто":"Input new weight for the edge"
                               ,graph.edgeList[index].weight);
             if (checkWeightValue(weight)===false) return ;
             if (graph.edgeList[index].weight!==weight) {
@@ -569,18 +580,18 @@
             
             let menus=dropdowns[graph.wrapperName];
             menus.addNewDropdown("vertex",[
-                ["remove-vertex", ((language==="bg")?"Изтрий върха":"Remove the vertex"), removeVertex],
+                ["remove-vertex", ((language==="bg")?"Изтрий върха":"Remove the vertex"), this.removeVertex],
                 ["change-name", ((language==="bg")?"Промени името":"Change the name"), changeVertexName],
                 ["add-css", ((language==="bg")?"Сложи CSS стил":"Add CSS style"), this.addCSSVertex],
                 ["add-css-name", ((language==="bg")?"Сложи CSS стил на името":"Add CSS style for the name"), this.addCSSVertexName]
             ]);
             menus.addNewDropdown("edge",[
-                ["remove-edge", ((language==="bg")?"Изтрий реброто":"Remove the edge"),removeEdge],
-                ["change-weight", ((language==="bg")?"Промени теглото":"Change the weight"), changeEdgeWeight],
+                ["remove-edge", ((language==="bg")?"Изтрий реброто":"Remove the edge"), this.removeEdge],
+                ["change-weight", ((language==="bg")?"Промени теглото":"Change the weight"), this.changeEdgeWeight],
                 ["add-css", ((language==="bg")?"Сложи CSS стил":"Add CSS style"), this.addCSSEdge]
             ]);
             menus.addNewDropdown("weight",[
-                ["change-weight", ((language==="bg")?"Промени теглото":"Change the weight"), changeEdgeWeight],
+                ["change-weight", ((language==="bg")?"Промени теглото":"Change the weight"), this.changeEdgeWeight],
                 ["add-css", ((language==="bg")?"Сложи CSS стил":"Add CSS style"), this.addCSSWeight]
             ]);
             
@@ -594,6 +605,7 @@
             }
             let svgElement=$(graph.svgName);
             if (graph.isDrawable===true) {
+                let addNewVertex=this.addNewVertex;
                 if (window.isMobile==="false") svgElement.off("dblclick").on("dblclick",addNewVertex);
                 else {
                     let tapped=false;
@@ -604,7 +616,7 @@
                         }
                         else {
                             tapped=false;
-                            addNewVertex(event);
+                            addNewVertex.call(this,event);
                         }
                     });
                 }

@@ -96,7 +96,7 @@
         tree.erase();
         
         elements.splice(0,elements.length);
-        let [nums,error]=findNumbersFromText($(exampleName+" .array").val());
+        let [nums,error]=findItemsFromText($(exampleName+" .array").val());
         if (error!=="") {
             alert("Невалиден масив - "+error+"!");
             return ;

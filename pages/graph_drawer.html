@@ -109,27 +109,51 @@
                                     </div>
                                 </div>
                                 <div class="tab-pane fade" id="change" role="tabpanel" aria-labelledby="change-tab">
-                                    <p style="margin-top: 1vh; margin-bottom: 1vh">Прилагане на CSS стил на:</p>
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="radio" name="css-object" id="vertices" checked>
-                                        <label class="form-check-label unselectable" for="undirected">върхове</label>
+                                    <p style="margin-top: 1vh; margin-bottom: 1vh">Отбележете вида промяна:</p>
+                                    <div class="mb-2">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="change-object" id="add-vertices">
+                                            <label class="form-check-label unselectable" for="add-vertices">Добавяне на върхове</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="change-object" id="remove-vertices">
+                                            <label class="form-check-label unselectable" for="remove-vertices">Изтриване на върхове</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="change-object" id="css-vertices" checked>
+                                            <label class="form-check-label unselectable" for="css-vertices">CSS стил за върхове</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="change-object" id="css-vertices-name">
+                                            <label class="form-check-label unselectable" for="css-vertices-name">CSS стил за имена на върхове</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="change-object" id="remove-edges">
+                                            <label class="form-check-label unselectable" for="remove-edges">Изтриване на ребра</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="change-object" id="css-edges">
+                                            <label class="form-check-label unselectable" for="css-edges">CSS стил за ребра</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="change-object" id="set-weights">
+                                            <label class="form-check-label unselectable" for="set-weights">Задаване на тегла на ребра</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="change-object" id="css-weights">
+                                            <label class="form-check-label unselectable" for="css-weights">CSS стил за тегла на ребра</label>
+                                        </div>
                                     </div>
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="radio" name="css-object" id="vertices-name">
-                                        <label class="form-check-label unselectable" for="undirected">имена на върхове</label>
-                                    </div>
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="radio" name="css-object" id="edges">
-                                        <label class="form-check-label unselectable" for="undirected">ребра</label>
-                                    </div>
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="radio" name="css-object" id="weights">
-                                        <label class="form-check-label unselectable" for="undirected">тегла на ребра</label>
-                                    </div>
-                                    <div class="row mt-2 mb-2">
-                                        <label for="base" class="col-auto col-form-label pe-0">Въведете CSS:</label>
+                                    <div class="row mb-2">
+                                        <label for="css-text" class="col-auto col-form-label pe-0">Въведете CSS:</label>
                                         <div class="col-auto">
                                             <input class="form-control css-text"/>
+                                        </div>
+                                    </div>
+                                    <div class="row mb-2">
+                                        <label for="weight-text" class="col-auto col-form-label pe-0">Въведете тегло:</label>
+                                        <div class="col-auto">
+                                            <input class="form-control weight-text"/>
                                         </div>
                                     </div>
                                     <div class="row mb-2">
@@ -138,9 +162,9 @@
                                         </div>
                                     </div>
                                     <div class="row mb-2">
-                                        <label for="base" class="col-auto col-form-label pe-0">Въведете номера:</label>
+                                        <label for="change-items" class="col-auto col-form-label pe-0">Въведете номера:</label>
                                         <div class="col-auto">
-                                            <input class="form-control css-items"/>
+                                            <input class="form-control change-items"/>
                                         </div>
                                     </div>
                                     <div class="row mb-2">

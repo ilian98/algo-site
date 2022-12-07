@@ -63,24 +63,22 @@
         tableText+='</tbody>';
         return tableText;
     }
-    function findNumbersFromText (s) {
+    function findItemsFromText (s, flagNumbers=true) {
         if (s.length>1000) return [[],"дължината е над 1000 символа"];
-        let elements=[],num=0,digs=0;
+        let elements=[],last=0;
         for (let i=0; i<s.length; i++) {
-            if (s[i]===',') {
-                if (digs===0) return [[],"липсва число между 2 запетайки"];
-                elements.push(num);
-                num=0; digs=0;
-            }
-            else {
-                if ((s[i]<'0')||(s[i]>'9')) return [[],"намерен е знак различен от цифра между запетайките"];
-                num*=10; num+=s[i]-'0';
-                digs++;
+            if ((s[i]===',')||(i===s.length-1)) {
+                if ((s[i]===',')&&(last===i)) return [[],"липсва елемент между 2 запетайки"];
+                let curr=s.substring(last,(s[i]===',')?i:i+1);
+                if (flagNumbers===true) {
+                    curr=parseInt(curr);
+                    if (isNaN(curr)===true) return [[],s.substring(last,(s[i]===',')?i:i+1)+" не е число"];
+                }
+                elements.push(curr);
+                last=i+1;
             }
         }
-        if (digs===0) return [[],"липсва число след последната запетайка"];
-            
-        elements.push(num);
+        if (s[s.length-1]===',') return [[],"липсва елементо след последната запетайка"];
         return [elements,""];
     }
 
@@ -405,6 +403,6 @@
     window.isDigitOrComma = isDigitOrComma;
     window.isSmallLatinLetter = isSmallLatinLetter;
     window.tableHTML = tableHTML;
-    window.findNumbersFromText = findNumbersFromText;
+    window.findItemsFromText = findItemsFromText;
     window.language = language;
 })();

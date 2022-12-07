@@ -44,56 +44,133 @@
                 <div class="lesson-part" style="display: block">
                     <div class="graph-drawer row">
                         <div class="col-sm-5 graph-settings">
-                            <div class="row mb-3">
-                                <div class="slidecontainer">
-                                    <input type="range" min="1" max="10" value="5" class="slider range-vers" id="rangeVers">
-                                </div>
-                                <div class="slider-text unselectable">
-                                    <span>Number of vertices: </span>
-                                    <span class="slider-value-vers" style="color: red; font-weight: bold"></span>
-                                </div>
-                            </div>
-                            <div class="row mb-3">
-                                <div class="col-sm">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="radio" name="direction" id="undirected" checked>
-                                        <label class="form-check-label unselectable" for="undirected">Undirected graph</label>
+                            <ul class="nav nav-tabs" id="tab" role="tablist">
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link active" id="settings-tab" data-bs-toggle="tab" data-bs-target="#settings" type="button" role="tab" aria-controls="settings" aria-selected="true">Options</button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="change-tab" data-bs-toggle="tab" data-bs-target="#change" type="button" role="tab" aria-controls="change" aria-selected="false">Multiple change</button>
+                                </li>
+                            </ul>
+                            <div class="tab-content" id="myTabContent">
+                                <div class="tab-pane fade show active" id="settings" role="tabpanel" aria-labelledby="settings-tab">
+                                    <div class="row mb-3">
+                                        <div class="slidecontainer">
+                                            <input type="range" min="1" max="10" value="5" class="slider range-vers" id="rangeVers">
+                                        </div>
+                                        <div class="slider-text unselectable">
+                                            <span>Number of vertices: </span>
+                                            <span class="slider-value-vers" style="color: red; font-weight: bold"></span>
+                                        </div>
                                     </div>
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="radio" name="direction" id="directed">
-                                        <label class="form-check-label unselectable" for="directed">Directed graph</label>
+                                    <div class="row mb-3">
+                                        <div class="col-sm">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="direction" id="undirected" checked>
+                                                <label class="form-check-label unselectable" for="undirected">Undirected graph</label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="direction" id="directed">
+                                                <label class="form-check-label unselectable" for="directed">Directed graph</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" value="" id="weighted">
+                                                <label class="form-check-label unselectable" for="weighted">Weighted graph</label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" value="" id="multi">
+                                                <label class="form-check-label unselectable" for="multi">Multigraph</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row mb-3">
+                                        <div class="slidecontainer">
+                                            <input type="range" min="15" max="30" value="20" class="slider range-rad" id="rangeRad">
+                                        </div>
+                                        <div class="slider-text unselectable">
+                                            <span>Vertices size: </span>
+                                            <span class="slider-value-rad" style="color: red; font-weight: bold"></span>
+                                        </div>
+                                    </div>
+                                    <div class="row mb-3">
+                                        <div class="col-auto">
+                                            <p class="mb-1 unselectable">Set the action that will be performed when a vertex is hold:</p>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="dragging" id="edgeDraw" checked>
+                                                <label class="form-check-label unselectable" for="edgeDraw">Drawing edge from the vertex</label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="dragging" id="vertexMove">
+                                                <label class="form-check-label unselectable" for="vertexMove">Moving the vertex</label>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="col-sm">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" value="" id="weighted">
-                                        <label class="form-check-label unselectable" for="weighted">Weighted graph</label>
+                                <div class="tab-pane fade" id="change" role="tabpanel" aria-labelledby="change-tab">
+                                    <p style="margin-top: 1vh; margin-bottom: 1vh">Select the type of change:</p>
+                                    <div class="mb-2">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="change-object" id="add-vertices">
+                                            <label class="form-check-label unselectable" for="add-vertices">Add vertices</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="change-object" id="remove-vertices">
+                                            <label class="form-check-label unselectable" for="remove-vertices">Remove vertices</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="change-object" id="css-vertices" checked>
+                                            <label class="form-check-label unselectable" for="css-vertices">Add CSS style for vertices</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="change-object" id="css-vertices-name">
+                                            <label class="form-check-label unselectable" for="css-vertices-name">Add CSS style for the names of vertices</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="change-object" id="remove-edges">
+                                            <label class="form-check-label unselectable" for="remove-edges">Remove edges</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="change-object" id="css-edges">
+                                            <label class="form-check-label unselectable" for="css-edges">Add CSS style for edges</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="change-object" id="set-weights">
+                                            <label class="form-check-label unselectable" for="set-weights">Set the weights for edges</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="change-object" id="css-weights">
+                                            <label class="form-check-label unselectable" for="css-weights">Add CSS style for the weights of edges</label>
+                                        </div>
                                     </div>
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" value="" id="multi">
-                                        <label class="form-check-label unselectable" for="multi">Multigraph</label>
+                                    <div class="row mb-2">
+                                        <label for="css-text" class="col-auto col-form-label pe-0">Input CSS:</label>
+                                        <div class="col-auto">
+                                            <input class="form-control css-text"/>
+                                        </div>
                                     </div>
-                                </div>
-                            </div>
-                            <div class="row mb-3">
-                                <div class="slidecontainer">
-                                    <input type="range" min="15" max="30" value="20" class="slider range-rad" id="rangeRad">
-                                </div>
-                                <div class="slider-text unselectable">
-                                    <span>Vertices size: </span>
-                                    <span class="slider-value-rad" style="color: red; font-weight: bold"></span>
-                                </div>
-                            </div>
-                            <div class="row mb-3">
-                                <div class="col-auto">
-                                    <p class="mb-1 unselectable">Set the action that will be performed when a vertex is hold:</p>
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="radio" name="dragging" id="edgeDraw" checked>
-                                        <label class="form-check-label unselectable" for="edgeDraw">Drawing edge from the vertex</label>
+                                    <div class="row mb-2">
+                                        <label for="weight-text" class="col-auto col-form-label pe-0">Input тегло:</label>
+                                        <div class="col-auto">
+                                            <input class="form-control weight-text"/>
+                                        </div>
                                     </div>
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="radio" name="dragging" id="vertexMove">
-                                        <label class="form-check-label unselectable" for="vertexMove">Moving the vertex</label>
+                                    <div class="row mb-2">
+                                        <div class="col-auto">
+                                            <button class="btn btn-primary make-change-all">Apply to all!</button>
+                                        </div>
+                                    </div>
+                                    <div class="row mb-2">
+                                        <label for="change-items" class="col-auto col-form-label pe-0">Input numbers:</label>
+                                        <div class="col-auto">
+                                            <input class="form-control change-items"/>
+                                        </div>
+                                    </div>
+                                    <div class="row mb-2">
+                                        <div class="col-auto">
+                                            <button class="btn btn-primary make-change">Apply!</button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

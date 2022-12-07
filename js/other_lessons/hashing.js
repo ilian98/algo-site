@@ -73,7 +73,7 @@
         paragraph.text("");
         if ((s.length===0)||(base<2)||(modulo<2)) return ;
 
-        let [elements,error]=findNumbersFromText(s);
+        let [elements,error]=findItemsFromText(s);
         if (error!=="") {
             alert("Невалидно множество - "+error+"!");
             return ;
