@@ -115,7 +115,7 @@
                 if (isStatic===false) {
                     if (currAnimation==animLen-1) pauseButton.hide();
                     else pauseButton.show();
-                    animationsUntilStep(animations,currAnimation,step);
+                    animationsUntilStep(animations,currAnimation,-1);
                 }
                 else animationsUntilStep(animations,currAnimation+1,step);
                 if ((isStatic===true)||(currAnimation<animLen)) {
