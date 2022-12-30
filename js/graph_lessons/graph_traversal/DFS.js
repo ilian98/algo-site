@@ -68,7 +68,7 @@
             return animations;
         },function initialState () {
             graph.draw(false,false,true);
-        }).then(
+        },false).then(
             () => { graph.graphController.hasAnimation(animationObj) },
             () => { alert("Failed loading animation data!") });
     }

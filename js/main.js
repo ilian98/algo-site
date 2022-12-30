@@ -64,21 +64,22 @@
         return tableText;
     }
     function findItemsFromText (s, flagNumbers=true) {
-        if (s.length>1000) return [[],"дължината е над 1000 символа"];
+        if (s.length>1000) return [[],(language==="bg")?"дължината е над 1000 символа":"the length is greater than 1000 symbols"];
         let elements=[],last=0;
         for (let i=0; i<s.length; i++) {
             if ((s[i]===',')||(i===s.length-1)) {
-                if ((s[i]===',')&&(last===i)) return [[],"липсва елемент между 2 запетайки"];
+                if ((s[i]===',')&&(last===i)) return [[],(language==="bg")?"липсва елемент между 2 запетайки":"missing element between 2 commas"];
                 let curr=s.substring(last,(s[i]===',')?i:i+1);
                 if (flagNumbers===true) {
                     curr=parseInt(curr);
-                    if (isNaN(curr)===true) return [[],s.substring(last,(s[i]===',')?i:i+1)+" не е число"];
+                    if (isNaN(curr)===true) return [[],s.substring(last,(s[i]===',')?i:i+1)+
+                                                    ((language==="bg")?" не е число":" is not a number")];
                 }
                 elements.push(curr);
                 last=i+1;
             }
         }
-        if (s[s.length-1]===',') return [[],"липсва елементо след последната запетайка"];
+        if (s[s.length-1]===',') return [[],(language==="bg")?"липсва елемент след последната запетайка":"missing element after the last comma"];
         return [elements,""];
     }
 
@@ -187,14 +188,14 @@
                     sessionStorage.setItem(page+name,"1");
                     $(name).show();
                     $("#miniLesson"+ind).show();
-                    if ((beginning===false)&&(typeof initExamples==="function")) initFuncs.push(initExamples.bind(this,ind+1));
+                    if (beginning===false) initFuncs.push(initExamples.bind(this,ind+1));
                     if (parts[parts.length-1]===ind+1) {
                         $(".wrapper").animate({
                             scrollTop: $(btn)[0].offsetTop-$(".wrapper")[0].offsetTop
                         },"slow");
                     }
                 }
-                if ((beginning===true)&&(typeof initExamples==="function")) initFuncs.push(initExamples.bind(this,ind+1));
+                if (beginning===true) initFuncs.push(initExamples.bind(this,ind+1));
             }
             else {
                 href="#part"+addPart(ind+1,anchor);
@@ -329,38 +330,12 @@
     function initExamples (part = 1) {
         if (inited.has(part)===true) return ;
         inited.add(part);
-        let name="#"+ordinals[part-1]+"Part";
-
-        if (page==="introduction_to_graphs.html") {
-            if (part>=2) initExample(part);
-        }
-        else if (page==="depth_first_search.html") {
-            if (part===1) initExample(1);
-            else if (part===3) initExample(3); 
-        }
-        else if (page==="hashing.html") {
-            if (part===2) initExample(2);
-            else initExample(4);
-        }
-        else if (page==="2-SAT.html") {
-            if (part>1) initExample(part);
-        }
-        else if (page==="segment_tree_introduction.html") {
-            if (part>1) {
-                initExample(part);
-                defaultExample(part);
-            }
-        }
-        else if (page==="dp_profile.html") {
-            if (part>=3) initExample(part);
-        }
-        else if (page==="articulation_components.html") initExample(part);
-        else if (page==="min_cut.html") initExample(part);
+        if (typeof initExample==="function") initExample(part);
     }
     
     function unimportantWork () {
         const d=new Date();
-        const month=d.getMonth()+1,day=d.getDate()+1;
+        const month=d.getMonth()+1,day=d.getDate();
         if (((month==12)&&(day>=22))||
             (month==1)||(month==2)||
             ((month==3)&&(day<21))) {

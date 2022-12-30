@@ -213,8 +213,7 @@
                 makeEdgesAndNames(0,0,elements.length-1,[],tree.vertices,elements,false);
                 tree.draw(false,false,true);
             },undefined,undefined,
-                              (exampleName==".segTreeExample2")?
-                              endAnimation.bind(this,tree,elements,$(exampleName+" .pos"),$(exampleName+" .val")):undefined
+                              (exampleName==".segTreeExample2")?endAnimation.bind(this,tree,elements,$(exampleName+" .pos"),$(exampleName+" .val")):undefined
             ).then(
             () => { tree.graphController.hasAnimation(animationObj) },
             () => { alert("Failed loading animation data!") });
@@ -310,7 +309,7 @@
             animations.push({
                 animFunctions: [tree.vertexAnimation(index,"grey","circle",2),
                                 tree.vertexAnimation(index,"white","text",2),
-                                tree.edgeAnimation(index,2*index+1,2)],
+                                tree.edgeAnimation(index,2*index+1,-1,2)],
                 animText: "Понеже "+pos+" е <= от средата на интервала ["+l+"; "+r+"], то отиваме в лявото дете."
             });
             animations.push({
@@ -325,7 +324,7 @@
             animations.push({
                 animFunctions: [tree.vertexAnimation(index,"grey","circle",2),
                                 tree.vertexAnimation(index,"white","text",2),
-                                tree.edgeAnimation(index,2*index+2,2)],
+                                tree.edgeAnimation(index,2*index+2,-1,2)],
                 animText: "Понеже "+pos+" е > от средата на интервала ["+l+"; "+r+"], то отиваме в дясното дете."
             });
             animations.push({
@@ -386,7 +385,7 @@
             animations.push({
                 animFunctions: [tree.vertexAnimation(index,"grey","circle",2),
                                 tree.vertexAnimation(index,"white","text",2),
-                                tree.edgeAnimation(index,2*index+1,2.5)],
+                                tree.edgeAnimation(index,2*index+1,-1,2.5)],
                 animText: "Понеже ql<=mid ("+ql+"<="+mid+"), то трябва да отидем в лявото дете."
             });
             animations.push({
@@ -405,7 +404,7 @@
             animations.push({
                 animFunctions: [tree.vertexAnimation(index,"grey","circle",2),
                                 tree.vertexAnimation(index,"white","text",2),
-                                tree.edgeAnimation(index,2*index+2,2.5)],
+                                tree.edgeAnimation(index,2*index+2,-1,2.5)],
                 animText: "Понеже qr>mid ("+qr+">"+mid+"), то отиваме "+((ql<=mid)?"и ":"")+"в дясното дете."
             });
             animations.push({

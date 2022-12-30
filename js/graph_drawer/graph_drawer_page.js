@@ -104,7 +104,7 @@
             if (all===false) {
                 let [nums,error]=findItemsFromText($("#change .change-items").val(),(indType!==0));
                 if (error!=="") {
-                    alert("Невалидни номера - "+error+"!");
+                    alert(((language==="bg")?"Невалидни номера":"Invalid numbers")+" - "+error+"!");
                     return ;
                 }
                 for (let num of nums) {
@@ -117,7 +117,7 @@
                         if (graph.edgeList[num-1]===undefined) flag=true;
                     }
                     if (flag===true) {
-                        alert("Невалиден номер - "+num+"!");
+                        alert(((language==="bg")?"Невалиден номер":"Invalid number")+" - "+num+"!");
                         return ;
                     }
                 }
