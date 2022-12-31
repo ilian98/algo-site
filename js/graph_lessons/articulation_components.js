@@ -60,7 +60,7 @@
                 animations.push({
                     animFunctions: [graph.vertexAnimation(vr,"grey","circle"),
                                     graph.vertexAnimation(vr,"white","text"),
-                                    graph.edgeAnimation(vr,to)],
+                                    graph.edgeAnimation(vr,to,ind)],
                     animText: "Напускаме връх "+(vr+1)+" и отиваме към сина "+(to+1)+" в строящото се покриващо дърво."
                 });
 
@@ -88,14 +88,14 @@
             }
             else if (to===father) {
                 animations.push({
-                    animFunctions: [graph.edgeAnimation(vr,to)],
+                    animFunctions: [graph.edgeAnimation(vr,to,ind)],
                     animText: "Oказва се, че този съсед се явява бащата "+(to+1)+" на текущия връх в покриващото дърво."
                 });
             }
             else {
                 up[vr]=Math.min(up[vr],inTime[to]);
                 animations.push({
-                    animFunctions: [graph.edgeAnimation(vr,to)],
+                    animFunctions: [graph.edgeAnimation(vr,to,ind)],
                     animText: "Това ребро е обратно, затова вземаме предвид in["+(to+1)+"]="+inTime[to]+" при смятането на минималното in-време на up["+(vr+1)+"].",
                     endFunction: function (up) {
                         upText.remove();

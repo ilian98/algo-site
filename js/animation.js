@@ -18,18 +18,20 @@
         let animations;
         function startButtonFunc (findAnimations, initialState, isStatic, startButtonName, stopButtonName) {
             if (flagStart===false) {
+                this.startFunc();
                 stopAnimations();
                 initialState();
                 animations=findAnimations();
-                if (animations.length===0) return ;
+                if (animations.length===0) {
+                    this.stopFunc();
+                    return ;
+                }
                 if (isStatic===false) {
                     animations.push({
                         animFunctions: [],
                         animText: ""
                     });
                 }
-                
-                this.startFunc();
                 
                 flagStart=true; startButton.html(stopButtonName);
                 if (this.finishFunc!==emptyFunc) finishButton.show();
@@ -226,7 +228,7 @@
                     }
                     if (animations[i].animFunctions.length===0) {
                         if (animations[i].hasOwnProperty("endFunction")) animations[i].endFunction();
-                        animFuncs[i+1]();
+                        if (i+1<animations.length) animFuncs[i+1]();
                     }
                 }
             }
