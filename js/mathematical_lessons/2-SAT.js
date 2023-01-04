@@ -101,13 +101,13 @@
                 let curr=implications[i][j];
                 if (variables.has(curr)===true) continue;
                 variables.set(curr,ind);
-                graph.vertices[ind++].name=curr;
+                graph.getVertex(ind++).name=curr;
                 
                 let negative;
                 if (curr[0]==='!') negative=curr.substr(1,curr.length-1);
                 else negative="!"+curr;
                 variables.set(negative,ind);
-                graph.vertices[ind++].name=negative;
+                graph.getVertex(ind++).name=negative;
             }
             x=variables.get(implications[i][0]);
             y=variables.get(implications[i][1]);
@@ -146,49 +146,48 @@
         let versColour=[];
         for (let i=0; i<num; i++) {
             for (let j=0; j<comps[i].length; j++) {
-                let v=comps[i][j];
+                let v=comps[i][j],vr=graph.getVertex(v);
                 if ((part===2)||(values.length===0)) {
-                    graph.vertices[v].addedCSS[0]="fill: "+colours[colour];
+                    vr.addedCSS[0]="fill: "+colours[colour];
                     versColour[v]=colours[colour];
                 }
                 else {
                     if (values[v]===true) {
-                        graph.vertices[v].addedCSS[0]="fill: green";
+                        vr.addedCSS[0]="fill: green";
                         versColour[v]="green";
                     }
                     else {
-                        graph.vertices[comps[i][j]].addedCSS[0]="fill: red";
+                        vr.addedCSS[0]="fill: red";
                         versColour[v]="red";
                     }
                 }
             }
             colour+=jump;
         }
-        for (let i=0; i<graph.edgeList.length; i++) {
-            if (graph.edgeList[i]===undefined) continue;
-            let from=graph.edgeList[i].x,to=graph.edgeList[i].y;
-            if (nums[from]===nums[to]) graph.edgeList[i].addedCSS[0]="stroke: "+versColour[from];
+        for (let [i, edge] of graph.getEdges()) {
+            let from=edge.x,to=edge.y;
+            if (nums[from]===nums[to]) edge.addedCSS[0]="stroke: "+versColour[from];
         }
         graph.draw(false);
     }
     function showSCC (part) {
         makeImplicationGraph(part);
         let graph=graphs[part],used=[];
-        for (let i=0; i<graph.n; i++) {
+        let vers=graph.getVertices();
+        for (let [i, vr] of vers) {
             used[i]=false;
         }
         let order=[];
-        for (let i=0; i<graph.n; i++) {
-            if (used[i]===false) dfs1(i,graph.adjList,graph.edgeList,used,order);
+        for (let [i, vr] of vers) {
+            if (used[i]===false) dfs1(i,graph.adjList,graph.getIndexedEdges(),used,order);
         }
 
         let rev=[];
-        for (let i=0; i<graph.n; i++) {
+        for (let [i, vr] of vers) {
             used[i]=false;
             rev[i]=[];
         }
-        for (let edge of graph.edgeList) {
-            if (edge===undefined) continue;
+        for (let [i, edge] of graph.getEdges()) {
             rev[edge.y].push(edge.x);
         }
         num=0; comps=[]; nums=[];
@@ -202,15 +201,16 @@
         
         let solution=document.querySelector(".twoSATexample"+part+" .solution"),text;
         text="\\("; values=[];
-        for (let i=0; i<graph.n; i+=2) {
+        for (let ind=0; ind<vers.length; ind+=2) {
+            let i=vers[ind][0];
             let comp,name;
-            if (graph.vertices[i].name[0]==='!') {
+            if (graph.getVertex(i).name[0]==='!') {
                 comp=[nums[i+1], nums[i]];
-                name=graph.vertices[i+1].name;
+                name=graph.getVertex(i+1).name;
             }
             else {
                 comp=[nums[i], nums[i+1]];
-                name=graph.vertices[i].name;
+                name=graph.getVertex(i).name;
             }
             if (comp[0]===comp[1]) {
                 text="Няма решение, защото в силно-свързаната компонента на връх \\("+name+"\\) има и неговото отрицание!";
@@ -221,11 +221,13 @@
             text+=name;
             if (comp[0]>comp[1]) {
                 text+=" = 1";
-                values[i]=true; values[i+1]=false;
+                if (graph.getVertex(i).name[0]==='!') values[i+1]=true, values[i]=false;
+                else values[i]=true, values[i+1]=false;
             }
             else {
                 text+=" = 0";
-                values[i]=false; values[i+1]=true;
+                if (graph.getVertex(i).name[0]==='!') values[i+1]=false, values[i]=true;
+                else values[i]=false, values[i+1]=true;
             }
         }
         if (values.length!=0) text+="\\)";

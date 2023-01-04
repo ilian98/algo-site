@@ -3,7 +3,7 @@
     function dfs (vr, used, graph, animations) {
         used[vr]=true;
         for (let ind of graph.adjList[vr]) {
-            let to=graph.edgeList[ind].findEndPoint(vr);
+            let to=graph.getEdge(ind).findEndPoint(vr);
             if (used[to]===false) {
                 animations.push({
                     animFunctions: [graph.vertexAnimation(vr,"grey","circle"),
@@ -50,8 +50,7 @@
         animationObj.init(name,function findAnimations () {
             let st=parseInt($(name+" .start-vertex").val()); st--;
             let used=[],found=false;
-            for (let i=0; i<graph.n; i++) {
-                if (graph.vertices[i]===undefined) continue;
+            for (let [i, vr] of graph.getVertices()) {
                 if (i===st) found=true;
                 used[i]=false;
             }

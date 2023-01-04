@@ -4,11 +4,7 @@
     function init () {
         graph=new Graph();
         graph.init(".graph-drawer",5,false,function () {
-            let cnt=0;
-            for (let i=0; i<graph.n; i++) {
-                if (graph.vertices[i]===undefined) continue;
-                cnt++;
-            }
+            let cnt=graph.getVertices().length;
             let sliderVers=$(".range-vers");
             let outputVers=$(".slider-value-vers");
             sliderVers.val(cnt);
@@ -111,10 +107,10 @@
                     uniqueNums.add(num);
                     let flag=false;
                     if (indType<4) {
-                        if ((indType!==0)&&(graph.vertices[num-1]===undefined)) flag=true;
+                        if ((indType!==0)&&(graph.getVertex(num-1)===undefined)) flag=true;
                     }
                     else {
-                        if (graph.edgeList[num-1]===undefined) flag=true;
+                        if (graph.getEdge(num-1)===undefined) flag=true;
                     }
                     if (flag===true) {
                         alert(((language==="bg")?"Невалиден номер":"Invalid number")+" - "+num+"!");
@@ -124,14 +120,12 @@
             }
             else {
                 if (indType<4) {
-                    for (let i=0; i<graph.n; i++) {
-                        if (graph.vertices[i]===undefined) continue;
+                    for (let [i, vr] of graph.getVertices()) {
                         uniqueNums.add(i+1);
                     }
                 }
                 else {
-                    for (let i=0; i<graph.edgeList.length; i++) {
-                        if (graph.edgeList[i]===undefined) continue;
+                    for (let [i, edge] of graph.getEdges()) {
                         uniqueNums.add(i+1);
                     }
                 }

@@ -183,8 +183,9 @@
     function Graph () {
         this.wrapperName=undefined; this.svgName=undefined; this.s=undefined;
         this.svgVertices=undefined; this.svgEdges=undefined;
-        this.n=undefined; this.vertices=undefined;
-        this.edgeList=undefined; this.adjList=undefined; this.adjMatrix=undefined;
+        this.n=undefined;
+        let vertices=undefined,edgeList=undefined;
+        this.adjList=undefined; this.adjMatrix=undefined;
         this.isDirected=undefined; this.isMulti=undefined; this.isWeighted=undefined; this.isNetwork=false;
         this.graphChange=undefined; // function to be called after changing the graph, for exampe adding new edge
         this.graphController=undefined;
@@ -212,14 +213,14 @@
             }
 
             if (n!==undefined) this.n=n;
-            this.vertices=[];
+            vertices=[];
             this.initVertices(this.n);
             if (this.graphController!==undefined) this.graphController.removeChange();
             for (let i=0; i<this.n; i++) {
-                this.vertices[i].name=(i+1).toString();
+                vertices[i].name=(i+1).toString();
             }
 
-            this.edgeList=[]; this.adjList=[]; this.reverseAdjList=[]; this.adjMatrix=[];
+            edgeList=[]; this.adjList=[]; this.reverseAdjList=[]; this.adjMatrix=[];
             for (let i=0; i<this.n; i++) {
                 this.adjList[i]=[]; this.reverseAdjList[i]=[]; this.adjMatrix[i]=[];
                 for (let j=0; j<this.n; j++) {
@@ -239,7 +240,7 @@
         }
         this.convertSimpleVertexList = function () {
             let vers=[];
-            for (let vertex of this.vertices) {
+            for (let vertex of vertices) {
                 if (vertex===undefined) {
                     vers.push(undefined);
                     continue;
@@ -252,14 +253,14 @@
             if (this.graphController!==undefined) 
                 this.graphController.registerAction("vertex-list",[this.n, this.convertSimpleVertexList()]);
             
-            this.n=n; this.vertices=[];
+            this.n=n; vertices=[];
             for (let i=0; i<this.n; i++) {
                 if ((vers===undefined)||(vers.length===0)) {
-                    this.vertices[i]=new Vertex();
+                    vertices[i]=new Vertex();
                     continue;
                 }
-                if (vers[i]===undefined) this.vertices[i]=undefined;
-                else this.vertices[i]=new Vertex(vers[i][0],vers[i][1]);
+                if (vers[i]===undefined) vertices[i]=undefined;
+                else vertices[i]=new Vertex(vers[i][0],vers[i][1]);
             }
         }
         this.initSvgVertex = function (x) {
@@ -271,7 +272,7 @@
         }
         this.convertSimpleEdgeList = function () {
             let edges=[];
-            for (let edge of this.edgeList) {
+            for (let edge of edgeList) {
                 if (edge===undefined) {
                     edges.push(undefined);
                     continue;
@@ -284,7 +285,7 @@
             if (this.graphController!==undefined) 
                 this.graphController.registerAction("edge-list",this.convertSimpleEdgeList());
             
-            let edgeList=this.edgeList=[];
+            edgeList=[];
             for (let edge of edges) {
                 if (edge===undefined) {
                     edgeList.push(undefined);
@@ -302,9 +303,9 @@
             }
             let max=0;
             for (let i=0; i<this.n; i++) {
-                if (this.vertices[i]===undefined) continue;
-                if (this.vertices[i].name===undefined) {
-                    this.vertices[i]=undefined;
+                if (vertices[i]===undefined) continue;
+                if (vertices[i].name===undefined) {
+                    vertices[i]=undefined;
                     continue;
                 }
                 if (max<i) max=i;
@@ -344,6 +345,37 @@
                 }
                 if (this.isDirected===true) this.reverseAdjList[y].push(i);
             }
+        }
+        this.getVertices = function () {
+            let res=[];
+            for (let i=0; i<this.n; i++) {
+                if (vertices[i]===undefined) continue;
+                res.push([i, vertices[i]]);
+            }
+            return res;
+        }
+        this.getIndexedVertices = function () {
+            return vertices;
+        }
+        this.getVertex = function (ind) {
+            return vertices[ind];
+        }
+        this.getEdges = function () {
+            let res=[];
+            for (let i=0; i<edgeList.length; i++) {
+                if (edgeList[i]===undefined) continue;
+                res.push([i, edgeList[i]]);
+            }
+            return res;
+        }
+        this.getIndexedEdges = function () {
+            return edgeList;
+        }
+        this.clearEdges = function () {
+            edgeList=[];
+        }
+        this.getEdge = function (ind) {
+            return edgeList[ind];
         }
 
         this.erase = function () {
@@ -473,7 +505,7 @@
         this.redrawEdge = function (edge, st, end, edgeInd = -1) {
             let properties=edge.drawProperties[0];
             let isLoop=false,isDrawn=(edgeInd===-1);
-            if ((isDrawn===false)&&(this.edgeList[edgeInd].x===this.edgeList[edgeInd].y)) isLoop=true;
+            if ((isDrawn===false)&&(edgeList[edgeInd].x===edgeList[edgeInd].y)) isLoop=true;
             
             let endDist=edge.endDist;
 
@@ -511,7 +543,7 @@
         this.drawEdge = function (st, end, edgeInd = -1, properties = 0) {
             let strokeWidth=this.findStrokeWidth();
             let isLoop=false,isDrawn=(edgeInd===-1),isDirected=this.isDirected||this.isNetwork;
-            if ((isDrawn===false)&&(this.edgeList[edgeInd].x===this.edgeList[edgeInd].y)) isLoop=true;
+            if ((isDrawn===false)&&(edgeList[edgeInd].x===edgeList[edgeInd].y)) isLoop=true;
             
             let edge=new SvgEdge();
             edge.drawProperties=[];
@@ -546,11 +578,11 @@
 
             edge.line.attr({fill: "none", stroke: "black", "stroke-width": strokeWidth});
             if (isDirected===true) this.addMarkerEnd(edge.line,isLoop,strokeWidth,st,properties);
-            if (isDrawn===false) this.edgeList[edgeInd].defaultCSS[0]=setStyle(edge.line,this.edgeList[edgeInd].addedCSS[0]);
+            if (isDrawn===false) edgeList[edgeInd].defaultCSS[0]=setStyle(edge.line,edgeList[edgeInd].addedCSS[0]);
             if (isDirected===true) edge.line.markerEnd.attr("fill",edge.line.attr("stroke"));
 
             if ((isDrawn===false)&&(this.isWeighted===true)) {
-                edge.weight=this.s.text(0,0,weightName(this.edgeList[edgeInd],this.isNetwork));
+                edge.weight=this.s.text(0,0,weightName(edgeList[edgeInd],this.isNetwork));
                 edge.weight.attr({
                     "font-size": this.vertexRad,
                     "font-family": "Arial",
@@ -564,13 +596,13 @@
                     edge.weight.height=bBox.y2-bBox.y1;
                 }
                 else edge.weight.height=edge.weight.getBBox().height;
-                edge.weight.dyCenter=determineDy(this.edgeList[edgeInd].weight.toString(),"Arial",this.vertexRad);
+                edge.weight.dyCenter=determineDy(edgeList[edgeInd].weight.toString(),"Arial",this.vertexRad);
                 
                 pathForWeight=calcWeightPosition.call(this,edge.weight,st[0]-end[0],isLoop,pathForWeight,properties);
                 edge.weight.attr({textpath: pathForWeight});
                 edge.weight.textPath.attr({"startOffset": "50%"});
                 
-                this.edgeList[edgeInd].defaultCSS[1]=setStyle(edge.weight,this.edgeList[edgeInd].addedCSS[1]);
+                edgeList[edgeInd].defaultCSS[1]=setStyle(edge.weight,edgeList[edgeInd].addedCSS[1]);
             }
             return edge;
         }
@@ -578,26 +610,26 @@
         this.drawVertexText = function (i, text) {
             let x=this.svgVertices[i].coord[0],y=this.svgVertices[i].coord[1];
             if (this.svgVertices[i].text!==undefined) this.svgVertices[i].text.remove();
-            this.vertices[i].name=text;
+            vertices[i].name=text;
             let fontSize=this.findFontSize();
-            this.svgVertices[i].text=this.s.text(x,y,this.vertices[i].name);
+            this.svgVertices[i].text=this.s.text(x,y,vertices[i].name);
             this.svgVertices[i].text.attr({
                 "font-size": fontSize, 
                 "font-family": "Consolas",
-                dy: determineDy(this.vertices[i].name,"Consolas",fontSize), 
+                dy: determineDy(vertices[i].name,"Consolas",fontSize), 
                 "text-anchor": "middle", 
                 class: "unselectable"
             });
             this.svgVertices[i].group=this.s.group(this.svgVertices[i].circle,this.svgVertices[i].text);
             
-            this.vertices[i].defaultCSS[1]=setStyle(this.svgVertices[i].text,this.vertices[i].addedCSS[1]);
+            vertices[i].defaultCSS[1]=setStyle(this.svgVertices[i].text,vertices[i].addedCSS[1]);
         }
         this.drawVertex = function (i) {
             let x=this.svgVertices[i].coord[0],y=this.svgVertices[i].coord[1];
             this.svgVertices[i].circle=this.s.circle(x,y,this.vertexRad);
             this.svgVertices[i].circle.attr({fill: "white", stroke: "black", "stroke-width": this.findStrokeWidth()});
-            this.vertices[i].defaultCSS[0]=setStyle(this.svgVertices[i].circle,this.vertices[i].addedCSS[0]);
-            this.drawVertexText(i,this.vertices[i].name);
+            vertices[i].defaultCSS[0]=setStyle(this.svgVertices[i].circle,vertices[i].addedCSS[0]);
+            this.drawVertexText(i,vertices[i].name);
         }
         this.findFontSize = function (vertexRad = this.vertexRad) {
             return vertexRad*5/4;
@@ -639,7 +671,7 @@
                     }
                     else oldVersCoords[i]=undefined, changedVers[i]=false;
                 }
-                for (let i=0; i<this.edgeList.length; i++) {
+                for (let i=0; i<edgeList.length; i++) {
                     if ((this.svgEdges[i]!==undefined)&&(this.svgEdges[i].line!==undefined)&&
                         (this.svgEdges[i].line.removed!==true)) {
                         oldEdgesPaths[i]=this.svgEdges[i].line.attr("d");
@@ -656,7 +688,7 @@
             this.erase();
 
             let edgeMapCnt=new Map(),edgeMapCurr=new Map();
-            for (let edge of this.edgeList) {
+            for (let edge of edgeList) {
                 if (edge===undefined) continue;
                 let x=edge.x,y=edge.y;
                 let code=Math.max(x,y)*this.n+Math.min(x,y);
@@ -680,16 +712,16 @@
                            [this.findLoopEdgeProperties()[0]],
                            this.findLoopEdgeProperties()];
             this.svgEdges=[];
-            for (let i=0; i<this.edgeList.length; i++) {
-                if (this.edgeList[i]===undefined) continue;
-                let x=this.edgeList[i].x,y=this.edgeList[i].y;
+            for (let i=0; i<edgeList.length; i++) {
+                if (edgeList[i]===undefined) continue;
+                let x=edgeList[i].x,y=edgeList[i].y;
                 let code=Math.max(x,y)*this.n+Math.min(x,y);
                 let val=edgeMapCurr.get(code),cnt=edgeMapCnt.get(code);
                 let drawProperties;
                 if (x!==y) drawProperties=multiEdges[cnt][val++]*((x>y)?-1:1);
                 else drawProperties=loopEdges[cnt][val++];
                 let origProperties=drawProperties;
-                if (this.edgeList[i].curveHeight!==undefined) drawProperties=this.edgeList[i].curveHeight;
+                if (edgeList[i].curveHeight!==undefined) drawProperties=edgeList[i].curveHeight;
                 this.svgEdges[i]=this.drawEdge(this.svgVertices[x].coord,this.svgVertices[y].coord,i,drawProperties);
                 this.svgEdges[i].drawProperties[1]=cnt;
                 this.svgEdges[i].drawProperties[2]=origProperties;
@@ -740,7 +772,7 @@
             }
 
             for (let i=0; i<this.n; i++) {
-                if (this.vertices[i]===undefined) {
+                if (vertices[i]===undefined) {
                     this.svgVertices[i]=undefined;
                     continue;
                 }
@@ -762,20 +794,20 @@
                 cntAnimations++;
                 Snap.animate(oldRad,this.vertexRad,function (val) {
                     for (let i=0; i<this.n; i++) {
-                        if (this.vertices[i]===undefined) continue;
+                        if (vertices[i]===undefined) continue;
                         this.svgVertices[i].circle.attr({r: val, "stroke-width": this.findStrokeWidth(val)});
                         let fontSize=this.findFontSize(val);
                         this.svgVertices[i].text.attr({
                             "font-size": fontSize,
-                            dy: determineDy(this.vertices[i].name,"Consolas",fontSize)
+                            dy: determineDy(vertices[i].name,"Consolas",fontSize)
                         });
                     }
                 
-                    for (let i=0; i<this.edgeList.length; i++) {
-                        if (this.edgeList[i]===undefined) continue;
+                    for (let i=0; i<edgeList.length; i++) {
+                        if (edgeList[i]===undefined) continue;
                         this.svgEdges[i].line.attr({"stroke-width": this.findStrokeWidth(val)});
                         if (this.isDirected===true) {
-                            let x=this.edgeList[i].x,y=this.edgeList[i].y;
+                            let x=edgeList[i].x,y=edgeList[i].y;
                             this.svgEdges[i].line.markerEnd.remove();
                             this.addMarkerEnd(this.svgEdges[i].line,(x===y),this.findStrokeWidth(val),
                                               this.svgVertices[x].coord,this.svgEdges[i].drawProperties[0]);
@@ -805,8 +837,8 @@
             let ind;
             if (prevInd!==undefined) ind=prevInd;
             else {
-                for (let i=0; i<=this.edgeList.length; i++) {
-                    if (this.edgeList[i]===undefined) {
+                for (let i=0; i<=edgeList.length; i++) {
+                    if (edgeList[i]===undefined) {
                         ind=i;
                         break;
                     }
@@ -815,7 +847,7 @@
             if ((this.graphController!==undefined)&&(isReal===true))
                 this.graphController.registerAction("add-edge",[ind]);
             
-            this.edgeList[ind]=new Edge(x,y,weight,css,curveHeight);
+            edgeList[ind]=new Edge(x,y,weight,css,curveHeight);
             this.adjList[x].push(ind);
             if ((this.isDirected===false)&&(this.isNetwork===false)&&(x!==y)) this.adjList[y].push(ind);
             this.adjMatrix[x][y].push(ind);
@@ -826,9 +858,9 @@
             return ind;
         }
         this.removeEdge = function (index) {
-            let edge=this.edgeList[index],revData=[];
+            let edge=edgeList[index],revData=[];
             if ((this.isNetwork===true)&&(edge.real===true)) {
-                let l=convertEdgeToList(this.edgeList[edge.rev]);
+                let l=convertEdgeToList(edgeList[edge.rev]);
                 revData=[l[3], l[4], edge.rev];
                 this.removeEdge(edge.rev);
             }
@@ -846,14 +878,14 @@
             this.svgEdges[index].line.remove();
             if (this.svgEdges[index].weight!==undefined) this.svgEdges[index].weight.remove();
             this.svgEdges[index]=undefined;
-            this.edgeList[index]=undefined;
+            edgeList[index]=undefined;
         }
         this.addVertex = function (name, css = ["",""], prevInd = undefined) {
             let ind;
             if (prevInd!==undefined) ind=prevInd;
             else {
                 for (let i=0; i<=this.n; i++) {
-                    if (this.vertices[i]===undefined) {
+                    if (vertices[i]===undefined) {
                         ind=i;
                         break;
                     }
@@ -861,7 +893,7 @@
             }
             if (this.graphController!==undefined) this.graphController.registerAction("add-vertex",[ind]);
             
-            this.vertices[ind]=new Vertex(name,css);
+            vertices[ind]=new Vertex(name,css);
             if (ind===this.n) {
                 this.adjList[ind]=[];
                 this.reverseAdjList[ind]=[];
@@ -877,12 +909,12 @@
         this.removeVertex = function (x) {
             let removeEdges=[];
             for (let ind of this.adjList[x]) {
-                if ((this.isNetwork===true)&&(this.edgeList[ind].real===false)) continue;
+                if ((this.isNetwork===true)&&(edgeList[ind].real===false)) continue;
                 removeEdges.push(ind);
             }
             if (this.isDirected===true) {
                 for (let ind of this.reverseAdjList[x]) {
-                    if ((this.isNetwork===true)&&(this.edgeList[ind].real===false)) continue;
+                    if ((this.isNetwork===true)&&(edgeList[ind].real===false)) continue;
                     removeEdges.push(ind);
                 }
             }
@@ -893,16 +925,16 @@
             
             if (this.graphController!==undefined) {
                 this.graphController.registerAction("remove-vertex",
-                                                    [x, [this.svgVertices[x].coord[0], this.svgVertices[x].coord[1]], convertVertexToList(this.vertices[x])]);
+                                                    [x, [this.svgVertices[x].coord[0], this.svgVertices[x].coord[1]], convertVertexToList(vertices[x])]);
                 this.graphController.advanceTime();
             }
             
             this.svgVertices[x].group.remove();
             this.svgVertices[x]=undefined;
-            this.vertices[x]=undefined;
+            vertices[x]=undefined;
             if (x===this.n-1) {
                 this.n--;
-                this.vertices.pop();
+                vertices.pop();
             }
         }
         
@@ -947,14 +979,14 @@
         }
         this.export = function () {
             let edges=[];
-            for (let i=0; i<this.edgeList.length; i++) {
-                if (this.edgeList[i]===undefined) continue;
-                let info=[this.edgeList[i].x+1, this.edgeList[i].y+1];
-                if (this.edgeList[i].weight!=="") info.push(this.edgeList[i].weight);
-                if ((this.edgeList[i].addedCSS[0]!=="")||(this.edgeList[i].addedCSS[1]!=="")) {
-                    info.push("[["+this.edgeList[i].addedCSS[0]+"],["+this.edgeList[i].addedCSS[1]+"]]");
+            for (let i=0; i<edgeList.length; i++) {
+                if (edgeList[i]===undefined) continue;
+                let info=[edgeList[i].x+1, edgeList[i].y+1];
+                if (edgeList[i].weight!=="") info.push(edgeList[i].weight);
+                if ((edgeList[i].addedCSS[0]!=="")||(edgeList[i].addedCSS[1]!=="")) {
+                    info.push("[["+edgeList[i].addedCSS[0]+"],["+edgeList[i].addedCSS[1]+"]]");
                 }
-                if (this.edgeList[i].curveHeight!==undefined) info.push("["+this.edgeList[i].curveHeight+"]");
+                if (edgeList[i].curveHeight!==undefined) info.push("["+edgeList[i].curveHeight+"]");
                 edges.push(info);
             }
             let text=this.n+" "+edges.length+"\n";
@@ -968,12 +1000,12 @@
             
             let vers=[];
             for (let i=0; i<this.n; i++) {
-                if (this.vertices[i]===undefined) continue;
+                if (vertices[i]===undefined) continue;
                 let info=[(i+1).toString()];
-                if (this.vertices[i].name!==info[0]) info.push(this.vertices[i].name);
+                if (vertices[i].name!==info[0]) info.push(vertices[i].name);
                 info.push("["+this.svgVertices[i].coord[0]+","+this.svgVertices[i].coord[1]+"]");
-                if ((this.vertices[i].addedCSS[0]!=="")||(this.vertices[i].addedCSS[1]!=="")) {
-                    info.push("[["+this.vertices[i].addedCSS[0]+"],["+this.vertices[i].addedCSS[1]+"]]");
+                if ((vertices[i].addedCSS[0]!=="")||(vertices[i].addedCSS[1]!=="")) {
+                    info.push("[["+vertices[i].addedCSS[0]+"],["+vertices[i].addedCSS[1]+"]]");
                 }
                 vers.push(info);
             }

@@ -292,13 +292,12 @@
             edgeAnimation: function (vr1, vr2, ind, speedCoeff = 1) {
                 let graph=this;
                 if (ind===-1) {
-                    for (let i=0; i<graph.edgeList.length; i++) {
-                        if (graph.edgeList[i]===undefined) continue;
-                        if ((graph.edgeList[i].x===vr1)&&(graph.edgeList[i].y===vr2)) {
+                    for (let [i, edge] of graph.getEdges()) {
+                        if ((edge.x===vr1)&&(edge.y===vr2)) {
                             ind=i;
                             break;
                         }
-                        if ((graph.isOriented===false)&&(graph.edgeList[i].x===vr2)&&(graph.edgeList[i].y===vr1)) {
+                        if ((graph.isOriented===false)&&(edge.x===vr2)&&(edge.y===vr1)) {
                             ind=i;
                             break;
                         }
@@ -310,7 +309,7 @@
                         let obj2=graph.svgVertices[vr2];
 
                         let reverse=false;
-                        if ((graph.isDirected===false)&&(graph.edgeList[ind].x!=vr1)) reverse=true;
+                        if ((graph.isDirected===false)&&(graph.getEdge(ind).x!=vr1)) reverse=true;
                         let lineDraw=graph.s.path(graph.svgEdges[ind].line.attr("d"));
                         
                         let pathLength=lineDraw.getTotalLength();
@@ -334,9 +333,9 @@
             edgeChangesAnimation: function (vr1, vr2, changes, speedCoeff = 1) {
                 let graph=this;
                 return function(callback, speed) {
-                    let ind=graph.edgeList.findIndex(function (e) { return ((e!==undefined)&&(e.x==vr1)&&(e.y==vr2)); });
+                    let ind=graph.getIndexedEdges().findIndex(function (e) { return ((e!==undefined)&&(e.x==vr1)&&(e.y==vr2)); });
                     if ((ind==-1)&&(graph.isDirected===false)) {
-                        ind=graph.edgeList.findIndex(function (e) { return ((e!==undefined)&&(e.x==vr2)&&(e.y==vr1)); });
+                        ind=graph.getIndexedEdges().findIndex(function (e) { return ((e!==undefined)&&(e.x==vr2)&&(e.y==vr1)); });
                     }
                     let obj=graph.svgEdges[ind].line;
                     let minas=[];

@@ -8,7 +8,7 @@
     function endAnimation (tree, elements, pos, val) {
         pos=parseInt(pos.val()); val=parseInt(val.val());
         elements[pos-1]=val;
-        makeEdgesAndNames(0,0,elements.length-1,[],tree.vertices,elements,false);
+        makeEdgesAndNames(0,0,elements.length-1,[],tree.getIndexedVertices(),elements,false);
         tree.draw(false,false);
     }
     function toggleIndexes (tree, elements, isDynamic) {
@@ -61,11 +61,12 @@
             addSegmentsLabels(2*index+2,mid+1,r,tree,flagIndex,isDynamic);
         }
         else {
-            if (tree.vertices[index].hasOwnProperty("lind")===true) {
-                addSegmentsLabels(tree.vertices[index].lind,l,mid,tree,flagIndex,isDynamic);
+            let vr=tree.getVertex(index);
+            if (vr.hasOwnProperty("lind")===true) {
+                addSegmentsLabels(vr.lind,l,mid,tree,flagIndex,isDynamic);
             }
-            if (tree.vertices[index].hasOwnProperty("rind")===true) {
-                addSegmentsLabels(tree.vertices[index].rind,mid+1,r,tree,flagIndex,isDynamic);
+            if (vr.hasOwnProperty("rind")===true) {
+                addSegmentsLabels(vr.rind,mid+1,r,tree,flagIndex,isDynamic);
             }
         }
     }
@@ -116,7 +117,7 @@
 
         tree.initVertices(4*elements.length);
         let edgeList=[];
-        makeEdgesAndNames(0,0,elements.length-1,edgeList,tree.vertices,elements,false);
+        makeEdgesAndNames(0,0,elements.length-1,edgeList,tree.getIndexedVertices(),elements,false);
         tree.buildEdgeDataStructures(edgeList);
         if (elements.length<=8) tree.drawNewGraph(false,10,true);
         else tree.drawNewGraph(false,7,true);
@@ -125,27 +126,28 @@
         tree.erase();
 
         tree.initVertices(1);
-        tree.vertices[0].name="0";
+        tree.getVertex(0).name="0";
         tree.buildEdgeDataStructures([]);
         tree.drawNewGraph(false,8,true,dynSegTree.frameX);
     }
     function updateDyn (index, l, r, c, tree) {
-        tree.vertices[index].name=(parseInt(tree.vertices[index].name)+1).toString();
+        let vr=tree.getVertex(index);
+        vr.name=(parseInt(vr.name)+1).toString();
         if (l===r) return ;
         let mid=Math.floor((l+r)/2);
         if (c<=mid) {
-            if (tree.vertices[index].hasOwnProperty("lind")===false) {
-                tree.vertices[index].lind=tree.n;
+            if (vr.hasOwnProperty("lind")===false) {
+                vr.lind=tree.n;
                 tree.addVertex("0");
             }
-            updateDyn(tree.vertices[index].lind,l,mid,c,tree);
+            updateDyn(vr.lind,l,mid,c,tree);
         }
         else {
-            if (tree.vertices[index].hasOwnProperty("rind")===false) {
-                tree.vertices[index].rind=tree.n;
+            if (vr.hasOwnProperty("rind")===false) {
+                vr.rind=tree.n;
                 tree.addVertex("0");
             }
-            updateDyn(tree.vertices[index].rind,mid+1,r,c,tree);
+            updateDyn(vr.rind,mid+1,r,c,tree);
         }
     }
     function addPoint (exampleName, tree) {
@@ -157,7 +159,7 @@
         }
         updateDyn(0,1,maxC,c,tree);
         let edgeList=[];
-        makeEdgesAndNames(0,1,dynSegTree.maxC,edgeList,tree.vertices,[],true);
+        makeEdgesAndNames(0,1,dynSegTree.maxC,edgeList,tree.getIndexedVertices(),[],true);
         tree.buildEdgeDataStructures(edgeList);
         tree.drawNewGraph(false,8,true,dynSegTree.frameX);
     }
@@ -189,7 +191,7 @@
                         return animations;
                     }
                     animations.push({
-                        startFunction: tree.drawVertexText.bind(tree,0,tree.vertices[0].name),
+                        startFunction: tree.drawVertexText.bind(tree,0,tree.getVertex(0).name),
                         animFunctions: [tree.vertexAnimation(0,"red","circle")],
                         animText: "Започваме обхождането от корена на върховете за промяна."
                     });
@@ -210,7 +212,7 @@
                 }
                 return animations;
             },function initialState () {
-                makeEdgesAndNames(0,0,elements.length-1,[],tree.vertices,elements,false);
+                makeEdgesAndNames(0,0,elements.length-1,[],tree.getIndexedVertices(),elements,false);
                 tree.draw(false,false,true);
             },undefined,undefined,
                               (exampleName==".segTreeExample2")?endAnimation.bind(this,tree,elements,$(exampleName+" .pos"),$(exampleName+" .val")):undefined
@@ -318,7 +320,7 @@
                 animText: "Стигнахме до върха, който отговаря за интервала ["+l+"; "+mid+"]."
             });
             suml=update(2*index+1,l,mid,pos,val,tree,animations);
-            sumr=parseInt(tree.vertices[2*index+2].name);
+            sumr=parseInt(tree.getVertex(2*index+2).name);
         }
         else {
             animations.push({
@@ -332,7 +334,7 @@
                                 tree.vertexAnimation(2*index+2,"black","text")],
                 animText: "Стигнахме до върха, който отговаря за интервала ["+(mid+1)+"; "+r+"]."
             });
-            suml=parseInt(tree.vertices[2*index+1].name);
+            suml=parseInt(tree.getVertex(2*index+1).name);
             sumr=update(2*index+2,mid+1,r,pos,val,tree,animations);
         }
 
@@ -372,12 +374,12 @@
             let isLeaf=false;
             if (l===r) isLeaf=true;
             animations.push({
-                startFunction: addSumText.bind(this,tree,index,isLeaf,tree.vertices[index].name),
+                startFunction: addSumText.bind(this,tree,index,isLeaf,tree.getVertex(index).name),
                 animFunctions: [tree.vertexAnimation(index,"orange","circle",2),
                                 tree.vertexAnimation(index,"black","text",2)],
                 animText: "Интервалът на текущия връх се съдържа в нашата заявка. Отчитаме стойността, записана в него, и го напускаме."
             });
-            return parseInt(tree.vertices[index].name);
+            return parseInt(tree.getVertex(index).name);
         }
         let mid=Math.floor((l+r)/2);
         let suml=0,sumr=0;

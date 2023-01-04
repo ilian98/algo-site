@@ -55,7 +55,7 @@
         inTime[vr]=time++; up[vr]=inTime[vr];
         used[vr]=true;
         for (let ind of graph.adjList[vr]) {
-            let to=graph.edgeList[ind].findEndPoint(vr);
+            let to=graph.getEdge(ind).findEndPoint(vr);
             if (used[to]===false) {
                 animations.push({
                     animFunctions: [graph.vertexAnimation(vr,"grey","circle"),
@@ -140,25 +140,23 @@
             used[i]=false;
         }
         timeDCC=0;
-        for (let i=0; i<graph.n; i++) {
-            if (graph.vertices[i]===undefined) continue;
+        let vers=graph.getVertices();
+        for (let [i, vr] of vers) {
             if (used[i]===true) continue;
-            findBridges(i,-1,graph.adjList,graph.edgeList,used,up,inTime);
+            findBridges(i,-1,graph.adjList,graph.getIndexedEdges(),used,up,inTime);
         }
         for (let i=0; i<graph.n; i++) {
             used[i]=false;
         }
         let comps=[];
-        for (let i=0; i<graph.n; i++) {
-            if (graph.vertices[i]===undefined) continue;
+        for (let [i, vr] of vers) {
             if (used[i]===true) continue;
             let comp=[];
-            findComponent(i,graph.adjList,graph.edgeList,used,comp);
+            findComponent(i,graph.adjList,graph.getIndexedEdges(),used,comp);
             comps.push(comp);
         }
-        for (let i=0; i<graph.edgeList.length; i++) {
-            if (graph.edgeList[i]===undefined) continue;
-            delete graph.edgeList[i].bridge;
+        for (let [i, edge] of graph.getEdges()) {
+            delete edge.bridge;
         }
         return comps;
     }
@@ -179,9 +177,8 @@
             }
             colour+=jump;
         }
-        for (let i=0; i<graph.edgeList.length; i++) {
-            if (graph.edgeList[i]===undefined) continue;
-            let from=graph.edgeList[i].x,to=graph.edgeList[i].y;
+        for (let [i, edge] of graph.getEdges()) {
+            let from=edge.x,to=edge.y;
             if (versColour[from]===versColour[to]) graph.svgEdges[i].line.attr("stroke",versColour[from]);
             else {
                 graph.svgEdges[i].line.attr("stroke","red");
@@ -195,13 +192,13 @@
             let example1=new Graph();
             example1.init(".graphExample1",6,false);
             example1.buildEdgeDataStructures([[0,1],[1,2],[2,0],[2,3],[3,4],[4,5],[5,3]]);
-            example1.edgeList[3].addedCSS[0]="stroke: red";
+            example1.getEdge(3).addedCSS[0]="stroke: red";
             example1.drawNewGraph(false,25);
             
             let example2=new Graph();
             example2.init(".graphExample2",5,false);
             example2.buildEdgeDataStructures([[0,1],[1,2],[2,0],[2,3],[3,4],[4,2]]);
-            example2.vertices[2].addedCSS[0]="stroke: red";
+            example2.getVertex(2).addedCSS[0]="stroke: red";
             example2.drawNewGraph(false,25);
         }
         else if (part===2) {
@@ -220,8 +217,7 @@
                 animationObj.init(".graphExample3",function findAnimations () {
                     let st=parseInt($(".graphExample3 .start-vertex").val()); st--;
                     let used=[],found=false;
-                    for (let i=0; i<example3.n; i++) {
-                        if (example3.vertices[i]===undefined) continue;
+                    for (let [i, vr] of example3.getVertices()) {
                         if (i===st) found=true;
                         used[i]=false;
                     }
@@ -258,11 +254,11 @@
             let example4=new Graph();
             example4.init(".graphExample4",5,false);
             example4.buildEdgeDataStructures([[0,1],[1,2],[2,0],[2,3],[3,4],[4,2]]);
-            example4.vertices[0].addedCSS[0]="fill: magenta";
-            example4.vertices[1].addedCSS[0]="fill: magenta";
-            example4.vertices[2].addedCSS[0]="fill: red";
-            example4.vertices[3].addedCSS[0]="fill: yellow";
-            example4.vertices[4].addedCSS[0]="fill: yellow";
+            example4.getVertex(0).addedCSS[0]="fill: magenta";
+            example4.getVertex(1).addedCSS[0]="fill: magenta";
+            example4.getVertex(2).addedCSS[0]="fill: red";
+            example4.getVertex(3).addedCSS[0]="fill: yellow";
+            example4.getVertex(4).addedCSS[0]="fill: yellow";
             example4.drawNewGraph(false,25);
             
             let example5=new Graph();

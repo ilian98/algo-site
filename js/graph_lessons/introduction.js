@@ -3,13 +3,12 @@
     function displayDegree (graph) {
         let table=[];
         table.push(["Име на връx","Степен"]);
-        for (let i=0; i<graph.n; i++) {
-            if (graph.vertices[i]===undefined) continue;
+        for (let [i, vr] of graph.getVertices()) {
             let row=[];
-            row.push(graph.vertices[i].name);
+            row.push(vr.name);
             let deg=0;
             for (let ind of graph.adjList[i]) {
-                let u=graph.edgeList[ind].findEndPoint(i);
+                let u=graph.getEdge(ind).findEndPoint(i);
                 if (u==i) deg+=2;
                 else deg++;
             }
@@ -56,15 +55,15 @@
         }
         beg--; end--;
         let paths=$(".graphExample5 .paths");
-        let path=BFS(graph.n,beg,end,graph.adjList,graph.edgeList,[-1,-1]);
+        let path=BFS(graph.n,beg,end,graph.adjList,graph.getIndexedEdges(),[-1,-1]);
         paths.text("");
         if (path.length===0) paths.append("Няма прост път, започващ в началния връх.<br>");
-        else paths.append("Прост път: \\("+BFS(graph.n,beg,end,graph.adjList,graph.edgeList,[-1,-1]).join(",")+"\\)<br>");
+        else paths.append("Прост път: \\("+BFS(graph.n,beg,end,graph.adjList,graph.getIndexedEdges(),[-1,-1]).join(",")+"\\)<br>");
         
         let minPath=[];
         for (let ind of graph.adjList[beg]) {
-            let v=graph.edgeList[ind].findEndPoint(beg);
-            path=BFS(graph.n,beg,v,graph.adjList,graph.edgeList,[beg,v]);
+            let v=graph.getEdge(ind).findEndPoint(beg);
+            path=BFS(graph.n,beg,v,graph.adjList,graph.getIndexedEdges(),[beg,v]);
             if (path.length===0) continue;
             if ((minPath.length===0)||(minPath.length>path.length)) minPath=path;
         }
@@ -75,17 +74,15 @@
     function displayMatrix (graph) {
         let table=[],row=[];
         row.push("\\(A\\)");
-        for (let i=0; i<graph.n; i++) {
-            if (graph.vertices[i]===undefined) continue;
-            row.push("\\("+graph.vertices[i].name+"\\)");
+        let vers=graph.getVertices();
+        for (let [i, vr] of vers) {
+            row.push("\\("+vr.name+"\\)");
         }
         table.push(row);
-        for (let i=0; i<graph.n; i++) {
-            if (graph.vertices[i]===undefined) continue;
+        for (let [i, vr] of vers) {
             row=[];
-            row.push("\\("+graph.vertices[i].name+"\\)");
-            for (let j=0; j<graph.n; j++) {
-                if (graph.vertices[j]===undefined) continue;
+            row.push("\\("+vr.name+"\\)");
+            for (let [j, vr2] of vers) {
                 row.push(graph.adjMatrix[i][j].length);
             }
             table.push(row);
@@ -96,17 +93,17 @@
     function displayAdjacencyList (graph) {
         let table=[];
         table.push(["Връх","Списък"]);
-        for (let i=0; i<graph.n; i++) {
-            if (graph.vertices[i]===undefined) continue;
+        for (let [i, vr] of graph.getVertices()) {
             let row=[];
-            row.push("\\("+graph.vertices[i].name+"\\)");
+            row.push("\\("+vr.name+"\\)");
             row.push("");
             for (let ind of graph.adjList[i]) {
-                let v=graph.edgeList[ind].findEndPoint(i);
-                if (graph.isWeighted===true) row[1]+="("+graph.vertices[v].name+", "+graph.edgeList[ind].weight+") ";
+                let edge=graph.getEdge(ind);
+                let v=graph.getVertex(edge.findEndPoint(i));
+                if (graph.isWeighted===true) row[1]+="("+v.name+", "+edge.weight+") ";
                 else {
                     if (row[1]!=="") row[1]+=", ";
-                    row[1]+=graph.vertices[v].name;
+                    row[1]+=v.name;
                 }
             }
             table.push(row);
@@ -118,27 +115,25 @@
         let table=[];
         table.push(["Индекс","Ребро","\\(prev\\)"]);
         let last=new Array(graph.n);
-        for (let i=0; i<graph.n; i++) {
-            if (graph.vertices[i]===undefined) continue;
+        let vers=graph.getVertices();
+        for (let [i, vr] of vers) {
             last[i]=-1;
         }
-        for (let i=0; i<graph.edgeList.length; i++) {
-            if (graph.edgeList[i]===undefined) continue;
+        for (let [i, edge] of graph.getEdges()) {
             let row=[];
             row.push("\\("+i+"\\)");
-            row.push("("+graph.vertices[graph.edgeList[i].x].name+", "+graph.vertices[graph.edgeList[i].y].name+")");
-            row.push(last[graph.edgeList[i].x]);
+            row.push("("+graph.getVertex(edge.x).name+", "+graph.getVertex(edge.y).name+")");
+            row.push(last[edge.x]);
             table.push(row);
-            last[graph.edgeList[i].x]=i;
+            last[edge.x]=i;
         }
         $(".graphExample9 .edge-list").html(tableHTML(table,true,true));
         if (typeof MathJax!=="undefined") MathJax.typeset([".graphExample9 .edge-list"]);
 
         table=[];
         table.push(["Връх","\\(last\\)"]);
-        for (let i=0; i<graph.n; i++) {
-            if (graph.vertices[i]===undefined) continue;
-            table.push(["\\("+graph.vertices[i].name+"\\)",last[i]]);
+        for (let [i, vr] of vers) {
+            table.push(["\\("+vr.name+"\\)",last[i]]);
         }
         $(".last").html(tableHTML(table,true,true));
         if (typeof MathJax!=="undefined") MathJax.typeset([".last"]);

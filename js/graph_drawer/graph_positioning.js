@@ -22,9 +22,10 @@
                 else dist=1.5*graph.vertexRad;
             }
             else dist=0.1*graph.vertexRad;
-            let x=graph.edgeList[ind].x,y=graph.edgeList[ind].y;
+            let edge=graph.getEdge(ind);
+            let x=edge.x,y=edge.y;
             let st=graph.svgVertices[x].coord,end=graph.svgVertices[y].coord;
-            if ((graph.edgeList[ind].curveHeight===undefined)||(graph.edgeList[ind].curveHeight===0)) {
+            if ((edge.curveHeight===undefined)||(edge.curveHeight===0)) {
                 let area,height,sides=[];    
                 area=Math.abs(orientedArea(st[0],st[1],end[0],end[1],center[0],center[1]))/2;
                 sides[0]=segmentLength(st[0],st[1],end[0],end[1],2);
@@ -38,27 +39,26 @@
                 return true;
             }
             else {
-                if (curvePath==="") curvePath=graph.calcCurvedEdge(st,end,graph.edgeList[ind].curveHeight,0)[0];
+                if (curvePath==="") curvePath=graph.calcCurvedEdge(st,end,edge.curveHeight,0)[0];
                 if (Snap.path.intersection(curvePath,circlePath(center[0],center[1],dist)).length>0) return false;
                 else return true;
             }
         }
         this.checkEdge = function (x, y, ind) {
             let curvePath="";
-            if ((graph.edgeList[ind].curveHeight!==undefined)&&(graph.edgeList[ind].curveHeight!==0)) {
+            let edge=graph.getEdge(ind);
+            if ((edge.curveHeight!==undefined)&&(edge.curveHeight!==0)) {
                 curvePath=graph.calcCurvedEdge(graph.svgVertices[x].coord,graph.svgVertices[y].coord,
-                                               graph.edgeList[ind].curveHeight,0)[0];
+                                               edge.curveHeight,0)[0];
             }
-            for (let i=0; i<graph.n; i++) {
-                if (graph.vertices[i]===undefined) continue;
-                if ((i==x)||(i==y)||(graph.svgVertices[i].coord===undefined)) continue;
+            for (let [i, vr] of graph.getVertices()) {
+                if ((i===x)||(i===y)||(graph.svgVertices[i].coord===undefined)) continue;
                 if (this.vertexEdge(graph.svgVertices[i].coord,ind,curvePath)===false) return false;
             }
             return true;
         }
         function checkEdgePlanner (x, y) {
-            for (let edge of graph.edgeList) {
-                if (edge===undefined) continue;
+            for (let [i, edge] of graph.getEdges()) {
                 let u=edge.x,v=edge.y;
                 if ((u===x)||(u===y)||(v===x)||(v===y)) continue;
                 if (u===v) continue;
@@ -85,8 +85,7 @@
             return true;
         }
         function checkVertex (vr, tryPlanner) {
-            for (let i=0; i<graph.n; i++) {
-                if (graph.vertices[i]===undefined) continue;
+            for (let [i, ver] of graph.getVertices()) {
                 if ((i===vr)||(graph.svgVertices[i].coord===undefined)||
                     ((graph.adjMatrix[vr][i].length==0)&&(graph.adjMatrix[i][vr].length===0))) continue;
                 if (checkEdges(vr,i,this.checkEdge.bind(this,vr,i),tryPlanner)===false) return false;
@@ -95,10 +94,10 @@
         }
         this.calculatePossiblePos = function (flagCheckEdges) {
             possiblePos=[];
+            let vers=graph.getVertices();
             for (let pos of originalPos) {
                 let flag=true;
-                for (let i=0; i<graph.n; i++) {
-                    if (graph.vertices[i]===undefined) continue;
+                for (let [i, vr] of vers) {
                     if (graph.svgVertices[i].coord===undefined) continue;
                     if (segmentLength(graph.svgVertices[i].coord[0],graph.svgVertices[i].coord[1],pos[0],pos[1])<
                         2*graph.vertexRad+((flagCheckEdges===true)?this.distVertices:0)-1) {
@@ -106,8 +105,7 @@
                         break;
                     }
                     if (flagCheckEdges===true) {
-                        for (let j=0; j<graph.n; j++) {
-                            if (graph.vertices[j]===undefined) continue;
+                        for (let [j, vr] of vers) {
                             if ((j===i)||(graph.svgVertices[j].coord===undefined)||
                                 ((graph.adjMatrix[i][j].length===0)&&(graph.adjMatrix[j][i].length===0))) continue;
                             if (checkEdges(i,j,this.vertexEdge.bind(this,pos))===false) {
@@ -156,8 +154,7 @@
                 possiblePos.splice(possiblePos.findIndex(function (elem) {
                     return (elem==graph.svgVertices[vr].coord);
                 }),1);
-                for (let v=0; v<graph.n; v++) {
-                    if (graph.vertices[v]===undefined) continue;
+                for (let [v, data] of graph.getVertices()) {
                     if ((v===vr)||(graph.svgVertices[v].coord===undefined)||
                         ((graph.adjMatrix[vr][v].length===0)&&(graph.adjMatrix[v][vr].length===0))) continue;
                     for (let i=0; i<possiblePos.length; i++) {
@@ -196,8 +193,7 @@
         }
         function findPositionsTree (root, treeEdges) {
             let versDepth=[];
-            for (let i=0; i<graph.n; i++) {
-                if (graph.vertices[i]===undefined) continue;
+            for (let [i, vr] of graph.getVertices()) {
                 versDepth[i]=[];
                 graph.svgVertices[i].coord=undefined;
             }
@@ -319,8 +315,7 @@
         }
         this.findMinY = function () {
             let loopDist=0;
-            for (let edge of graph.edgeList) {
-                if (edge===undefined) continue;
+            for (let [i, edge] of graph.getEdges()) {
                 if (edge.x===edge.y) {
                     loopDist=graph.findLoopEdgeProperties()[0];
                     break;
@@ -377,8 +372,8 @@
             if (graph.graphController!==undefined)
                 graph.graphController.registerAction("new-positions",findPositions());
             
-            for (let i=0; i<graph.n; i++) {
-                if (graph.vertices[i]===undefined) continue;
+            let vers=graph.getVertices();
+            for (let [i, vr] of vers) {
                 if (graph.svgVertices[i]===undefined) graph.initSvgVertex(i);
             }
             if (drawST===false) {
@@ -388,12 +383,10 @@
                 tryDesperate=false;
                 function tryCalc (tryPlanner) {
                     possiblePos=originalPos.slice();
-                    for (let i=0; i<graph.n; i++) {
-                        if (graph.vertices[i]===undefined) continue;
+                    for (let [i, vr] of vers) {
                         graph.svgVertices[i].coord=undefined;
                     }
-                    for (let i=0; i<graph.n; i++) {
-                        if (graph.vertices[i]===undefined) continue;
+                    for (let [i, vr] of vers) {
                         if (this.placeVertex(i,tryPlanner)===false) return false;
                     }
                     return true;
@@ -427,8 +420,7 @@
                     tryDesperate=false;
                     if (success===false) {
                         let shuffle=[];
-                        for (let i=0; i<graph.n; i++) {
-                            if (graph.vertices[i]===undefined) continue;
+                        for (let [i, vr] of vers) {
                             shuffle.push(i);
                         }
                         for (let i=shuffle.length-1; i>0; i--) {
@@ -453,25 +445,18 @@
                 }
             }
             else {
-                if (rootVertex===-1) {
-                    for (let i=0; i<graph.n; i++) {
-                        if (graph.vertices[i]!==undefined) {
-                            rootVertex=i;
-                            break;
-                        }
-                    }
-                }
+                if (rootVertex===-1) rootVertex=vers[0][0];
             
+                let edges=graph.getEdges();
                 if (graph.isDirected===true) {
                     let inDegree=[];
                     for (let i=0; i<graph.n; i++) {
                         inDegree[i]=0;
                     }
-                    for (let edge of graph.edgeList) {
+                    for (let [i, edge] of edges) {
                         inDegree[edge.y]++;
                     }
-                    for (let i=0; i<graph.n; i++) {
-                        if (graph.vertices[i]===undefined) continue;
+                    for (let [i, vr] of vers) {
                         if (inDegree[i]===0) {
                             rootVertex=i;
                             break;
@@ -484,14 +469,13 @@
                     used[i]=false;
                 }
                 let treeEdges=[];
-                dfs(rootVertex,graph.adjList,graph.edgeList,used,treeEdges);
+                dfs(rootVertex,graph.adjList,graph.getIndexedEdges(),used,treeEdges);
                 findPositionsTree.call(this,rootVertex,treeEdges);
                 
                 let boundaryPath="M0,0 "+this.frameX+",0 "+this.frameX+","+this.frameY+" 0,"+this.frameY+" Z";
                 if (graph.graphController!==undefined) graph.graphController.undoTime--;
-                for (let i=0; i<graph.edgeList.length; i++) {
-                    if (graph.edgeList[i]===undefined) continue;
-                    let x=graph.edgeList[i].x,y=graph.edgeList[i].y;
+                for (let [i, edge] of edges) {
+                    let x=edge.x,y=edge.y;
                     let found=false;
                     for (let edge of treeEdges) {
                         if ((x===edge[0])&&(y===edge[1])) {
@@ -505,10 +489,10 @@
                     }
                     if (graph.graphController!==undefined) 
                         graph.graphController.addChange("change-css-edge",
-                                                        [i, [graph.edgeList[i].addedCSS[0], graph.edgeList[i].addedCSS[1]]],
+                                                        [i, [edge.addedCSS[0], edge.addedCSS[1]]],
                                                         false);
                     if (found===true) {
-                        let s=graph.edgeList[i].addedCSS[0];
+                        let s=edge.addedCSS[0];
                         for (;;) {
                             let beg=s.indexOf(";;stroke-dasharray: "),end;
                             if (beg===-1) break;
@@ -519,19 +503,19 @@
                                 }
                             }
                             let remove=s.substring(beg,end+1);
-                            s=graph.edgeList[i].addedCSS[0]=s.replace(remove,"");
+                            s=edge.addedCSS[0]=s.replace(remove,"");
                         }
-                        graph.edgeList[i].curveHeight=undefined;
+                        edge.curveHeight=undefined;
                         continue;
                     }
-                    graph.edgeList[i].addedCSS[0]+="; ;;stroke-dasharray: "+(graph.vertexRad/2)+";";
+                    edge.addedCSS[0]+="; ;;stroke-dasharray: "+(graph.vertexRad/2)+";";
                     
-                    let oldCurveHeight=graph.edgeList[i].curveHeight;
+                    let oldCurveHeight=edge.curveHeight;
                     let flag=false;
                     function checkCurveHeight (curveHeight) {
                         let res=graph.calcCurvedEdge(graph.svgVertices[x].coord,graph.svgVertices[y].coord,curveHeight,0);
                         if (Snap.path.intersection(res[0],boundaryPath).length>0) return 0;
-                        graph.edgeList[i].curveHeight=curveHeight;
+                        edge.curveHeight=curveHeight;
                         if (this.checkEdge(x,y,i)===true) return 1;
                         return 2;
                     }
@@ -546,14 +530,14 @@
                         }
                         curveHeight+=inc;
                     }
-                    let prevCurveHeight=graph.edgeList[i].curveHeight;
+                    let prevCurveHeight=edge.curveHeight;
                     inc*=(-1);
                     for (let curveHeight=inc;;) {
                         let res=checkCurveHeight.call(this,curveHeight);
                         if (res===0) break;
                         if (res===1) {
                             if ((flag===true)&&(Math.abs(prevCurveHeight)<Math.abs(curveHeight))) {
-                                graph.edgeList[i].curveHeight=prevCurveHeight;
+                                edge.curveHeight=prevCurveHeight;
                                 break;
                             }
                             flag=true;
@@ -562,7 +546,7 @@
                         curveHeight+=inc;
                     }
                     if (flag===false) {
-                        graph.edgeList[i].curveHeight=oldCurveHeight;
+                        edge.curveHeight=oldCurveHeight;
                         continue;
                     }
                     if (graph.graphController!==undefined) 
@@ -588,8 +572,8 @@
         function centerGraph () {
             let minX=this.frameX+this.frameW,maxX=0;
             let minY=this.frameY+this.frameH,maxY=0;
-            for (let i=0; i<graph.n; i++) {
-                if (graph.vertices[i]===undefined) continue;
+            let vers=graph.getVertices();
+            for (let [i, vr] of vers) {
                 let x=graph.svgVertices[i].coord[0],y=graph.svgVertices[i].coord[1];
                 if (minX>x) minX=x;
                 if (maxX<x) maxX=x;
@@ -602,8 +586,7 @@
             let addY=(this.findRealHeight()-lenY)/2+this.findMinY()+graph.vertexRad-minY;
             if (minX+addX<this.findMinX()+graph.vertexRad) addX=this.findMinX()+graph.vertexRad-minX;
             if (minY+addY<this.findMinY()+graph.vertexRad) addY=this.findMinY()+graph.vertexRad-minY;
-            for (let i=0; i<graph.n; i++) {
-                if (graph.vertices[i]===undefined) continue;
+            for (let [i, vr] of vers) {
                 graph.svgVertices[i].coord[0]+=addX;
                 graph.svgVertices[i].coord[1]+=addY;
             }

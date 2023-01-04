@@ -22,8 +22,8 @@
             let n=parseInt($(this).val());
             outputVers.html(n);
             graph.initVertices(n); graphController.undoTime--;
-            for (let i=0; i<n; i++) {
-                graph.vertices[i].name=(i+1).toString();
+            for (let [i, vr] of graph.getVertices()) {
+                vr.name=(i+1).toString();
             }
             graph.buildEdgeDataStructures([]); graphController.undoTime--;
             graph.calcPositions.calc();
@@ -85,8 +85,9 @@
         let outputRad=$(".slider-value-rad");
         sliderRad.val(graph.vertexRad);
         outputRad.html(graph.vertexRad);
-        sliderRad.attr("min",parseInt(3*graph.vertexRad/4));
-        sliderRad.attr("max",parseInt(3*graph.vertexRad/2));
+        if (graph.origRad===undefined) graph.origRad=graph.vertexRad;
+        sliderRad.attr("min",parseInt(3*graph.origRad/4));
+        sliderRad.attr("max",parseInt(3*graph.origRad/2));
         sliderRad.off("input").on("input", function() {
             let val=parseInt($(this).val());
             outputRad.html(val);
@@ -101,11 +102,7 @@
         addSettings(graph,graphController);
         let sliderVers=$(".range-vers");
         let outputVers=$(".slider-value-vers");
-        let cnt=0;
-        for (let i=0; i<graph.n; i++) {
-            if (graph.vertices[i]===undefined) continue;
-            cnt++;
-        }
+        let cnt=graph.getVertices().length;
         sliderVers.val(cnt);
         outputVers.html(cnt);
 
@@ -291,9 +288,8 @@
                     if (graph.isNetwork===false) graph.convertToNetwork(curr.data[1],curr.data[2],true);
                     else {
                         pushOther(curr.type, [graph.isNetwork, graph.source, graph.sink]);
-                        for (let i=0; i<graph.edgeList.length; i++) {
-                            if (graph.edgeList[i]===undefined) continue;
-                            if (graph.edgeList[i].real===false) graph.removeEdge(i);
+                        for (let [i, edge] of graph.getEdges()) {
+                            if (edge.real===false) graph.removeEdge(i);
                         }
                         graph.isNetwork=false;
                     }
@@ -315,24 +311,29 @@
                         graph.svgVertices[ind].coord=curr.data[1];
                     }
                     else if (curr.type==="change-curve-height") {
-                        pushOther(curr.type,[ind, graph.edgeList[ind].curveHeight]);
-                        graph.edgeList[ind].curveHeight=curr.data[1];
+                        let edge=graph.getEdge(ind);
+                        pushOther(curr.type,[ind, edge.curveHeight]);
+                        edge.curveHeight=curr.data[1];
                     }
                     else if (curr.type==="change-css-vertex") {
-                        pushOther(curr.type,[ind, [graph.vertices[ind].addedCSS[0], graph.vertices[ind].addedCSS[1]]]);
-                        graph.vertices[ind].addedCSS=curr.data[1];
+                        let vr=graph.getVertex(ind);
+                        pushOther(curr.type,[ind, [vr.addedCSS[0], vr.addedCSS[1]]]);
+                        vr.addedCSS=curr.data[1];
                     }
                     else if (curr.type==="change-css-edge") {
-                        pushOther(curr.type,[ind, [graph.edgeList[ind].addedCSS[0], graph.edgeList[ind].addedCSS[1]]]);
-                        graph.edgeList[ind].addedCSS=curr.data[1];
+                        let edge=graph.getEdge(ind);
+                        pushOther(curr.type,[ind, [edge.addedCSS[0], edge.addedCSS[1]]]);
+                        edge.addedCSS=curr.data[1];
                     }
                     else if (curr.type==="change-name") {
-                        pushOther(curr.type,[ind, graph.vertices[ind].name]);
-                        graph.vertices[ind].name=curr.data[1];
+                        let vr=graph.getVertex(ind);
+                        pushOther(curr.type,[ind, vr.name]);
+                        vr.name=curr.data[1];
                     }
                     else if (curr.type==="change-weight") {
-                        pushOther(curr.type,[ind, graph.edgeList[ind].weight]);
-                        graph.edgeList[ind].weight=curr.data[1];
+                        let edge=graph.getEdge(ind);
+                        pushOther(curr.type,[ind, edge.weight]);
+                        edge.weight=curr.data[1];
                     }
                     else if (curr.type==="change-property") {
                         let type=curr.data[0];
@@ -456,18 +457,13 @@
         svgSave.empty();
     }
     function saveEdgeList (graph) {
-        let vers=0;
-        for (let vertex of graph.vertices) {
-            if (vertex===undefined) continue;
-            vers++;
-        }
         let edges=[];
-        for (let edge of graph.edgeList) {
+        for (let [i, edge] of graph.getEdges()) {
             if (edge===undefined) continue;
-            if (edge.weight==="") edges.push([graph.vertices[edge.x].name,graph.vertices[edge.y].name]);
-            else edges.push([graph.vertices[edge.x].name,graph.vertices[edge.y].name,edge.weight]);
+            if (edge.weight==="") edges.push([graph.getVertex(edge.x).name,graph.getVertex(edge.y).name]);
+            else edges.push([graph.getVertex(edge.x).name,graph.getVertex(edge.y).name,edge.weight]);
         }
-        let text=vers+" "+edges.length+"\n";
+        let text=graph.getVertices().length+" "+edges.length+"\n";
         for (let edge of edges) {
             text+=edge[0]+" "+edge[1];
             if (edge.length===3) text+=" "+edge[2];

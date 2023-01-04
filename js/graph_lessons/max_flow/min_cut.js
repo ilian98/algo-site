@@ -19,8 +19,7 @@
     }
     function bfs (graph) {
         let vers=[];
-        for (let i=0; i<graph.n; i++) {
-            if (graph.vertices[i]===undefined) continue;
+        for (let [i, vr] of graph.getVertices()) {
             dist[i]=0;
         }
         vers.push(graph.source);
@@ -29,9 +28,9 @@
             let vr=vers.shift();
             if (vr===graph.sink) break;
             for (let ind of graph.adjList[vr]) {
-                let edge=graph.edgeList[ind];
+                let edge=graph.getEdge(ind);
                 if (edge.weight-edge.flow===0) continue;
-                let to=graph.edgeList[ind].findEndPoint(vr);
+                let to=edge.findEndPoint(vr);
                 if (dist[to]!==0) continue;
                 vers.push(to); dist[to]=dist[vr]+1;
             }
@@ -49,38 +48,28 @@
     }
     function findFlowCut () {
         dist=[]; ind=[];
-        for (let i=0; i<this.edgeList.length; i++) {
-            if (this.edgeList[i]===undefined) continue;
-            this.edgeList[i].flow=0;
+        let vers=this.getVertices(),edges=this.getEdges();
+        for (let [i, edge] of edges) {
+            edge.flow=0;
         }
         let maxFlow=0;
-        let count=0;
         for (;;) {
-            count++; if (count>10) {
-                console.log(count);
-                break;
-            }
             bfs(this);
             if (dist[this.sink]===0) break;
             ind=[];
-            for (let i=0; i<this.n; i++) {
-                if (this.vertices[i]===undefined) continue;
+            for (let [i, vr] of vers) {
                 ind[i]=0;
             }
-            let counter=0;
             for (;;) {
-                counter++;
-                if (counter>10) { console.log(counter,this.sink); break; }
-                let flow=dfs(this.source,1e9,this.adjList,this.edgeList,this.sink);
+                let flow=dfs(this.source,1e9,this.adjList,this.getIndexedEdges(),this.sink);
                 maxFlow+=flow;
                 if (flow===0) break;
             }
         }
         seen=[];
-        findCut(this.source,this.adjList,this.edgeList);
+        findCut(this.source,this.adjList,this.getIndexedEdges());
         
-        for (let i=0; i<this.n; i++) {
-            if (this.vertices[i]===undefined) continue;
+        for (let [i, vr] of vers) {
             if (seen[i]===true) {
                 this.svgVertices[i].circle.attr("fill","green");
                 if (i===this.source) this.svgVertices[i].text.attr("fill","white");
@@ -92,9 +81,7 @@
                 else this.svgVertices[i].text.attr("fill","black");
             }
         }
-        for (let i=0; i<this.edgeList.length; i++) {
-            if (this.edgeList[i]===undefined) continue;
-            let edge=this.edgeList[i];
+        for (let [i, edge] of edges) {
             this.svgEdges[i].weight.attr("textpath").node.innerHTML=(edge.flow+"/"+edge.weight).toString();
             if (edge.real===true) {
                 if ((seen[edge.x]===true)&&(seen[edge.y]!==true)) {
@@ -136,10 +123,10 @@
         }
         if (change==="outside") {
             this.initVertices(n+2);
-            for (let i=0; i<n+2; i++) {
-                this.vertices[i].name=i.toString();
+            for (let [i, vr] of this.getVertices()) {
+                vr.name=i.toString();
             }
-            this.edgeList=[];
+            this.clearEdges();
             this.graphController.undoStack=[];
             this.graphController.redoStack=[];
             this.buildEdgeDataStructures(edges);
@@ -175,7 +162,7 @@
                     let v=parseInt($(".graphExample1 .src").val());
                     if ((v<1)||(v>example1.n)) return ;
                     v--;
-                    if (example1.vertices[v]===undefined) return ;
+                    if (example1.getVertex(v)===undefined) return ;
                     example1.source=v;
                     if (example1.source===example1.sink) {
                         alert("Не трябва да съвпадат източника и приемника!");
@@ -188,7 +175,7 @@
                     let v=parseInt($(".graphExample1 .sink").val());
                     if ((v<1)||(v>example1.n)) return ;
                     v--;
-                    if (example1.vertices[v]===undefined) return ;
+                    if (example1.getVertex(v)===undefined) return ;
                     example1.sink=v;
                     if (example1.source===example1.sink) {
                         alert("Не трябва да съвпадат източника и приемника!");
