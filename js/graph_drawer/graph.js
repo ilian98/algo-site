@@ -609,18 +609,20 @@
 
         this.drawVertexText = function (i, text) {
             let x=this.svgVertices[i].coord[0],y=this.svgVertices[i].coord[1];
-            if (this.svgVertices[i].text!==undefined) this.svgVertices[i].text.remove();
+            if ((this.svgVertices[i].text===undefined)||
+                (this.svgVertices[i].text.removed===true)) this.svgVertices[i].text=this.s.text();
             vertices[i].name=text;
             let fontSize=this.findFontSize();
-            this.svgVertices[i].text=this.s.text(x,y,vertices[i].name);
             this.svgVertices[i].text.attr({
+                "x": x,
+                "y": y,
+                "text": text,
                 "font-size": fontSize, 
                 "font-family": "Consolas",
                 dy: determineDy(vertices[i].name,"Consolas",fontSize), 
                 "text-anchor": "middle", 
                 class: "unselectable"
             });
-            this.svgVertices[i].group=this.s.group(this.svgVertices[i].circle,this.svgVertices[i].text);
             
             vertices[i].defaultCSS[1]=setStyle(this.svgVertices[i].text,vertices[i].addedCSS[1]);
         }
@@ -630,6 +632,7 @@
             this.svgVertices[i].circle.attr({fill: "white", stroke: "black", "stroke-width": this.findStrokeWidth()});
             vertices[i].defaultCSS[0]=setStyle(this.svgVertices[i].circle,vertices[i].addedCSS[0]);
             this.drawVertexText(i,vertices[i].name);
+            this.svgVertices[i].group=this.s.group(this.svgVertices[i].circle,this.svgVertices[i].text);
         }
         this.findFontSize = function (vertexRad = this.vertexRad) {
             return vertexRad*5/4;

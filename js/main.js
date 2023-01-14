@@ -271,7 +271,7 @@
                 }
             }
             if (flag===true) {
-                if (typeof MathJax!=="undefined") MathJax.typeset([".hljs-comment"]);  
+                if ((typeof MathJax!=="undefined")&&(MathJax.typeset!==undefined)) MathJax.typeset([".hljs-comment"]);
                 pageSetup();
             }
         }

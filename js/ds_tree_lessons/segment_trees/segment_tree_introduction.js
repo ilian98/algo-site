@@ -191,7 +191,6 @@
                         return animations;
                     }
                     animations.push({
-                        startFunction: tree.drawVertexText.bind(tree,0,tree.getVertex(0).name),
                         animFunctions: [tree.vertexAnimation(0,"red","circle")],
                         animText: "Започваме обхождането от корена на върховете за промяна."
                     });
@@ -211,9 +210,6 @@
                     sumQuery(0,1,elements.length,ql,qr,tree,animations);
                 }
                 return animations;
-            },function initialState () {
-                makeEdgesAndNames(0,0,elements.length-1,[],tree.getIndexedVertices(),elements,false);
-                tree.draw(false,false,true);
             },undefined,undefined,
                               (exampleName==".segTreeExample2")?endAnimation.bind(this,tree,elements,$(exampleName+" .pos"),$(exampleName+" .val")):undefined
             ).then(
@@ -298,7 +294,13 @@
     function update (index, l, r, pos, val, tree, animations) {
         if (l===r) {
             animations.push({
-                startFunction: tree.drawVertexText.bind(tree,index,val.toString()),
+                startFunction: function () {
+                    let origName=tree.getVertex(index).name;
+                    tree.drawVertexText.call(tree,index,val.toString());
+                    return () => {
+                        tree.drawVertexText.call(tree,index,origName);
+                    };
+                },
                 animFunctions: [tree.vertexAnimation(index,"black","circle"),
                                 tree.vertexAnimation(index,"white","text")],
                 animText: "Променяме стойността на листото на "+val+", след което го напускаме."
@@ -344,7 +346,13 @@
             animText: "Връщаме се на върха, който отговаря за интервала ["+l+"; "+r+"]."
         });
         animations.push({
-            startFunction: tree.drawVertexText.bind(tree,index,(suml+sumr).toString()),
+            startFunction: function () {
+                let origName=tree.getVertex(index).name;
+                tree.drawVertexText.call(tree,index,(suml+sumr).toString());
+                return () => {
+                    tree.drawVertexText.call(tree,index,origName);
+                };
+            },
             animFunctions: [tree.vertexAnimation(index,"black","circle",1.5),
                             tree.vertexAnimation(index,"white","text",1.5)],
             animText: "Променяме стойността на сбора от двете деца "+suml+"+"+sumr+"="+(suml+sumr)+" и напускаме върха."
@@ -361,20 +369,26 @@
                 y: tree.svgVertices[index].coord[1]-tree.vertexRad-2
             });
             text.attr({"text-anchor": "middle"});
-            return ;
+            return text;
         }
         text.attr({
             x: tree.svgVertices[index].coord[0]+tree.vertexRad+text.getBBox().w/2, 
             y: tree.svgVertices[index].coord[1]
         });
         text.attr({dy: determineDy(text.attr("text"),"Arial",fontSize), "text-anchor": "middle"});
+        return text;
     }
     function sumQuery (index, l, r, ql, qr, tree, animations) {
         if ((ql<=l)&&(r<=qr)) {
             let isLeaf=false;
             if (l===r) isLeaf=true;
             animations.push({
-                startFunction: addSumText.bind(this,tree,index,isLeaf,tree.getVertex(index).name),
+                startFunction: function () {
+                    let text=addSumText(tree,index,isLeaf,tree.getVertex(index).name);
+                    return function () {
+                        text.remove();
+                    };
+                },
                 animFunctions: [tree.vertexAnimation(index,"orange","circle",2),
                                 tree.vertexAnimation(index,"black","text",2)],
                 animText: "Интервалът на текущия връх се съдържа в нашата заявка. Отчитаме стойността, записана в него, и го напускаме."
@@ -423,7 +437,12 @@
         }
 
         let animation={
-            startFunction: addSumText.bind(this,tree,index,false,suml+sumr),
+            startFunction: function () {
+                let text=addSumText(tree,index,false,suml+sumr);
+                return function () {
+                    text.remove();
+                };
+            },
             animFunctions: [tree.vertexAnimation(index,"black","circle",2),
                             tree.vertexAnimation(index,"white","text",2)],
             animText: "Сумата на елементите от заявката, които се съдържат в текущия интервал е "+suml+"+"+sumr+"="+(suml+sumr)+". След това напускаме върха."

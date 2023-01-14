@@ -45,11 +45,18 @@
         
         let upText;
         animations[animations.length-1].startFunction = function (time) {
-            addText(vr,graph,"in="+time,"up");
+            let text=addText(vr,graph,"in="+time,"up");
             upText=addText(vr,graph,"up="+time,"down");
+            return function () {
+                text.remove();
+                upText.remove();
+            };
         }.bind(this,time);
         animations[animations.length-1].endFunction = function (time) {
-             $(".graphExample3 .time").text("Време: "+time);
+            $(".graphExample3 .time").text("Време: "+time);
+            return function () {
+                $(".graphExample3 .time").text("Време: "+(time-1));
+            }
         }.bind(this,time+1);
         animations[animations.length-1].animText+=" Отбелязваме време на влизане "+time+" и увеличаваме времето. Слагаме минималното in-време на поддървото на текущия връх, на "+time+".";
         inTime[vr]=time++; up[vr]=inTime[vr];
@@ -69,8 +76,11 @@
                 up[vr]=Math.min(up[vr],up[to]);
                 animations.push({
                     startFunction: function (up) {
-                        upText.remove();
-                        upText=addText(vr,graph,"up="+up,"down");
+                        let origText=upText.attr("text");
+                        upText.attr("text","up="+up,"down");
+                        return function () {
+                            upText.attr("text",origText);
+                        };
                     }.bind(this,up[vr]),
                     animFunctions: [graph.vertexAnimation(vr,"red","circle"),
                                     graph.vertexAnimation(vr,"black","text")],
@@ -98,8 +108,11 @@
                     animFunctions: [graph.edgeAnimation(vr,to,ind)],
                     animText: "Това ребро е обратно, затова вземаме предвид in["+(to+1)+"]="+inTime[to]+" при смятането на минималното in-време на up["+(vr+1)+"].",
                     endFunction: function (up) {
-                        upText.remove();
-                        upText=addText(vr,graph,"up="+up,"down");
+                        let origText=upText.attr("text");
+                        upText.attr("text","up="+up,"down");
+                        return function () {
+                            upText.attr("text",origText);
+                        };
                     }.bind(this,up[vr]),
                 });
             }
@@ -235,8 +248,6 @@
                     time=0;
                     dfs(st,-1,used,inTime,up,example3,animations);
                     return animations;
-                },function initialState () {
-                    example3.draw(false,false,true);
                 },function startFunction () {
                     $(".graphExample3 .default").parent().hide();
                     $(".graphExample3 .time").show();

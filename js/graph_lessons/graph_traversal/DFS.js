@@ -65,8 +65,6 @@
             });
             dfs(st,used,graph,animations);
             return animations;
-        },function initialState () {
-            graph.draw(false,false,true);
         }).then(
             () => { graph.graphController.hasAnimation(animationObj) },
             () => { alert("Failed loading animation data!") });

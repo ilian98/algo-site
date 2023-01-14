@@ -1,13 +1,18 @@
 "use strict";
 (function () {
-    function animationsUntilStep (animations, untilIndex, step) {
-        for (let i=(step===+1)?untilIndex-1:0; i<untilIndex; i++) {
-            if (animations[i].hasOwnProperty("startFunction")) animations[i].startFunction();
-            for (let animation of animations[i].animFunctions) {
-                animation(() => {},0);
-            }
-            if (animations[i].hasOwnProperty("endFunction")) animations[i].endFunction();
+    function addChange (change, t, undoStack) {
+        if (typeof change!=="function") return ;
+        undoStack.push({
+            time: t,
+            action: change
+        });
+    }
+    function skipAnimation (animations, index, undoStack) {
+        if (animations[index].hasOwnProperty("startFunction")===true) addChange(animations[index].startFunction(),index,undoStack);
+        for (let animation of animations[index].animFunctions) {
+            animation(() => {},0,undoStack,index);
         }
+        if (animations[index].hasOwnProperty("endFunction")===true) addChange(animations[index].endFunction(),index,undoStack);
     }
 
     function Animation () {
@@ -16,11 +21,10 @@
         
         let flagStart,flagPause,flagStep;
         let animations;
-        function startButtonFunc (findAnimations, initialState, isStatic, startButtonName, stopButtonName) {
+        function startButtonFunc (findAnimations, isStatic, startButtonName, stopButtonName) {
             if (flagStart===false) {
                 this.startFunc();
                 stopAnimations();
-                initialState();
                 animations=findAnimations();
                 if (animations.length===0) {
                     this.stopFunc();
@@ -64,11 +68,15 @@
 
                 this.start();
             }
-            else finishButtonFunc.call(this,false,initialState,isStatic,startButtonName);
+            else finishButtonFunc.call(this,false,isStatic,startButtonName);
         }
-        function finishButtonFunc (flagFinish, initialState, isStatic, startButtonName) {
+        function finishButtonFunc (flagFinish, isStatic, startButtonName) {
             stopAnimations();
-            initialState();
+            for (;;) {
+                if (undoStack.length===0) break;
+                undoStack[undoStack.length-1].action();
+                undoStack.pop();
+            }
             
             flagStart=false; startButton.html(startButtonName);
             if (isStatic===false) {
@@ -85,6 +93,7 @@
             if (flagPause===false) {
                 flagPause=true; $(this).html("Пусни");
                 if (minas!==undefined) {
+                    cleanMinas();
                     for (let mina of minas) {
                         mina.pause();
                     }
@@ -93,6 +102,7 @@
             else {
                 flagPause=false; $(this).html("Пaуза");
                 if (minas!==undefined) {
+                    cleanMinas();
                     for (let mina of minas) {
                         mina.resume();
                     }
@@ -101,25 +111,50 @@
                 flagStep=false;
             }
         }
-        function stepButtonFunc (initialState, step, isStatic) {
+        function stepButtonFunc (step, isStatic) {
             if (currAnimation!==undefined) {
                 if (isStatic===false) {
                     flagPause=false; flagStep=true;
                     pauseButton[0].click();
                     stopAnimations();
-                    initialState();
                 }
                 let animLen=animations.length;
                 if ((step===-1)&&(currAnimation===0)) currAnimation=1;
                 else if ((step===+1)&&(currAnimation===animLen-1)) currAnimation=animLen-2;
 
-                currAnimation+=step;
                 if (isStatic===false) {
+                    if (step===+1) {
+                        skipAnimation(animations,currAnimation,undoStack);
+                        currAnimation++;
+                    }
+                    else {
+                        for (;;) {
+                            if (undoStack.length===0) break;
+                            if (undoStack[undoStack.length-1].time<currAnimation-1) break;
+                            undoStack[undoStack.length-1].action();
+                            undoStack.pop();
+                        }
+                        currAnimation--;
+                    }
                     if (currAnimation==animLen-1) pauseButton.hide();
                     else pauseButton.show();
-                    animationsUntilStep(animations,currAnimation,-1);
                 }
-                else animationsUntilStep(animations,currAnimation+1,step);
+                else {
+                    if (step===+1) {
+                        currAnimation++;
+                        skipAnimation(animations,currAnimation,undoStack);
+                    }
+                    else {
+                        for (;;) {
+                            if (undoStack.length===0) break;
+                            if (undoStack[undoStack.length-1].time<currAnimation) break;
+                            undoStack[undoStack.length-1].action();
+                            undoStack.pop();
+                        }
+                        currAnimation--;
+                        skipAnimation(animations,currAnimation,undoStack);
+                    }
+                }
                 if ((isStatic===true)||(currAnimation<animLen)) {
                     animText.text(animations[currAnimation].animText);
                     if (typeof MathJax!=="undefined") MathJax.typeset([name+" .anim-text"]);
@@ -138,7 +173,7 @@
             this.stopButtonName=stopButtonName;
         }
         this.name=undefined;
-        this.init = async function (name, findAnimations, initialState, start = emptyFunc, stop = emptyFunc, finish = emptyFunc) {
+        this.init = async function (name, findAnimations, start = emptyFunc, stop = emptyFunc, finish = emptyFunc) {
             this.name=name;
             let isStatic=this.isStatic;
             let startButtonName=this.startButtonName;
@@ -166,12 +201,11 @@
                     $(name+" .animation-panel .speed").on("keydown",isDigit);
                 }
                 startButton.flag=false;
-                startButton.off("click").on("click",startButtonFunc.bind(this,findAnimations,initialState,
-                                                                         isStatic,startButtonName,stopButtonName));
+                startButton.off("click").on("click",startButtonFunc.bind(this,findAnimations,isStatic,startButtonName,stopButtonName));
                 pauseButton.off("click").on("click",pauseButtonFunc);
-                finishButton.off("click").on("click",finishButtonFunc.bind(this,true,initialState,startButtonName));
-                previousButton.off("click").on("click",stepButtonFunc.bind(this,initialState,-1,isStatic));
-                nextButton.off("click").on("click",stepButtonFunc.bind(this,initialState,+1,isStatic));
+                finishButton.off("click").on("click",finishButtonFunc.bind(this,true,startButtonName));
+                previousButton.off("click").on("click",stepButtonFunc.bind(this,-1,isStatic));
+                nextButton.off("click").on("click",stepButtonFunc.bind(this,+1,isStatic));
             }
             
             return new Promise((resolve, reject) => {
@@ -190,11 +224,19 @@
         }
 
         let minas,currAnimation;
+        let undoStack;
+        this.addChange = function (change) {
+            undoStack.push({
+                time: currAnimation,
+                action: change
+            });
+        }
         let animFuncs;
         this.start = function () {
             currAnimation=0;
+            undoStack=[];
             if (this.isStatic===true) {
-                animationsUntilStep(animations,1,+1);
+                skipAnimation(animations,0,undoStack);
                 animText.text(animations[0].animText);
                 if (typeof MathJax!=="undefined") MathJax.typeset([name+" .anim-text"]);    
                 return ;
@@ -213,21 +255,21 @@
                     if (typeof MathJax!=="undefined") MathJax.typeset([name+" .anim-text"]);
                     if (i===animations.length-1) pauseButton.hide();
 
-                    if (animations[i].hasOwnProperty("startFunction")) animations[i].startFunction();
+                    if (animations[i].hasOwnProperty("startFunction")) addChange(animations[i].startFunction(),i,undoStack);
                     for (let j=0; j<animations[i].animFunctions.length; j++) {
                         let isLast=(j===(animations[i].animFunctions.length-1));
                         minas.push(...animations[i].animFunctions[j](function () {
                             if ((this!==undefined)&&(this.removed!==undefined)) return ;
                             if (isLast===true) {
                                 if (i<animations.length-1) {
-                                    if (animations[i].hasOwnProperty("endFunction")) animations[i].endFunction();
+                                    if (animations[i].hasOwnProperty("endFunction")) addChange(animations[i].endFunction(),i,undoStack);
                                     animFuncs[i+1]();
                                 }
                             }
-                        },speed));
+                        },speed,undoStack,i));
                     }
                     if (animations[i].animFunctions.length===0) {
-                        if (animations[i].hasOwnProperty("endFunction")) animations[i].endFunction();
+                        if (animations[i].hasOwnProperty("endFunction")) addChange(animations[i].endFunction(),i,undoStack);
                         if (i+1<animations.length) animFuncs[i+1]();
                     }
                 }
@@ -235,11 +277,21 @@
             animFuncs[0]();
         };
 
+        function cleanMinas () {
+            let tmp=[];
+            for (let i=0; i<minas.length; i++) {
+                if (minas[i].s!==1) {
+                    tmp.push(minas[i]);
+                }
+            }
+            minas=tmp;
+        }
         function stopAnimations () {
             if (minas!==undefined) {
                 for (let mina of minas) {
                     mina.stop();
                 }
+                minas=[];
             }
         }
 
@@ -271,10 +323,18 @@
         Graph.prototype = {
             vertexAnimation: function (vr, colour, type, speedCoeff = 1) {
                 let graph=this;
-                return function(callback, speed) {
+                return function(callback, speed, undoStack, t) {
                     let obj;
                     if (type==="circle") obj=graph.svgVertices[vr].circle;
                     else obj=graph.svgVertices[vr].text;
+                    let origColour=obj.attr("fill");
+                    undoStack.push({
+                        time: t,
+                        action: function () {
+                            obj.attr({fill : origColour});
+                        }
+                    });
+                    
                     let minas=[];
                     if ((speed>0)&&(speedCoeff!==-1)) {
                         obj.animate({fill: colour},speed*speedCoeff,callback);
@@ -303,14 +363,21 @@
                         }
                     }
                 }
-                return function(callback, speed) {
+                let lineDraw;
+                return function(callback, speed, undoStack, t) {
                     if ((speed>0)&&(speedCoeff!==-1)) {
                         let obj1=graph.svgVertices[vr1];
                         let obj2=graph.svgVertices[vr2];
 
                         let reverse=false;
                         if ((graph.isDirected===false)&&(graph.getEdge(ind).x!=vr1)) reverse=true;
-                        let lineDraw=graph.s.path(graph.svgEdges[ind].line.attr("d"));
+                        lineDraw=graph.s.path(graph.svgEdges[ind].line.attr("d"));
+                        undoStack.push({
+                            time: t,
+                            action: function () {
+                                lineDraw.remove();
+                            }
+                        });
                         
                         let pathLength=lineDraw.getTotalLength();
                         lineDraw.attr({fill: "none", stroke: "red", "stroke-width": graph.findStrokeWidth()*3});
@@ -326,18 +393,32 @@
                     }
                     else {
                         if (speedCoeff!==-1) setTimeout(callback.bind(this),0);
+                        if (lineDraw!==undefined) lineDraw.remove();
                         return [];
                     }
                 }
             },
             edgeChangesAnimation: function (vr1, vr2, changes, speedCoeff = 1) {
                 let graph=this;
-                return function(callback, speed) {
+                return function(callback, speed, undoStack, t) {
                     let ind=graph.getIndexedEdges().findIndex(function (e) { return ((e!==undefined)&&(e.x==vr1)&&(e.y==vr2)); });
                     if ((ind==-1)&&(graph.isDirected===false)) {
                         ind=graph.getIndexedEdges().findIndex(function (e) { return ((e!==undefined)&&(e.x==vr2)&&(e.y==vr1)); });
                     }
                     let obj=graph.svgEdges[ind].line;
+                    let origProps=[];
+                    for (let prop in changes) {
+                        if (changes.hasOwnProperty(prop)===true) {
+                            origProps[prop]=obj.attr(prop);
+                        }
+                    }
+                    undoStack.push({
+                        time: t,
+                        action: function () {
+                            obj.attr(origProps);
+                        }
+                    });
+                    
                     let minas=[];
                     if ((speed>0)&&(speedCoeff!==-1)) {
                         obj.animate(changes,speed*speedCoeff,callback);
@@ -356,7 +437,8 @@
     }
     
     function textAnimation (textField, text, speedCoeff = 1) {
-        return function(callback, speed) {
+        return function(callback, speed, undoStack, t) {
+            let origText=textField.text();
             textField.text(text);
             if ((speed>0)&&(speedCoeff!==-1)) {
                 setTimeout(() => {

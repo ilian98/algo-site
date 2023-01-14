@@ -42,52 +42,28 @@
         text+="\\)";
         return text;
     }
-    function makeBlueUnderlineRegions (s, end, i1, i2, i3, i4, i5, i6) {
+    function makeOrangeRegions (s, end, i1, i2, i3, i4) {
+        if (i1>i2) return "";
         let text="\\(";
         for (let i=0; i<i1; i++) {
             text+=s[i];
         }
-        if (i1<=i3) {
-            text+="\\colorbox{lightblue}{$";
-            for (let i=i1; i<i2; i++) {
-                if (i4===i) text+="\\textcolor{blue}{";
-                text+=s[i];
-            }
-            if (i4<i2) text+="}";
-            if (i2<=i3) {
-                text+="\\underline{"
-                for (let i=i2; i<=i3; i++) {
-                    if (i4===i) text+="\\textcolor{blue}{";
-                    if (i5==i) text+="\\bf{"
-                    text+=s[i];
-                }
-                if (i4<=i3) text+="}";
-                if (i5<=i3) text+="}";
-                text+="}";
-            }
-            text+="$}";
-        }
-        for (let i=i3+1; i<i4; i++) {
+        text+="\\colorbox{pink}{$";
+        for (let i=i1; i<=i2; i++) {
+            if (i3===i) text+="\\textcolor{magenta}{";
             text+=s[i];
         }
-        if (i4<=i6) {
-            if (i3+1<i4) text+="\\colorbox{lightblue}{$";
-            else text+="\\textcolor{blue}{";
-            for (let i=Math.max(i3+1,i4); i<i5; i++) {
-                text+=s[i];
-            }
-            if (i5<=i6) {
-                if (i5<=i3) text+="\\bf{";
-                else text+="\\underline{";
-                for (let i=Math.max(i3+1,i5); i<=i6; i++) {
-                    text+=s[i];
-                }
-                text+="}";
-            }
-            if (i3+1<i4) text+="$}";
-            else text+="}";
+        if (i3<=i2) text+="}";
+        text+="$}";
+        for (let i=i2+1; i<i3; i++) {
+            text+=s[i];
         }
-        for (let i=i6+1; i<=end; i++) {
+        text+="\\textcolor{magenta}{";
+        for (let i=Math.max(i2+1,i3); i<=i4; i++) {
+            text+=s[i];
+        }
+        text+="}";
+        for (let i=i4+1; i<=end; i++) {
             text+=s[i];
         }
         text+="\\)";
@@ -97,7 +73,7 @@
     function initExample (part) {
         if (part===2) {
             let s,m,f;
-            let animFunc=$(".failureExample .anim-func");
+            let animFunc=$(".failureExample .anim-func"),animFunc2=$(".failureExample .anim-func2");
             let animationObj=new Animation();
             let indexObj=undefined,indexVal=undefined;
             animationObj.setParameters(true,"Покажи намирането","Прекъсни");
@@ -121,13 +97,14 @@
                     }
                     let pos=index-1;
                     animations.push({
-                        animFunctions: [textAnimation(animFunc,makeBlueRegions(s,index,0,f[pos]-1,index-f[pos],index-1,pos),-1)],
+                        animFunctions: [textAnimation(animFunc,makeBlueRegions(s,index,0,f[pos]-1,index-f[pos],index-1,pos),-1),
+                                        textAnimation(animFunc2,"",-1)],
                         animText: "Показан е низът \\(s[0..."+index+"]\\)"+
                         ((f[pos]>0)?
                          ", както и най-дългият добър суфикс на позиция \\("+pos+"\\). Дължината му е \\(l=f("+pos+")="+f[pos]+"\\).":
                          ". Дължината на най-дългия добър суфикс на позиция \\("+pos+"\\) е \\(l=f("+pos+")="+f[pos]+"\\)."),
                         endFunction: () => {
-                            if (typeof MathJax!=="undefined") MathJax.typeset([".failureExample .anim-func"]);
+                            MathJax.typeset([".failureExample .anim-func"]);
                         }
                     });
                     f[-1]=0;
@@ -135,17 +112,19 @@
                         let l=f[pos];
                         if (pos<index-1) {
                             animations.push({
-                                animFunctions: [textAnimation(animFunc,makeBlueRegions(s,index,0,l-1,index-l,index-1,pos),-1)],
+                                animFunctions: [textAnimation(animFunc,makeBlueRegions(s,index,0,l-1,index-l,index-1,pos),-1),
+                                                textAnimation(animFunc2,"",-1),],
                                 animText: ((l>0)?
                                            "Показан е префиксът, съответстващ на най-дългия добър суфикс на позиция \\("+pos+"\\) и еднаквия му суфикс на позиция \\("+(index-1)+"\\). Дължината му е \\(l=f("+pos+")="+l+"\\).":
                                            "Дължината на най-дългия добър суфикс на позиция \\("+pos+"\\) е \\(l=f("+pos+")=0\\)."),
                                 endFunction: () => {
-                                    if (typeof MathJax!=="undefined") MathJax.typeset([".failureExample .anim-func"]);
+                                    MathJax.typeset([".failureExample .anim-func"]);
                                 }
                             });
                         }
                         animations.push({
-                            animFunctions: [textAnimation(animFunc,makeBlueRegions(s,index,0,l-1,index-l,index-1,-1,l,index),-1)],
+                            animFunctions: [textAnimation(animFunc,makeBlueRegions(s,index,0,l-1,index-l,index-1,-1,l,index),-1),
+                                            textAnimation(animFunc2,"",-1),],
                             animText: "Сравняваме символите \\(s[l="+l+"]\\) и текущия символ \\(s["+index+"]\\).",
                             endFunction: () => {
                                 if (typeof MathJax!=="undefined") MathJax.typeset([".failureExample .anim-func"]);
@@ -153,37 +132,38 @@
                         });
                         if (s[l]===s[index]) {
                             animations.push({
-                                animFunctions: [textAnimation(animFunc,makeBlueRegions(s,index,0,l,index-l,index,-1),-1)],
+                                animFunctions: [textAnimation(animFunc,makeBlueRegions(s,index,0,l,index-l,index),-1),
+                                                textAnimation(animFunc2,"",-1),],
                                 animText: "Понеже са равни, то можем да удължим най-дългия добър суфикс на позиция \\("+pos+"\\) с \\(s[l="+l+"]\\) и приключваме търсенето. Намерихме, че \\(f("+index+")=l+1="+(l+1)+"\\).",
                                 endFunction: () => {
-                                    if (typeof MathJax!=="undefined") MathJax.typeset([".failureExample .anim-func"]);
+                                    MathJax.typeset([".failureExample .anim-func"]);
                                 }
                             });
                             break;
                         }
                         animations.push({
-                            animFunctions: [textAnimation(animFunc,
-                                                          makeBlueUnderlineRegions(s,index,0,l-f[l-1],l-1,index-l,index-f[l-1],index-1),-1)],
+                            animFunctions: [textAnimation(animFunc,makeBlueRegions(s,index,0,l-1,index-l,index-1),-1),
+                                            textAnimation(animFunc2,makeOrangeRegions(s,index,l-f[l-1],l-1,index-f[l-1],index-1),-1),],
                             animText: "Понеже са различни, то се връщаме на по-предна позиция \\(l-1="+(l-1)+"\\), получена от префикса, съответстващ на най-дългия добър суфикс на предната позиция \\("+pos+"\\)."+
                             ((f[l-1]>0)?" Изобразен е също най-дългият добър суфикс на новата позиция \\("+(l-1)+"\\), който е и суфикс на позиция \\(i-1="+(index-1)+"\\).":""),
                             endFunction: () => {
-                                if (typeof MathJax!=="undefined") MathJax.typeset([".failureExample .anim-func"]);
+                                MathJax.typeset([".failureExample .anim-func"]);
+                                MathJax.typeset([".failureExample .anim-func2"]);
                             }
                         });
                         pos=l-1;
                     }
                     if (pos<0) {
                         animations.push({
-                            animFunctions: [textAnimation(animFunc,"\\("+s.substr(0,index+1)+"\\)",-1)],
+                            animFunctions: [textAnimation(animFunc,"\\("+s.substr(0,index+1)+"\\)",-1),
+                                            textAnimation(animFunc2,"",-1)],
                             animText: "Накрая стигнахме до позиция \\(-1\\), съответстваща на празния префикс. Понеже не срещнахме равенство, то се получава, че \\(f("+index+")=0\\).",
                             endFunction: () => {
-                                if (typeof MathJax!=="undefined") MathJax.typeset([".failureExample .anim-func"]);
+                                MathJax.typeset([".failureExample .anim-func"]);
                             }
                         });
                     }
                     return animations;
-                },function initialState () {
-                    animFunc.text("");
                 },function startFunc () {
                     indexObj.hide();
                 },function stopFunc () {
@@ -198,7 +178,8 @@
 		                                  </div>
 	                                   </div>`);
                             $(".failureExample .animation-panel .col.text-end").append(indexObj);
-                            if (typeof MathJax!=="undefined") MathJax.typeset([".failureExample .animation-panel .col.text-end"]);
+                            if ((typeof MathJax!=="undefined")&&(MathJax.typeset!==undefined)) 
+                                MathJax.typeset([".failureExample .animation-panel .col.text-end"]);
                             indexVal=$(".failureExample .animation-panel .index");
                             indexVal.on("keydown",isDigit);
                             indexVal.val("8");
@@ -210,6 +191,7 @@
             $(".failureExample .calc-f").on("click", function () {
                 animationObj.clear();
                 animFunc.text("");
+                animFunc2.text("");
                 if (indexObj!==undefined) indexObj.show();
                 s=$(".failureExample .model").val();
                 m=s.length;
@@ -243,7 +225,7 @@
                     table[2].push("\\("+f[i]+"\\)");
                 }
                 $("#failureTable").html(tableHTML(table,true,true));
-                if (typeof MathJax!=="undefined") MathJax.typeset(["#failureTable"]);
+                if ((typeof MathJax!=="undefined")&&(MathJax.typeset!==undefined)) MathJax.typeset(["#failureTable"]);
             }).click();
             $(".failureExample .model").on("keydown",isSmallLatinLetter);
         }
