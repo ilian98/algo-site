@@ -44,18 +44,18 @@
 
         hash=s.charCodeAt(0); hash%=modulo;
         if (s.length===1) {
-            paragraph.append("Хеш-кодът на низа е: \\("+s.charCodeAt(0)+"."+base+"^0 \\space \\% \\space"+modulo+" = "+hash+"\\).");
+            paragraph.append("Хеш-кодът на низа е: $"+s.charCodeAt(0)+"."+base+"^0 \\space \\% \\space"+modulo+" = "+hash+"$.");
             if (typeof MathJax!=="undefined") MathJax.typeset([".hashExample1 .hash"]);
             return ;
         }
         paragraph.append("Хеш-кодът на низа е: ");
-        paragraph.append("\\( ("+s.charCodeAt(0)+"."+base+"^{"+(s.length-1)+"} \\) ");
+        paragraph.append("$ ("+s.charCodeAt(0)+"."+base+"^{"+(s.length-1)+"} $ ");
         for (let i=1; i<s.length; i++) {
-            paragraph.append(" \\( +\\space"+s.charCodeAt(i)+"."+base+"^{"+(s.length-1-i)+"}\\)");
+            paragraph.append(" $ +\\space"+s.charCodeAt(i)+"."+base+"^{"+(s.length-1-i)+"}$");
             hash*=base; hash+=s.charCodeAt(i);
             hash%=modulo;
         }
-        paragraph.append("\\( )\\space \\% \\space"+modulo+" = "+hash+"\\).");
+        paragraph.append("$ )\\space \\% \\space"+modulo+" = "+hash+"$.");
         if (typeof MathJax!=="undefined") MathJax.typeset([".hashExample1 .hash"]);
     }
 
@@ -81,22 +81,22 @@
         
         paragraph.append("Хеш-кодът на мултимножеството е: ");
         for (let i=0; i<elements.length; i++) {
-            paragraph.append(" \\(");
+            paragraph.append(" $");
             if (i==0) paragraph.append("(");
-            paragraph.append(base+"^{"+elements[i]+"} \\space \\% \\space"+modulo+"\\)");
-            if (i<elements.length-1) paragraph.append("\\( \\space + \\)");
+            paragraph.append(base+"^{"+elements[i]+"} \\space \\% \\space"+modulo+"$");
+            if (i<elements.length-1) paragraph.append("$ \\space + $");
         }
-        paragraph.append("\\( ) \\space \\% \\space"+modulo+" = \\)");
+        paragraph.append("$ ) \\space \\% \\space"+modulo+" = $");
         hash=0;
         for (let i=0; i<elements.length; i++) {
             currHash=fastPower(base,elements[i],modulo);
-            paragraph.append(" \\(");
+            paragraph.append(" $");
             if (i==0) paragraph.append("(");
-            paragraph.append(currHash+"\\)");
-            if (i<elements.length-1) paragraph.append("\\( \\space + \\)");
+            paragraph.append(currHash+"$");
+            if (i<elements.length-1) paragraph.append("$ \\space + $");
             hash+=currHash; hash%=modulo;
         }
-        paragraph.append("\\( ) \\space \\% \\space"+modulo+"\\space = "+hash+"\\).");
+        paragraph.append("$ ) \\space \\% \\space"+modulo+"\\space = "+hash+"$.");
         if (typeof MathJax!=="undefined") MathJax.typeset([".hashExample2 .hash"]);
     }
     

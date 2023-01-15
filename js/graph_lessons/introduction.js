@@ -58,7 +58,7 @@
         let path=BFS(graph.n,beg,end,graph.adjList,graph.getIndexedEdges(),[-1,-1]);
         paths.text("");
         if (path.length===0) paths.append("Няма прост път, започващ в началния връх.<br>");
-        else paths.append("Прост път: \\("+BFS(graph.n,beg,end,graph.adjList,graph.getIndexedEdges(),[-1,-1]).join(",")+"\\)<br>");
+        else paths.append("Прост път: $"+BFS(graph.n,beg,end,graph.adjList,graph.getIndexedEdges(),[-1,-1]).join(",")+"$<br>");
         
         let minPath=[];
         for (let ind of graph.adjList[beg]) {
@@ -68,20 +68,20 @@
             if ((minPath.length===0)||(minPath.length>path.length)) minPath=path;
         }
         if (minPath.length===0) paths.append("Няма прост цикъл, започващ в началния връх.");
-        else paths.append("Прост цикъл: "+"\\("+minPath.join(",")+","+(beg+1)+"\\)<br>");
+        else paths.append("Прост цикъл: "+"$"+minPath.join(",")+","+(beg+1)+"$<br>");
         if (typeof MathJax!=="undefined") MathJax.typeset([".graphExample5 .paths"]);
     }
     function displayMatrix (graph) {
         let table=[],row=[];
-        row.push("\\(A\\)");
+        row.push("$A$");
         let vers=graph.getVertices();
         for (let [i, vr] of vers) {
-            row.push("\\("+vr.name+"\\)");
+            row.push("$"+vr.name+"$");
         }
         table.push(row);
         for (let [i, vr] of vers) {
             row=[];
-            row.push("\\("+vr.name+"\\)");
+            row.push("$"+vr.name+"$");
             for (let [j, vr2] of vers) {
                 row.push(graph.adjMatrix[i][j].length);
             }
@@ -95,7 +95,7 @@
         table.push(["Връх","Списък"]);
         for (let [i, vr] of graph.getVertices()) {
             let row=[];
-            row.push("\\("+vr.name+"\\)");
+            row.push("$"+vr.name+"$");
             row.push("");
             for (let ind of graph.adjList[i]) {
                 let edge=graph.getEdge(ind);
@@ -113,7 +113,7 @@
     }
     function displayEdgeList (graph) {
         let table=[];
-        table.push(["Индекс","Ребро","\\(prev\\)"]);
+        table.push(["Индекс","Ребро","$prev$"]);
         let last=new Array(graph.n);
         let vers=graph.getVertices();
         for (let [i, vr] of vers) {
@@ -121,7 +121,7 @@
         }
         for (let [i, edge] of graph.getEdges()) {
             let row=[];
-            row.push("\\("+i+"\\)");
+            row.push("$"+i+"$");
             row.push("("+graph.getVertex(edge.x).name+", "+graph.getVertex(edge.y).name+")");
             row.push(last[edge.x]);
             table.push(row);
@@ -131,9 +131,9 @@
         if (typeof MathJax!=="undefined") MathJax.typeset([".graphExample9 .edge-list"]);
 
         table=[];
-        table.push(["Връх","\\(last\\)"]);
+        table.push(["Връх","$last$"]);
         for (let [i, vr] of vers) {
-            table.push(["\\("+vr.name+"\\)",last[i]]);
+            table.push(["$"+vr.name+"$",last[i]]);
         }
         $(".last").html(tableHTML(table,true,true));
         if (typeof MathJax!=="undefined") MathJax.typeset([".last"]);

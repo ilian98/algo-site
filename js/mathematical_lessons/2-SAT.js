@@ -200,7 +200,7 @@
         }
         
         let solution=document.querySelector(".twoSATexample"+part+" .solution"),text;
-        text="\\("; values=[];
+        text="$"; values=[];
         for (let ind=0; ind<vers.length; ind+=2) {
             let i=vers[ind][0];
             let comp,name;
@@ -213,11 +213,11 @@
                 name=graph.getVertex(i).name;
             }
             if (comp[0]===comp[1]) {
-                text="Няма решение, защото в силно-свързаната компонента на връх \\("+name+"\\) има и неговото отрицание!";
+                text="Няма решение, защото в силно-свързаната компонента на връх $"+name+"$ има и неговото отрицание!";
                 values=[];
                 break;
             }
-            if (text!="\\(") text+=", ";
+            if (text!="$") text+=", ";
             text+=name;
             if (comp[0]>comp[1]) {
                 text+=" = 1";
@@ -230,7 +230,7 @@
                 else values[i]=false, values[i+1]=true;
             }
         }
-        if (values.length!=0) text+="\\)";
+        if (values.length!=0) text+="$";
         solution.textContent=text;
         if (typeof MathJax!=="undefined") MathJax.typeset([".twoSATexample"+part+" .solution"]);
         

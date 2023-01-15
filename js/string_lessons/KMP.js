@@ -1,7 +1,7 @@
 "use strict";
 (function () {
     function makeBlueRegions (s, end, i1, i2, i3, i4, i5 = -1, i6 = -1, i7 = -1) {
-        let text="\\(";
+        let text="$";
         for (let i=0; i<i1; i++) {
             text+=s[i];
         }
@@ -39,12 +39,12 @@
             text+=s[i];
             if (i===i7) text+="}";
         }
-        text+="\\)";
+        text+="$";
         return text;
     }
     function makeOrangeRegions (s, end, i1, i2, i3, i4) {
         if (i1>i2) return "";
-        let text="\\(";
+        let text="$";
         for (let i=0; i<i1; i++) {
             text+=s[i];
         }
@@ -66,7 +66,7 @@
         for (let i=i4+1; i<=end; i++) {
             text+=s[i];
         }
-        text+="\\)";
+        text+="$";
         return text;
     }
     
@@ -91,7 +91,7 @@
                     if (index===0) {
                         animations.push({
                             animFunctions: [],
-                            animText: "Стойността на \\(f(0)=0\\) като базов случай."
+                            animText: "Стойността на $f(0)=0$ като базов случай."
                         });
                         return animations;
                     }
@@ -99,10 +99,10 @@
                     animations.push({
                         animFunctions: [textAnimation(animFunc,makeBlueRegions(s,index,0,f[pos]-1,index-f[pos],index-1,pos),-1),
                                         textAnimation(animFunc2,"",-1)],
-                        animText: "Показан е низът \\(s[0..."+index+"]\\)"+
+                        animText: "Показан е низът $s[0..."+index+"]$"+
                         ((f[pos]>0)?
-                         ", както и най-дългият добър суфикс на позиция \\("+pos+"\\). Дължината му е \\(l=f("+pos+")="+f[pos]+"\\).":
-                         ". Дължината на най-дългия добър суфикс на позиция \\("+pos+"\\) е \\(l=f("+pos+")="+f[pos]+"\\)."),
+                         ", както и най-дългият добър суфикс на позиция $"+pos+"$. Дължината му е $l=f("+pos+")="+f[pos]+"$.":
+                         ". Дължината на най-дългия добър суфикс на позиция $"+pos+"$ е $l=f("+pos+")="+f[pos]+"$."),
                         endFunction: () => {
                             MathJax.typeset([".failureExample .anim-func"]);
                         }
@@ -115,8 +115,8 @@
                                 animFunctions: [textAnimation(animFunc,makeBlueRegions(s,index,0,l-1,index-l,index-1,pos),-1),
                                                 textAnimation(animFunc2,"",-1),],
                                 animText: ((l>0)?
-                                           "Показан е префиксът, съответстващ на най-дългия добър суфикс на позиция \\("+pos+"\\) и еднаквия му суфикс на позиция \\("+(index-1)+"\\). Дължината му е \\(l=f("+pos+")="+l+"\\).":
-                                           "Дължината на най-дългия добър суфикс на позиция \\("+pos+"\\) е \\(l=f("+pos+")=0\\)."),
+                                           "Показан е префиксът, съответстващ на най-дългия добър суфикс на позиция $"+pos+"$ и еднаквия му суфикс на позиция $"+(index-1)+"$. Дължината му е $l=f("+pos+")="+l+"$.":
+                                           "Дължината на най-дългия добър суфикс на позиция $"+pos+"$ е $l=f("+pos+")=0$."),
                                 endFunction: () => {
                                     MathJax.typeset([".failureExample .anim-func"]);
                                 }
@@ -125,7 +125,7 @@
                         animations.push({
                             animFunctions: [textAnimation(animFunc,makeBlueRegions(s,index,0,l-1,index-l,index-1,-1,l,index),-1),
                                             textAnimation(animFunc2,"",-1),],
-                            animText: "Сравняваме символите \\(s[l="+l+"]\\) и текущия символ \\(s["+index+"]\\).",
+                            animText: "Сравняваме символите $s[l="+l+"]$ и текущия символ $s["+index+"]$.",
                             endFunction: () => {
                                 if (typeof MathJax!=="undefined") MathJax.typeset([".failureExample .anim-func"]);
                             }
@@ -134,7 +134,7 @@
                             animations.push({
                                 animFunctions: [textAnimation(animFunc,makeBlueRegions(s,index,0,l,index-l,index),-1),
                                                 textAnimation(animFunc2,"",-1),],
-                                animText: "Понеже са равни, то можем да удължим най-дългия добър суфикс на позиция \\("+pos+"\\) с \\(s[l="+l+"]\\) и приключваме търсенето. Намерихме, че \\(f("+index+")=l+1="+(l+1)+"\\).",
+                                animText: "Понеже са равни, то можем да удължим най-дългия добър суфикс на позиция $"+pos+"$ с $s[l="+l+"]$ и приключваме търсенето. Намерихме, че $f("+index+")=l+1="+(l+1)+"$.",
                                 endFunction: () => {
                                     MathJax.typeset([".failureExample .anim-func"]);
                                 }
@@ -144,8 +144,8 @@
                         animations.push({
                             animFunctions: [textAnimation(animFunc,makeBlueRegions(s,index,0,l-1,index-l,index-1),-1),
                                             textAnimation(animFunc2,makeOrangeRegions(s,index,l-f[l-1],l-1,index-f[l-1],index-1),-1),],
-                            animText: "Понеже са различни, то се връщаме на по-предна позиция \\(l-1="+(l-1)+"\\), получена от префикса, съответстващ на най-дългия добър суфикс на предната позиция \\("+pos+"\\)."+
-                            ((f[l-1]>0)?" Изобразен е също най-дългият добър суфикс на новата позиция \\("+(l-1)+"\\), който е и суфикс на позиция \\(i-1="+(index-1)+"\\).":""),
+                            animText: "Понеже са различни, то се връщаме на по-предна позиция $l-1="+(l-1)+"$, получена от префикса, съответстващ на най-дългия добър суфикс на предната позиция $"+pos+"$."+
+                            ((f[l-1]>0)?" Изобразен е също най-дългият добър суфикс на новата позиция $"+(l-1)+"$, който е и суфикс на позиция $i-1="+(index-1)+"$.":""),
                             endFunction: () => {
                                 MathJax.typeset([".failureExample .anim-func"]);
                                 MathJax.typeset([".failureExample .anim-func2"]);
@@ -155,9 +155,9 @@
                     }
                     if (pos<0) {
                         animations.push({
-                            animFunctions: [textAnimation(animFunc,"\\("+s.substr(0,index+1)+"\\)",-1),
+                            animFunctions: [textAnimation(animFunc,"$"+s.substr(0,index+1)+"$",-1),
                                             textAnimation(animFunc2,"",-1)],
-                            animText: "Накрая стигнахме до позиция \\(-1\\), съответстваща на празния префикс. Понеже не срещнахме равенство, то се получава, че \\(f("+index+")=0\\).",
+                            animText: "Накрая стигнахме до позиция $-1$, съответстваща на празния префикс. Понеже не срещнахме равенство, то се получава, че $f("+index+")=0$.",
                             endFunction: () => {
                                 MathJax.typeset([".failureExample .anim-func"]);
                             }
@@ -172,7 +172,7 @@
                     () => {
                         if (indexObj===undefined) {
                             indexObj=$(`<div class="row form-group justify-content-end speed-wrapper">
-		                                  <label for="index" class="col-auto col-form-label pe-0 unselectable">\\(i\\):</label>
+		                                  <label for="index" class="col-auto col-form-label pe-0 unselectable">$i$:</label>
 		                                  <div class="col-auto">
 			                                 <input class="form-control index" maxLength="2" style="width: 3rem; max-width: 100%"/>
 		                                  </div>
@@ -212,17 +212,17 @@
                 for (let i=0; i<3; i++) {
                     table.push([]);
                 }
-                table[0].push("\\(i\\)");
+                table[0].push("$i$");
                 for (let i=0; i<m; i++) {
-                    table[0].push("\\("+i+"\\)");
+                    table[0].push("$"+i+"$");
                 }
-                table[1].push("\\(s\\)");
+                table[1].push("$s$");
                 for (let i=0; i<m; i++) {
-                    table[1].push("\\("+s[i]+"\\)");
+                    table[1].push("$"+s[i]+"$");
                 }
-                table[2].push("\\(f\\)");
+                table[2].push("$f$");
                 for (let i=0; i<m; i++) {
-                    table[2].push("\\("+f[i]+"\\)");
+                    table[2].push("$"+f[i]+"$");
                 }
                 $("#failureTable").html(tableHTML(table,true,true));
                 if ((typeof MathJax!=="undefined")&&(MathJax.typeset!==undefined)) MathJax.typeset(["#failureTable"]);

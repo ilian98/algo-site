@@ -25,7 +25,7 @@
         }
     }
     function writeMatrix (matr, k, name, textField) {
-        let text="\\("+name+"\\begin{pmatrix}";
+        let text="$"+name+"\\begin{pmatrix}";
         for (let i=0; i<k; i++) {
             for (let j=0; j<k; j++) {
                 text+=matr[i][j];
@@ -33,7 +33,7 @@
                 else if (i!=k-1) text+=" \\\\ ";
             }
         }
-        text+="\\end{pmatrix}\\)";
+        text+="\\end{pmatrix}$";
         textField.text(text);
     }
     function calcMatrices () {

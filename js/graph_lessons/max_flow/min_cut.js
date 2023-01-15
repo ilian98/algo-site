@@ -134,7 +134,7 @@
             this.drawNewGraph(false,12);
         }
         let [flow, cut]=findFlowCut.call(this);
-        $(".graphExample2 .value").text("Отговорът е \\("+sum+"-"+flow+"\\) \\(=sum-flow="+(sum-flow)+"\\). ");
+        $(".graphExample2 .value").text("Отговорът е $"+sum+"-"+flow+"$ $=sum-flow="+(sum-flow)+"$. ");
         $(".graphExample2 .value").append("Той се получава със следното разпределение:<br>");
         $(".graphExample2 .value").append('Отбор на "добрите":');
         for (let i=1; i<=n; i++) {
