@@ -232,7 +232,7 @@
         }
         if (values.length!=0) text+="$";
         solution.textContent=text;
-        if (typeof MathJax!=="undefined") MathJax.typeset([".twoSATexample"+part+" .solution"]);
+        if ((typeof MathJax!=="undefined")&&(MathJax.typeset!==undefined)) MathJax.typeset([".twoSATexample"+part+" .solution"]);
         
         colourSCC(graph,part);
     }

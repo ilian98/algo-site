@@ -144,7 +144,7 @@
         for (let i=1; i<=n; i++) {
             if (seen[i]!==true) $(".graphExample2 .value").append(" "+i);
         }
-        if (typeof MathJax!=="undefined") MathJax.typeset([".graphExample2 .value"]);
+        if ((typeof MathJax!=="undefined")&&(MathJax.typeset!==undefined)) MathJax.typeset([".graphExample2 .value"]);
     }
     
     function initExample (part) {

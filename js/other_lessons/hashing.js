@@ -45,7 +45,7 @@
         hash=s.charCodeAt(0); hash%=modulo;
         if (s.length===1) {
             paragraph.append("Хеш-кодът на низа е: $"+s.charCodeAt(0)+"."+base+"^0 \\space \\% \\space"+modulo+" = "+hash+"$.");
-            if (typeof MathJax!=="undefined") MathJax.typeset([".hashExample1 .hash"]);
+            if ((typeof MathJax!=="undefined")&&(MathJax.typeset!==undefined)) MathJax.typeset([".hashExample1 .hash"]);
             return ;
         }
         paragraph.append("Хеш-кодът на низа е: ");
@@ -56,7 +56,7 @@
             hash%=modulo;
         }
         paragraph.append("$ )\\space \\% \\space"+modulo+" = "+hash+"$.");
-        if (typeof MathJax!=="undefined") MathJax.typeset([".hashExample1 .hash"]);
+        if ((typeof MathJax!=="undefined")&&(MathJax.typeset!==undefined)) MathJax.typeset([".hashExample1 .hash"]);
     }
 
     function fastPower (base, power, modulo) {
@@ -97,7 +97,7 @@
             hash+=currHash; hash%=modulo;
         }
         paragraph.append("$ ) \\space \\% \\space"+modulo+"\\space = "+hash+"$.");
-        if (typeof MathJax!=="undefined") MathJax.typeset([".hashExample2 .hash"]);
+        if ((typeof MathJax!=="undefined")&&(MathJax.typeset!==undefined)) MathJax.typeset([".hashExample2 .hash"]);
     }
     
     

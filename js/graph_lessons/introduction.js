@@ -69,7 +69,7 @@
         }
         if (minPath.length===0) paths.append("Няма прост цикъл, започващ в началния връх.");
         else paths.append("Прост цикъл: "+"$"+minPath.join(",")+","+(beg+1)+"$<br>");
-        if (typeof MathJax!=="undefined") MathJax.typeset([".graphExample5 .paths"]);
+        if ((typeof MathJax!=="undefined")&&(MathJax.typeset!==undefined)) MathJax.typeset([".graphExample5 .paths"]);
     }
     function displayMatrix (graph) {
         let table=[],row=[];
@@ -88,7 +88,7 @@
             table.push(row);
         }
         $(".matrix").html(tableHTML(table,true,true));
-        if (typeof MathJax!=="undefined") MathJax.typeset([".matrix"]);
+        if ((typeof MathJax!=="undefined")&&(MathJax.typeset!==undefined)) MathJax.typeset([".matrix"]);
     }
     function displayAdjacencyList (graph) {
         let table=[];
@@ -109,7 +109,7 @@
             table.push(row);
         }
         $(".adjacency-list").html(tableHTML(table,true,true));
-        if (typeof MathJax!=="undefined") MathJax.typeset([".adjacency-list"]);
+        if ((typeof MathJax!=="undefined")&&(MathJax.typeset!==undefined)) MathJax.typeset([".adjacency-list"]);
     }
     function displayEdgeList (graph) {
         let table=[];
@@ -128,7 +128,7 @@
             last[edge.x]=i;
         }
         $(".graphExample9 .edge-list").html(tableHTML(table,true,true));
-        if (typeof MathJax!=="undefined") MathJax.typeset([".graphExample9 .edge-list"]);
+        if ((typeof MathJax!=="undefined")&&(MathJax.typeset!==undefined)) MathJax.typeset([".graphExample9 .edge-list"]);
 
         table=[];
         table.push(["Връх","$last$"]);
@@ -136,7 +136,7 @@
             table.push(["$"+vr.name+"$",last[i]]);
         }
         $(".last").html(tableHTML(table,true,true));
-        if (typeof MathJax!=="undefined") MathJax.typeset([".last"]);
+        if ((typeof MathJax!=="undefined")&&(MathJax.typeset!==undefined)) MathJax.typeset([".last"]);
     }
 
     function initExample (part) {

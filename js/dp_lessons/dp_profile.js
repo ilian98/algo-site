@@ -105,7 +105,7 @@
 
         writeMatrix(T,k,"T=",$(".dpProfileExample1 .T"));
         writeMatrix(R,k,"T^{"+(m-1)+"}=",$(".dpProfileExample1 .Tm"));
-        if (typeof MathJax!=="undefined") MathJax.typeset([".dpProfileExample1 .T",".dpProfileExample1 .Tm"]);
+        if ((typeof MathJax!=="undefined")&&(MathJax.typeset!==undefined)) MathJax.typeset([".dpProfileExample1 .T",".dpProfileExample1 .Tm"]);
 
         let ans=0;
         for (let i=0; i<k; i++) {
