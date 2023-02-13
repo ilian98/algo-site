@@ -22,6 +22,7 @@
         <script type="text/javascript" src="/algo-site/node_modules/@popperjs/core/dist/umd/popper.min.js"></script>
         <script type="text/javascript" src="/algo-site/node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
         <script type="text/javascript" src="/algo-site/node_modules/snapsvg/dist/snap.svg-min.js"></script>
+        <script type="text/javascript" src="/algo-site/node_modules/opentype.js/dist/opentype.min.js"></script>
         <script src="/algo-site/js/mathjax-config.js"></script>
         <script id="MathJax-script" async src="/algo-site/node_modules/mathjax/es5/tex-chtml.js"></script>
         <script type="text/javascript" src="/algo-site/node_modules/@highlightjs/cdn-assets/highlight.min.js"></script>
@@ -41,7 +42,7 @@
                     <li class="breadcrumb-item">
                         <a class="link-secondary">KMP</a>
                     </li>
-                    <li class="ms-auto">Последна промяна: 30.12.2022</li>
+                    <li class="ms-auto">Последна промяна: 13.02.2023</li>
                 </ol>
             </nav>
         </header>
@@ -117,7 +118,7 @@
                         <p class="text-format">Това, което не знаем, е дали лилавият низ е най-дългият добър суфикс за $l-1$. Ако това е така, то $t-1=f(l-1) \Rightarrow f(i+1)=t=f(l-1)+1$. Лесно можем да разберем дали лилавият низ е най-дългият <i>добър</i> суфикс или не, като просто разгледаме два случая. Ако $s[f(l-1)]=s[i+1]$, то от горната схема се вижда, че наистина можем да продължим префикса, съответстващ на най-дългия <i>добър</i> суфикс за позиция $l-1$, със символа $s[f(l-1)]$ и така ще получим <i>добър</i> суфикс за текущата позиция - $i+1$! А той трябва да е най-дългият иначе ще получим противоречие с някои от предните аргументи. Но пак имаме и втори случай, когато $s[f(l-1)] \neq s[i+1]$. Обаче сега можем с аналогични разсъждения да видим, че търсеният най-дълъг <i>добър</i> суфикс без последната буква ще e <i>добър</i> суфикс освен на позиция $l-1=f(i)-1$ и на позиция $f(l-1)-1$. Всъщност, за да намерим най-дългият <i>добър</i> суфикс трябва да се връщаме по префиксите, съотвестващи на най-дългите <i>добри</i> суфикси, докато не срещнем равенство на съответния символ с текущия $s[i+1]$ (или ако въобще не срещнем равенство, спираме, когато достигнем до префикс с нулева дължина).</p>
                         <p class="text-format">Ще илюстрираме вече алгоритъма за конкретен случай - при намирането на $f(8)=2$. Първо, понеже $s[8] \neq s[f(7)]=s[5]$, то трябва да пробваме евентуално за най-дългият <i>добър</i> суфикс на позиция $4$. Имаме следната схема: $\colorbox{lightblue}{$\underline{aa}b\textcolor{blue}{\underline{aa}}$}$$\textcolor{blue}{b\underline{aa}}a...$ (тук вместо да оцветим в лилаво сме подчертали най-дългия <i>добър</i> суфикс за $s[5]$ и гаратираните му срещания на други места). Тук като проверим, че $s[f(4)]=s[2] \neq s[8]$ ще се върнем до префикса на позиция $f(4)-1=1$. Сега имаме следната илюстрация: $\colorbox{lightblue}{$\textcolor{magenta}{a} \space \textcolor{magenta}{a}$}$$baab\colorbox{lightblue}{$a\textcolor{magenta}{a}$}a...$ Вече ще видим, че $s[f(1)]=s[1]=s[8]$, което означава, че можем да удължим префикса $a$, който е най-дългият <i>добър</i> суфикс на позиция $1$, с буквата $s[f(1)]=a$ и получаваме най-дългия <i>добър</i> суфикс за позиция $8$.</p>
                         <div class="failureExample row" style="clear: both">
-                            <div class="col-sm">
+                            <div class="col-sm mb-2">
                                 <p class="text-format">За по-добро разбиране е предоставен интерактивен пример, където за даден шаблон $s$ се намира функцията на неуспеха. Освен това може да се проиграе намирането на дадена стойност на $f$ по начина, по който по-горе разсъждавахме.</p>
                                 <div class="row mb-2">
                                     <div class="col-auto">
@@ -129,7 +130,7 @@
                                         <div class="row form-group mb-2">
                                             <label for="model" class="col-auto col-form-label pe-0 unselectable">$s$:</label>
                                             <div class="col-auto">
-                                                <input class="form-control model" maxLength="20" style="width: 15rem; max-width: 100%"/>
+                                                <input class="form-control model" maxLength="20" style="width: 12rem; max-width: 100%"/>
                                             </div>
                                         </div>
                                     </div>
@@ -156,7 +157,51 @@
                 <div class="lesson-part-position">
                     <button class="btn btn-secondary">3. Същински алгоритъм.</button>
                     <div class="lesson-part">
-                        <p class="text-format">В предната точка се запознахме с най-важното - как при неуспех на търсенето да знаем на коя следваща позиция трябва да продължим търсенето на шаблона. Нека разгледаме старият пример - шаблон $s=ababac$ и текст $abababac$.</p>
+                        <p class="text-format">В предната точка се запознахме с най-важното - как при неуспех на търсенето да знаем на коя следваща позиция трябва да продължим търсенето на шаблона. Нека разгледаме стария пример - шаблон $s=ababac$ и текст $abababac$. В началото започваме да търсим шаблона от първата позиция и виждаме следното съвпадане: $\colorbox{lightblue}{$ababa$}c$, $\colorbox{lightblue}{$ababa$}bac$. Както казахме по-рано, следващата удачна позиция за търсене е позиция $3$ в текста (съответно позиция $3$ и в шаблона). Реално това е позиция $3$, защото търсим позиция в шаблона, така че суфиксът, започващ от нея да съвпада с префикс (т.е. да е <i>добър</i>) и за да е първата удачна позиция (най-малката възможна) трябва суфиксът да е най-голям или това се явява точно позицията, от която започва най-дългият <i>добър</i> суфикс на позиция $5$ с дължина $f(4)=3$: $\colorbox{lightblue}{$ab\textcolor{blue}{a}$}\textcolor{blue}{ba}c$ (за функцията на неуспeха, индексацията започва от 0, затова вместо $f(5)$ гледаме $f(4)$). Съответно позицията, от която започва този най-дълъг <i>добър</i> суфикс е равна на: $5-f(4)+1=5-3+1=$ точно $3$. Така функцията на неуспеха ни показва от коя следваща позиция на текста (<a class="info">...</a><a class="info" style="display: none">тази позиция се получава по същия начин, само че вадим $f()$ от позицията в текста</a>) трябва да пробваме да търсим шаблона. Дори повече - вече знаем, че част от символите съвпадат и не е нужно пак да ги сравняваме. За примера знаем, че като почнем търсенето от следващата позиция $3$ в текста, то първите $f(4)=3$ символа съвпадат. Това е така, защото на предната стъпка вече сме ги сравнили с <i>добрия</i> суфикс на шаблона, а той от своя страна съвпада с префикса, който започва, когато търсим шаблона от новата позиция $3$. Така директно знаем, че символите в текста на позиции $3,4$ и $5$ съвпадат с първите $3$ на шаблона и това означава, че ще започнем следващото сравнение на $1+f(4)=4$-тия символ на шаблона и $3+f(4)=6$-тия символ на текста или $\colorbox{lightblue}{$aba$}\underline{b}ac$, $ab\colorbox{lightblue}{$aba$}\underline{b}ac$. Сега последователно ще видим, че съвпадат символи $6$, $7$ и $8$ със съответните от шаблона и така ще открием срещане на шаблона на позиция $3$ в текста. Понеже няма още символи в текста, то приключваме.</p>
+                        <p class="text-format">Така описахме директния оптимизиран алгоритъм за търсене на шаблон в текст, когато сме изчислили функцията на неуспеха. За по-добро разбиране предоставяме анимация, която представя горния алгоритъм и приключва при намирането на първо срещане на шаблона или ако няма срещания, при изчерпване на текста. Тук сме означили с $t$ текста.</p>
+                        <div class="KMPExample row" style="clear: both">
+                            <div class="col-sm-4 mb-2">
+                                <div class="row mb-2 justify-content-end">
+                                    <div class="col-auto">
+                                        <button class="btn btn-primary default">Начален пример</button>
+                                    </div>
+                                </div>
+                                <div class="row mb-2 justify-content-end">
+                                    <div class="col-auto">
+                                        <div class="row form-group">
+                                            <label for="model" class="col-auto col-form-label pe-0 unselectable">$s$:</label>
+                                            <div class="col-auto">
+                                                <input class="form-control model" maxLength="10" style="width: 7rem; max-width: 100%"/>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row mb-2 justify-content-end">
+                                    <div class="col-auto">
+                                        <div class="row form-group">
+                                            <label for="text" class="col-auto col-form-label pe-0 unselectable">$t$:</label>
+                                            <div class="col-auto">
+                                                <input class="form-control text" maxLength="20" style="width: 12rem; max-width: 100%"/>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-8 right-col">
+                                <div class="row mb-2 animation-panel"></div>
+                                <div class="row mb-2 failure-table">
+                                    <div class="table-responsive mb-2">
+                                        <table class="table table-hover table-dark table-bordered w-auto my-auto" id="failureTable2"></table>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col">
+                                        <svg class="text-animation" viewBox="0 0 400 100" style="height: 10vh"></svg>
+                                    </div>
+                                </div>
+                                <p class="anim-text"></p>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 

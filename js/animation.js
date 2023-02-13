@@ -7,8 +7,9 @@
             action: change
         });
     }
-    function skipAnimation (animations, index, undoStack) {
-        if (animations[index].hasOwnProperty("startFunction")===true) addChange(animations[index].startFunction(),index,undoStack);
+    function skipAnimation (animations, index, undoStack, flagStarted = false) {
+        if ((flagStarted===false)&&(animations[index].hasOwnProperty("startFunction")===true))
+            addChange(animations[index].startFunction(),index,undoStack);
         for (let animation of animations[index].animFunctions) {
             animation(() => {},0,undoStack,index);
         }
@@ -113,6 +114,7 @@
         }
         function stepButtonFunc (step, isStatic) {
             if (currAnimation!==undefined) {
+                let flagStarted=!flagStep;
                 if (isStatic===false) {
                     flagPause=false; flagStep=true;
                     pauseButton[0].click();
@@ -124,7 +126,7 @@
 
                 if (isStatic===false) {
                     if (step===+1) {
-                        skipAnimation(animations,currAnimation,undoStack);
+                        skipAnimation(animations,currAnimation,undoStack,flagStarted);
                         currAnimation++;
                     }
                     else {
@@ -321,34 +323,6 @@
 
     if (typeof Graph==="function") {
         Graph.prototype = {
-            vertexAnimation: function (vr, colour, type, speedCoeff = 1) {
-                let graph=this;
-                return function(callback, speed, undoStack, t) {
-                    let obj;
-                    if (type==="circle") obj=graph.svgVertices[vr].circle;
-                    else obj=graph.svgVertices[vr].text;
-                    let origColour=obj.attr("fill");
-                    undoStack.push({
-                        time: t,
-                        action: function () {
-                            obj.attr({fill : origColour});
-                        }
-                    });
-                    
-                    let minas=[];
-                    if ((speed>0)&&(speedCoeff!==-1)) {
-                        obj.animate({fill: colour},speed*speedCoeff,callback);
-                        for (let anim of obj.inAnim()) {
-                            minas.push(anim.mina);
-                        }
-                    }
-                    else {
-                        obj.attr({fill: colour});
-                        if (speedCoeff!==-1) setTimeout(callback.bind(this),0);
-                    }
-                    return minas;
-                }
-            },
             edgeAnimation: function (vr1, vr2, ind, speedCoeff = 1) {
                 let graph=this;
                 if (ind===-1) {
@@ -398,44 +372,63 @@
                     }
                 }
             },
-            edgeChangesAnimation: function (vr1, vr2, changes, speedCoeff = 1) {
-                let graph=this;
-                return function(callback, speed, undoStack, t) {
-                    let ind=graph.getIndexedEdges().findIndex(function (e) { return ((e!==undefined)&&(e.x==vr1)&&(e.y==vr2)); });
-                    if ((ind==-1)&&(graph.isDirected===false)) {
-                        ind=graph.getIndexedEdges().findIndex(function (e) { return ((e!==undefined)&&(e.x==vr2)&&(e.y==vr1)); });
-                    }
-                    let obj=graph.svgEdges[ind].line;
-                    let origProps=[];
-                    for (let prop in changes) {
-                        if (changes.hasOwnProperty(prop)===true) {
-                            origProps[prop]=obj.attr(prop);
-                        }
-                    }
-                    undoStack.push({
-                        time: t,
-                        action: function () {
-                            obj.attr(origProps);
-                        }
-                    });
-                    
-                    let minas=[];
-                    if ((speed>0)&&(speedCoeff!==-1)) {
-                        obj.animate(changes,speed*speedCoeff,callback);
-                        for (let anim of obj.inAnim()) {
-                            minas.push(anim.mina);
-                        }
-                    }
-                    else {
-                        obj.attr(changes);
-                        if (speedCoeff!==-1) setTimeout(callback.bind(this),0);
-                    }
-                    return [];
-                }
-            }
         }
     }
     
+    function attrChangesAnimation (obj, changes, speedCoeff = 1) {
+        return function(callback, speed, undoStack, t) {
+            let origProps=[];
+            for (let prop in changes) {
+                if (changes.hasOwnProperty(prop)===true) {
+                    origProps[prop]=obj.attr(prop);
+                }
+            }
+            undoStack.push({
+                time: t,
+                action: function () {
+                    obj.attr(origProps);
+                }
+            });
+
+            let minas=[];
+            if ((speed>0)&&(speedCoeff!==-1)) {
+                obj.animate(changes,speed*speedCoeff,callback);
+                for (let anim of obj.inAnim()) {
+                    minas.push(anim.mina);
+                }
+            }
+            else {
+                obj.attr(changes);
+                if (speedCoeff!==-1) setTimeout(callback.bind(this),0);
+            }
+            return minas;
+        }
+    }
+    function translateAnimation (obj, dx, dy, speedCoeff = 1) {
+        return function(callback, speed, undoStack, t) {
+            let origTranslate="t0 0";
+            if (typeof obj._.transform==="string") origTranslate=obj._.transform;
+            undoStack.push({
+                time: t,
+                action: function () {
+                    obj.transform(origTranslate);
+                }
+            });
+
+            let minas=[];
+            if ((speed>0)&&(speedCoeff!==-1)) {
+                obj.animate({"transform": "t"+dx+" "+dy},speed*speedCoeff,callback);
+                for (let anim of obj.inAnim()) {
+                    minas.push(anim.mina);
+                }
+            }
+            else {
+                obj.transform("t"+dx+" "+dy);
+                if (speedCoeff!==-1) setTimeout(callback.bind(this),0);
+            }
+            return minas;
+        }
+    }
     function textAnimation (textField, text, speedCoeff = 1) {
         return function(callback, speed, undoStack, t) {
             let origText=textField.text();
@@ -452,8 +445,19 @@
             return [];
         }
     }
+    function noAnimation (speedCoeff = 1) {
+        return function(callback, speed, undoStack, t) {
+            let minas=[];
+            if ((speed>0)&&(speedCoeff!==-1)) minas.push(Snap.animate(0,0,() => {},speed*speedCoeff,callback));
+            else setTimeout(callback,0);
+            return minas;
+        }
+    }
     
     
     window.Animation = Animation;
+    window.translateAnimation = translateAnimation;
+    window.attrChangesAnimation = attrChangesAnimation;
     window.textAnimation = textAnimation;
+    window.noAnimation = noAnimation;
 })();

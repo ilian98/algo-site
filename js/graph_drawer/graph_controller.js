@@ -407,6 +407,32 @@
         }
     }
     
+    function calcBBox (graph) {
+        let minX=graph.calcPositions.frameX+graph.calcPositions.frameW,maxX=0;
+        let minY=graph.calcPositions.frameY+graph.calcPositions.frameH,maxY=0;
+        for (let [i, vr] of graph.getVertices()) {
+            let bBox=graph.svgVertices[i].circle.getBBox();
+            minX=Math.min(minX,bBox.x-graph.findStrokeWidth());
+            maxX=Math.max(maxX,bBox.x2+graph.findStrokeWidth());
+            minY=Math.min(minY,bBox.y-graph.findStrokeWidth());
+            maxY=Math.max(maxY,bBox.y2+graph.findStrokeWidth());
+        }
+        for (let [i, edge] of graph.getEdges()) {
+            let lineBBox=graph.svgEdges[i].line.getBBox();
+            minX=Math.min(minX,lineBBox.x);
+            maxX=Math.max(maxX,lineBBox.x2);
+            minY=Math.min(minY,lineBBox.y);
+            maxY=Math.max(maxY,lineBBox.y2);
+            if ((edge.weight!=="")&&(graph.svgEdges[i].weight!==undefined)) {
+                let weightBBox=graph.svgEdges[i].weight.getBBox();
+                minX=Math.min(minX,weightBBox.x);
+                maxX=Math.max(maxX,weightBBox.x2);
+                minY=Math.min(minY,weightBBox.y);
+                maxY=Math.max(maxY,weightBBox.y2);
+            }
+        }
+        return [minX, maxX, minY, maxY];
+    }
     function savePng (graph) {
         let svg=$(graph.svgName);
         let canvas=$(graph.wrapperName+" .canvas-save");
@@ -414,12 +440,14 @@
         let context=canvas[0].getContext('2d');
         let svgWidth=2*svg.width(),svgHeight=2*svg.height();
 
-        svgSave.attr("viewBox",svg.attr("viewBox"));
+        let [minX, maxX, minY, maxY]=calcBBox(graph);
+        let viewBox=graph.s.attr("viewBox");
+        svgSave.attr("viewBox",minX+" "+minY+" "+viewBox.w+" "+viewBox.h);
         svgSave.attr("width",svgWidth);
         svgSave.attr("height",svgHeight);
         svgSave.html(svg.html());
-        canvas.prop("width",svgWidth);
-        canvas.prop("height",svgHeight);
+        canvas.prop("width",(maxX-minX)/viewBox.w*svgWidth);
+        canvas.prop("height",(maxY-minY)/viewBox.h*svgHeight);
 
         svgSave.show();
         let svgString=(new XMLSerializer()).serializeToString(svgSave[0]);
@@ -439,7 +467,8 @@
         let svgSave=$(graph.wrapperName+" .svg-save");
         
         $(".click-area").hide();
-        svgSave.attr("viewBox",svg.attr("viewBox"));
+        let [minX, maxX, minY, maxY]=calcBBox(graph);
+        svgSave.attr("viewBox",minX+" "+minY+" "+graph.s.attr("viewBox").w+" "+graph.s.attr("viewBox").h);
         svgSave.removeAttr("width").removeAttr("height");
         svgSave.html(svg.html());
         svgSave[0].setAttribute("xmlns","http://www.w3.org/2000/svg");

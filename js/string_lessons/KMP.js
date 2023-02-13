@@ -1,5 +1,71 @@
 "use strict";
 (function () {
+    let fontData;
+    function loadFontData () {
+        return new Promise((resolve, reject) => {
+            if (typeof window.font==="undefined") {
+                opentype.load("/algo-site/fonts/Consolas.woff", (error, font) => {
+                    fontData=font;
+                    resolve();
+                });
+            }
+            else resolve();
+        });
+    }
+    function textBBox (text, fontSize) {
+        return fontData.getPath(text.toString(),0,0,fontSize).getBoundingBox();
+    }
+    function calcHeight (text, fontSize) {
+        let bBox=textBBox(text,fontSize);
+        return bBox.y2-bBox.y1;
+    }
+    function calcWidth (text, fontSize) {
+        let bBox=textBBox(text,fontSize);
+        return bBox.x2-bBox.x1;
+    }
+    function calcY (text, fontSize, y) {
+        let bBox=textBBox(text,fontSize);
+        let underBaseline=bBox.y2;
+        return y-underBaseline;
+    }
+    
+    function calcFailureFunction (s) {
+        let m=s.length,f=[];
+        f[0]=0;
+        for (let i=1; i<m; i++) {
+            let l=f[i-1];
+            while (l>0) {
+                if (s[l]===s[i]) break;
+                l=f[l-1];
+            }
+            if (s[l]===s[i]) {
+                f[i]=l+1;
+            }
+            else f[i]=0;
+        }
+        return f;
+    }
+    function makeFailureTable (s, f, id) {
+        let m=s.length;
+        let table=[];
+        for (let i=0; i<3; i++) {
+            table.push([]);
+        }
+        table[0].push("$i$");
+        for (let i=0; i<m; i++) {
+            table[0].push("$"+i+"$");
+        }
+        table[1].push("$s$");
+        for (let i=0; i<m; i++) {
+            table[1].push("$"+s[i]+"$");
+        }
+        table[2].push("$f$");
+        for (let i=0; i<m; i++) {
+            table[2].push("$"+f[i]+"$");
+        }
+        $("#"+id).html(tableHTML(table,true,true));
+        if ((typeof MathJax!=="undefined")&&(MathJax.typeset!==undefined)) MathJax.typeset(["#"+id]);
+    }
     function makeBlueRegions (s, end, i1, i2, i3, i4, i5 = -1, i6 = -1, i7 = -1) {
         let text="$";
         for (let i=0; i<i1; i++) {
@@ -68,6 +134,28 @@
         }
         text+="$";
         return text;
+    }
+    
+    function createText (text, x, y, s, fontSize) {
+        let letters=[];
+        let len=text.length,maxH=0;
+        for (let i=0; i<len; i++) {
+            letters[i]=s.text(x,0,text[i]);
+            letters[i].attr({
+                "font-size": fontSize,
+                "font-family": "Consolas",
+                class: "unselectable",
+            });
+            maxH=Math.max(maxH,calcHeight(text[i],fontSize));
+            x+=calcWidth(text[i],fontSize)+5;
+        }
+        let maxY=0;
+        for (let i=0; i<len; i++) {
+            let currY=calcY(text[i],fontSize,y+maxH);
+            letters[i].attr("y",currY);
+            maxY=Math.max(maxY,currY);
+        }
+        return [s.group(...letters), Math.round(maxY)];
     }
     
     function initExample (part) {
@@ -195,39 +283,179 @@
                 if (indexObj!==undefined) indexObj.show();
                 s=$(".failureExample .model").val();
                 m=s.length;
-                f=[];
-                f[0]=0;
-                for (let i=1; i<m; i++) {
-                    let l=f[i-1];
-                    while (l>0) {
-                        if (s[l]===s[i]) break;
-                        l=f[l-1];
-                    }
-                    if (s[l]===s[i]) {
-                        f[i]=l+1;
-                    }
-                    else f[i]=0;
-                }
-                let table=[];
-                for (let i=0; i<3; i++) {
-                    table.push([]);
-                }
-                table[0].push("$i$");
-                for (let i=0; i<m; i++) {
-                    table[0].push("$"+i+"$");
-                }
-                table[1].push("$s$");
-                for (let i=0; i<m; i++) {
-                    table[1].push("$"+s[i]+"$");
-                }
-                table[2].push("$f$");
-                for (let i=0; i<m; i++) {
-                    table[2].push("$"+f[i]+"$");
-                }
-                $("#failureTable").html(tableHTML(table,true,true));
-                if ((typeof MathJax!=="undefined")&&(MathJax.typeset!==undefined)) MathJax.typeset(["#failureTable"]);
+                f=calcFailureFunction(s);
+                makeFailureTable(s,f,"failureTable");
             }).click();
             $(".failureExample .model").on("keydown",isSmallLatinLetter);
+        }
+        else if (part===3) {
+            let model=$(".KMPExample .model"),text=$(".KMPExample .text");
+            let svgModel,svgText;
+            let s,t,f;
+            let snap=Snap(".KMPExample .text-animation");
+            let fontSize=25;
+            let animationObj=new Animation();
+            $(".KMPExample .default").on("click", function () {
+                model.val("ababac");
+                text.val("abababac");
+                makeFailureTable(model.val(),calcFailureFunction(model.val()),"failureTable2");
+                snap.selectAll("*").remove();
+                loadFontData().then(() => {
+                    let y;
+                    [svgText, y]=createText(text.val(),5,0,snap,fontSize);
+                    [svgModel, y]=createText(model.val(),5,y+20,snap,fontSize);
+                }, () => { alert("Load font data error!") });
+                animationObj.init(".KMPExample",function findAnimations () {
+                    let animations=[];
+                    let pos=0,matched=0;
+                    for (;;) {
+                        if (pos+s.length>t.length) {
+                            animations.push({
+                                animFunctions: [noAnimation()],
+                                animText: "Понеже от тази позиция нататък няма достатъчно символи, то изчерпихме текста и приключваме търсенето на шаблона с неуспех."
+                            });
+                            break;
+                        }
+                        animations.push({
+                            animFunctions: [noAnimation((pos===0)?1:2)],
+                            animText: (pos===0)?"Започваме търсенето на шаблона в текста от позиция $pos=1$ в текста.":
+                            "Търсим шаблона в текста от позиция $pos="+(pos+1)+"$, като вече знаем, че първите "+(matched)+" символа съвпадат."
+                        });
+                        let j;
+                        for (j=matched; j<s.length; j++) {
+                            let pos1=pos,j1=j;
+                            animations.push({
+                                startFunction: function () {
+                                    svgText[pos1+j1].attr("text-decoration","underline");
+                                    svgModel[j1].attr("text-decoration","underline");
+                                    return function () {
+                                        svgText[pos1+j1].attr("text-decoration","");
+                                        svgModel[j1].attr("text-decoration","");
+                                    };
+                                },
+                                animFunctions: [attrChangesAnimation(svgText[pos+j],{"fill": "orange"},2),
+                                                attrChangesAnimation(svgModel[j],{"fill": "orange"},2)],
+                                animText: "Сравняваме символа на позиция "+(pos+j+1)+" в текста със символа на позиция "+(j+1)+" в шаблона.",
+                                
+                            });
+                            if (s[j]!==t[pos+j]) {
+                                animations.push({
+                                    animFunctions: [attrChangesAnimation(svgText[pos+j],{"fill": "red"},2),
+                                                    attrChangesAnimation(svgModel[j],{"fill": "red"},2)],
+                                    animText: "Понеже символите са различни, то прекъсваме търсенето на шаблона в текста от тази позиция и ще изчислим на коя следваща позиция $pos$ в текста, трябва да се преместим.",
+                                    endFunction : function () {
+                                        svgText[pos1+j1].attr("text-decoration","");
+                                        svgModel[j1].attr("text-decoration","");
+                                        return function () {
+                                            svgText[pos1+j1].attr("text-decoration","underline");
+                                            svgModel[j1].attr("text-decoration","underline");
+                                        };
+                                    }    
+                                });
+                                break;
+                            }
+                            animations.push({
+                                animFunctions: [attrChangesAnimation(svgText[pos+j],{"fill": "green"}),
+                                                attrChangesAnimation(svgModel[j],{"fill": "green"})],
+                                animText: "Понеже символите са равни, "+((j===s.length-1)?"то намерихме пълно съвпадение на шаблона с текста на позиция $pos="+(pos+1)+"$.":" продължаваме напред сравняването."),
+                                endFunction : function () {
+                                    svgText[pos1+j1].attr("text-decoration","");
+                                    svgModel[j1].attr("text-decoration","");
+                                    return function () {
+                                        svgText[pos1+j1].attr("text-decoration","underline");
+                                        svgModel[j1].attr("text-decoration","underline");
+                                    };
+                                }    
+                            });
+                        }
+                        if (j===s.length) break;
+                        if (j>0) {
+                            let r1,r2,pos1=pos;
+                            function makeRectangles () {
+                                let ind1=f[j-1]-1;
+                                r1=snap.rect(
+                                    svgText[pos1].getBBox().x-0.5,svgModel[0].getBBox().y-5,
+                                    svgModel[ind1].getBBox().x2-svgModel[0].getBBox().x+1,
+                                    svgModel[ind1].getBBox().y2-svgModel[0].getBBox().y+10,5
+                                );
+                                r1.attr({
+                                    "fill": "none",
+                                    "stroke": "blue",
+                                    "stroke-width": 2
+                                });
+                                let ind3=j-1,ind2=ind3-f[j-1]+1;
+                                r2=snap.rect(
+                                    svgText[pos1+ind2].getBBox().x-0.5,svgModel[ind2].getBBox().y-((ind2<=ind1)?10:5),
+                                    svgModel[ind3].getBBox().x2-svgModel[ind2].getBBox().x+1,
+                                    svgModel[ind3].getBBox().y2-svgModel[ind2].getBBox().y+((ind2<=ind1)?20:10),5
+                                );
+                                r2.attr({
+                                    "fill": "none",
+                                    "stroke": "blue",
+                                    "stroke-width": 2
+                                });   
+                            }
+                            animations.push({
+                                startFunction: function () {
+                                    makeRectangles();
+                                    return function () {
+                                        r1.remove();
+                                        r2.remove();
+                                    };
+                                },
+                                animFunctions: [attrChangesAnimation(svgText[pos+j],{"fill": "black"},2),
+                                                attrChangesAnimation(svgModel[j],{"fill": "black"},2)],
+                                animText: "За да видим следващата удачна позиция в текста, гледаме функцията на неуспеха на шаблона за съвпадащия префикс с дължина "+j+". Имаме, че $f("+(j-1)+")="+f[j-1]+"$."
+                            });
+                            let funcs=[];
+                            for (let i=pos; i<pos+j-1-f[j-1]+1; i++) {
+                                funcs.push(attrChangesAnimation(svgText[i],{"fill": "black"},2));
+                            }
+                            for (let i=f[j-1]; i<j; i++) {
+                                funcs.push(attrChangesAnimation(svgModel[i],{"fill": "black"},2));
+                            }
+                            funcs.push(translateAnimation(svgModel,svgText[pos+j-1-f[j-1]+1].attr("x")-5,0,2));
+                            animations.push({
+                                startFunction: function () {
+                                    r1.remove();
+                                    r2.remove();
+                                    return function () {
+                                        makeRectangles();
+                                    }
+                                },
+                                animFunctions: funcs,
+                                animText: "Следващата позиция, от която ще пробваме да намерим шаблона е равна на $pos=pos+"+j+"-f("+(j-1)+")+1="+(pos+j-f[j-1]+1)+"$. Освен това знаем, че от тази позиция първите "+f[j-1]+" символа съвпадат, защото се преместихме на добър суфикс."
+                            });
+                            matched=f[j-1];
+                            pos=pos+j-1-matched+1;
+                        }
+                        else {
+                            matched=0;
+                            pos++;
+                            animations.push({
+                                animFunctions: [attrChangesAnimation(svgText[pos-1],{"fill": "black"},2),
+                                                attrChangesAnimation(svgModel[0],{"fill": "black"},2),
+                                                translateAnimation(svgModel,svgText[pos].attr("x")-5,0,2)],
+                                animText: "Понеже още първия символ на шаблона се различаваше с текста, то ще търсим шаблона в текста на следващата позиция $pos="+(pos+1)+"."
+                            });
+                        }
+                    }
+                    return animations;
+                },function startFunc () {
+                    snap.selectAll("*").remove();
+                    t=text.val();
+                    s=model.val();
+                    f=calcFailureFunction(s);
+                    let y;
+                    [svgText, y]=createText(t,5,0,snap,fontSize);
+                    [svgModel, y]=createText(s,5,y+20,snap,fontSize);    
+                });
+            }).click();
+            model.on("keydown",isSmallLatinLetter);
+            text.on("keydown",isSmallLatinLetter);
+            model.off("input").on("input",() => {
+                makeFailureTable(model.val(),calcFailureFunction(model.val()),"failureTable2");
+            });
         }
     }
     

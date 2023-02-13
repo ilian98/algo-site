@@ -6,23 +6,23 @@
             let to=graph.getEdge(ind).findEndPoint(vr);
             if (used[to]===false) {
                 animations.push({
-                    animFunctions: [graph.vertexAnimation(vr,"grey","circle"),
-                                    graph.vertexAnimation(vr,"white","text"),
+                    animFunctions: [attrChangesAnimation(graph.svgVertices[vr].circle,{fill: "grey"}),
+                                    attrChangesAnimation(graph.svgVertices[vr].text,{fill: "white"}),
                                     graph.edgeAnimation(vr,to,ind)],
                     animText: "Напускаме връх "+(vr+1)+" и отиваме в "+(to+1)+"."
                 });
 
                 animations.push({
-                    animFunctions: [graph.vertexAnimation(to,"red","circle"),
-                                    graph.vertexAnimation(to,"black","text")],
+                    animFunctions: [attrChangesAnimation(graph.svgVertices[to].circle,{fill: "red"}),
+                                    attrChangesAnimation(graph.svgVertices[to].text,{fill: "black"})],
                     animText: "Сега сме във връх "+(to+1)+"."
                 });
 
                 dfs(to,used,graph,animations);
 
                 animations.push({
-                    animFunctions: [graph.vertexAnimation(vr,"red","circle"),
-                                    graph.vertexAnimation(vr,"black","text")],
+                    animFunctions: [attrChangesAnimation(graph.svgVertices[vr].circle,{fill: "red"}),
+                                    attrChangesAnimation(graph.svgVertices[vr].text,{fill: "black"})],
                     animText: "Връщаме се на връх "+(vr+1)+"."
                 });
             }
@@ -34,8 +34,8 @@
             }
         }
         animations.push({
-            animFunctions: [graph.vertexAnimation(vr,"black","circle"),
-                            graph.vertexAnimation(vr,"white","text")],
+            animFunctions: [attrChangesAnimation(graph.svgVertices[vr].circle,{fill: "black"}),
+                            attrChangesAnimation(graph.svgVertices[vr].text,{fill: "white"})],
             animText: "Вече проверихме всички съседи на връх "+(vr+1)+" и го напускаме."
         });
     }
@@ -60,7 +60,7 @@
             }
             let animations=[];
             animations.push({
-                animFunctions: [graph.vertexAnimation(st,"red","circle")],
+                animFunctions: [attrChangesAnimation(graph.svgVertices[st].circle,{fill: "red"})],
                 animText: "Започваме обхождането от връх номер "+(st+1)+"."
             });
             dfs(st,used,graph,animations);

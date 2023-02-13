@@ -31,14 +31,14 @@
     function dfs (vr, father, used, inTime, up, graph, animations) {
         if (father===-1) {
             animations.push({
-                animFunctions: [graph.vertexAnimation(vr,"red","circle")],
+                animFunctions: [attrChangesAnimation(graph.svgVertices[vr].circle,{fill: "red"})],
                 animText: "Започваме обхождането и строенето на дървото с корен "+(vr+1)+"."
             });        
         }
         else {
             animations.push({
-                animFunctions: [graph.vertexAnimation(vr,"red","circle"),
-                                graph.vertexAnimation(vr,"black","text")],
+                animFunctions: [attrChangesAnimation(graph.svgVertices[vr].circle,{fill: "red"}),
+                                attrChangesAnimation(graph.svgVertices[vr].text,{fill: "black"})],
                 animText: "Сега сме във връх "+(vr+1)+"."
             });
         }
@@ -65,8 +65,8 @@
             let to=graph.getEdge(ind).findEndPoint(vr);
             if (used[to]===false) {
                 animations.push({
-                    animFunctions: [graph.vertexAnimation(vr,"grey","circle"),
-                                    graph.vertexAnimation(vr,"white","text"),
+                    animFunctions: [attrChangesAnimation(graph.svgVertices[vr].circle,{fill: "grey"}),
+                                    attrChangesAnimation(graph.svgVertices[vr].text,{fill: "white"}),
                                     graph.edgeAnimation(vr,to,ind)],
                     animText: "Напускаме връх "+(vr+1)+" и отиваме към сина "+(to+1)+" в строящото се покриващо дърво."
                 });
@@ -82,14 +82,14 @@
                             upText.attr("text",origText);
                         };
                     }.bind(this,up[vr]),
-                    animFunctions: [graph.vertexAnimation(vr,"red","circle"),
-                                    graph.vertexAnimation(vr,"black","text")],
+                    animFunctions: [attrChangesAnimation(graph.svgVertices[vr].circle,{fill: "red"}),
+                                    attrChangesAnimation(graph.svgVertices[vr].text,{fill: "black"})],
                     animText: "Връщаме се на връх "+(vr+1)+" и вземаме предвид up["+(to+1)+"]="+up[to]+" при смятането на минималното in-време на up["+(vr+1)+"]."
                 });
                 
                 if (up[to]>=inTime[to]) {
                     animations.push({
-                        animFunctions: [graph.edgeChangesAnimation(vr,to,{
+                        animFunctions: [attrChangesAnimation(graph.svgEdges[ind].line,{
                             stroke: "red", "stroke-width": graph.findStrokeWidth()*2
                         })],
                         animText: "Понеже up["+(to+1)+"]>=in["+(to+1)+"], то това ребро е мост!"
@@ -118,8 +118,8 @@
             }
         }
         animations.push({
-            animFunctions: [graph.vertexAnimation(vr,"black","circle"),
-                            graph.vertexAnimation(vr,"white","text")],
+            animFunctions: [attrChangesAnimation(graph.svgVertices[vr].circle,{fill: "black"}),
+                            attrChangesAnimation(graph.svgVertices[vr].text,{fill: "white"})],
             animText: "Приключихме с връх "+(vr+1)+" и намерихме, че минималното in-време, което се достига от това поддърво е "+up[vr]+"."
         });
     }
