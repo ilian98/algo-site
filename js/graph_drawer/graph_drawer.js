@@ -477,7 +477,7 @@
                 addCSS(svgEdge.line,edge.defaultCSS[0],css,"edge",index);
             edge.addedCSS[0]=css;
             if ((graph.isDirected===true)||(graph.isNetwork===true)) {
-                let marker=edge.line.markerEnd;
+                let marker=svgEdge.line.markerEnd;
                 marker.attr("fill",svgEdge.line.attr("stroke"));
             }
             if (graph.isWeighted===true) {
