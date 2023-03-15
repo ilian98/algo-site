@@ -46,14 +46,17 @@
                         <div class="col-sm-5 graph-settings">
                             <ul class="nav nav-tabs" id="tab" role="tablist">
                                 <li class="nav-item" role="presentation">
-                                    <button class="nav-link active" id="settings-tab" data-bs-toggle="tab" data-bs-target="#settings" type="button" role="tab" aria-controls="settings" aria-selected="true">Настройки</button>
+                                    <button class="nav-link" id="settings-tab" data-bs-toggle="tab" data-bs-target="#settings" type="button" role="tab" aria-controls="settings" aria-selected="false">Настройки</button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link active" id="style-tab" data-bs-toggle="tab" data-bs-target="#style" type="button" role="tab" aria-controls="style" aria-selected="true">Персонализиране</button>
                                 </li>
                                 <li class="nav-item" role="presentation">
                                     <button class="nav-link" id="change-tab" data-bs-toggle="tab" data-bs-target="#change" type="button" role="tab" aria-controls="change" aria-selected="false">Множествена промяна</button>
                                 </li>
                             </ul>
                             <div class="tab-content" id="myTabContent">
-                                <div class="tab-pane fade show active" id="settings" role="tabpanel" aria-labelledby="settings-tab">
+                                <div class="tab-pane fade" id="settings" role="tabpanel" aria-labelledby="settings-tab">
                                     <div class="row mb-3">
                                         <div class="slidecontainer">
                                             <input type="range" min="1" max="10" value="5" class="slider range-vers" id="rangeVers">
@@ -90,7 +93,7 @@
                                             <input type="range" min="15" max="30" value="20" class="slider range-rad" id="rangeRad">
                                         </div>
                                         <div class="slider-text unselectable">
-                                            <span>Големина на върховете: </span>
+                                            <span>Големина: </span>
                                             <span class="slider-value-rad" style="color: red; font-weight: bold"></span>
                                         </div>
                                     </div>
@@ -105,6 +108,48 @@
                                                 <input class="form-check-input" type="radio" name="dragging" id="vertexMove">
                                                 <label class="form-check-label unselectable" for="vertexMove">Преместване на върха</label>
                                             </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="tab-pane fade show active" id="style" role="tabpanel" aria-labelledby="style-tab">
+                                    <p style="margin-top: 1vh; margin-bottom: 1vh">Може да зададете CSS стила по подразбиране на следните обекти.</p>
+                                    <div class="row mb-2 justify-content-end">
+                                        <label for="default-css-vertex" class="col-auto col-form-label pe-0">върхове:</label>
+                                        <div class="col-9">
+                                            <input class="form-control default-css-vertex"/>
+                                        </div>
+                                    </div>
+                                    <div class="row mb-2 justify-content-end">
+                                        <label for="default-css-name" class="col-auto col-form-label pe-0">имена:</label>
+                                        <div class="col-9">
+                                            <input class="form-control default-css-name"/>
+                                        </div>
+                                    </div>
+                                    <div class="row mb-2 justify-content-end">
+                                        <label for="defatuls-css-edge" class="col-auto col-form-label pe-0">ребра:</label>
+                                        <div class="col-9">
+                                            <input class="form-control default-css-edge"/>
+                                        </div>
+                                    </div>
+                                    <div class="row mb-2 justify-content-end">
+                                        <label for="default-css-weight" class="col-auto col-form-label pe-0">тегла:</label>
+                                        <div class="col-9">
+                                            <input class="form-control default-css-weight"/>
+                                        </div>
+                                    </div>
+                                    <p style="margin-top: 1vh; margin-bottom: 1vh">Големина на върха</p>
+                                    <div class="row mb-2">
+                                        <label for="default-bg" class="col-auto col-form-label pe-0">Фон</label>
+                                        <div class="col-auto">
+                                            <input class="default-bg" type="color"/>
+                                        </div>
+                                    </div>
+                                    <div class="row mb-2">
+                                        <div class="col-auto">
+                                            <button class="btn btn-primary apply-default">Приложи!</button>
+                                        </div>
+                                        <div class="col-auto">
+                                            <button class="btn btn-primary save-default">Запази!</button>
                                         </div>
                                     </div>
                                 </div>

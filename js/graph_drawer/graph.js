@@ -112,13 +112,14 @@
         return fonts[fontFamily].getPath(text.toString(),0,0,fontSize).getBoundingBox();
     }
     function determineDy (text, fontFamily, fontSize) {
+        fontSize=parseInt(fontSize);
         if (typeof fonts[fontFamily]!=="undefined") {
             let bBox=textBBox(text,fontFamily,fontSize);
             let height=bBox.y2-bBox.y1;
             let underBaseline=bBox.y2;
             return height/2-underBaseline;
         }
-        return 8*(fontSize/20);
+        return 6*(fontSize/20);
     }
 
     function styleToObj (style) {
@@ -540,6 +541,8 @@
             obj.attr("style",style+" ; "+css);
             return style;
         }
+        this.defaultCSSEdge="";
+        this.defaultCSSWeight="";
         this.drawEdge = function (st, end, edgeInd = -1, properties = 0) {
             let strokeWidth=this.findStrokeWidth();
             let isLoop=false,isDrawn=(edgeInd===-1),isDirected=this.isDirected||this.isNetwork;
@@ -577,6 +580,7 @@
             }
 
             edge.line.attr({fill: "none", stroke: "black", "stroke-width": strokeWidth});
+            setStyle(edge.line,this.defaultCSSEdge);
             if (isDirected===true) this.addMarkerEnd(edge.line,isLoop,strokeWidth,st,properties);
             if (isDrawn===false) edgeList[edgeInd].defaultCSS[0]=setStyle(edge.line,edgeList[edgeInd].addedCSS[0]);
             if (isDirected===true) edge.line.markerEnd.attr("fill",edge.line.attr("stroke"));
@@ -590,13 +594,15 @@
                     class: "unselectable",
                     fill: edge.line.attr("stroke"),
                 });
+                setStyle(edge.weight,this.defaultCSSWeight);
                 edge.weight.width=edge.weight.getBBox().width;
-                if (typeof fonts["Arial"]!=="undefined") {
-                    let bBox=textBBox(edge.weight.attr("text"),"Arial",this.vertexRad);
+                let font=edge.weight.attr("font-family"),fontSize=edge.weight.attr("font-size");
+                if (typeof fonts[font]!=="undefined") {
+                    let bBox=textBBox(edge.weight.attr("text"),font,fontSize);
                     edge.weight.height=bBox.y2-bBox.y1;
                 }
                 else edge.weight.height=edge.weight.getBBox().height;
-                edge.weight.dyCenter=determineDy(edgeList[edgeInd].weight.toString(),"Arial",this.vertexRad);
+                edge.weight.dyCenter=determineDy(edgeList[edgeInd].weight.toString(),font,fontSize);
                 
                 pathForWeight=calcWeightPosition.call(this,edge.weight,st[0]-end[0],isLoop,pathForWeight,properties);
                 edge.weight.attr({textpath: pathForWeight});
@@ -607,6 +613,7 @@
             return edge;
         }
 
+        this.defaultCSSVertexText="";
         this.drawVertexText = function (i, text) {
             let x=this.svgVertices[i].coord[0],y=this.svgVertices[i].coord[1];
             if ((this.svgVertices[i].text===undefined)||
@@ -614,22 +621,29 @@
             vertices[i].name=text;
             let fontSize=this.findFontSize();
             this.svgVertices[i].text.attr({
-                "x": x,
-                "y": y,
-                "text": text,
+                x: x,
+                y: y,
+                text: text,
+                fill: "black",
                 "font-size": fontSize, 
                 "font-family": "Consolas",
-                dy: determineDy(vertices[i].name,"Consolas",fontSize), 
                 "text-anchor": "middle", 
                 class: "unselectable"
             });
-            
-            vertices[i].defaultCSS[1]=setStyle(this.svgVertices[i].text,vertices[i].addedCSS[1]);
+            setStyle(this.svgVertices[i].text,this.defaultCSSVertexText);
+            this.svgVertices[i].text.attr({dy: determineDy(
+                vertices[i].name,
+                this.svgVertices[i].text.attr("font-family"),
+                this.svgVertices[i].text.attr("font-size")
+            )});
+            vertices[i].defaultCSS[1]=setStyle(this.svgVertices[i].text,vertices[i].addedCSS[1]); 
         }
+        this.defaultCSSVertex="";
         this.drawVertex = function (i) {
             let x=this.svgVertices[i].coord[0],y=this.svgVertices[i].coord[1];
             this.svgVertices[i].circle=this.s.circle(x,y,this.vertexRad);
             this.svgVertices[i].circle.attr({fill: "white", stroke: "black", "stroke-width": this.findStrokeWidth()});
+            setStyle(this.svgVertices[i].circle,this.defaultCSSVertex);
             vertices[i].defaultCSS[0]=setStyle(this.svgVertices[i].circle,vertices[i].addedCSS[0]);
             this.drawVertexText(i,vertices[i].name);
             this.svgVertices[i].group=this.s.group(this.svgVertices[i].circle,this.svgVertices[i].text);
@@ -644,6 +658,8 @@
             return [3*this.vertexRad/4, this.vertexRad/2];
         }
         this.isDrawable=undefined; this.drawableGraph=undefined; this.isStatic=false;
+        this.defaultBG="none";
+        this.bgElement=undefined;
         this.draw = function (addDraw, animateDraw = true, isStatic = undefined) { /// this functions expects that coordinates are already calculated
             if ((this.drawableGraph!==undefined)&&(addDraw===false)) this.drawableGraph.clear();
             
@@ -689,6 +705,8 @@
             }
             
             this.erase();
+            this.bgElement=this.s.circle(0,0,1e5);
+            this.bgElement.attr({fill: this.defaultBG});
 
             let edgeMapCnt=new Map(),edgeMapCurr=new Map();
             for (let edge of edgeList) {
@@ -834,6 +852,10 @@
                 }
             }
             if (cntAnimations===0) animationsEnd.call(this);
+        }
+        this.setBack = function (obj) {
+            obj.prependTo(this.s);
+            this.bgElement.prependTo(this.s);
         }
         
         this.addEdge = function (x, y, weight, css = ["",""], curveHeight=undefined, prevInd = undefined, isReal = true, revData = []) {

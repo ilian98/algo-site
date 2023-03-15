@@ -135,7 +135,7 @@
                 if (segmentLength(circleCoord[0],circleCoord[1],svgPoint.x,svgPoint.y)>=graph.vertexRad) {
                     if (currEdgeDraw===undefined) {
                         currEdgeDraw=graph.drawEdge(circleCoord,end,-1,0);
-                        currEdgeDraw.line.prependTo(graph.s);
+                        graph.setBack(currEdgeDraw.line);
                     }
                     else graph.redrawEdge(currEdgeDraw,circleCoord,end,-1);
                 }
@@ -454,8 +454,8 @@
                 let x=edge.x,y=edge.y;
                 graph.svgEdges[index]=graph.drawEdge(graph.svgVertices[x].coord,graph.svgVertices[y].coord,index,
                                                      graph.svgEdges[index].drawProperties[0]);
-                graph.svgEdges[index].line.prependTo(graph.s);
-                graph.svgEdges[index].weight.prependTo(graph.s);
+                graph.setBack(graph.svgEdges[index].line);
+                graph.setBack(graph.svgEdges[index].weight);
                 addEdgeEvents(index);
             }
             graph.graphChange("change-weight");
@@ -565,7 +565,7 @@
             });
             clickArea.addClass("click-area");
             edgeClickAreas[ind]=clickArea;
-            clickArea.prependTo(graph.s);
+            graph.setBack(clickArea);
             
             clickArea.type="edge";
             clickArea.index=ind;

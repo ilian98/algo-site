@@ -21,7 +21,7 @@
         let previousButton,nextButton;
         
         let flagStart,flagPause,flagStep;
-        let animations;
+        let animations=[];
         function startButtonFunc (findAnimations, isStatic, startButtonName, stopButtonName) {
             if (flagStart===false) {
                 this.startFunc();
@@ -277,7 +277,12 @@
                 }
             }
             animFuncs[0]();
-        };
+        }
+        
+        this.startedAnimation = function () {
+            if (animations.length===0) return false;
+            return true;
+        }
 
         function cleanMinas () {
             let tmp=[];

@@ -21,13 +21,20 @@
             outputRad.html(graph.vertexRad);
             
             if (graph.isWeighted===false) {
+                $("#style .default-css-weight").parent().parent().hide();
                 $("#change #set-weights").parent().hide();
                 $("#change #css-weights").parent().hide();
             }
             else {
+                $("#style .default-css-weight").parent().parent().show();
                 $("#change #set-weights").parent().show();
                 $("#change #css-weights").parent().show();
             }
+            
+            $("#style .default-css-vertex").val('fill: white; stroke: black; stroke-width: '+graph.findStrokeWidth()+';');
+            $("#style .default-css-name").val('fill: black; font-size: '+graph.findFontSize()+'px; font-family: Consolas;');
+            $("#style .default-css-edge").val('stroke: black; stroke-width: '+graph.findStrokeWidth()+';');
+            $("#style .default-css-weight").val('fill: black; font-size: '+graph.vertexRad+'px; font-family: Arial;');
         });
         graph.buildEdgeDataStructures([[0,1],[1,2],[2,3],[3,4],[4,0]]);
         graph.drawNewGraph(true);
@@ -148,6 +155,19 @@
         }
         $("#change .make-change").on("click",makeChanges.bind(this,false));
         $("#change .make-change-all").on("click",makeChanges.bind(this,true));
+        
+        
+        $("#style .apply-default").on("click", () => {
+            graph.defaultCSSVertex=$("#style .default-css-vertex").val();
+            graph.defaultCSSVertexText=$("#style .default-css-name").val();
+            graph.defaultCSSEdge=$("#style .default-css-edge").val();
+            graph.defaultCSSWeight=$("#style .default-css-weight").val();
+            graph.draw(true,true,false);
+        });
+        $("#style .default-bg").off("input").on("input", () => {
+            graph.defaultBG=$("#style .default-bg").val();
+            graph.bgElement.attr({fill: graph.defaultBG});
+        });
     }
     
     window.init = init;

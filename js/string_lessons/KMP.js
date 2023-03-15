@@ -306,6 +306,15 @@
                     [svgModel, y]=createText(model.val(),5,y+20,snap,fontSize);
                 }, () => { alert("Load font data error!") });
                 animationObj.init(".KMPExample",function findAnimations () {
+                    if (s.length===0) {
+                        alert("Шаблонът трябва да има ненулева дължина!");
+                        return [];
+                    }
+                    if (t.length===0) {
+                        alert("Текстът трябва да има ненулева дължина!");
+                        return [];
+                    }
+                    
                     let animations=[];
                     let pos=0,matched=0;
                     for (;;) {
@@ -449,12 +458,15 @@
                     let y;
                     [svgText, y]=createText(t,5,0,snap,fontSize);
                     [svgModel, y]=createText(s,5,y+20,snap,fontSize);    
+                },function stopFunc () {
+                    makeFailureTable(model.val(),calcFailureFunction(model.val()),"failureTable2");
                 });
             }).click();
             model.on("keydown",isSmallLatinLetter);
             text.on("keydown",isSmallLatinLetter);
             model.off("input").on("input",() => {
-                makeFailureTable(model.val(),calcFailureFunction(model.val()),"failureTable2");
+                if (animationObj.startedAnimation()===false)
+                    makeFailureTable(model.val(),calcFailureFunction(model.val()),"failureTable2");
             });
         }
     }

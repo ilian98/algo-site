@@ -1,4 +1,4 @@
-int f[MAXN];
+int f[MAXM];
 void find_f (string& s) {
     int m=s.size();
     f[0]=0;
