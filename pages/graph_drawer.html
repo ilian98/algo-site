@@ -46,17 +46,17 @@
                         <div class="col-sm-5 graph-settings">
                             <ul class="nav nav-tabs" id="tab" role="tablist">
                                 <li class="nav-item" role="presentation">
-                                    <button class="nav-link" id="settings-tab" data-bs-toggle="tab" data-bs-target="#settings" type="button" role="tab" aria-controls="settings" aria-selected="false">Настройки</button>
+                                    <button class="nav-link active" id="settings-tab" data-bs-toggle="tab" data-bs-target="#settings" type="button" role="tab" aria-controls="settings" aria-selected="true">Настройки</button>
                                 </li>
                                 <li class="nav-item" role="presentation">
-                                    <button class="nav-link active" id="style-tab" data-bs-toggle="tab" data-bs-target="#style" type="button" role="tab" aria-controls="style" aria-selected="true">Персонализиране</button>
+                                    <button class="nav-link" id="style-tab" data-bs-toggle="tab" data-bs-target="#style" type="button" role="tab" aria-controls="style" aria-selected="false">Персонализиране</button>
                                 </li>
                                 <li class="nav-item" role="presentation">
                                     <button class="nav-link" id="change-tab" data-bs-toggle="tab" data-bs-target="#change" type="button" role="tab" aria-controls="change" aria-selected="false">Множествена промяна</button>
                                 </li>
                             </ul>
                             <div class="tab-content" id="myTabContent">
-                                <div class="tab-pane fade" id="settings" role="tabpanel" aria-labelledby="settings-tab">
+                                <div class="tab-pane fade show active" id="settings" role="tabpanel" aria-labelledby="settings-tab">
                                     <div class="row mb-3">
                                         <div class="slidecontainer">
                                             <input type="range" min="1" max="10" value="5" class="slider range-vers" id="rangeVers">
@@ -111,7 +111,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="tab-pane fade show active" id="style" role="tabpanel" aria-labelledby="style-tab">
+                                <div class="tab-pane fade" id="style" role="tabpanel" aria-labelledby="style-tab">
                                     <p style="margin-top: 1vh; margin-bottom: 1vh">Може да зададете CSS стила по подразбиране на следните обекти.</p>
                                     <div class="row mb-2 justify-content-end">
                                         <label for="default-css-vertex" class="col-auto col-form-label pe-0">върхове:</label>
