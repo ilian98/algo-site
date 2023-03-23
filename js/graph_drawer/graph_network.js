@@ -46,7 +46,7 @@
             }
             
             for (let [i, edge] of edges) {
-                let strokeWidth=this.findStrokeWidth();
+                let strokeWidth=this.findStrokeWidth("edge",i);
                 let curr=strokeWidth/2+(Math.abs(edge.flow)/max)*(1.5*strokeWidth);
                 let edgeStyleObj=styleToObj(edge.defaultCSS[0]);
                 edgeStyleObj["stroke-width"]=curr;

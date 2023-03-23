@@ -359,7 +359,7 @@
                         });
                         
                         let pathLength=lineDraw.getTotalLength();
-                        lineDraw.attr({fill: "none", stroke: "red", "stroke-width": graph.findStrokeWidth()*3});
+                        lineDraw.attr({fill: "none", stroke: "red", "stroke-width": graph.findStrokeWidth("edge",ind)*3});
                         lineDraw.attr({"stroke-dasharray": pathLength, "stroke-dashoffset": pathLength});
                         graph.s.append(obj1.group);
                         graph.s.append(obj2.group);

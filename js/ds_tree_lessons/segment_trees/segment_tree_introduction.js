@@ -26,7 +26,7 @@
     }
     function addSegmentsLabels (index, l, r, tree, flagIndex, isDynamic) {
         if (flagIndex===true) {
-            let indexFontSize=tree.vertexRad*4/6;
+            let indexFontSize=tree.findFontSize("vertex-name",index,4/6);
             let textIndex=tree.s.text(0,0,index+1);
             textIndex.attr({"font-size": indexFontSize,"font-family": "Times New Roman", "font-weight": "bold", class: "unselectable", fill: "blue"});
             textIndex.attr({
@@ -37,13 +37,13 @@
             tree.svgVertices[index].group=tree.s.group(tree.svgVertices[index].group,textIndex);
         }
 
-        let labelFontSize=tree.vertexRad*5/6;
+        let labelFontSize=tree.findFontSize("vertex-name",index,5/6);
         let segment=tree.s.text(0,0,"["+l+";"+r+"]");
         segment.attr({"font-size": labelFontSize, "font-family": "Times New Roman", class: "unselectable", fill: "#B22222"});
         if (l===r) {
            segment.attr({
                x: tree.svgVertices[index].coord[0], 
-               y: tree.svgVertices[index].coord[1]+tree.vertexRad+tree.findStrokeWidth()/2+2
+               y: tree.svgVertices[index].coord[1]+tree.vertexRad+tree.findStrokeWidth("vertex",index)/2+2
            });
            segment.attr({dy: 2*determineDy(segment.attr("text"),"Times New Roman",labelFontSize), "text-anchor": "middle"});
            tree.svgVertices[index].group=tree.s.group(tree.svgVertices[index].group,segment);
@@ -51,7 +51,7 @@
         }
         segment.attr({
             x: tree.svgVertices[index].coord[0], 
-            y: tree.svgVertices[index].coord[1]-tree.vertexRad-tree.findStrokeWidth()/2-2,
+            y: tree.svgVertices[index].coord[1]-tree.vertexRad-tree.findStrokeWidth("vertex",index)/2-2,
         });
         segment.attr({"text-anchor": "middle"});
         tree.svgVertices[index].group=tree.s.group(tree.svgVertices[index].group,segment);
@@ -361,7 +361,7 @@
     }
 
     function addSumText (tree, index, isLeaf, sum) {
-        let text=tree.s.text(0,0,sum),fontSize=tree.vertexRad*5/6;
+        let text=tree.s.text(0,0,sum),fontSize=tree.findFontSize("vertex-name",index,5/6);
         text.attr({"font-size": fontSize, "font-family": "Arial", "text-align": "center", class: "unselectable", fill: "orange"});
         if (isLeaf===true) {
             text.attr({

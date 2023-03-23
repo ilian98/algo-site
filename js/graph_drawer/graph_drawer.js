@@ -111,7 +111,7 @@
                     for (let pos of possiblePos) {
                         let circleVertex=graph.s.circle(pos[0],pos[1],graph.vertexRad).attr({
                             stroke: "green",
-                            "stroke-width": graph.findStrokeWidth(),
+                            "stroke-width": graph.findStrokeWidth("vertex"),
                             fill: "white",
                             "fill-opacity": 0.5
                         });

@@ -1,7 +1,7 @@
 "use strict";
 (function () {
     function addText (i, graph, s, position) {
-        let text=graph.s.text(0,0,s),fontSize=graph.vertexRad*5/6;
+        let text=graph.s.text(0,0,s),fontSize=graph.findFontSize("vertex-name",i,graph.size*4/6);
         text.attr({
             "font-size": fontSize,
             "font-weight": "bold",
@@ -14,13 +14,13 @@
             text.attr({
                 fill: "blue",
                 x: graph.svgVertices[i].coord[0],
-                y: graph.svgVertices[i].coord[1]-graph.vertexRad-graph.findStrokeWidth()/2-2,
+                y: graph.svgVertices[i].coord[1]-graph.vertexRad-graph.findStrokeWidth("vertex",i)/2-2,
             });
         }
         else {
             text.attr({
                 fill: "green",
-                x: graph.svgVertices[i].coord[0]+graph.vertexRad+graph.findStrokeWidth()/2+text.getBBox().w/2+2,
+                x: graph.svgVertices[i].coord[0]+graph.vertexRad+graph.findStrokeWidth("vertex",i)/2+text.getBBox().w/2+2,
                 y: graph.svgVertices[i].coord[1],
                 dy: determineDy(s,"Times New Roman",fontSize)
             });
@@ -90,7 +90,7 @@
                 if (up[to]>=inTime[to]) {
                     animations.push({
                         animFunctions: [attrChangesAnimation(graph.svgEdges[ind].line,{
-                            stroke: "red", "stroke-width": graph.findStrokeWidth()*2
+                            stroke: "red", "stroke-width": graph.findStrokeWidth("vertex",ind)*2
                         })],
                         animText: "Понеже up["+(to+1)+"]>=in["+(to+1)+"], то това ребро е мост!"
                     });
@@ -195,7 +195,7 @@
             if (versColour[from]===versColour[to]) graph.svgEdges[i].line.attr("stroke",versColour[from]);
             else {
                 graph.svgEdges[i].line.attr("stroke","red");
-                graph.svgEdges[i].line.attr("stroke-width",graph.findStrokeWidth()*2);
+                graph.svgEdges[i].line.attr("stroke-width",graph.findStrokeWidth("vertex",i)*2);
             }
         }
     }

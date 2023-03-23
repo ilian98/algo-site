@@ -309,9 +309,16 @@
                 graph.svgVertices[i++].coord=coord;
             }
         }
+        this.findMaxStrokeWidth = function () {
+            let max=0;
+            for (let [i, vertex] of graph.getVertices()) {
+                max=Math.max(max,graph.findStrokeWidth(graph.defaultCSSVertex+";"+vertex.addedCSS[0]));
+            }
+            return max;
+        }
         this.findMinX = function () {
             let weightDist=(graph.isWeighted===true)?graph.vertexRad/2:0;
-            return Math.max(weightDist,this.frameX)+graph.findStrokeWidth()/2;
+            return Math.max(weightDist,this.frameX)+this.findMaxStrokeWidth()/2;
         }
         this.findMinY = function () {
             let loopDist=0;
@@ -322,7 +329,7 @@
                 }
             }
             let weightDist=(graph.isWeighted===true)?graph.vertexRad/2:0;
-            return Math.max(Math.max(loopDist,weightDist),this.frameY)+graph.findStrokeWidth()/2;
+            return Math.max(Math.max(loopDist,weightDist),this.frameY)+this.findMaxStrokeWidth()/2;
         }
         this.findRealWidth = function () {
             return this.frameW-2*graph.vertexRad-2*this.findMinX();
@@ -581,7 +588,6 @@
                 if (maxY<y) maxY=y;
             }
             let lenX=maxX-minX,lenY=maxY-minY;
-            let strokeWidth=graph.findStrokeWidth();
             let addX=(this.findRealWidth()-lenX)/2+this.findMinX()+graph.vertexRad-minX;
             let addY=(this.findRealHeight()-lenY)/2+this.findMinY()+graph.vertexRad-minY;
             if (minX+addX<this.findMinX()+graph.vertexRad) addX=this.findMinX()+graph.vertexRad-minX;

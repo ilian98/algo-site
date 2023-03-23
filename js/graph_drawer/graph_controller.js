@@ -412,10 +412,10 @@
         let minY=graph.calcPositions.frameY+graph.calcPositions.frameH,maxY=0;
         for (let [i, vr] of graph.getVertices()) {
             let bBox=graph.svgVertices[i].circle.getBBox();
-            minX=Math.min(minX,bBox.x-graph.findStrokeWidth());
-            maxX=Math.max(maxX,bBox.x2+graph.findStrokeWidth());
-            minY=Math.min(minY,bBox.y-graph.findStrokeWidth());
-            maxY=Math.max(maxY,bBox.y2+graph.findStrokeWidth());
+            minX=Math.min(minX,bBox.x-graph.findStrokeWidth("vertex"));
+            maxX=Math.max(maxX,bBox.x2+graph.findStrokeWidth("vertex"));
+            minY=Math.min(minY,bBox.y-graph.findStrokeWidth("vertex"));
+            maxY=Math.max(maxY,bBox.y2+graph.findStrokeWidth("vertex"));
         }
         for (let [i, edge] of graph.getEdges()) {
             let lineBBox=graph.svgEdges[i].line.getBBox();

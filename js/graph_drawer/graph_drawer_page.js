@@ -31,10 +31,10 @@
                 $("#change #css-weights").parent().show();
             }
             
-            $("#style .default-css-vertex").val('fill: white; stroke: black; stroke-width: '+graph.findStrokeWidth()+';');
-            $("#style .default-css-name").val('fill: black; font-size: '+graph.findFontSize()+'px; font-family: Consolas;');
-            $("#style .default-css-edge").val('stroke: black; stroke-width: '+graph.findStrokeWidth()+';');
-            $("#style .default-css-weight").val('fill: black; font-size: '+graph.vertexRad+'px; font-family: Arial;');
+            $("#style .default-css-vertex").val('fill: white; stroke: black; stroke-width: '+graph.findStrokeWidth("vertex")+';');
+            $("#style .default-css-name").val('fill: black; font-size: '+graph.findFontSize("vertex-name")+'; font-family: Consolas;');
+            $("#style .default-css-edge").val('stroke: black; stroke-width: '+graph.findStrokeWidth("edge")+';');
+            $("#style .default-css-weight").val('fill: black; font-size: '+graph.findFontSize("weight")+'; font-family: Arial;');
         });
         graph.buildEdgeDataStructures([[0,1],[1,2],[2,3],[3,4],[4,0]]);
         graph.drawNewGraph(true);
