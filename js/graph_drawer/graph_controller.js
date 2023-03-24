@@ -374,12 +374,13 @@
             let wrapperName=graph.wrapperName+" .settings-panel";
             let oldStart=animationObj.startFunc;
             animationObj.startFunc = function () {
-                isDrawable=graph.isDrawable; isStatic=graph.isStatic;
                 $(wrapperName+" .undo-group").hide();
                 $(wrapperName+" .import").hide();
                 $(wrapperName+" .save-group").removeClass("text-center").addClass("text-start");
                 $(wrapperName+" .dragging-mini").parent().removeClass("d-flex").addClass("d-none");
                 $(wrapperName+" .settings").parent().removeClass("d-flex").addClass("d-none");
+                isDrawable=graph.isDrawable; isStatic=graph.isStatic;
+                graph.draw(false,false,true);
                 
                 if (dropdowns[graph.wrapperName].menus["save-menu"]!==undefined) {
                     dropdowns[graph.wrapperName].menus["save-menu"].find(".txt").hide();
@@ -410,26 +411,23 @@
     function calcBBox (graph) {
         let minX=graph.calcPositions.frameX+graph.calcPositions.frameW,maxX=0;
         let minY=graph.calcPositions.frameY+graph.calcPositions.frameH,maxY=0;
+        graph.s.selectAll("*").forEach((elem) => {
+            if (elem===graph.bgElement) return ;
+            if (elem.hasClass("click-area")===true) return ;
+            if ((elem.type==="text")&&(elem.attr("text").length===0)) return ;
+            if (elem.type==="textPath") return ;
+            let bBox=elem.getBBox();
+            minX=Math.min(minX,bBox.x);
+            maxX=Math.max(maxX,bBox.x2);
+            minY=Math.min(minY,bBox.y);
+            maxY=Math.max(maxY,bBox.y2);
+        });
         for (let [i, vr] of graph.getVertices()) {
             let bBox=graph.svgVertices[i].circle.getBBox();
-            minX=Math.min(minX,bBox.x-graph.findStrokeWidth("vertex"));
-            maxX=Math.max(maxX,bBox.x2+graph.findStrokeWidth("vertex"));
-            minY=Math.min(minY,bBox.y-graph.findStrokeWidth("vertex"));
-            maxY=Math.max(maxY,bBox.y2+graph.findStrokeWidth("vertex"));
-        }
-        for (let [i, edge] of graph.getEdges()) {
-            let lineBBox=graph.svgEdges[i].line.getBBox();
-            minX=Math.min(minX,lineBBox.x);
-            maxX=Math.max(maxX,lineBBox.x2);
-            minY=Math.min(minY,lineBBox.y);
-            maxY=Math.max(maxY,lineBBox.y2);
-            if ((edge.weight!=="")&&(graph.svgEdges[i].weight!==undefined)) {
-                let weightBBox=graph.svgEdges[i].weight.getBBox();
-                minX=Math.min(minX,weightBBox.x);
-                maxX=Math.max(maxX,weightBBox.x2);
-                minY=Math.min(minY,weightBBox.y);
-                maxY=Math.max(maxY,weightBBox.y2);
-            }
+            minX=Math.min(minX,bBox.x-graph.findStrokeWidth("vertex",i));
+            maxX=Math.max(maxX,bBox.x2+graph.findStrokeWidth("vertex",i));
+            minY=Math.min(minY,bBox.y-graph.findStrokeWidth("vertex",i));
+            maxY=Math.max(maxY,bBox.y2+graph.findStrokeWidth("vertex",i));
         }
         return [minX, maxX, minY, maxY];
     }

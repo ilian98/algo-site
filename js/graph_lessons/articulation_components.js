@@ -1,7 +1,7 @@
 "use strict";
 (function () {
     function addText (i, graph, s, position) {
-        let text=graph.s.text(0,0,s),fontSize=graph.findFontSize("vertex-name",i,graph.size*4/6);
+        let text=graph.s.text(0,0,s),fontSize=graph.findFontSize("vertex-name",i,4/6);
         text.attr({
             "font-size": fontSize,
             "font-weight": "bold",
@@ -90,7 +90,7 @@
                 if (up[to]>=inTime[to]) {
                     animations.push({
                         animFunctions: [attrChangesAnimation(graph.svgEdges[ind].line,{
-                            stroke: "red", "stroke-width": graph.findStrokeWidth("vertex",ind)*2
+                            stroke: "red", "stroke-width": graph.findStrokeWidth("edge",ind)*2
                         })],
                         animText: "Понеже up["+(to+1)+"]>=in["+(to+1)+"], то това ребро е мост!"
                     });

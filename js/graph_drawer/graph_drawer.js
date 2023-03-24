@@ -400,8 +400,14 @@
         }
         function vertexClick (event) {
             if (trackedMouse===true) return ;
-            if (graph.isDrawable===true) dropdowns[graph.wrapperName].menus["vertex"].find(".remove-vertex").show();
-            else dropdowns[graph.wrapperName].menus["vertex"].find(".remove-vertex").hide();
+            if (graph.isDrawable===true) {
+                dropdowns[graph.wrapperName].menus["vertex"].find(".remove-vertex").show();
+                dropdowns[graph.wrapperName].menus["vertex"].find(".change-name").show();
+            }
+            else {
+                dropdowns[graph.wrapperName].menus["vertex"].find(".remove-vertex").hide();
+                dropdowns[graph.wrapperName].menus["vertex"].find(".change-name").hide();
+            }
             dropdowns[graph.wrapperName].showDropdown("vertex",event,this.index);
         }
                                
@@ -489,9 +495,6 @@
         function edgeClick (event) {
             if (trackedMouse===true) return ;
             let ind=this.index;
-            if ((graph.isWeighted===true)&&(graph.isDrawable===true)) 
-                dropdowns[graph.wrapperName].menus["edge"].find(".change-weight").show();
-            else dropdowns[graph.wrapperName].menus["edge"].find(".change-weight").hide();
             if (graph.isNetwork===true) {
                 if ((graph.getEdge(ind).real===true)&&(graph.isDrawable===true)) {
                     dropdowns[graph.wrapperName].menus["edge"].find(".remove-edge").show();
@@ -501,6 +504,13 @@
                     dropdowns[graph.wrapperName].menus["edge"].find(".remove-edge").hide();
                     dropdowns[graph.wrapperName].menus["edge"].find(".change-weight").hide();
                 }
+            }
+            else {
+                if ((graph.isWeighted===true)&&(graph.isDrawable===true)) 
+                    dropdowns[graph.wrapperName].menus["edge"].find(".change-weight").show();
+                else dropdowns[graph.wrapperName].menus["edge"].find(".change-weight").hide();
+                if (graph.isDrawable===true) dropdowns[graph.wrapperName].menus["edge"].find(".remove-edge").show();
+                else dropdowns[graph.wrapperName].menus["edge"].find(".remove-edge").hide();
             }
             dropdowns[graph.wrapperName].showDropdown("edge",event,ind);
         }
@@ -528,11 +538,11 @@
         function weightClick (event) {
             if (trackedMouse===true) return ;
             let ind=this.index;
-            if (graph.isNetwork===true) {
-                if ((edge.real===true)&&(graph.isDrawable===true)) 
-                    dropdowns[graph.wrapperName].menus["weight"].find(".change-weight").show();
-                else dropdowns[graph.wrapperName].menus["weight"].find(".change-weight").hide();
+            if (((graph.isNetwork===true)&&(graph.getEdge(ind).real===true)&&(graph.isDrawable===true))||
+                ((graph.isNetwork===false)&&(graph.isDrawable===true))) {
+                dropdowns[graph.wrapperName].menus["weight"].find(".change-weight").show();
             }
+            else dropdowns[graph.wrapperName].menus["weight"].find(".change-weight").hide();
             dropdowns[graph.wrapperName].showDropdown("weight",event,ind);
         }
 
@@ -550,11 +560,11 @@
             let edge=graph.getEdge(ind);
             edge.defaultCSS[0]+=" ; cursor: pointer";
             if (edgeClickAreas[ind]!==undefined) edgeClickAreas[ind].remove();
-            let strokeWidth;
-            if (graph.svgEdges[ind].drawProperties[1]===1) strokeWidth=20;
+            let strokeWidth=graph.findStrokeWidth("edge",ind);
+            if (graph.svgEdges[ind].drawProperties[1]===1) strokeWidth*=10;
             else {
-                if (graph.svgEdges[ind].drawProperties[0]===0) strokeWidth=graph.vertexRad*3/10;
-                else strokeWidth=graph.vertexRad*3/10-2;
+                if (graph.svgEdges[ind].drawProperties[0]===0) strokeWidth*=10;
+                else strokeWidth*=5;
             }
             let clickArea=graph.s.path(graph.svgEdges[ind].line.attr("d")).attr({
                 cursor: "pointer",
@@ -701,7 +711,7 @@
                     graph.svgEdges[i].weight.unclick(weightClick);
                 }
             }
-            $(".click-area").remove();
+            $(graph.svgName+" .click-area").remove();
             edgeClickAreas=[];
         }
         

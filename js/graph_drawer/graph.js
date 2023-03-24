@@ -391,33 +391,34 @@
         function setStyle (obj, css) {
             obj.attr("style",css);
         }
-        this.findFontSize = function (type, ind = -1, size = undefined, vertexRad = undefined) {
-            if (size===undefined) size=this.size;
+        this.findFontSize = function (type, ind = -1, coef = 1, vertexRad = undefined) {
             if (vertexRad===undefined) vertexRad=this.vertexRad;
-            let coef;
-            if (type==="vertex-name") coef=5/4;
-            else coef=1;
+            if (type==="vertex-name") coef*=5/4;
+            else coef*=1;
             let sampleText=this.s.text();
             let css=(type==="vertex-name")?this.defaultCSSVertexText:this.defaultCSSWeight;
             if (ind!==-1) {
                 if (type==="vertex-name") css+=";"+vertices[ind].addedCSS[1];
                 else css+=";"+edgeList[ind].addedCSS[1];
             }
-            setStyle(sampleText,"font-size: "+(coef*vertexRad)+";"+css);
-            return parseFloat(sampleText.attr("font-size"))*size;
+            setStyle(sampleText,"font-size: "+(coef*this.size*vertexRad)+"px;"+css);
+            let fontSize=parseFloat(sampleText.attr("font-size"));
+            sampleText.remove();
+            return fontSize;
         }
-        this.findStrokeWidth = function (type, ind = -1, size = undefined, vertexRad = undefined) {
-            if (size===undefined) size=this.size;
+        this.findStrokeWidth = function (type, ind = -1, coef = 1, vertexRad = undefined) {
             if (vertexRad===undefined) vertexRad=this.vertexRad;
-            let coef=1.5/20;
+            coef*=1.5/20;
             let sampleStroke=this.s.circle();
-            let css=(type==="vertex")?this.defaultCSSVertex:this.defaultCSSEdges;
+            let css=(type==="vertex")?this.defaultCSSVertex:this.defaultCSSEdge;
             if (ind!==-1) {
                 if (type==="vertex") css+=";"+vertices[ind].addedCSS[0];
                 else css+=";"+edgeList[ind].addedCSS[0];
             }
-            setStyle(sampleStroke,"stroke-width: "+(coef*vertexRad)+";"+css);
-            return parseFloat(sampleStroke.attr("stroke-width"))*size;
+            setStyle(sampleStroke,"stroke-width: "+(coef*this.size*vertexRad)+";"+css);
+            let strokeWidth=parseFloat(sampleStroke.attr("stroke-width"));
+            sampleStroke.remove();
+            return strokeWidth;
         }
         
         this.calcPositions=undefined; this.initViewBox=undefined;
@@ -487,12 +488,12 @@
                 bezPath,
                 circlePath(beg[0],beg[1],((beg===st)?this.vertexRad:(this.vertexRad+endDist)))
             )[0];
-            if (p1===undefined) return ["", bezierPoint];
+            if (p1===undefined) return ["", [(st[0]+end[0])/2, (st[1]+end[1])/2]];
             let p2=Snap.path.intersection(
                 bezPath,
                 circlePath(fin[0],fin[1],((fin===st)?this.vertexRad:(this.vertexRad+endDist)))
             )[0];
-            if (p2===undefined) return ["", bezierPoint];
+            if (p2===undefined) return ["", [(st[0]+end[0])/2, (st[1]+end[1])/2]];
             let bezierPointFinal=findBezierPoint(p1.x,p1.y,p2.x,p2.y,middlePoint[0],middlePoint[1]);
             if (beg!==st) [p1,p2]=[p2,p1];
             return [bezierPath([p1.x,p1.y],[p2.x,p2.y],bezierPointFinal), bezierPoint];
@@ -554,7 +555,7 @@
                     edge.line.attr("d",loopPath(st[0],st[1]-this.vertexRad,this.vertexRad,properties,this.isDirected||this.isNetwork));
                     pathForWeight=loopPath(st[0],st[1]-this.vertexRad,this.vertexRad,properties,false);
                 }
-                else { /// multiedge
+                else { /// curved edge
                     let res=this.calcCurvedEdge(st,end,properties,endDist);
                     edge.line.attr("d",res[0]);
                     let points=sortPoints(st,end);
@@ -841,12 +842,12 @@
             
             if ((animateDraw===true)&&(this.vertexRad!=oldRad)) {          
                 cntAnimations++;
-                Snap.animate(oldRad/(this.vertexRad/this.size),this.size,function (val) {
+                Snap.animate(oldRad/this.vertexRad,1,function (val) {
                     for (let i=0; i<this.n; i++) {
                         if (vertices[i]===undefined) continue;
                         let strokeWidth=this.findStrokeWidth("vertex",i,val);
                         let fontSize=this.findFontSize("vertex-name",i,val);
-                        this.svgVertices[i].circle.attr({r: val, "stroke-width": strokeWidth});
+                        this.svgVertices[i].circle.attr({r: val*(this.vertexRad/this.size), "stroke-width": strokeWidth});
                         this.svgVertices[i].text.attr({
                             "font-size": fontSize,
                             dy: determineDy(vertices[i].name,this.svgVertices[i].text.attr("font-family"),fontSize)
