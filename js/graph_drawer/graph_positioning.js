@@ -39,7 +39,7 @@
                 return true;
             }
             else {
-                if (curvePath==="") curvePath=graph.calcCurvedEdge(st,end,edge.curveHeight,0)[0];
+                if (curvePath==="") curvePath=graph.graphDrawer.calcCurvedEdge(st,end,edge.curveHeight,0)[0];
                 if (Snap.path.intersection(curvePath,circlePath(center[0],center[1],dist)).length>0) return false;
                 else return true;
             }
@@ -48,7 +48,7 @@
             let curvePath="";
             let edge=graph.getEdge(ind);
             if ((edge.curveHeight!==undefined)&&(edge.curveHeight!==0)) {
-                curvePath=graph.calcCurvedEdge(graph.svgVertices[x].coord,graph.svgVertices[y].coord,
+                curvePath=graph.graphDrawer.calcCurvedEdge(graph.svgVertices[x].coord,graph.svgVertices[y].coord,
                                                edge.curveHeight,0)[0];
             }
             for (let [i, vr] of graph.getVertices()) {
@@ -312,7 +312,7 @@
         this.findMaxStrokeWidth = function () {
             let max=0;
             for (let [i, vertex] of graph.getVertices()) {
-                max=Math.max(max,graph.findStrokeWidth(graph.defaultCSSVertex+";"+vertex.addedCSS[0]));
+                max=Math.max(max,graph.graphDrawer.findStrokeWidth("vertex",i));
             }
             return max;
         }
@@ -324,7 +324,7 @@
             let loopDist=0;
             for (let [i, edge] of graph.getEdges()) {
                 if (edge.x===edge.y) {
-                    loopDist=graph.findLoopEdgeProperties()[0];
+                    loopDist=graph.graphDrawer.findLoopEdgeProperties()[0];
                     break;
                 }
             }
@@ -520,7 +520,7 @@
                     let oldCurveHeight=edge.curveHeight;
                     let flag=false;
                     function checkCurveHeight (curveHeight) {
-                        let res=graph.calcCurvedEdge(graph.svgVertices[x].coord,graph.svgVertices[y].coord,curveHeight,0);
+                        let res=graph.graphDrawer.calcCurvedEdge(graph.svgVertices[x].coord,graph.svgVertices[y].coord,curveHeight,0);
                         if (Snap.path.intersection(res[0],boundaryPath).length>0) return 0;
                         edge.curveHeight=curveHeight;
                         if (this.checkEdge(x,y,i)===true) return 1;

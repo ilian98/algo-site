@@ -32,29 +32,29 @@
             }
             
             $("#style .default-css-vertex").val(
-                'fill: '+graph.findAttrValue("vertex","fill")+'; '+
-                'stroke: '+graph.findAttrValue("vertex","stroke")+'; '+
-                'stroke-width: '+graph.findStrokeWidth("vertex")+';'
+                'fill: '+graph.graphDrawer.findAttrValue("vertex","fill")+'; '+
+                'stroke: '+graph.graphDrawer.findAttrValue("vertex","stroke")+'; '+
+                'stroke-width: '+graph.graphDrawer.findStrokeWidth("vertex")+';'
             );
             $("#style .default-css-name").val(
-                'fill: '+graph.findAttrValue("vertex-name","fill")+'; '+
-                'font-size: '+graph.findFontSize("vertex-name")+'px; '+
-                'font-family: '+graph.findAttrValue("vertex-name","font-family")+';'
+                'fill: '+graph.graphDrawer.findAttrValue("vertex-name","fill")+'; '+
+                'font-size: '+graph.graphDrawer.findFontSize("vertex-name")+'px; '+
+                'font-family: '+graph.graphDrawer.findAttrValue("vertex-name","font-family")+';'
             );
             $("#style .default-css-edge").val(
-                'stroke: '+graph.findAttrValue("edge","stroke")+'; '+
-                'stroke-width: '+graph.findStrokeWidth("edge")+';'
+                'stroke: '+graph.graphDrawer.findAttrValue("edge","stroke")+'; '+
+                'stroke-width: '+graph.graphDrawer.findStrokeWidth("edge")+';'
             );
             $("#style .default-css-weight").val(
-                'fill: '+graph.findAttrValue("weight","fill")+'; '+
-                'font-size: '+graph.findFontSize("weight")+'px; '+
-                'font-family: '+graph.findAttrValue("weight","font-family")+';'
+                'fill: '+graph.graphDrawer.findAttrValue("weight","fill")+'; '+
+                'font-size: '+graph.graphDrawer.findFontSize("weight")+'px; '+
+                'font-family: '+graph.graphDrawer.findAttrValue("weight","font-family")+';'
             );
         });
         graph.buildEdgeDataStructures([[0,1],[1,2],[2,3],[3,4],[4,0]]);
         graph.drawNewGraph(true);
         graph.setSettings();
-        graph.dynamicGraph.addSettings();
+        graph.graphDrawer.dynamicGraph.addSettings();
         window.checkWeightValue = function (s) {
             if (s===null) return false;
             if (s.length===0) return false;
@@ -173,15 +173,15 @@
         
         
         $("#style .apply-default").on("click", () => {
-            graph.defaultCSSVertex=$("#style .default-css-vertex").val();
-            graph.defaultCSSVertexText=$("#style .default-css-name").val();
-            graph.defaultCSSEdge=$("#style .default-css-edge").val();
-            graph.defaultCSSWeight=$("#style .default-css-weight").val();
-            graph.draw(true,true,false);
+            graph.graphDrawer.defaultCSSVertex=$("#style .default-css-vertex").val();
+            graph.graphDrawer.defaultCSSVertexText=$("#style .default-css-name").val();
+            graph.graphDrawer.defaultCSSEdge=$("#style .default-css-edge").val();
+            graph.graphDrawer.defaultCSSWeight=$("#style .default-css-weight").val();
+            graph.graphDrawer.draw(true,true,false);
         });
         $("#style .default-bg").off("input").on("input", () => {
-            graph.defaultBG=$("#style .default-bg").val();
-            graph.bgElement.attr({fill: graph.defaultBG});
+            graph.graphDrawer.defaultBG=$("#style .default-bg").val();
+            graph.graphDrawer.bgElement.attr({fill: graph.graphDrawer.defaultBG});
         });
     }
     

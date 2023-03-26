@@ -168,7 +168,7 @@
             let from=edge.x,to=edge.y;
             if (nums[from]===nums[to]) edge.addedCSS[0]="stroke: "+versColour[from];
         }
-        graph.draw(false);
+        graph.graphDrawer.draw(false);
     }
     function showSCC (part) {
         makeImplicationGraph(part);

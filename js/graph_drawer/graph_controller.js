@@ -27,10 +27,12 @@
             }
             graph.buildEdgeDataStructures([]); graphController.undoTime--;
             graph.calcPositions.calc();
-            graph.draw(graph.isDynamic,false);
+            graph.graphDrawer.draw(graph.graphDrawer.isDynamic,false);
             graph.graphChange("slider");
         });
 
+        $("#undirected").off("click");
+        $("#directed").off("click");
         if (graph.isDirected===false) $("#undirected").click();
         else $("#directed").click();
         function changeDirection (isDirected) {
@@ -45,7 +47,7 @@
                                         ["change-property", ["isMulti", !isMulti]]],true,"undo");
             graph.isWeighted=isWeighted;
             graph.isMulti=isMulti;
-            graph.draw(graph.isDynamic);
+            graph.graphDrawer.draw(graph.graphDrawer.isDynamic);
             graph.graphChange("toggle-direction");
         }
         $("#undirected").off("click").on("click",function () {
@@ -59,13 +61,13 @@
             if ((this.checked===true)&&(graph.isWeighted===false)) {
                 graphController.addChange("change-property", ["isWeighted", false]);
                 graph.isWeighted=true;
-                graph.draw(graph.isDynamic);
+                graph.graphDrawer.draw(graph.graphDrawer.isDynamic);
                 graph.graphChange("toggle-weighted");
             }
             else if ((this.checked===false)&&(graph.isWeighted===true)) {
                 graphController.addChange("change-property", ["isWeighted", true]);
                 graph.isWeighted=false;
-                graph.draw(graph.isDynamic);
+                graph.graphDrawer.draw(graph.graphDrawer.isDynamic);
                 graph.graphChange("toggle-weighted");
             }
         });
@@ -94,7 +96,7 @@
             let oldVal=graph.vertexRad;
             graphController.addChange("change-property", ["radius", oldVal]);
             graph.vertexRad=val;
-            graph.draw(graph.isDynamic);
+            graph.graphDrawer.draw(graph.graphDrawer.isDynamic);
         });
     }
     function showSettings (graphController) {
@@ -129,6 +131,7 @@
     function addSettingsModal () {
         if ($("#settingsModal").length!==0) return ;
         $.get("/algo-site/pages/settings_modal.html", function (data) {
+            if ($("#settingsModal").length!==0) return ;
             $("body").append(data);
         });
     }
@@ -152,7 +155,7 @@
                        "There is a slider for changing the size of the vertices and the graph adjusts its characteristics according to that size.<br>");
             }
             
-            if (graph.isDynamic===true) {
+            if (graph.graphDrawer.isDynamic===true) {
                 text+=((language==="bg")?
                        "Нов връх на графа се добавя с двойно натискане на празно място. Всеки връх може да се натисне, с което да се появят различни опции за работа с него. При влачене на връх, се появяват опорни позиции. Връх, който е пуснат близо до опорна позиция се придвижва автоматично там. Всяко ребро с изключение на примките, може да се персонализира с влачене. По този начин се променя кривината на реброто. При натискане на ребро също се появяват различни опции за него. Това става и при натискане на тегло (при претеглени графи).<br><br>":
                        "A new vertex is added with a double click at an empty place. Every vertex can be clicked to open a menu with different options for it. When a vertex is moved, supporting positions appear. A vertex that is left near a supporting position, automatically goes to that position. Every edge, excluding the loops, can be personalized by dragging it. In this way, the curve of the edge is changed. When an edge is clicked, different options appear for it. This happens when a weight (for weighted graphs) is clicked.<br><br>");
@@ -366,7 +369,7 @@
             else this.undoTime++;
             this.undoType="default";
             
-            graph.draw(graph.isDynamic);
+            graph.graphDrawer.draw(graph.graphDrawer.isDynamic);
         }
     
         let isDynamic,isStatic;
@@ -379,8 +382,8 @@
                 $(wrapperName+" .save-group").removeClass("text-center").addClass("text-start");
                 $(wrapperName+" .dragging-mini").parent().removeClass("d-flex").addClass("d-none");
                 $(wrapperName+" .settings").parent().removeClass("d-flex").addClass("d-none");
-                isDynamic=graph.isDynamic; isStatic=graph.isStatic;
-                graph.draw(false,false,true);
+                isDynamic=graph.graphDrawer.isDynamic; isStatic=graph.graphDrawer.isStatic;
+                graph.graphDrawer.draw(false,false,true);
                 
                 if (dropdowns[graph.wrapperName].menus["save-menu"]!==undefined) {
                     dropdowns[graph.wrapperName].menus["save-menu"].find(".txt").hide();
@@ -396,7 +399,7 @@
                 $(wrapperName+" .save-group").addClass("text-center").removeClass("text-start");
                 $(wrapperName+" .dragging-mini").parent().removeClass("d-none").addClass("d-flex");
                 $(wrapperName+" .settings").parent().removeClass("d-none").addClass("d-flex");
-                graph.draw(isDynamic,false,isStatic);
+                graph.graphDrawer.draw(isDynamic,false,isStatic);
                 
                 if (dropdowns[graph.wrapperName].menus["save-menu"]!==undefined) {
                     dropdowns[graph.wrapperName].menus["save-menu"].find(".txt").show();
@@ -412,7 +415,7 @@
         let minX=graph.calcPositions.frameX+graph.calcPositions.frameW,maxX=0;
         let minY=graph.calcPositions.frameY+graph.calcPositions.frameH,maxY=0;
         graph.s.selectAll("*").forEach((elem) => {
-            if (elem===graph.bgElement) return ;
+            if (elem===graph.graphDrawer.bgElement) return ;
             if (elem.hasClass("click-area")===true) return ;
             if ((elem.type==="text")&&(elem.attr("text").length===0)) return ;
             if (elem.type==="textPath") return ;
@@ -424,10 +427,10 @@
         });
         for (let [i, vr] of graph.getVertices()) {
             let bBox=graph.svgVertices[i].circle.getBBox();
-            minX=Math.min(minX,bBox.x-graph.findStrokeWidth("vertex",i));
-            maxX=Math.max(maxX,bBox.x2+graph.findStrokeWidth("vertex",i));
-            minY=Math.min(minY,bBox.y-graph.findStrokeWidth("vertex",i));
-            maxY=Math.max(maxY,bBox.y2+graph.findStrokeWidth("vertex",i));
+            minX=Math.min(minX,bBox.x-graph.graphDrawer.findStrokeWidth("vertex",i));
+            maxX=Math.max(maxX,bBox.x2+graph.graphDrawer.findStrokeWidth("vertex",i));
+            minY=Math.min(minY,bBox.y-graph.graphDrawer.findStrokeWidth("vertex",i));
+            maxY=Math.max(maxY,bBox.y2+graph.graphDrawer.findStrokeWidth("vertex",i));
         }
         return [minX, maxX, minY, maxY];
     }

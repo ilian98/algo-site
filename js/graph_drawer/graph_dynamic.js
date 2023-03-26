@@ -42,8 +42,8 @@
                 let otherEnd=edge.findEndPoint(startIndex);
                 let otherCoords=[graph.svgVertices[otherEnd].coord[0], graph.svgVertices[otherEnd].coord[1]];
                 if (edge.x===startIndex) 
-                    graph.redrawEdge(graph.svgEdges[ind],[coords[0], coords[1]],otherCoords,ind);
-                else graph.redrawEdge(graph.svgEdges[ind],otherCoords,[coords[0], coords[1]],ind);
+                    graph.graphDrawer.redrawEdge(graph.svgEdges[ind],[coords[0], coords[1]],otherCoords,ind);
+                else graph.graphDrawer.redrawEdge(graph.svgEdges[ind],otherCoords,[coords[0], coords[1]],ind);
             }
             for (let ind of graph.adjList[startIndex]) {
                 redrawEdge(ind);
@@ -111,7 +111,7 @@
                     for (let pos of possiblePos) {
                         let circleVertex=graph.s.circle(pos[0],pos[1],graph.vertexRad).attr({
                             stroke: "green",
-                            "stroke-width": graph.findStrokeWidth("vertex"),
+                            "stroke-width": graph.graphDrawer.findStrokeWidth("vertex"),
                             fill: "white",
                             "fill-opacity": 0.5
                         });
@@ -134,10 +134,10 @@
                 let end=[svgPoint.x, svgPoint.y];
                 if (segmentLength(circleCoord[0],circleCoord[1],svgPoint.x,svgPoint.y)>=graph.vertexRad) {
                     if (currEdgeDraw===undefined) {
-                        currEdgeDraw=graph.drawEdge(circleCoord,end,-1,0);
-                        graph.setBack(currEdgeDraw.line);
+                        currEdgeDraw=graph.graphDrawer.drawEdge(circleCoord,end,-1,0);
+                        graph.graphDrawer.setBack(currEdgeDraw.line);
                     }
-                    else graph.redrawEdge(currEdgeDraw,circleCoord,end,-1);
+                    else graph.graphDrawer.redrawEdge(currEdgeDraw,circleCoord,end,-1);
                 }
             }
             else {
@@ -166,7 +166,7 @@
                 graph.svgEdges[startIndex].drawProperties[0]=graph.svgEdges[startIndex].drawProperties[2];
                 let endDist=graph.svgEdges[startIndex].endDist;
                 graph.svgEdges[startIndex].endDist=0;
-                graph.redrawEdge(graph.svgEdges[startIndex],st,end,startIndex);
+                graph.graphDrawer.redrawEdge(graph.svgEdges[startIndex],st,end,startIndex);
                 graph.svgEdges[startIndex].endDist=endDist;
                 nearLine=graph.svgEdges[startIndex].line.clone();
                 nearLine.attr({stroke: "green", "stroke-opacity": 0.5}).attr({opacity: 0});
@@ -176,7 +176,7 @@
             let area=orientedArea(st[0],st[1],end[0],end[1],svgPoint.x,svgPoint.y)/2*(-1);
             let height=area*2/segmentLength(st[0],st[1],end[0],end[1]);
             graph.svgEdges[startIndex].drawProperties[0]=height;
-            graph.redrawEdge(graph.svgEdges[startIndex],st,end,startIndex);
+            graph.graphDrawer.redrawEdge(graph.svgEdges[startIndex],st,end,startIndex);
             
             if (Math.abs(height-graph.svgEdges[startIndex].drawProperties[2])<graph.vertexRad/4) nearLine.attr({opacity: 1});
             else nearLine.attr({opacity: 0});
@@ -206,7 +206,7 @@
                 let x=edge.x,y=edge.y;
                 let st=graph.svgVertices[x].coord,end=graph.svgVertices[y].coord;
                 graph.svgEdges[startIndex].drawProperties[0]=drawProperties;
-                graph.redrawEdge(graph.svgEdges[startIndex],st,end,startIndex);
+                graph.graphDrawer.redrawEdge(graph.svgEdges[startIndex],st,end,startIndex);
             }
         }
         function clearClickParameters (type) {
@@ -231,7 +231,7 @@
             let index=startIndex;
             if (trackedMouse===false) { // click event
                 clearClickParameters("vertex");
-                if ((window.isMobile==="true")&&(graph.isDynamic===true)) 
+                if ((window.isMobile==="true")&&(graph.graphDrawer.isDynamic===true)) 
                     vertexClick.call(graph.svgVertices[index].group,event);
                 return ;
             }
@@ -280,7 +280,7 @@
                             }
                             else if (graph.graphController!==undefined) graph.graphController.undoTime++;
                         }
-                        graph.draw(graph.isDynamic);
+                        graph.graphDrawer.draw(graph.graphDrawer.isDynamic);
                         break;
                     }
                 }
@@ -302,7 +302,7 @@
                     if (graph.graphController!==undefined) 
                         graph.graphController.addChange("new-pos",[ind, [oldCoords[0], oldCoords[1]]]);
                 }
-                graph.draw(graph.isDynamic,false);
+                graph.graphDrawer.draw(graph.graphDrawer.isDynamic,false);
             }
         }
         function mouseUpEdge (event) {
@@ -310,7 +310,7 @@
             let height=graph.svgEdges[index].drawProperties[0];
             if (trackedMouse===false) { // click event
                 clearClickParameters("edge");
-                if ((window.isMobile==="true")&&(graph.isDynamic===true)) edgeClick.call(graph.svgEdges[index].line,event);
+                if ((window.isMobile==="true")&&(graph.graphDrawer.isDynamic===true)) edgeClick.call(graph.svgEdges[index].line,event);
                 return ;
             }
             clearClickParameters("edge");
@@ -324,7 +324,7 @@
             }
             
             edge.curveHeight=height;
-            graph.draw(graph.isDynamic,false);
+            graph.graphDrawer.draw(graph.graphDrawer.isDynamic,false);
         }
         
         function addCSS (obj, defaultCSS, newCSS, typeName, ind) {
@@ -361,7 +361,7 @@
                     graph.graphController.addChange("change-name",[index, vr.name]);
 
                 vr.name=name;
-                graph.drawVertexText(index,name);
+                graph.graphDrawer.drawVertexText(index,name);
                 addVertexEvents(index);
                 graph.graphChange("change-vertex-name");
             }
@@ -400,7 +400,7 @@
         }
         function vertexClick (event) {
             if (trackedMouse===true) return ;
-            if (graph.isDynamic===true) {
+            if (graph.graphDrawer.isDynamic===true) {
                 dropdowns[graph.wrapperName].menus["vertex"].find(".remove-vertex").show();
                 dropdowns[graph.wrapperName].menus["vertex"].find(".change-name").show();
             }
@@ -434,7 +434,7 @@
                 graph.calcPositions.calculatePossiblePos(true);
                 graph.calcPositions.placeVertex(ind,false);
             }
-            graph.drawVertex(ind);
+            graph.graphDrawer.drawVertex(ind);
             addVertexEvents(ind);
             graph.graphChange("add-vertex");
         }
@@ -458,10 +458,10 @@
                 graph.svgEdges[index].line.remove();
                 graph.svgEdges[index].weight.remove();
                 let x=edge.x,y=edge.y;
-                graph.svgEdges[index]=graph.drawEdge(graph.svgVertices[x].coord,graph.svgVertices[y].coord,index,
+                graph.svgEdges[index]=graph.graphDrawer.drawEdge(graph.svgVertices[x].coord,graph.svgVertices[y].coord,index,
                                                      graph.svgEdges[index].drawProperties[0]);
-                graph.setBack(graph.svgEdges[index].line);
-                graph.setBack(graph.svgEdges[index].weight);
+                graph.graphDrawer.setBack(graph.svgEdges[index].line);
+                graph.graphDrawer.setBack(graph.svgEdges[index].weight);
                 addEdgeEvents(index);
             }
             graph.graphChange("change-weight");
@@ -496,7 +496,7 @@
             if (trackedMouse===true) return ;
             let ind=this.index;
             if (graph.isNetwork===true) {
-                if ((graph.getEdge(ind).real===true)&&(graph.isDynamic===true)) {
+                if ((graph.getEdge(ind).real===true)&&(graph.graphDrawer.isDynamic===true)) {
                     dropdowns[graph.wrapperName].menus["edge"].find(".remove-edge").show();
                     dropdowns[graph.wrapperName].menus["edge"].find(".change-weight").show();
                 }
@@ -506,10 +506,10 @@
                 }
             }
             else {
-                if ((graph.isWeighted===true)&&(graph.isDynamic===true)) 
+                if ((graph.isWeighted===true)&&(graph.graphDrawer.isDynamic===true)) 
                     dropdowns[graph.wrapperName].menus["edge"].find(".change-weight").show();
                 else dropdowns[graph.wrapperName].menus["edge"].find(".change-weight").hide();
-                if (graph.isDynamic===true) dropdowns[graph.wrapperName].menus["edge"].find(".remove-edge").show();
+                if (graph.graphDrawer.isDynamic===true) dropdowns[graph.wrapperName].menus["edge"].find(".remove-edge").show();
                 else dropdowns[graph.wrapperName].menus["edge"].find(".remove-edge").hide();
             }
             dropdowns[graph.wrapperName].showDropdown("edge",event,ind);
@@ -538,8 +538,8 @@
         function weightClick (event) {
             if (trackedMouse===true) return ;
             let ind=this.index;
-            if (((graph.isNetwork===true)&&(graph.getEdge(ind).real===true)&&(graph.isDynamic===true))||
-                ((graph.isNetwork===false)&&(graph.isDynamic===true))) {
+            if (((graph.isNetwork===true)&&(graph.getEdge(ind).real===true)&&(graph.graphDrawer.isDynamic===true))||
+                ((graph.isNetwork===false)&&(graph.graphDrawer.isDynamic===true))) {
                 dropdowns[graph.wrapperName].menus["weight"].find(".change-weight").show();
             }
             else dropdowns[graph.wrapperName].menus["weight"].find(".change-weight").hide();
@@ -560,7 +560,7 @@
             let edge=graph.getEdge(ind);
             edge.defaultCSS[0]+=" ; cursor: pointer";
             if (edgeClickAreas[ind]!==undefined) edgeClickAreas[ind].remove();
-            let strokeWidth=graph.findStrokeWidth("edge",ind);
+            let strokeWidth=graph.graphDrawer.findStrokeWidth("edge",ind);
             if (graph.svgEdges[ind].drawProperties[1]===1) strokeWidth*=10;
             else {
                 if (graph.svgEdges[ind].drawProperties[0]===0) strokeWidth*=10;
@@ -575,7 +575,7 @@
             });
             clickArea.addClass("click-area");
             edgeClickAreas[ind]=clickArea;
-            graph.setBack(clickArea);
+            graph.graphDrawer.setBack(clickArea);
             
             clickArea.type="edge";
             clickArea.index=ind;
@@ -628,7 +628,7 @@
                 addEdgeEvents(i);
             }
             let svgElement=$(graph.svgName);
-            if (graph.isDynamic===true) {
+            if (graph.graphDrawer.isDynamic===true) {
                 let addNewVertex=this.addNewVertex;
                 if (window.isMobile==="false") svgElement.off("dblclick").on("dblclick",addNewVertex);
                 else {

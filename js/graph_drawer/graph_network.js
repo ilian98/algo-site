@@ -46,7 +46,7 @@
             }
             
             for (let [i, edge] of edges) {
-                let strokeWidth=this.findStrokeWidth("edge",i);
+                let strokeWidth=this.graphDrawer.findStrokeWidth("edge",i);
                 let curr=strokeWidth/2+(Math.abs(edge.flow)/max)*(1.5*strokeWidth);
                 let edgeStyleObj=styleToObj(edge.defaultCSS[0]);
                 edgeStyleObj["stroke-width"]=curr;
@@ -78,11 +78,11 @@
                         let st=this.svgVertices[x].coord,end=this.svgVertices[y].coord;
                         this.svgEdges[i].drawProperties[0]=0; edge.curveHeight=0;
                         if (edge.flow===0) this.svgEdges[i].endDist=0;
-                        this.redrawEdge(this.svgEdges[i],st,end,i);
+                        this.graphDrawer.redrawEdge(this.svgEdges[i],st,end,i);
                     }
                 }
                 if ((this.isDirected===true)||(edge.flow!=0)) {
-                    this.addMarkerEnd(this.svgEdges[i].line,false,curr,
+                    this.graphDrawer.addMarkerEnd(this.svgEdges[i].line,false,curr,
                                   this.svgVertices[edge.x].coord,this.svgEdges[i].drawProperties[0]);
                     edgeStyleObj["marker-end"]=styleToObj(this.svgEdges[i].line.attr("style"))["marker-end"];
                 }
