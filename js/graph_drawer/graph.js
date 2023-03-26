@@ -174,7 +174,7 @@
         loadFontData().then(() => {
             for (let [name, graph] of graphs) {
                 if (graph.svgVertices.length===0) continue;
-                graph.draw(graph.isDrawable,false);
+                graph.draw(graph.isDynamic,false);
                 graph.graphChange("font-load");
             }
         }, () => { alert("Load font data error!") });
@@ -420,9 +420,38 @@
             sampleStroke.remove();
             return strokeWidth;
         }
+        this.findAttrValue = function (type, attr, ind = -1) {
+            let sample,css;
+            if (type==="vertex") {
+                sample=this.s.circle();
+                css="fill: white; stroke: black; "+this.defaultCSSVertex;
+            }
+            else if (type==="vertex-name") {
+                sample=this.s.text();
+                css="fill: black; font-family: Consolas; "+this.defaultCSSVertexText;
+            }
+            else if (type==="edge") {
+                sample=this.s.path();
+                css="stroke: black; "+this.defaultCSSEdge;
+            }
+            else {
+                sample=this.s.text();
+                css="fill: black; font-family: Arial; "+this.defaultCSSWeight;
+            }
+            if (ind!==-1) {
+                if (type==="vertex") css+=";"+vertices[ind].addedCSS[0];
+                else if (type==="vertex-name") css+=";"+vertices[ind].addedCSS[1];
+                else if (type==="edge") css+=";"+edgeList[ind].addedCSS[0];
+                else css+=";"+edgeList[ind].addedCSS[1];
+            }
+            setStyle(sample,css);
+            let val=sample.attr(attr);
+            sample.remove();
+            return val;
+        }
         
         this.calcPositions=undefined; this.initViewBox=undefined;
-        this.drawNewGraph = function (addDraw = false, vertexRad, drawST = false, frameX, frameY, frameW, frameH) {
+        this.drawNewGraph = function (addDynamic = false, vertexRad, drawST = false, frameX, frameY, frameW, frameH) {
             this.erase();
             
             let svgObject=$(this.svgName);
@@ -465,7 +494,7 @@
             
             if (this.graphController!==undefined) this.graphController.removeChanges();
             
-            this.draw(addDraw,false);
+            this.draw(addDynamic,false);
         }
 
         function calcStraightEdge (st, end, isDrawn, endDist, vertexRad) {
@@ -686,11 +715,11 @@
         this.findLoopEdgeProperties = function (vertexRad = this.vertexRad) {
             return [3*this.vertexRad/4, this.vertexRad/2];
         }
-        this.isDrawable=undefined; this.drawableGraph=undefined; this.isStatic=false;
+        this.isDynamic=undefined; this.dynamicGraph=undefined; this.isStatic=false;
         this.defaultBG="none";
         this.bgElement=undefined;
-        this.draw = function (addDraw, animateDraw = true, isStatic = undefined) { /// this functions expects that coordinates are already calculated
-            if ((this.drawableGraph!==undefined)&&(addDraw===false)) this.drawableGraph.clear();
+        this.draw = function (addDynamic, animateDraw = true, isStatic = undefined) { /// this functions expects that coordinates are already calculated
+            if ((this.dynamicGraph!==undefined)&&(addDynamic===false)) this.dynamicGraph.clear();
             
             if (isStatic===undefined) isStatic=this.isStatic;
             else this.isStatic=isStatic;
@@ -876,12 +905,12 @@
                 cntAnimations--;
                 if (cntAnimations<=0) {
                     if (this.isNetwork===true) this.networkView();
-                    this.isDrawable=addDraw;
+                    this.isDynamic=addDynamic;
                     if (isStatic===false) {
-                        if ((this.drawableGraph===undefined)&&(typeof DrawableGraph!=="undefined")) {
-                            this.drawableGraph=new DrawableGraph(this);
+                        if ((this.dynamicGraph===undefined)&&(typeof DynamicGraph!=="undefined")) {
+                            this.dynamicGraph=new DynamicGraph(this);
                         }
-                        if (this.drawableGraph!==undefined) this.drawableGraph.init();
+                        if (this.dynamicGraph!==undefined) this.dynamicGraph.init();
                     }
                 }
             }
@@ -1034,7 +1063,7 @@
                 else this.calcPositions.calcOriginalPos(posProperties[0],posProperties[1],posProperties[2]);
             }
             if (this.graphController!==undefined) this.graphController.advanceTime();
-            this.draw(this.isDrawable,false);
+            this.draw(this.isDynamic,false);
         }
         this.export = function () {
             let edges=[];

@@ -16,7 +16,7 @@
         else return event;
     }
     
-    function DrawableGraph (graph) {
+    function DynamicGraph (graph) {
         let svgPoint;
         function setSvgPoint (event) {
             let obj=getObjectForCoordinates(event);
@@ -231,7 +231,7 @@
             let index=startIndex;
             if (trackedMouse===false) { // click event
                 clearClickParameters("vertex");
-                if ((window.isMobile==="true")&&(graph.isDrawable===true)) 
+                if ((window.isMobile==="true")&&(graph.isDynamic===true)) 
                     vertexClick.call(graph.svgVertices[index].group,event);
                 return ;
             }
@@ -280,7 +280,7 @@
                             }
                             else if (graph.graphController!==undefined) graph.graphController.undoTime++;
                         }
-                        graph.draw(graph.isDrawable);
+                        graph.draw(graph.isDynamic);
                         break;
                     }
                 }
@@ -302,7 +302,7 @@
                     if (graph.graphController!==undefined) 
                         graph.graphController.addChange("new-pos",[ind, [oldCoords[0], oldCoords[1]]]);
                 }
-                graph.draw(graph.isDrawable,false);
+                graph.draw(graph.isDynamic,false);
             }
         }
         function mouseUpEdge (event) {
@@ -310,7 +310,7 @@
             let height=graph.svgEdges[index].drawProperties[0];
             if (trackedMouse===false) { // click event
                 clearClickParameters("edge");
-                if ((window.isMobile==="true")&&(graph.isDrawable===true)) edgeClick.call(graph.svgEdges[index].line,event);
+                if ((window.isMobile==="true")&&(graph.isDynamic===true)) edgeClick.call(graph.svgEdges[index].line,event);
                 return ;
             }
             clearClickParameters("edge");
@@ -324,7 +324,7 @@
             }
             
             edge.curveHeight=height;
-            graph.draw(graph.isDrawable,false);
+            graph.draw(graph.isDynamic,false);
         }
         
         function addCSS (obj, defaultCSS, newCSS, typeName, ind) {
@@ -400,7 +400,7 @@
         }
         function vertexClick (event) {
             if (trackedMouse===true) return ;
-            if (graph.isDrawable===true) {
+            if (graph.isDynamic===true) {
                 dropdowns[graph.wrapperName].menus["vertex"].find(".remove-vertex").show();
                 dropdowns[graph.wrapperName].menus["vertex"].find(".change-name").show();
             }
@@ -496,7 +496,7 @@
             if (trackedMouse===true) return ;
             let ind=this.index;
             if (graph.isNetwork===true) {
-                if ((graph.getEdge(ind).real===true)&&(graph.isDrawable===true)) {
+                if ((graph.getEdge(ind).real===true)&&(graph.isDynamic===true)) {
                     dropdowns[graph.wrapperName].menus["edge"].find(".remove-edge").show();
                     dropdowns[graph.wrapperName].menus["edge"].find(".change-weight").show();
                 }
@@ -506,10 +506,10 @@
                 }
             }
             else {
-                if ((graph.isWeighted===true)&&(graph.isDrawable===true)) 
+                if ((graph.isWeighted===true)&&(graph.isDynamic===true)) 
                     dropdowns[graph.wrapperName].menus["edge"].find(".change-weight").show();
                 else dropdowns[graph.wrapperName].menus["edge"].find(".change-weight").hide();
-                if (graph.isDrawable===true) dropdowns[graph.wrapperName].menus["edge"].find(".remove-edge").show();
+                if (graph.isDynamic===true) dropdowns[graph.wrapperName].menus["edge"].find(".remove-edge").show();
                 else dropdowns[graph.wrapperName].menus["edge"].find(".remove-edge").hide();
             }
             dropdowns[graph.wrapperName].showDropdown("edge",event,ind);
@@ -538,8 +538,8 @@
         function weightClick (event) {
             if (trackedMouse===true) return ;
             let ind=this.index;
-            if (((graph.isNetwork===true)&&(graph.getEdge(ind).real===true)&&(graph.isDrawable===true))||
-                ((graph.isNetwork===false)&&(graph.isDrawable===true))) {
+            if (((graph.isNetwork===true)&&(graph.getEdge(ind).real===true)&&(graph.isDynamic===true))||
+                ((graph.isNetwork===false)&&(graph.isDynamic===true))) {
                 dropdowns[graph.wrapperName].menus["weight"].find(".change-weight").show();
             }
             else dropdowns[graph.wrapperName].menus["weight"].find(".change-weight").hide();
@@ -628,7 +628,7 @@
                 addEdgeEvents(i);
             }
             let svgElement=$(graph.svgName);
-            if (graph.isDrawable===true) {
+            if (graph.isDynamic===true) {
                 let addNewVertex=this.addNewVertex;
                 if (window.isMobile==="false") svgElement.off("dblclick").on("dblclick",addNewVertex);
                 else {
@@ -728,5 +728,5 @@
     }
     
     
-    window.DrawableGraph = DrawableGraph;
+    window.DynamicGraph = DynamicGraph;
 })();

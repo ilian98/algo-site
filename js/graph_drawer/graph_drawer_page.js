@@ -31,15 +31,30 @@
                 $("#change #css-weights").parent().show();
             }
             
-            $("#style .default-css-vertex").val('fill: white; stroke: black; stroke-width: '+graph.findStrokeWidth("vertex")+';');
-            $("#style .default-css-name").val('fill: black; font-size: '+graph.findFontSize("vertex-name")+'px; font-family: Consolas;');
-            $("#style .default-css-edge").val('stroke: black; stroke-width: '+graph.findStrokeWidth("edge")+';');
-            $("#style .default-css-weight").val('fill: black; font-size: '+graph.findFontSize("weight")+'px; font-family: Arial;');
+            $("#style .default-css-vertex").val(
+                'fill: '+graph.findAttrValue("vertex","fill")+'; '+
+                'stroke: '+graph.findAttrValue("vertex","stroke")+'; '+
+                'stroke-width: '+graph.findStrokeWidth("vertex")+';'
+            );
+            $("#style .default-css-name").val(
+                'fill: '+graph.findAttrValue("vertex-name","fill")+'; '+
+                'font-size: '+graph.findFontSize("vertex-name")+'px; '+
+                'font-family: '+graph.findAttrValue("vertex-name","font-family")+';'
+            );
+            $("#style .default-css-edge").val(
+                'stroke: '+graph.findAttrValue("edge","stroke")+'; '+
+                'stroke-width: '+graph.findStrokeWidth("edge")+';'
+            );
+            $("#style .default-css-weight").val(
+                'fill: '+graph.findAttrValue("weight","fill")+'; '+
+                'font-size: '+graph.findFontSize("weight")+'px; '+
+                'font-family: '+graph.findAttrValue("weight","font-family")+';'
+            );
         });
         graph.buildEdgeDataStructures([[0,1],[1,2],[2,3],[3,4],[4,0]]);
         graph.drawNewGraph(true);
         graph.setSettings();
-        graph.drawableGraph.addSettings();
+        graph.dynamicGraph.addSettings();
         window.checkWeightValue = function (s) {
             if (s===null) return false;
             if (s.length===0) return false;
@@ -142,14 +157,14 @@
             let weightText=$("#change .weight-text").val();
             graph.graphController.freezeTime();
             for (let num of uniqueNums) {
-                if (type==="add-vertices") graph.drawableGraph.addNewVertex(undefined,num);
-                else if (type==="remove-vertices") graph.drawableGraph.removeVertex(num-1);
-                else if (type==="css-vertices") graph.drawableGraph.addCSSVertex(num-1,cssText);
-                else if (type==="css-vertices-name") graph.drawableGraph.addCSSVertexName(num-1,cssText);
-                else if (type==="remove-edges") graph.drawableGraph.removeEdge(num-1);
-                else if (type==="css-edges") graph.drawableGraph.addCSSEdge(num-1,cssText);
-                else if (type==="set-weights") graph.drawableGraph.changeEdgeWeight(num-1,weightText);
-                else if (type==="css-weights") graph.drawableGraph.addCSSWeight(num-1,cssText);
+                if (type==="add-vertices") graph.dynamicGraph.addNewVertex(undefined,num);
+                else if (type==="remove-vertices") graph.dynamicGraph.removeVertex(num-1);
+                else if (type==="css-vertices") graph.dynamicGraph.addCSSVertex(num-1,cssText);
+                else if (type==="css-vertices-name") graph.dynamicGraph.addCSSVertexName(num-1,cssText);
+                else if (type==="remove-edges") graph.dynamicGraph.removeEdge(num-1);
+                else if (type==="css-edges") graph.dynamicGraph.addCSSEdge(num-1,cssText);
+                else if (type==="set-weights") graph.dynamicGraph.changeEdgeWeight(num-1,weightText);
+                else if (type==="css-weights") graph.dynamicGraph.addCSSWeight(num-1,cssText);
             }
             graph.graphController.advanceTime();
         }
