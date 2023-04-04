@@ -85,12 +85,32 @@
             
             if (window.isMobile==="false") {
                 if (event.button!==0) return ;
-                graph.s.mousemove((type==="vertex")?trackMouseVertex:trackMouseEdge);
-                graph.s.mouseup((type==="vertex")?mouseUpVertex:mouseUpEdge);
+                if (type==="vertex") {
+                    graph.s.mousemove(trackMouseVertex);
+                    graph.s.mouseup(mouseUpVertex);
+                }
+                else if (type==="edge") {
+                    graph.s.mousemove(trackMouseEdge);
+                    graph.s.mouseup(mouseUpEdge);
+                }
+                else {
+                    graph.s.mousemove(trackMouseWeight);
+                    graph.s.mouseup(mouseUpWeight);
+                }
             }
             else {
-                graph.s.touchmove((type==="vertex")?trackMouseVertex:trackMouseEdge);
-                graph.s.touchend((type==="vertex")?mouseUpVertex:mouseUpEdge);
+                if (type==="vertex") {
+                    graph.s.touchmove(trackMouseVertex);
+                    graph.s.touchend(mouseUpVertex);
+                }
+                else if (type==="edge") {
+                    graph.s.touchmove(trackMouseEdge);
+                    graph.s.touchend(mouseUpEdge);
+                }
+                else {
+                    graph.s.touchmove(trackMouseWeight);
+                    graph.s.touchend(mouseUpWeight);
+                }
             }
         }
         let trackedMouse,nearCircles=[];
@@ -181,6 +201,23 @@
             if (Math.abs(height-graph.svgEdges[startIndex].drawProperties[2])<graph.vertexRad/4) nearLine.attr({opacity: 1});
             else nearLine.attr({opacity: 0});
         }
+        let oldWeight;
+        function trackMouseWeight (event) {
+            event.preventDefault();
+            
+            setSvgPoint(event);
+            if (trackedMouse===false) {
+                trackedMouse=true;
+                $(graph.svgName).css({"border-color": "black"});
+                oldWeight=graph.svgEdges[startIndex].weight.clone();
+                oldWeight.attr({fill: "green", "fill-opacity": 0.5}).attr({opacity: 0});
+            }
+            let dx=svgPoint.x-startMousePos[0],dy=svgPoint.y-startMousePos[1];
+            graph.svgEdges[startIndex].weight.transform("t"+dx+" "+dy);
+            if (Math.sqrt(dx*dx+dy*dy)<graph.vertexRad/4) oldWeight.attr({opacity: 1});
+            else oldWeight.attr({opacity: 0});
+        }
+        
         
         function clearVertexParameters () {
             if (addVertexDrag===false) {
@@ -209,21 +246,45 @@
                 graph.graphDrawer.redrawEdge(graph.svgEdges[startIndex],st,end,startIndex);
             }
         }
+        function clearWeightParameters () {
+            if (oldWeight!==undefined) oldWeight.remove();
+        }
         function clearClickParameters (type) {
             if (type==="vertex") clearVertexParameters();
             else if (type==="edge") clearEdgeParameters();
+            else if (type==="weight") clearWeightParameters();
             
             $(graph.svgName).css({"border-color": "transparent"});
             drawProperties=undefined; startIndex=undefined;
             trackedMouse=false;
             $(window).off("mousemove.mouse-out").off("touchmove.mouse-out");
             if (window.isMobile==="false") {
-                graph.s.unmousemove((type==="vertex")?trackMouseVertex:trackMouseEdge);
-                graph.s.unmouseup((type==="vertex")?mouseUpVertex:mouseUpEdge);
+                if (type==="vertex") {
+                    graph.s.unmousemove(trackMouseVertex);
+                    graph.s.unmouseup(mouseUpVertex);
+                }
+                else if (type==="edge") {
+                    graph.s.unmousemove(trackMouseEdge);
+                    graph.s.unmouseup(mouseUpEdge);
+                }
+                else {
+                    graph.s.unmousemove(trackMouseWeight);
+                    graph.s.unmouseup(mouseUpWeight);
+                }
             }
             else {
-                graph.s.untouchmove((type==="vertex")?trackMouseVertex:trackMouseEdge);
-                graph.s.untouchend((type==="vertex")?mouseUpVertex:mouseUpEdge);
+                if (type==="vertex") {
+                    graph.s.untouchmove(trackMouseVertex);
+                    graph.s.untouchend(mouseUpVertex);
+                }
+                else if (type==="edge") {
+                    graph.s.untouchmove(trackMouseEdge);
+                    graph.s.untouchend(mouseUpEdge);
+                }
+                else {
+                    graph.s.untouchmove(trackMouseWeight);
+                    graph.s.untouchend(mouseUpWeight);
+                }
             }
         }
         
@@ -325,6 +386,18 @@
             
             edge.curveHeight=height;
             graph.graphDrawer.draw(graph.graphDrawer.isDynamic,false);
+        }
+        function mouseUpWeight (event) {
+            let index=startIndex;
+            if (trackedMouse===false) { // click event
+                clearClickParameters("weight");
+                if ((window.isMobile==="true")&&(graph.graphDrawer.isDynamic===true)) weightClick.call(graph.svgEdges[index].weight,event);
+                return ;
+            }
+            let dx=svgPoint.x-startMousePos[0],dy=svgPoint.y-startMousePos[1];
+            clearClickParameters("weight");
+            
+            if (Math.sqrt(dx*dx+dy*dy)<graph.vertexRad/4) graph.svgEdges[index].weight.transform("t0 0");
         }
         
         function addCSS (obj, defaultCSS, newCSS, typeName, ind) {
@@ -593,9 +666,11 @@
             graph.svgEdges[ind].line.click(edgeClick);
             
             if (graph.svgEdges[ind].weight!==undefined) {
-                graph.svgEdges[ind].weight.index=ind;
                 graph.svgEdges[ind].weight.attr({cursor: "pointer"});
-                edge.defaultCSS[1]+=" ; cursor: pointer";
+                graph.svgEdges[ind].weight.type="weight";
+                graph.svgEdges[ind].weight.index=ind;
+                if (window.isMobile==="false") graph.svgEdges[ind].weight.mousedown(mouseDown);
+                else graph.svgEdges[ind].weight.touchstart(mouseDown);
                 graph.svgEdges[ind].weight.click(weightClick);
             }
         }

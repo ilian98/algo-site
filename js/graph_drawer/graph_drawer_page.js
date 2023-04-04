@@ -157,14 +157,14 @@
             let weightText=$("#change .weight-text").val();
             graph.graphController.freezeTime();
             for (let num of uniqueNums) {
-                if (type==="add-vertices") graph.dynamicGraph.addNewVertex(undefined,num);
-                else if (type==="remove-vertices") graph.dynamicGraph.removeVertex(num-1);
-                else if (type==="css-vertices") graph.dynamicGraph.addCSSVertex(num-1,cssText);
-                else if (type==="css-vertices-name") graph.dynamicGraph.addCSSVertexName(num-1,cssText);
-                else if (type==="remove-edges") graph.dynamicGraph.removeEdge(num-1);
-                else if (type==="css-edges") graph.dynamicGraph.addCSSEdge(num-1,cssText);
-                else if (type==="set-weights") graph.dynamicGraph.changeEdgeWeight(num-1,weightText);
-                else if (type==="css-weights") graph.dynamicGraph.addCSSWeight(num-1,cssText);
+                if (type==="add-vertices") graph.graphDrawer.dynamicGraph.addNewVertex(undefined,num);
+                else if (type==="remove-vertices") graph.graphDrawer.dynamicGraph.removeVertex(num-1);
+                else if (type==="css-vertices") graph.graphDrawer.dynamicGraph.addCSSVertex(num-1,cssText);
+                else if (type==="css-vertices-name") graph.graphDrawer.dynamicGraph.addCSSVertexName(num-1,cssText);
+                else if (type==="remove-edges") graph.graphDrawer.dynamicGraph.removeEdge(num-1);
+                else if (type==="css-edges") graph.graphDrawer.dynamicGraph.addCSSEdge(num-1,cssText);
+                else if (type==="set-weights") graph.graphDrawer.dynamicGraph.changeEdgeWeight(num-1,weightText);
+                else if (type==="css-weights") graph.graphDrawer.dynamicGraph.addCSSWeight(num-1,cssText);
             }
             graph.graphController.advanceTime();
         }
