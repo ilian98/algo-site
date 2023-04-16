@@ -470,12 +470,12 @@
                 if ((this.graphController.changeType[1]===false)&&(this.isWeighted!==isWeighted)) {
                     alert("Графът трябва да е непретеглен!");
                     this.graphController.undoAction("undo");
-                    return ;
+                    return false;
                 }
                 else if ((this.graphController.changeType[2]===false)&&(this.isMulti!==isMulti)) {
                     alert("Графът не трябва да е мулти!");
                     this.graphController.undoAction("undo");
-                    return ;
+                    return false;
                 }
             }
             if (this.graphController!==undefined) {
@@ -497,6 +497,7 @@
             }
             if (this.graphController!==undefined) this.graphController.advanceTime();
             this.graphDrawer.draw(this.graphDrawer.isDynamic,false);
+            return true;
         }
         this.export = function () {
             let edges=[];

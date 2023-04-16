@@ -188,12 +188,15 @@
                 arrowHeight=((st[1]-Math.sqrt(vertexRad*vertexRad-(x-st[0])*(x-st[0])))-y)*2/3;
             }
             let arrowWidth=3*arrowHeight/2;
-            return [arrowHeight, arrowWidth, strokeWidth/arrowHeight*arrowWidth];
+            return [arrowHeight, arrowWidth, arrowWidth];
         }
         this.addMarkerEnd = function (line, isLoop, strokeWidth, st, properties) {
             let [arrowHeight, arrowWidth, arrowDist]=calculateArrowProperties(isLoop,strokeWidth,st,graph.vertexRad,properties);
             let arrowEnd=[3*arrowHeight/2,arrowHeight/2];
-            let arrow=snap.polygon([0,0,arrowEnd[0],arrowEnd[1],0,arrowHeight,0,0]).attr({fill: line.attr("stroke")});
+            let arrow=snap.polygon([0,0,arrowEnd[0],arrowEnd[1],0,arrowHeight,0,0]).attr({
+                fill: line.attr("stroke"),
+                opacity: line.attr("stroke-opacity")
+            });
             line.markerEnd=arrow;
             let marker=arrow.marker(0,0,arrowEnd[0],arrowHeight,(isLoop===false)?arrowEnd[0]-arrowDist:0,arrowEnd[1]).attr({markerUnits: "userSpaceOnUse"});
             line.attr({"marker-end": marker});
@@ -286,7 +289,7 @@
                     svgEdge.line=snap.path(loopPath(st[0],st[1]-graph.vertexRad,graph.vertexRad,properties,isDirected));
                     pathForWeight=loopPath(st[0],st[1]-graph.vertexRad,graph.vertexRad,properties,false);
                 }
-                else { /// multiedge
+                else { /// curved edge
                     let res=this.calcCurvedEdge(st,end,properties,endDist);
                     svgEdge.line=snap.path(res[0]);
                     let points=sortPoints(st,end);
@@ -299,7 +302,10 @@
             concatStyle(svgEdge.line,this.defaultCSSEdge);
             if (isDirected===true) this.addMarkerEnd(svgEdge.line,isLoop,strokeWidth,st,properties);
             if (isDrawn===false) edge.defaultCSS[0]=concatStyle(svgEdge.line,edge.addedCSS[0]);
-            if (isDirected===true) svgEdge.line.markerEnd.attr("fill",svgEdge.line.attr("stroke"));
+            if (isDirected===true) {
+                svgEdge.line.markerEnd.attr("fill",svgEdge.line.attr("stroke"));
+                svgEdge.line.markerEnd.attr("opacity",svgEdge.line.attr("stroke-opacity"));
+            }
 
             if ((isDrawn===false)&&(graph.isWeighted===true)) {
                 svgEdge.weight=snap.text(0,0,weightName(edge,graph.isNetwork));

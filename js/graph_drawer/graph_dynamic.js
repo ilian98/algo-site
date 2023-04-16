@@ -54,7 +54,7 @@
         }
         
         function mouseDown (event) {
-            let type=this.type,index=this.index;
+            let type=this.objType,index=this.index;
             
             event.preventDefault();
             dropdowns[graph.wrapperName].closeDropdowns();
@@ -621,7 +621,7 @@
 
         function addVertexEvents (ind) {
             graph.svgVertices[ind].group.attr({cursor: "pointer"});
-            graph.svgVertices[ind].group.type="vertex";
+            graph.svgVertices[ind].group.objType="vertex";
             graph.svgVertices[ind].group.index=ind;
             if (window.isMobile==="false") graph.svgVertices[ind].group.mousedown(mouseDown);
             else graph.svgVertices[ind].group.touchstart(mouseDown);
@@ -650,9 +650,9 @@
             edgeClickAreas[ind]=clickArea;
             graph.graphDrawer.setBack(clickArea);
             
-            clickArea.type="edge";
+            clickArea.objType="edge";
             clickArea.index=ind;
-            graph.svgEdges[ind].line.type="edge";
+            graph.svgEdges[ind].line.objType="edge";
             graph.svgEdges[ind].line.index=ind;
             if (window.isMobile==="false") {
                 clickArea.mousedown(mouseDown);
@@ -667,7 +667,7 @@
             
             if (graph.svgEdges[ind].weight!==undefined) {
                 graph.svgEdges[ind].weight.attr({cursor: "pointer"});
-                graph.svgEdges[ind].weight.type="weight";
+                graph.svgEdges[ind].weight.objType="weight";
                 graph.svgEdges[ind].weight.index=ind;
                 if (window.isMobile==="false") graph.svgEdges[ind].weight.mousedown(mouseDown);
                 else graph.svgEdges[ind].weight.touchstart(mouseDown);
@@ -764,7 +764,7 @@
             for (let [i, vr] of graph.getVertices()) {
                 if ((graph.svgVertices[i]===undefined)||(graph.svgVertices[i].group===undefined)) continue;
                 graph.svgVertices[i].group.attr({cursor: "auto"});
-                delete graph.svgVertices[i].group.type;
+                delete graph.svgVertices[i].group.objType;
                 delete graph.svgVertices[i].group.index;
                 if (window.isMobile==="false") graph.svgVertices[i].group.unmousedown(mouseDown);
                 else graph.svgVertices[i].group.untouchstart(mouseDown);
@@ -775,7 +775,7 @@
                 if (graph.svgEdges[i]===undefined) continue;
                 
                 graph.svgEdges[i].line.attr({cursor: "auto"});
-                delete graph.svgEdges[i].line.type;
+                delete graph.svgEdges[i].line.objType;
                 delete graph.svgEdges[i].line.index;
                 if (window.isMobile==="false") graph.svgEdges[i].line.unmousedown(mouseDown);
                 else graph.svgEdges[i].line.untouchstart(mouseDown);

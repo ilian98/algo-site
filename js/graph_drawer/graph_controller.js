@@ -417,9 +417,10 @@
         graph.s.selectAll("*").forEach((elem) => {
             if (elem===graph.graphDrawer.bgElement) return ;
             if (elem.hasClass("click-area")===true) return ;
-            if ((elem.type==="text")&&(elem.attr("text").length===0)) return ;
-            if (elem.type==="textPath") return ;
+            if ((elem.type==="marker")||(elem.type==="polygon")) return ;
+            if (elem.type==="defs") return ;
             let bBox=elem.getBBox();
+            if ((bBox.x2-bBox.x===0)||(bBox.y2-bBox.y===0)) return ;
             minX=Math.min(minX,bBox.x);
             maxX=Math.max(maxX,bBox.x2);
             minY=Math.min(minY,bBox.y);
@@ -440,7 +441,6 @@
         let svgSave=$(graph.wrapperName+" .svg-save");
         let context=canvas[0].getContext('2d');
         let svgWidth=2*svg.width(),svgHeight=2*svg.height();
-
         let [minX, maxX, minY, maxY]=calcBBox(graph);
         let viewBox=graph.s.attr("viewBox");
         svgSave.attr("viewBox",minX+" "+minY+" "+viewBox.w+" "+viewBox.h);
@@ -552,28 +552,28 @@
         let nums=removeEmpty(lines[0].split(" "));
         if (nums.length!==2) {
             alert("Очаквани са две числа за максимален номер на връх и брой ребра при: "+lines[0]);
-            return ;
+            return false;
         }
         let n=parseInt(nums[0]),m=parseInt(nums[1]);
         if (n<1) {
             alert("Очакван е положителен максимален номер на връх при: "+lines[0]);
-            return ;
+            return false;
         }
         let curr=1,edges=[];
         for (let i=1; i<=m; i++) {
             if (lines.length===curr) {
                 alert("Има липсващи ребра!");
-                return ;
+                return false;
             }
             let tokens=removeEmpty(getTokens(lines[curr]));
             if (tokens.length<2) {
                 alert("Трябват поне върхове за реброто: "+lines[curr]);
-                return ;
+                return false;
             }
             let x=parseInt(tokens[0]),y=parseInt(tokens[1]);
             if (!((x>=1)&&(x<=n)&&(y>=1)&&(y<=n))) {
                 alert("Невалиден номер на връх за: "+lines[curr]);
-                return ;
+                return false;
             }
             let weight="",addedCSS=["",""],curveHeight=undefined;
             if (tokens.length>=3) {
@@ -582,14 +582,14 @@
                 if (tokens.length>ind) {
                     if ((tokens[ind][0]!=='[')||(tokens[ind][tokens[ind].length-1]!==']')) {
                         alert("Очаква се свойството да е оградено от квадратни скоби при: "+lines[curr]);
-                        return ;
+                        return false;
                     }
                     if (tokens[ind][1]!='[') curveHeight=parseFloat(tokens[ind].slice(1,tokens[ind].length-1));
                     else {
                         let css=removeEmpty(tokens[ind].split(","));
                         if (css.length!==2) {
                             alert("Очаква се да има два CSS-а, разделени със запетайка при: "+lines[curr]);
-                            return ;
+                            return false;
                         }
                         addedCSS[0]=css[0].slice(2,css[0].length-1);
                         addedCSS[1]=css[1].slice(1,css[1].length-2);
@@ -597,13 +597,13 @@
                         if (tokens.length>ind) {
                             if ((tokens[ind][0]!=='[')||(tokens[ind][tokens[ind].length-1]!==']')) {
                                 alert("Очаква се свойството да е оградено от квадратни скоби при: "+lines[curr]);
-                                return ;
+                                return false;
                             }
                             curveHeight=parseFloat(tokens[ind].slice(1,tokens[ind].length-1));
                             ind++;
                             if (tokens.length>ind) {
                                 alert("Твърде много свойства при: "+lines[curr]);
-                                return ;
+                                return false;
                             }
                         }
                     }
@@ -618,7 +618,7 @@
             let num=removeEmpty(lines[curr].split(" "));
             if (num.length!==1) {
                 alert("Очаквано е само едно число за брой върхове при: "+lines[curr]);
-                return ;
+                return false;
             }
             curr++;
             for (let i=1; i<=n; i++) {
@@ -629,17 +629,17 @@
             for (let i=1; i<=num[0]; i++) {
                 if (lines.length===curr) {
                     alert("Има липсваща информация за връх!");
-                    return ;
+                    return false;
                 }
                 let tokens=removeEmpty(getTokens(lines[curr]));
                 if (tokens.length<1) {
                     alert("Трябва поне номер на връх: "+lines[curr]);
-                    return ;
+                    return false;
                 }
                 let x=parseInt(tokens[0]);
                 if (!((x>=1)&&(x<=n))) {
                     alert("Невалиден номер на връх за: "+lines[curr]);
-                    return ;
+                    return false;
                 }
                 let name=x.toString(),coord=undefined,addedCSS=["",""];
                 if (tokens.length>=2) {
@@ -648,13 +648,13 @@
                     if (tokens.length>ind) {
                         if ((tokens[ind][0]!=='[')||(tokens[ind][tokens[ind].length-1]!==']')) {
                             alert("Очаква се свойството да е оградено от квадратни скоби при: "+lines[curr]);
-                            return ;
+                            return false;
                         }
                         if (tokens[ind][1]!='[') {
                             let coords=removeEmpty(tokens[ind].split(","));
                             if (coords.length!==2) {
                                 alert("Очаква се да има две координати, разделени със запетайка при: "+lines[curr]);
-                                return ;
+                                return false;
                             }
                             coord=[];
                             coord[0]=parseFloat(coords[0].slice(1,coords[0].length));
@@ -665,19 +665,19 @@
                         if (tokens.length>ind) {
                             if ((tokens[ind][0]!=='[')||(tokens[ind][tokens[ind].length-1]!==']')) {
                                 alert("Очаква се свойството да е оградено от квадратни скоби при: "+lines[curr]);
-                                return ;
+                                return false;
                             }
                             let css=removeEmpty(tokens[ind].split(","));
                             if (css.length!==2) {
                                 alert("Очаква се да има два CSS-а, разделени със запетайка при: "+lines[curr]);
-                                return ;
+                                return false;
                             }
                             addedCSS[0]=css[0].slice(2,css[0].length-1);
                             addedCSS[1]=css[1].slice(1,css[1].length-2);
                             ind++;
                             if (tokens.length>ind) {
                                 alert("Твърде много свойства при: "+lines[curr]);
-                                return ;
+                                return false;
                             }
                         }
                     }
@@ -709,19 +709,21 @@
             }
         }
 
-        let isDirected=graph.isDirected,isWeighted=graph.isWeighted,isMulti=graph.isMulti,isTree=graph.isTree;
+        let isDirected=graph.isDirected,isWeighted=false,isMulti=false,isTree=false;
+        let flagWords=false;
         for (;;) {
             if (lines.length===curr) break;
             let words=removeEmpty(lines[curr].split(" "));
             if (words.length!==1) {
                 alert("Очаквано е само една дума, описващо свойство на графа, при: "+lines[curr]);
-                return ;
+                return false;
             }
+            flagWords=true;
             if (words[0]==="Directed") {
                 if (isDirected===false) {
                     if (graph.graphController.changeType[0]===false) {
                         alert("Графът трябва да е неориентиран!");
-                        return ;
+                        return false;
                     }
                     isDirected=true;
                 }
@@ -730,7 +732,7 @@
                 if (isDirected===true) {
                     if (graph.graphController.changeType[0]===false) {
                         alert("Графът трябва да е ориентиран!");
-                        return ;
+                        return false;
                     }
                     isDirected=false;
                 }
@@ -739,7 +741,7 @@
                 if (isWeighted===false) {
                     if (graph.graphController.changeType[1]===false) {
                         alert("Графът трябва да е непретеглен!");
-                        return ;
+                        return false;
                     }
                     isWeighted=true;
                 }
@@ -748,7 +750,7 @@
                 if (isMulti===false) {
                     if (graph.graphController.changeType[2]===false) {
                         alert("Графът не трябва да е мулти!");
-                        return ;
+                        return false;
                     }
                     isMulti=true;
                 }
@@ -756,12 +758,13 @@
             else if (words[0]==="Tree") isTree=true;
             else {
                 alert("Неочаквано свойство на графа при: "+lines[curr]);
-                return ;
+                return false;
             }
             curr++;
         }
+        if (flagWords===false) isWeighted=graph.isWeighted, isMulti=graph.isMulti, isTree=graph.isTree;
 
-        graph.import(isDirected,isTree,isWeighted,isMulti,n,vers,edges,flagCoords,versCoord,posProperties);
+        return graph.import(isDirected,isTree,isWeighted,isMulti,n,vers,edges,flagCoords,versCoord,posProperties);
     }
     function addImportFunctionality (wrapperName, graph) {
         let input=$(wrapperName+" .input-file");
@@ -809,8 +812,9 @@
                 $("#import-message-text").val(graphText);
                 $("#importModal .import").off("click").on("click",function () {
                     let text=$("#import-message-text").val().replaceAll("\r\n","\n");
-                    if (graphText!==text) importGraph(text,graph);
-                    $("#importModal").modal("toggle");
+                    if (graphText!==text) {
+                        if (importGraph(text,graph)==true) $("#importModal").modal("toggle");
+                    }
                 });
                 $("#importModal").modal("toggle");
             }]]);
