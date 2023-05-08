@@ -91,8 +91,7 @@
         function setStyle (obj, css) {
             obj.attr("style",css);
         }
-        this.findFontSize = function (type, ind = -1, coef = 1, vertexRad = undefined) {
-            if (vertexRad===undefined) vertexRad=graph.vertexRad;
+        this.findFontSize = function (type, ind = -1, coef = 1) {
             if (type==="vertex-name") coef*=5/4;
             else coef*=1;
             let sampleText=snap.text();
@@ -101,13 +100,12 @@
                 if (type==="vertex-name") css+=";"+graph.getVertex(ind).addedCSS[1];
                 else css+=";"+graph.getEdge(ind).addedCSS[1];
             }
-            setStyle(sampleText,"font-size: "+(coef*graph.size*vertexRad)+"px;"+css);
+            setStyle(sampleText,"font-size: "+(coef*graph.size*20)+"px;"+css);
             let fontSize=parseFloat(sampleText.attr("font-size"));
             sampleText.remove();
             return fontSize;
         }
-        this.findStrokeWidth = function (type, ind = -1, coef = 1, vertexRad = undefined) {
-            if (vertexRad===undefined) vertexRad=graph.vertexRad;
+        this.findStrokeWidth = function (type, ind = -1, coef = 1) {
             coef*=1.5/20;
             let sampleStroke=snap.circle();
             let css=(type==="vertex")?this.defaultCSSVertex:this.defaultCSSEdge;
@@ -115,7 +113,7 @@
                 if (type==="vertex") css+=";"+graph.getVertex(ind).addedCSS[0];
                 else css+=";"+graph.getEdge(ind).addedCSS[0];
             }
-            setStyle(sampleStroke,"stroke-width: "+(coef*graph.size*vertexRad)+";"+css);
+            setStyle(sampleStroke,"stroke-width: "+(coef*graph.size*20)+";"+css);
             let strokeWidth=parseFloat(sampleStroke.attr("stroke-width"));
             sampleStroke.remove();
             return strokeWidth;
@@ -165,15 +163,16 @@
             if ((st[1]>end[1])||((st[1]===end[1])&&(st[0]>end[0]))) [beg,fin]=[end,st];
             let bezierPoint=findBezierPoint(beg[0],beg[1],fin[0],fin[1],middlePoint[0],middlePoint[1]);
             let bezPath=bezierPath(beg,fin,bezierPoint);
-            if (segmentLength(st[0],st[1],end[0],end[1])<2*graph.vertexRad+3*endDist) return [bezPath, bezierPoint];
+            let vertexRad=graph.getRadius();
+            if (segmentLength(st[0],st[1],end[0],end[1])<2*vertexRad+3*endDist) return [bezPath, bezierPoint];
             let p1=Snap.path.intersection(
                 bezPath,
-                circlePath(beg[0],beg[1],((beg===st)?graph.vertexRad:(graph.vertexRad+endDist)))
+                circlePath(beg[0],beg[1],((beg===st)?vertexRad:(vertexRad+endDist)))
             )[0];
             if (p1===undefined) return ["", [(st[0]+end[0])/2, (st[1]+end[1])/2]];
             let p2=Snap.path.intersection(
                 bezPath,
-                circlePath(fin[0],fin[1],((fin===st)?graph.vertexRad:(graph.vertexRad+endDist)))
+                circlePath(fin[0],fin[1],((fin===st)?vertexRad:(vertexRad+endDist)))
             )[0];
             if (p2===undefined) return ["", [(st[0]+end[0])/2, (st[1]+end[1])/2]];
             let bezierPointFinal=findBezierPoint(p1.x,p1.y,p2.x,p2.y,middlePoint[0],middlePoint[1]);
@@ -191,7 +190,7 @@
             return [arrowHeight, arrowWidth, arrowWidth];
         }
         this.addMarkerEnd = function (line, isLoop, strokeWidth, st, properties) {
-            let [arrowHeight, arrowWidth, arrowDist]=calculateArrowProperties(isLoop,strokeWidth,st,graph.vertexRad,properties);
+            let [arrowHeight, arrowWidth, arrowDist]=calculateArrowProperties(isLoop,strokeWidth,st,graph.getRadius(),properties);
             let arrowEnd=[3*arrowHeight/2,arrowHeight/2];
             let arrow=snap.polygon([0,0,arrowEnd[0],arrowEnd[1],0,arrowHeight,0,0]).attr({
                 fill: line.attr("stroke"),
@@ -200,10 +199,11 @@
             line.markerEnd=arrow;
             let marker=arrow.marker(0,0,arrowEnd[0],arrowHeight,(isLoop===false)?arrowEnd[0]-arrowDist:0,arrowEnd[1]).attr({markerUnits: "userSpaceOnUse"});
             line.attr({"marker-end": marker});
+            return arrowDist;
         }
         function calcWeightPosition (weight, dx, isLoop, pathForWeight, properties) {
             let isVertical=false;
-            if (Math.abs(dx)<=2*graph.vertexRad) isVertical=true;
+            if (Math.abs(dx)<=2*graph.getRadius()) isVertical=true;
             if (isVertical===true) {
                 let tempPath=snap.path(pathForWeight);
                 let middle=tempPath.getPointAtLength(tempPath.getTotalLength()/2);
@@ -228,17 +228,18 @@
             if ((isDrawn===false)&&(graph.getEdge(edgeInd).x===graph.getEdge(edgeInd).y)) isLoop=true;
             
             let endDist=svgEdge.endDist;
+            let vertexRad=graph.getRadius();
 
             let pathForWeight;
             if (properties===0) {
-                svgEdge.line.attr("d",calcStraightEdge(st,end,isDrawn,endDist,graph.vertexRad));
+                svgEdge.line.attr("d",calcStraightEdge(st,end,isDrawn,endDist,vertexRad));
                 let points=sortPoints(st,end);
                 pathForWeight=linePath(points[0],points[1]);
             }
             else {
                 if (isLoop===true) { /// loop
-                    svgEdge.line.attr("d",loopPath(st[0],st[1]-graph.vertexRad,graph.vertexRad,properties,graph.isDirected||graph.isNetwork));
-                    pathForWeight=loopPath(st[0],st[1]-graph.vertexRad,graph.vertexRad,properties,false);
+                    svgEdge.line.attr("d",loopPath(st[0],st[1]-vertexRad,vertexRad,properties,graph.isDirected||graph.isNetwork));
+                    pathForWeight=loopPath(st[0],st[1]-vertexRad,vertexRad,properties,false);
                 }
                 else { /// curved edge
                     let res=this.calcCurvedEdge(st,end,properties,endDist);
@@ -267,27 +268,30 @@
                 if (edge.x===edge.y) isLoop=true;
             }
             
+            let vertexRad=graph.getRadius();
+            
             let svgEdge=new SvgEdge();
             svgEdge.drawProperties=[];
             svgEdge.drawProperties[0]=properties;
 
             let endDist=0;
             if (isDirected===true) {
-                let arrowDist=calculateArrowProperties(isLoop,strokeWidth,st,graph.vertexRad,properties)[2];
-                endDist=strokeWidth/2+arrowDist;
+                let arrowDist=calculateArrowProperties(isLoop,strokeWidth,st,vertexRad,properties)[2];
+                if (edgeInd!==-1) endDist=this.findStrokeWidth("vertex",graph.getEdge(edgeInd).y)/2+arrowDist;
+                else endDist=0;
             }
             svgEdge.endDist=endDist;
 
             let pathForWeight;
             if (properties===0) {
-                svgEdge.line=snap.path(calcStraightEdge(st,end,isDrawn,endDist,graph.vertexRad));
+                svgEdge.line=snap.path(calcStraightEdge(st,end,isDrawn,endDist,vertexRad));
                 let points=sortPoints(st,end);
                 pathForWeight=linePath(points[0],points[1]);
             }
             else {
                 if (isLoop===true) { /// loop
-                    svgEdge.line=snap.path(loopPath(st[0],st[1]-graph.vertexRad,graph.vertexRad,properties,isDirected));
-                    pathForWeight=loopPath(st[0],st[1]-graph.vertexRad,graph.vertexRad,properties,false);
+                    svgEdge.line=snap.path(loopPath(st[0],st[1]-vertexRad,vertexRad,properties,isDirected));
+                    pathForWeight=loopPath(st[0],st[1]-vertexRad,vertexRad,properties,false);
                 }
                 else { /// curved edge
                     let res=this.calcCurvedEdge(st,end,properties,endDist);
@@ -365,7 +369,7 @@
         this.defaultCSSVertex="";
         this.drawVertex = function (i) {
             let x=graph.svgVertices[i].coord[0],y=graph.svgVertices[i].coord[1];
-            graph.svgVertices[i].circle=snap.circle(x,y,graph.vertexRad);
+            graph.svgVertices[i].circle=snap.circle(x,y,graph.getRadius());
             graph.svgVertices[i].circle.attr({
                 fill: "white",
                 stroke: "black",
@@ -377,8 +381,8 @@
             this.drawVertexText(i,v.name);
             graph.svgVertices[i].group=snap.group(graph.svgVertices[i].circle,graph.svgVertices[i].text);
         }
-        this.findLoopEdgeProperties = function (vertexRad = graph.vertexRad) {
-            return [3*graph.vertexRad/4, graph.vertexRad/2];
+        this.findLoopEdgeProperties = function (vertexRad = graph.getRadius()) {
+            return [3*vertexRad/4, vertexRad/2];
         }
         this.isDynamic=undefined; this.dynamicGraph=undefined;
         this.isStatic=false;
@@ -391,7 +395,7 @@
             else this.isStatic=isStatic;
             
             let oldVersCoords=[],changedVers=[],cntAnimations=0;
-            let oldRad=graph.vertexRad;
+            let oldRad=graph.getRadius(),vertexRad=graph.getRadius();
             let oldEdgesPaths=[],oldDy=[],oldWeightsPaths=[];
             let m=graph.getIndexedEdges().length;
             if (animateDraw===true) {
@@ -446,7 +450,7 @@
                     edgeMapCurr.set(code,0);
                 }
             }
-            let height=graph.vertexRad*3/10;
+            let height=6*graph.size;
             let multiEdges=[[],
                             [0],
                             [height, -height],
@@ -477,8 +481,8 @@
                 if (animateDraw===true) {
                     if ((oldVersCoords[x]!==undefined)&&(oldVersCoords[y]!==undefined)&&
                         ((changedVers[x]===true)||(changedVers[y]===true))) {
-                        let st=[oldVersCoords[x].x+graph.vertexRad,oldVersCoords[x].y+graph.vertexRad];
-                        let end=[oldVersCoords[y].x+graph.vertexRad,oldVersCoords[y].y+graph.vertexRad];
+                        let st=[oldVersCoords[x].x+vertexRad,oldVersCoords[x].y+vertexRad];
+                        let end=[oldVersCoords[y].x+vertexRad,oldVersCoords[y].y+vertexRad];
                         this.redrawEdge(graph.svgEdges[i],st,end,i);
                         if (oldEdgesPaths[i]===undefined) oldEdgesPaths[i]=graph.svgEdges[i].line.attr("d");
                         if ((oldWeightsPaths[i]===undefined)&&(graph.svgEdges[i].weight!==undefined)) {
@@ -539,13 +543,14 @@
                 graph.svgEdges[i]=undefined;
             }*/
             
-            if ((animateDraw===true)&&(graph.vertexRad!=oldRad)) {          
+            if ((animateDraw===true)&&(vertexRad!=oldRad)) {          
                 cntAnimations++;
-                Snap.animate(oldRad/graph.vertexRad,1,function (val) {
+                Snap.animate(oldRad,vertexRad,function (rad) {
+                    let coef=rad/vertexRad;
                     for (let [i, v] of graph.getVertices()) {
-                        let strokeWidth=this.findStrokeWidth("vertex",i,val);
-                        let fontSize=this.findFontSize("vertex-name",i,val);
-                        graph.svgVertices[i].circle.attr({r: val*(graph.vertexRad/graph.size), "stroke-width": strokeWidth});
+                        let strokeWidth=this.findStrokeWidth("vertex",i,coef);
+                        let fontSize=this.findFontSize("vertex-name",i,coef);
+                        graph.svgVertices[i].circle.attr({r: rad, "stroke-width": strokeWidth});
                         graph.svgVertices[i].text.attr({
                             "font-size": fontSize,
                             dy: determineDy(v.name,graph.svgVertices[i].text.attr("font-family"),fontSize)
@@ -553,7 +558,7 @@
                     }
                 
                     for (let [i, edge] of graph.getEdges()) {
-                        let strokeWidth=this.findStrokeWidth("edge",i,val);
+                        let strokeWidth=this.findStrokeWidth("edge",i,coef);
                         graph.svgEdges[i].line.attr({"stroke-width": strokeWidth});
                         if (graph.isDirected===true) {
                             let x=edge.x,y=edge.y;
@@ -562,7 +567,7 @@
                                               graph.svgVertices[x].coord,graph.svgEdges[i].drawProperties[0]);
                         }
                         if (graph.svgEdges[i].weight!==undefined) {
-                            let fontSize=this.findFontSize("weight",i,val);
+                            let fontSize=this.findFontSize("weight",i,coef);
                             graph.svgEdges[i].weight.attr({"font-size": fontSize});
                         }
                     }

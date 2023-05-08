@@ -25,13 +25,14 @@
         tree.graphDrawer.draw(false,false);
     }
     function addSegmentsLabels (index, l, r, tree, flagIndex, isDynamic) {
+        let vertexRad=tree.getRadius();
         if (flagIndex===true) {
             let indexFontSize=tree.graphDrawer.findFontSize("vertex-name",index,4/6);
             let textIndex=tree.s.text(0,0,index+1);
             textIndex.attr({"font-size": indexFontSize,"font-family": "Times New Roman", "font-weight": "bold", class: "unselectable", fill: "blue"});
             textIndex.attr({
                 x: tree.svgVertices[index].coord[0], 
-                y: tree.svgVertices[index].coord[1]-tree.vertexRad+1,
+                y: tree.svgVertices[index].coord[1]-vertexRad+1,
             });
             textIndex.attr({dy: 2*determineDy(index+1,"Times New Roman",indexFontSize), "text-anchor": "middle"});
             tree.svgVertices[index].group=tree.s.group(tree.svgVertices[index].group,textIndex);
@@ -43,7 +44,7 @@
         if (l===r) {
            segment.attr({
                x: tree.svgVertices[index].coord[0], 
-               y: tree.svgVertices[index].coord[1]+tree.vertexRad+tree.graphDrawer.findStrokeWidth("vertex",index)/2+2
+               y: tree.svgVertices[index].coord[1]+vertexRad+tree.graphDrawer.findStrokeWidth("vertex",index)/2+2
            });
            segment.attr({dy: 2*determineDy(segment.attr("text"),"Times New Roman",labelFontSize), "text-anchor": "middle"});
            tree.svgVertices[index].group=tree.s.group(tree.svgVertices[index].group,segment);
@@ -51,7 +52,7 @@
         }
         segment.attr({
             x: tree.svgVertices[index].coord[0], 
-            y: tree.svgVertices[index].coord[1]-tree.vertexRad-tree.graphDrawer.findStrokeWidth("vertex",index)/2-2,
+            y: tree.svgVertices[index].coord[1]-vertexRad-tree.graphDrawer.findStrokeWidth("vertex",index)/2-2,
         });
         segment.attr({"text-anchor": "middle"});
         tree.svgVertices[index].group=tree.s.group(tree.svgVertices[index].group,segment);
@@ -119,8 +120,8 @@
         let edgeList=[];
         makeEdgesAndNames(0,0,elements.length-1,edgeList,tree.getIndexedVertices(),elements,false);
         tree.buildEdgeDataStructures(edgeList);
-        if (elements.length<=8) tree.drawNewGraph(false,10,true);
-        else tree.drawNewGraph(false,7,true);
+        if (elements.length<=8) tree.drawNewGraph(false,0.5,true);
+        else tree.drawNewGraph(false,7/20,true);
     }
     function makeDynSegTree (tree) {
         tree.erase();
@@ -128,7 +129,7 @@
         tree.initVertices(1);
         tree.getVertex(0).name="0";
         tree.buildEdgeDataStructures([]);
-        tree.drawNewGraph(false,8,true,dynSegTree.frameX);
+        tree.drawNewGraph(false,0.4,true,dynSegTree.frameX);
     }
     function updateDyn (index, l, r, c, tree) {
         let vr=tree.getVertex(index);
@@ -161,7 +162,7 @@
         let edgeList=[];
         makeEdgesAndNames(0,1,dynSegTree.maxC,edgeList,tree.getIndexedVertices(),[],true);
         tree.buildEdgeDataStructures(edgeList);
-        tree.drawNewGraph(false,8,true,dynSegTree.frameX);
+        tree.drawNewGraph(false,0.4,true,dynSegTree.frameX);
     }
     function defaultExample (exampleName, tree, elements, animationObj) {
         if (exampleName==".segTreeExample1") {
@@ -363,16 +364,17 @@
     function addSumText (tree, index, isLeaf, sum) {
         let text=tree.s.text(0,0,sum),fontSize=tree.graphDrawer.findFontSize("vertex-name",index,5/6);
         text.attr({"font-size": fontSize, "font-family": "Arial", "text-align": "center", class: "unselectable", fill: "orange"});
+        let vertexRad=tree.getRadius();
         if (isLeaf===true) {
             text.attr({
                 x: tree.svgVertices[index].coord[0], 
-                y: tree.svgVertices[index].coord[1]-tree.vertexRad-2
+                y: tree.svgVertices[index].coord[1]-vertexRad-2
             });
             text.attr({"text-anchor": "middle"});
             return text;
         }
         text.attr({
-            x: tree.svgVertices[index].coord[0]+tree.vertexRad+text.getBBox().w/2, 
+            x: tree.svgVertices[index].coord[0]+vertexRad+text.getBBox().w/2, 
             y: tree.svgVertices[index].coord[1]
         });
         text.attr({dy: determineDy(text.attr("text"),"Arial",fontSize), "text-anchor": "middle"});

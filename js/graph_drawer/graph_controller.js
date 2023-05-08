@@ -83,19 +83,16 @@
             }
         });
 
-        let sliderRad=$(".range-rad");
-        let outputRad=$(".slider-value-rad");
-        sliderRad.val(graph.vertexRad);
-        outputRad.html(graph.vertexRad);
-        if (graph.origRad===undefined) graph.origRad=graph.vertexRad;
-        sliderRad.attr("min",parseInt(3*graph.origRad/4));
-        sliderRad.attr("max",parseInt(3*graph.origRad/2));
-        sliderRad.off("input").on("input", function() {
-            let val=parseInt($(this).val());
-            outputRad.html(val);
-            let oldVal=graph.vertexRad;
-            graphController.addChange("change-property", ["radius", oldVal]);
-            graph.vertexRad=val;
+        let sliderSize=$(".range-size");
+        let outputSize=$(".slider-value-size");
+        sliderSize.val(parseInt(graph.size*100));
+        outputSize.html(parseInt(graph.size*100));
+        sliderSize.off("input").on("input", function() {
+            let val=parseInt($(this).val())/100;
+            outputSize.html(parseInt(val*100));
+            let oldVal=graph.size;
+            graphController.addChange("change-property", ["size", oldVal]);
+            graph.size=val;
             graph.graphDrawer.draw(graph.graphDrawer.isDynamic);
         });
     }
@@ -118,8 +115,8 @@
         if (graphController.changeVers===true) $(".range-vers").parent().parent().show();
         else $(".range-vers").parent().parent().hide();
 
-        if (graphController.changeRad===true) $(".range-rad").parent().parent().show();
-        else $(".range-rad").parent().parent().hide();
+        if (graphController.changeSize===true) $(".range-size").parent().parent().show();
+        else $(".range-size").parent().parent().hide();
     }
     function addSettingsPanel (wrapperName, graph, graphController) {
         if ($(wrapperName+" .settings-panel").length!==0) $(wrapperName+" .settings-panel").html(settingsPanel);
@@ -149,9 +146,9 @@
                        "Има плъзгач за определяне на броя върхове в графа - от 1 до 10. При такава промяна графът се изтрива и се появяват указаният брой върхове на произволни места.<br>":
                        "There is a slider for changing the number of vertices in the graph - from 1 to 10. When this happens, the graph is erased and the specified number of new vertices are placed at random.<br>");
             }
-            if (graphController.changeRad===true) {
+            if (graphController.changeSize===true) {
                 text+=((language==="bg")?
-                       "Има  плъзгач за промяна на големината на върховете, като графът сам променя останалите характеристики в зависимост от тази големина.<br>":
+                       "Има  плъзгач за промяна на големината на графа, като той сам променя останалите характеристики в зависимост от тази  стойност.<br>":
                        "There is a slider for changing the size of the vertices and the graph adjusts its characteristics according to that size.<br>");
             }
             
@@ -250,10 +247,10 @@
             else if (this.freezes<0) this.freezes=0;
         }
         
-        this.changeType=[true, true, true]; this.changeVers=true; this.changeRad=true;
-        this.setSettings = function (changeType = [true, true, true], changeVers = true, changeRad = true) {
+        this.changeType=[true, true, true]; this.changeVers=true; this.changeSize=true;
+        this.setSettings = function (changeType = [true, true, true], changeVers = true, changeSize = true) {
             this.changeType=[changeType[0], changeType[1], changeType[2]];
-            this.changeVers=changeVers; this.changeRad=changeRad;
+            this.changeVers=changeVers; this.changeSize=changeSize;
             if ($(this.wrapperName+" .settings-panel").length===0) addSettings(graph,this);
         }
         
@@ -356,9 +353,9 @@
                             pushOther(curr.type,[type, !curr.data[1]]);
                             graph.isMulti=curr.data[1];
                         }
-                        else if (type==="radius") {
-                            pushOther(curr.type,[type, graph.vertexRad]);
-                            graph.vertexRad=parseInt(curr.data[1]);
+                        else if (type==="size") {
+                            pushOther(curr.type,[type, graph.size]);
+                            graph.size=curr.data[1];
                         }
                     }
                 }
@@ -468,6 +465,7 @@
         let svgSave=$(graph.wrapperName+" .svg-save");
         
         $(".click-area").hide();
+        graph.graphDrawer.bgElement.attr("style","display: none");
         let [minX, maxX, minY, maxY]=calcBBox(graph);
         svgSave.attr("viewBox",minX+" "+minY+" "+graph.s.attr("viewBox").w+" "+graph.s.attr("viewBox").h);
         svgSave.removeAttr("width").removeAttr("height");
@@ -483,6 +481,7 @@
         $("<a>").prop("download","graph.svg")
             .prop("href",svgURL)
             .prop("target","_black")[0].click();
+        graph.graphDrawer.bgElement.attr("style","");
         $(".click-area").show();
         svgSave.empty();
     }
@@ -528,13 +527,19 @@
         }
         return res;
     }
-    function getTokens (s) {
+    function getTokens (s, type) {
         s=s.split("");
-        let cnt=0;
+        let cnt=0,cntSpaces=0;
         for (let i=0; i<s.length; i++) {
             if (s[i]==='[') cnt++;
             else if (s[i]===']') cnt--;
             else if ((s[i]===' ')&&(cnt>0)) s[i]='\x00'; // escaping spaces
+            if (s[i]===' ') {
+                cntSpaces++;
+                if (((type==="vers")&&(cntSpaces>1)&&(i+1<s.length)&&(s[i+1]!=='['))||
+                    ((type==="edges")&&(cntSpaces>2)&&(i+1<s.length)&&(s[i+1]!=='[')))
+                    s[i]='\x00';
+            }
         }
         s=s.join("");
         let tokens=s.split(" ");
@@ -565,7 +570,7 @@
                 alert("Има липсващи ребра!");
                 return false;
             }
-            let tokens=removeEmpty(getTokens(lines[curr]));
+            let tokens=removeEmpty(getTokens(lines[curr],"edges"));
             if (tokens.length<2) {
                 alert("Трябват поне върхове за реброто: "+lines[curr]);
                 return false;
@@ -631,7 +636,7 @@
                     alert("Има липсваща информация за връх!");
                     return false;
                 }
-                let tokens=removeEmpty(getTokens(lines[curr]));
+                let tokens=removeEmpty(getTokens(lines[curr],"vers"));
                 if (tokens.length<1) {
                     alert("Трябва поне номер на връх: "+lines[curr]);
                     return false;

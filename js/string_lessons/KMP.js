@@ -254,8 +254,12 @@
                     return animations;
                 },function startFunc () {
                     indexObj.hide();
+                    animFunc.show();
+                    animFunc2.show();
                 },function stopFunc () {
                     indexObj.show();
+                    animFunc.hide();
+                    animFunc2.hide();
                 }).then(
                     () => {
                         if (indexObj===undefined) {

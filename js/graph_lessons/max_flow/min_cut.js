@@ -131,7 +131,7 @@
             this.graphController.redoStack=[];
             this.buildEdgeDataStructures(edges);
             this.convertToNetwork(0,n+1,false);
-            this.drawNewGraph(false,12);
+            this.drawNewGraph(false,0.6);
         }
         let [flow, cut]=findFlowCut.call(this);
         $(".graphExample2 .value").text("Отговорът е $"+sum+"-"+flow+"$ $=sum-flow="+(sum-flow)+"$. ");
@@ -154,7 +154,7 @@
                 example1.init(".graphExample1",5,true,findFlowCut);
                 example1.buildEdgeDataStructures([[0,1,5],[0,2,1],[1,3,5],[2,4,2],[3,2,2],[3,4,2]]);
                 example1.convertToNetwork(0,4,false);
-                example1.drawNewGraph(true,25);
+                example1.drawNewGraph(true,5/4);
                 example1.setSettings([false, false, false]);
                 
                 $(".graphExample1 .src").val("1");

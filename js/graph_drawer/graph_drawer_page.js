@@ -15,10 +15,10 @@
             $("#weighted").prop("checked",graph.isWeighted);
             $("#multi").prop("checked",graph.isMulti);
             
-            let sliderRad=$(".range-rad");
-            let outputRad=$(".slider-value-rad");
-            sliderRad.val(graph.vertexRad);
-            outputRad.html(graph.vertexRad);
+            let sliderSize=$(".range-size");
+            let outputSize=$(".slider-value-size");
+            sliderSize.val(parseInt(graph.size*100));
+            outputSize.html(parseInt(graph.size*100));
             
             if (graph.isWeighted===false) {
                 $("#style .default-css-weight").parent().parent().hide();

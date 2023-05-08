@@ -144,23 +144,23 @@
             let example1=new Graph ();
             example1.init(".graphExample1",5,true);
             example1.buildEdgeDataStructures([[0,1],[0,2],[0,3],[1,4],[2,4]]);
-            example1.drawNewGraph(false,25);
+            example1.drawNewGraph(false,5/4);
 
             let example2=new Graph ();
             example2.init(".graphExample2",5,false);
             example2.buildEdgeDataStructures([[0,1],[0,2],[0,3],[1,4],[2,4]]);
-            example2.drawNewGraph(false,25);
+            example2.drawNewGraph(false,1);
 
             let example3=new Graph ();
             example3.init(".graphExample3",3,true);
             example3.buildEdgeDataStructures([[0,1],[0,1],[0,1],[0,1],[1,2],[1,2]]);
-            example3.drawNewGraph(false,50);
+            example3.drawNewGraph(false,2.5);
 
             let example4=new Graph ();
             $(".graphExample4 .default").on("click", function () {
                 example4.init(".graphExample4",5,false,displayDegree.bind(this,example4));
                 example4.buildEdgeDataStructures([[0,0],[0,0],[1,1],[1,2],[1,3],[2,4],[3,4]]);
-                example4.drawNewGraph(true,20);
+                example4.drawNewGraph(true,1);
                 example4.setSettings([false, false, true]);
                 displayDegree(example4); 
             }).click(); 
@@ -169,7 +169,7 @@
             $(".graphExample5 .default").on("click", function () {
                 example5.init(".graphExample5",8,false);
                 example5.buildEdgeDataStructures([[0,1],[1,2],[2,3],[3,0],[2,4],[4,5],[5,6],[6,7],[7,4]]);
-                example5.drawNewGraph(true,20);
+                example5.drawNewGraph(true,1);
                 example5.setSettings([false, false, false]);
                 $(".graphExample5 .find").off("click").on("click",findPaths.bind(this,example5));
                 $(".graphExample5 .beg").val("1");
@@ -180,7 +180,7 @@
             let example6=new Graph ();
             example6.init(".graphExample6",5,false);
             example6.buildEdgeDataStructures([[0,1,1],[0,2,2],[0,3,3],[1,4,1],[2,4,2]]);
-            example6.drawNewGraph(false,23);
+            example6.drawNewGraph(false,23/20);
         }
         else if (part===3) {
             let example7=new Graph ();
@@ -188,7 +188,7 @@
                 example7.init(".graphExample7",5,true,displayMatrix.bind(this,example7));
                 example7.isMulti=true;
                 example7.buildEdgeDataStructures([[0,0],[1,2],[1,3],[1,4],[2,3]]);
-                example7.drawNewGraph(true,20);
+                example7.drawNewGraph(true,1);
                 example7.setSettings([true, false, true]);
                 displayMatrix(example7);
             }).click();
@@ -197,7 +197,7 @@
             $(".graphExample8 .default").on("click", function () {
                 example8.init(".graphExample8",5,false,displayAdjacencyList.bind(this,example8));
                 example8.buildEdgeDataStructures([[0,1,8],[0,1,9],[1,2,6],[1,3,7],[2,4,10],[3,4,11]]);
-                example8.drawNewGraph(true,20);
+                example8.drawNewGraph(true,1);
                 displayAdjacencyList(example8);
             }).click();
 
@@ -205,7 +205,7 @@
             $(".graphExample9 .default").on("click", function () {
                 example9.init(".graphExample9",4,true,displayEdgeList.bind(this,example9));
                 example9.buildEdgeDataStructures([[0,1],[0,2],[1,2],[1,3],[2,1],[2,3]]);
-                example9.drawNewGraph(true,20);
+                example9.drawNewGraph(true,1);
                 example9.setSettings([false, false, true]);
                 displayEdgeList(example9);
             }).click();

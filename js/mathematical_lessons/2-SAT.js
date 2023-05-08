@@ -115,7 +115,7 @@
         }
         graph.n=ind;
         graph.buildEdgeDataStructures(edgeList);    
-        graph.drawNewGraph(false,10);
+        graph.drawNewGraph(false,0.5);
     }
 
     function dfs1 (vr, adjList, edgeList, used, order) {

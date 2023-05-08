@@ -306,15 +306,18 @@
             this.s.selectAll("*").remove();
         }
         
-        this.vertexRad=undefined; this.size=1;
+        this.vertexRad=20; this.size=undefined;
+        this.getRadius = function () {
+            return this.vertexRad*this.size;
+        }
         this.calcPositions=undefined; this.initViewBox=undefined;
-        this.drawNewGraph = function (addDynamic = false, vertexRad, drawST = false, frameX, frameY, frameW, frameH) {
+        this.drawNewGraph = function (addDynamic = false, size, drawST = false, frameX, frameY, frameW, frameH) {
             this.erase();
             
             let svgObject=$(this.svgName);
             let viewBox=svgObject.prop("viewBox").baseVal;
-            if (vertexRad===undefined) vertexRad=Math.floor(Math.sqrt(viewBox.width*viewBox.height/225));
-            this.vertexRad=vertexRad;
+            if (size===undefined) size=parseInt(Math.sqrt(viewBox.width*viewBox.height)/300);
+            this.size=size;
             
             if (this.calcPositions===undefined) this.initViewBox=[viewBox.width, viewBox.height];
             function changeViewBox () {
@@ -551,8 +554,8 @@
             return text;
         }
         
-        this.setSettings = function (changeType = [true, true, true], changeVers = true, changeRad = true) {
-            this.graphController.setSettings(changeType,changeVers,changeRad);
+        this.setSettings = function (changeType = [true, true, true], changeVers = true, changeSize = true) {
+            this.graphController.setSettings(changeType,changeVers,changeSize);
         }
     }
     

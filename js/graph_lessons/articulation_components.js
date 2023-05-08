@@ -14,13 +14,13 @@
             text.attr({
                 fill: "blue",
                 x: graph.svgVertices[i].coord[0],
-                y: graph.svgVertices[i].coord[1]-graph.vertexRad-graph.graphDrawer.findStrokeWidth("vertex",i)/2-2,
+                y: graph.svgVertices[i].coord[1]-graph.getRadius()-graph.graphDrawer.findStrokeWidth("vertex",i)/2-2,
             });
         }
         else {
             text.attr({
                 fill: "green",
-                x: graph.svgVertices[i].coord[0]+graph.vertexRad+graph.graphDrawer.findStrokeWidth("vertex",i)/2+text.getBBox().w/2+2,
+                x: graph.svgVertices[i].coord[0]+graph.getRadius()+graph.graphDrawer.findStrokeWidth("vertex",i)/2+text.getBBox().w/2+2,
                 y: graph.svgVertices[i].coord[1],
                 dy: determineDy(s,"Times New Roman",fontSize)
             });
@@ -206,23 +206,23 @@
             example1.init(".graphExample1",6,false);
             example1.buildEdgeDataStructures([[0,1],[1,2],[2,0],[2,3],[3,4],[4,5],[5,3]]);
             example1.getEdge(3).addedCSS[0]="stroke: red";
-            example1.drawNewGraph(false,25);
+            example1.drawNewGraph(false,5/4);
             
             let example2=new Graph();
             example2.init(".graphExample2",5,false);
             example2.buildEdgeDataStructures([[0,1],[1,2],[2,0],[2,3],[3,4],[4,2]]);
             example2.getVertex(2).addedCSS[0]="stroke: red";
-            example2.drawNewGraph(false,25);
+            example2.drawNewGraph(false,5/4);
         }
         else if (part===2) {
             let example3=new Graph();
             let animationObj = new Animation();
             $(".graphExample3 .default").on("click", function () {
                 example3.init(".graphExample3",8,false,function () {
-                    example3.calcPositions.frameY=example3.vertexRad;
+                    example3.calcPositions.frameY=example3.getRadius();
                 });
                 example3.buildEdgeDataStructures([[0,1],[0,2],[1,2],[1,6],[2,3],[2,6],[3,4],[3,7],[4,7],[5,6]]);
-                example3.drawNewGraph(true,15,false,0,15);
+                example3.drawNewGraph(true,3/4,false,0,15);
                 example3.setSettings([false, false, true]);
                 
                 $(".graphExample3 .start-vertex").val("1");
@@ -270,13 +270,13 @@
             example4.getVertex(2).addedCSS[0]="fill: red";
             example4.getVertex(3).addedCSS[0]="fill: yellow";
             example4.getVertex(4).addedCSS[0]="fill: yellow";
-            example4.drawNewGraph(false,25);
+            example4.drawNewGraph(false,5/4);
             
             let example5=new Graph();
             $(".graphExample5 .default").on("click", function () {
                 example5.init(".graphExample5",8,false,colourDCC.bind(example5));
                 example5.buildEdgeDataStructures([[0,1],[0,2],[1,2],[1,6],[2,3],[2,6],[3,4],[3,7],[4,7],[5,6]]);
-                example5.drawNewGraph(true,15,false,0,15);
+                example5.drawNewGraph(true,3/4,false,0,15);
                 example5.setSettings([false, false, true]);
                 colourDCC.call(example5);
             }).click();

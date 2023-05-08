@@ -74,15 +74,11 @@
                         edge.defaultCSS[1]=weightStyle;
                     }
                     else if (edge.curveHeight===undefined) {
-                        let x=edge.x,y=edge.y;
-                        let st=this.svgVertices[x].coord,end=this.svgVertices[y].coord;
-                        this.svgEdges[i].drawProperties[0]=0; edge.curveHeight=0;
                         if (edge.flow===0) this.svgEdges[i].endDist=0;
-                        this.graphDrawer.redrawEdge(this.svgEdges[i],st,end,i);
                     }
                 }
                 if ((this.isDirected===true)||(edge.flow!=0)) {
-                    this.graphDrawer.addMarkerEnd(this.svgEdges[i].line,false,curr,
+                    this.svgEdges[i].endDist=this.graphDrawer.addMarkerEnd(this.svgEdges[i].line,false,curr,
                                   this.svgVertices[edge.x].coord,this.svgEdges[i].drawProperties[0]);
                     edgeStyleObj["marker-end"]=styleToObj(this.svgEdges[i].line.attr("style"))["marker-end"];
                 }
@@ -90,6 +86,9 @@
                 let edgeStyle=objToStyle(edgeStyleObj);
                 this.svgEdges[i].line.attr("style",edgeStyle+" ; "+edge.addedCSS[0]);
                 edge.defaultCSS[0]=edgeStyle;
+                let x=edge.x,y=edge.y;
+                let st=this.svgVertices[x].coord,end=this.svgVertices[y].coord;        
+                this.graphDrawer.redrawEdge(this.svgEdges[i],st,end,i);
             }
         }
     }

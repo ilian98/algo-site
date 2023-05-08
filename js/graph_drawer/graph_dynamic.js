@@ -118,6 +118,7 @@
             event.preventDefault();
             
             setSvgPoint(event);
+            let vertexRad=graph.getRadius();
             if (trackedMouse===false) {
                 if (segmentLength(svgPoint.x,svgPoint.y,startMousePos[0],startMousePos[1])<2) return ;
                 trackedMouse=true;
@@ -129,7 +130,7 @@
                     let possiblePos=graph.calcPositions.calculatePossiblePos(false);
                     graph.svgVertices[index].coord=[oldCoords[0], oldCoords[1]];
                     for (let pos of possiblePos) {
-                        let circleVertex=graph.s.circle(pos[0],pos[1],graph.vertexRad).attr({
+                        let circleVertex=graph.s.circle(pos[0],pos[1],vertexRad).attr({
                             stroke: "green",
                             "stroke-width": graph.graphDrawer.findStrokeWidth("vertex"),
                             fill: "white",
@@ -137,7 +138,7 @@
                         });
                         circleVertex.attr({opacity: 0});
                         let circle=graph.s.circle(pos[0]+(startMousePos[0]-graph.svgVertices[index].coord[0]),
-                                                  pos[1]+(startMousePos[1]-graph.svgVertices[index].coord[1]),graph.vertexRad/2);
+                                                  pos[1]+(startMousePos[1]-graph.svgVertices[index].coord[1]),vertexRad/2);
                         circle.attr({opacity: 0});
                         circle.mouseover(function () {
                             circleVertex.attr({opacity: 1});
@@ -152,7 +153,7 @@
             if (addVertexDrag===false) {
                 let circleCoord=graph.svgVertices[startIndex].coord;
                 let end=[svgPoint.x, svgPoint.y];
-                if (segmentLength(circleCoord[0],circleCoord[1],svgPoint.x,svgPoint.y)>=graph.vertexRad) {
+                if (segmentLength(circleCoord[0],circleCoord[1],svgPoint.x,svgPoint.y)>=vertexRad) {
                     if (currEdgeDraw===undefined) {
                         currEdgeDraw=graph.graphDrawer.drawEdge(circleCoord,end,-1,0);
                         graph.graphDrawer.setBack(currEdgeDraw.line);
@@ -198,7 +199,7 @@
             graph.svgEdges[startIndex].drawProperties[0]=height;
             graph.graphDrawer.redrawEdge(graph.svgEdges[startIndex],st,end,startIndex);
             
-            if (Math.abs(height-graph.svgEdges[startIndex].drawProperties[2])<graph.vertexRad/4) nearLine.attr({opacity: 1});
+            if (Math.abs(height-graph.svgEdges[startIndex].drawProperties[2])<5*graph.size) nearLine.attr({opacity: 1});
             else nearLine.attr({opacity: 0});
         }
         let oldWeight;
@@ -214,7 +215,7 @@
             }
             let dx=svgPoint.x-startMousePos[0],dy=svgPoint.y-startMousePos[1];
             graph.svgEdges[startIndex].weight.transform("t"+dx+" "+dy);
-            if (Math.sqrt(dx*dx+dy*dy)<graph.vertexRad/4) oldWeight.attr({opacity: 1});
+            if (Math.sqrt(dx*dx+dy*dy)<5*graph.size) oldWeight.attr({opacity: 1});
             else oldWeight.attr({opacity: 0});
         }
         
@@ -299,12 +300,13 @@
             clearClickParameters("vertex");
             
             if (addVertexDrag===false) {
+                let vertexRad=graph.getRadius();
                 for (let [i, vr] of graph.getVertices()) {
                     if (segmentLength(svgPoint.x,svgPoint.y,
                                       graph.svgVertices[i].coord[0],
-                                      graph.svgVertices[i].coord[1])<graph.vertexRad) {
+                                      graph.svgVertices[i].coord[1])<vertexRad) {
                         if ((index===i)&&
-                            (segmentLength(svgPoint.x,svgPoint.y,startMousePos[0],startMousePos[1])<graph.vertexRad/2)) return ;
+                            (segmentLength(svgPoint.x,svgPoint.y,startMousePos[0],startMousePos[1])<vertexRad/2)) return ;
                         if ((graph.isMulti===false)&&(graph.adjMatrix[index][i].length>=1)) return ;
                         
                         if (graph.isMulti===true) {
@@ -354,7 +356,7 @@
                 let possiblePos=graph.calcPositions.calculatePossiblePos(false);
                 graph.svgVertices[ind].coord=[oldCoords[0]+dx, oldCoords[1]+dy];
                 for (let pos of possiblePos) {
-                    if (segmentLength(graph.svgVertices[ind].coord[0],graph.svgVertices[ind].coord[1],pos[0],pos[1])<graph.vertexRad/2) {
+                    if (segmentLength(graph.svgVertices[ind].coord[0],graph.svgVertices[ind].coord[1],pos[0],pos[1])<10*graph.size) {
                         graph.svgVertices[ind].coord=[pos[0],pos[1]];
                         break;
                     }
@@ -376,7 +378,7 @@
             }
             clearClickParameters("edge");
             
-            if (Math.abs(height-graph.svgEdges[index].drawProperties[2])<graph.vertexRad/4) height=undefined;
+            if (Math.abs(height-graph.svgEdges[index].drawProperties[2])<5*graph.size) height=undefined;
             let edge=graph.getEdge(index);
             let oldCurveHeight=edge.curveHeight;
             if (oldCurveHeight!==height) {
@@ -397,7 +399,7 @@
             let dx=svgPoint.x-startMousePos[0],dy=svgPoint.y-startMousePos[1];
             clearClickParameters("weight");
             
-            if (Math.sqrt(dx*dx+dy*dy)<graph.vertexRad/4) graph.svgEdges[index].weight.transform("t0 0");
+            if (Math.sqrt(dx*dx+dy*dy)<5*graph.size) graph.svgEdges[index].weight.transform("t0 0");
         }
         
         function addCSS (obj, defaultCSS, newCSS, typeName, ind) {

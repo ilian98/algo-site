@@ -40,10 +40,10 @@
         });
     }
 
-    function defaultExample (name, graph, animationObj, vertexRad) {
+    function defaultExample (name, graph, animationObj, size) {
         graph.init(name,5,false);
         graph.buildEdgeDataStructures([[0,1],[0,2],[0,3],[0,4],[1,2]]);
-        graph.drawNewGraph(true,vertexRad);
+        graph.drawNewGraph(true,size);
         graph.setSettings([true, false, true]);
 
         $(name+" .start-vertex").val("1");
@@ -76,19 +76,19 @@
             graph.init(".graphExample1",6,false);
             graph.buildEdgeDataStructures([[0,1],[0,2],[3,4]]);
             graph.n=6;
-            graph.drawNewGraph(false,30);
+            graph.drawNewGraph(false,1.5);
 
             let graphDFS = new Graph();
             let animationObj = new Animation();
             let exampleName=".graphExample2";
-            $(exampleName+" .default").off("click").on("click",defaultExample.bind(this,exampleName,graphDFS,animationObj,20)).click();
+            $(exampleName+" .default").off("click").on("click",defaultExample.bind(this,exampleName,graphDFS,animationObj,1)).click();
             $(exampleName+" .start-vertex").on("keydown",isDigit);
         }
         else if (part==3) {
             let graph = new Graph();
             graph.init(".graphExample3",4,true);
             graph.buildEdgeDataStructures([[0,1],[0,2],[1,3],[2,3]]);
-            graph.drawNewGraph(false,40);
+            graph.drawNewGraph(false,2);
         }
     }
     
