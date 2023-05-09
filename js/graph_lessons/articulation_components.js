@@ -185,18 +185,21 @@
         for (let i=0; i<num; i++) {
             for (let j=0; j<comps[i].length; j++) {
                 let v=comps[i][j];
-                graph.svgVertices[v].circle.attr("fill",colours[colour]);
+                graph.getVertex(v).addedCSS[0]["fill"]=colours[colour];
+                graph.graphDrawer.recalcAttrVertex(graph.svgVertices[v],v);
                 versColour[v]=colours[colour];
             }
             colour+=jump;
         }
         for (let [i, edge] of graph.getEdges()) {
             let from=edge.x,to=edge.y;
-            if (versColour[from]===versColour[to]) graph.svgEdges[i].line.attr("stroke",versColour[from]);
+            if (versColour[from]===versColour[to]) graph.getEdge(i).addedCSS[0]["stroke"]=versColour[from];
             else {
-                graph.svgEdges[i].line.attr("stroke","red");
-                graph.svgEdges[i].line.attr("stroke-width",graph.graphDrawer.findStrokeWidth("edge",i)*2);
+                graph.getEdge(i).addedCSS[0]["stroke"]="red";
+                graph.getEdge(i).addedCSS[0]["stroke-width"]="";
+                graph.getEdge(i).addedCSS[0]["stroke-width"]=graph.graphDrawer.findStrokeWidth("edge",i)*2;
             }
+            graph.graphDrawer.recalcAttrEdge(graph.svgEdges[i],i);
         }
     }
     
@@ -205,13 +208,13 @@
             let example1=new Graph();
             example1.init(".graphExample1",6,false);
             example1.buildEdgeDataStructures([[0,1],[1,2],[2,0],[2,3],[3,4],[4,5],[5,3]]);
-            example1.getEdge(3).addedCSS[0]="stroke: red";
+            example1.getEdge(3).addedCSS[0]["stroke"]="red";
             example1.drawNewGraph(false,5/4);
             
             let example2=new Graph();
             example2.init(".graphExample2",5,false);
             example2.buildEdgeDataStructures([[0,1],[1,2],[2,0],[2,3],[3,4],[4,2]]);
-            example2.getVertex(2).addedCSS[0]="stroke: red";
+            example2.getVertex(2).addedCSS[0]["stroke"]="red";
             example2.drawNewGraph(false,5/4);
         }
         else if (part===2) {
@@ -265,11 +268,11 @@
             let example4=new Graph();
             example4.init(".graphExample4",5,false);
             example4.buildEdgeDataStructures([[0,1],[1,2],[2,0],[2,3],[3,4],[4,2]]);
-            example4.getVertex(0).addedCSS[0]="fill: magenta";
-            example4.getVertex(1).addedCSS[0]="fill: magenta";
-            example4.getVertex(2).addedCSS[0]="fill: red";
-            example4.getVertex(3).addedCSS[0]="fill: yellow";
-            example4.getVertex(4).addedCSS[0]="fill: yellow";
+            example4.getVertex(0).addedCSS[0]["fill"]="magenta";
+            example4.getVertex(1).addedCSS[0]["fill"]="magenta";
+            example4.getVertex(2).addedCSS[0]["fill"]="red";
+            example4.getVertex(3).addedCSS[0]["fill"]="yellow";
+            example4.getVertex(4).addedCSS[0]["fill"]="yellow";
             example4.drawNewGraph(false,5/4);
             
             let example5=new Graph();

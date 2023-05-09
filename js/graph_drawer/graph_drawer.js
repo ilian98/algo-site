@@ -35,24 +35,35 @@
         if (findOrientation([x1, y1],[x2, y2],[xs[0], ys[0]])<0) return [[xs[0], ys[0]],[xs[1], ys[1]]];
         else return [[xs[1], ys[1]],[xs[0], ys[0]]];
     }
-    function findBezierPoint (x1, y1, x2, y2, x3, y3) {
-        let t=[-x1,-y1];
-        [x1,y1]=[0,0];
-        [x2,y2]=[x2+t[0],y2+t[1]];
-        [x3,y3]=[x3+t[0],y3+t[1]];
+    function translatePoint (p, t) {
+        return [p[0]+t[0], p[1]+t[1]];
+    }
+    function rotatePoint (p, sin, cos) {
+        return [cos*p[0]-sin*p[1], sin*p[0]+cos*p[1]];
+    }
+    function findBezierProperties (x1, y1, x2, y2, x3, y3) { // (x3, y3) is the vertex of the parabola
+        let t=[-x1, -y1];
+        [x1, y1]=[0, 0];
+        [x2, y2]=translatePoint([x2, y2],t);
+        [x3, y3]=translatePoint([x3, y3],t);
         let sin=y2/segmentLength(0,0,x2,y2),cos=-x2/segmentLength(0,0,x2,y2);
-        [x2,y2]=[cos*x2-sin*y2,sin*x2+cos*y2];
-        [x3,y3]=[cos*x3-sin*y3,sin*x3+cos*y3];
+        [x2, y2]=rotatePoint([x2, y2],sin,cos);
+        [x3, y3]=rotatePoint([x3, y3],sin,cos);
         // y=a*x^2+b*x
         let a=(y2*x3-y3*x2)/(x2*x2*x3-x3*x3*x2);
         let b=(y2-a*x2*x2)/x2;
+        return [t, [sin, cos], [a, b]];
+    }
+    function findBezierPoint (x1, y1, x2, y2, tr, ang, par) {
+        let [sin, cos]=ang;
+        let [a, b]=par;
+        [x1, y1]=rotatePoint(translatePoint([x1, y1],tr),sin,cos);
+        [x2, y2]=rotatePoint(translatePoint([x2, y2],tr),sin,cos);
         let k1=2*a*x1+b,m1=y1-k1*x1; // y=k1*x+m1
         let k2=2*a*x2+b,m2=y2-k2*x2; // y=k2*x+m2
         let x=(m2-m1)/(k1-k2);
         let y=k1*x+m1;
-        [x,y]=[cos*x+sin*y,-sin*x+cos*y];
-        [x,y]=[x-t[0],y-t[1]];
-        return [x,y];
+        return translatePoint(rotatePoint([x, y],-sin,cos),[-tr[0], -tr[1]]);
     }
     function findPointAtDistance (x1, y1, x2, y2, d) {
         let r=Math.sqrt(((x1-x2)*(x1-x2)+(y1-y2)*(y1-y2))/4+d*d);
@@ -62,7 +73,7 @@
         return "M"+st[0]+","+st[1]+" Q"+q[0]+","+q[1]+" "+end[0]+","+end[1];
     }
     function linePath (st, end) {
-        return bezierPath(st, end, [(st[0]+end[0])/2, (st[1]+end[1])/2]);
+        return "M"+st[0]+","+st[1]+" L"+end[0]+","+end[1];
     }
     function loopPath (x, y, vertexRad, r, isDirected) {
         let points=circlesIntersection(x,y+vertexRad,vertexRad,x,y-3*r/8,r);
@@ -97,8 +108,10 @@
             let sampleText=snap.text();
             let css=(type==="vertex-name")?this.defaultCSSVertexText:this.defaultCSSWeight;
             if (ind!==-1) {
-                if (type==="vertex-name") css+=";"+graph.getVertex(ind).addedCSS[1];
-                else css+=";"+graph.getEdge(ind).addedCSS[1];
+                let obj;
+                if (type==="vertex-name") obj=graph.getVertex(ind);
+                else obj=graph.getEdge(ind);
+                css+=";"+objToStyle(obj.addedCSS[1])+";"+obj.userCSS[1];
             }
             setStyle(sampleText,"font-size: "+(coef*graph.size*20)+"px;"+css);
             let fontSize=parseFloat(sampleText.attr("font-size"));
@@ -110,8 +123,10 @@
             let sampleStroke=snap.circle();
             let css=(type==="vertex")?this.defaultCSSVertex:this.defaultCSSEdge;
             if (ind!==-1) {
-                if (type==="vertex") css+=";"+graph.getVertex(ind).addedCSS[0];
-                else css+=";"+graph.getEdge(ind).addedCSS[0];
+                let obj;
+                if (type==="vertex") obj=graph.getVertex(ind);
+                else obj=graph.getEdge(ind);
+                css+=";"+objToStyle(obj.addedCSS[0])+";"+obj.userCSS[0];
             }
             setStyle(sampleStroke,"stroke-width: "+(coef*graph.size*20)+";"+css);
             let strokeWidth=parseFloat(sampleStroke.attr("stroke-width"));
@@ -137,10 +152,10 @@
                 css="fill: black; font-family: Arial; "+this.defaultCSSWeight;
             }
             if (ind!==-1) {
-                if (type==="vertex") css+=";"+graph.getVertex(ind).addedCSS[0];
-                else if (type==="vertex-name") css+=";"+graph.getVertex(ind).addedCSS[1];
-                else if (type==="edge") css+=";"+graph.getEdge(ind).addedCSS[0];
-                else css+=";"+graph.getEdge(ind).addedCSS[1];
+                if (type==="vertex") css+=";"+objToStyle(graph.getVertex(ind).addedCSS[0])+";"+graph.getVertex(ind).userCSS[0];
+                else if (type==="vertex-name") css+=";"+objToStyle(graph.getVertex(ind).addedCSS[1])+";"+graph.getVertex(ind).userCSS[1];
+                else if (type==="edge") css+=";"+objToStyle(graph.getEdge(ind).addedCSS[0])+";"+graph.getEdge(ind).userCSS[0];
+                else css+=";"+objToStyle(graph.getEdge(ind).addedCSS[1])+";"+graph.getEdge(ind).userCSS[1];
             }
             setStyle(sample,css);
             let val=sample.attr(attr);
@@ -161,10 +176,11 @@
             let middlePoint=findPointAtDistance(st[0],st[1],end[0],end[1],properties);
             let [beg,fin]=[st,end];
             if ((st[1]>end[1])||((st[1]===end[1])&&(st[0]>end[0]))) [beg,fin]=[end,st];
-            let bezierPoint=findBezierPoint(beg[0],beg[1],fin[0],fin[1],middlePoint[0],middlePoint[1]);
+            let [tr, ang, par]=findBezierProperties(beg[0],beg[1],fin[0],fin[1],middlePoint[0],middlePoint[1]);
+            let bezierPoint=findBezierPoint(beg[0],beg[1],fin[0],fin[1],tr,ang,par);
             let bezPath=bezierPath(beg,fin,bezierPoint);
             let vertexRad=graph.getRadius();
-            if (segmentLength(st[0],st[1],end[0],end[1])<2*vertexRad+3*endDist) return [bezPath, bezierPoint];
+            if (Snap.path.getTotalLength(bezPath)<2*vertexRad+2*endDist) return [bezPath, bezierPoint];
             let p1=Snap.path.intersection(
                 bezPath,
                 circlePath(beg[0],beg[1],((beg===st)?vertexRad:(vertexRad+endDist)))
@@ -175,7 +191,7 @@
                 circlePath(fin[0],fin[1],((fin===st)?vertexRad:(vertexRad+endDist)))
             )[0];
             if (p2===undefined) return ["", [(st[0]+end[0])/2, (st[1]+end[1])/2]];
-            let bezierPointFinal=findBezierPoint(p1.x,p1.y,p2.x,p2.y,middlePoint[0],middlePoint[1]);
+            let bezierPointFinal=findBezierPoint(p1.x,p1.y,p2.x,p2.y,tr,ang,par);
             if (beg!==st) [p1,p2]=[p2,p1];
             return [bezierPath([p1.x,p1.y],[p2.x,p2.y],bezierPointFinal), bezierPoint];
         }
@@ -192,22 +208,23 @@
         this.addMarkerEnd = function (line, isLoop, strokeWidth, st, properties) {
             let [arrowHeight, arrowWidth, arrowDist]=calculateArrowProperties(isLoop,strokeWidth,st,graph.getRadius(),properties);
             let arrowEnd=[3*arrowHeight/2,arrowHeight/2];
-            let arrow=snap.polygon([0,0,arrowEnd[0],arrowEnd[1],0,arrowHeight,0,0]).attr({
-                fill: line.attr("stroke"),
-                opacity: line.attr("stroke-opacity")
-            });
-            line.markerEnd=arrow;
-            let marker=arrow.marker(0,0,arrowEnd[0],arrowHeight,(isLoop===false)?arrowEnd[0]-arrowDist:0,arrowEnd[1]).attr({markerUnits: "userSpaceOnUse"});
-            line.attr({"marker-end": marker});
+            let points=[0,0,arrowEnd[0],arrowEnd[1],0,arrowHeight,0,0];
+            /*if (line.markerEnd!==undefined) line.markerEnd.attr("points",points);
+            else {*/
+                line.markerEnd=snap.polygon(points);
+                let marker=line.markerEnd.marker(0,0,arrowEnd[0],arrowHeight,
+                                                 (isLoop===false)?arrowEnd[0]-arrowDist:0,arrowEnd[1]).attr({
+                    markerUnits: "userSpaceOnUse"
+                });
+                line.attr({"marker-end": marker});
+            //}
             return arrowDist;
         }
         function calcWeightPosition (weight, dx, isLoop, pathForWeight, properties) {
             let isVertical=false;
             if (Math.abs(dx)<=2*graph.getRadius()) isVertical=true;
             if (isVertical===true) {
-                let tempPath=snap.path(pathForWeight);
-                let middle=tempPath.getPointAtLength(tempPath.getTotalLength()/2);
-                tempPath.remove();
+                let middle=Snap.path.getPointAtLength(pathForWeight,Snap.path.getTotalLength(pathForWeight)/2);
                 if (properties>=0) pathForWeight=linePath([middle.x-weight.width-2*5, middle.y],
                                                           [middle.x, middle.y]);
                 else pathForWeight=linePath([middle.x, middle.y],
@@ -257,9 +274,32 @@
             return svgEdge;
         }
         
+        this.recalcAttrWeight = function (svgEdge, edge) {
+            svgEdge.weight.attr("fill",svgEdge.line.attr("stroke"));
+            setStyle(svgEdge.weight,edge.defaultCSS[1]+";"+objToStyle(edge.addedCSS[1])+";"+edge.userCSS[1]);
+        }
+        this.recalcAttrEdge = function (svgEdge, edgeInd = -1) {
+            let edge;
+            if (edgeInd!==-1) edge=graph.getEdge(edgeInd);
+            let oldStrokeWidth=parseFloat(svgEdge.line.attr("stroke-width"));
+            setStyle(svgEdge.line,edge.defaultCSS[0]+";"+objToStyle(edge.addedCSS[0])+";"+edge.userCSS[0]);
+            if (graph.isDirected===true) {
+                let currStrokeWidth=parseFloat(svgEdge.line.attr("stroke-width"));
+                
+                if (oldStrokeWidth!==currStrokeWidth) {
+                    let x=edge.x,y=edge.y;
+                    let st=graph.svgVertices[x].coord,end=graph.svgVertices[y].coord;
+                    svgEdge.endDist=this.addMarkerEnd(svgEdge.line,false,currStrokeWidth,st,end,svgEdge.drawProperties[0]);
+                    this.redrawEdge(svgEdge,st,end,edgeInd);
+                }
+                svgEdge.line.markerEnd.attr("fill",svgEdge.line.attr("stroke"));
+                svgEdge.line.markerEnd.attr("opacity",svgEdge.line.attr("stroke-opacity"));
+            }
+            if ((graph.isWeighted===true)&&(svgEdge.weight!==undefined)) this.recalcAttrWeight(svgEdge,edge);
+        }
         this.defaultCSSEdge="";
         this.defaultCSSWeight="";
-        this.drawEdge = function (st, end, edgeInd = -1, properties = 0) {
+        this.drawEdge = function (st, end, edgeInd = -1, drawProperties = [0, 1, 0]) {
             let isLoop=false,isDrawn=(edgeInd===-1),isDirected=graph.isDirected||graph.isNetwork;
             let strokeWidth=this.findStrokeWidth("edge",edgeInd);
             let edge;
@@ -271,14 +311,14 @@
             let vertexRad=graph.getRadius();
             
             let svgEdge=new SvgEdge();
-            svgEdge.drawProperties=[];
-            svgEdge.drawProperties[0]=properties;
+            svgEdge.drawProperties=drawProperties;
+            let properties=drawProperties[0];
 
             let endDist=0;
             if (isDirected===true) {
                 let arrowDist=calculateArrowProperties(isLoop,strokeWidth,st,vertexRad,properties)[2];
-                if (edgeInd!==-1) endDist=this.findStrokeWidth("vertex",graph.getEdge(edgeInd).y)/2+arrowDist;
-                else endDist=0;
+                endDist=((isDrawn===true)?0:this.findStrokeWidth("vertex",graph.getEdge(edgeInd).y)/2)+arrowDist;
+                if ((properties===0)&&(endDist>segmentLength(st[0],st[1],end[0],end[1])-2*graph.getRadius())) endDist=0;
             }
             svgEdge.endDist=endDist;
 
@@ -305,11 +345,8 @@
             svgEdge.line.attr({fill: "none", stroke: "black", "stroke-width": strokeWidth});
             concatStyle(svgEdge.line,this.defaultCSSEdge);
             if (isDirected===true) this.addMarkerEnd(svgEdge.line,isLoop,strokeWidth,st,properties);
-            if (isDrawn===false) edge.defaultCSS[0]=concatStyle(svgEdge.line,edge.addedCSS[0]);
-            if (isDirected===true) {
-                svgEdge.line.markerEnd.attr("fill",svgEdge.line.attr("stroke"));
-                svgEdge.line.markerEnd.attr("opacity",svgEdge.line.attr("stroke-opacity"));
-            }
+            if (isDrawn===false) edge.defaultCSS[0]=svgEdge.line.attr("style");
+            this.recalcAttrEdge(svgEdge,edgeInd);
 
             if ((isDrawn===false)&&(graph.isWeighted===true)) {
                 svgEdge.weight=snap.text(0,0,weightName(edge,graph.isNetwork));
@@ -319,7 +356,7 @@
                     "font-family": "Arial",
                     "text-anchor": "middle",
                     class: "unselectable",
-                    fill: svgEdge.line.attr("stroke"),
+                    fill: "black",
                 });
                 concatStyle(svgEdge.weight,this.defaultCSSWeight);
                 svgEdge.weight.width=svgEdge.weight.getBBox().width;
@@ -335,11 +372,26 @@
                 svgEdge.weight.attr({textpath: pathForWeight});
                 svgEdge.weight.textPath.attr({"startOffset": "50%"});
                 
-                edge.defaultCSS[1]=concatStyle(svgEdge.weight,edge.addedCSS[1]);
+                edge.defaultCSS[1]=svgEdge.weight.attr("style");
+                this.recalcAttrWeight(svgEdge,edge);
             }
             return svgEdge;
         }
 
+        this.recalcAttrVertexText = function (svgVertex, ind) {
+            let v=graph.getVertex(ind);
+            let fontSize=this.findFontSize("vertex-name",ind);
+            svgVertex.text.attr({dy: determineDy(
+                v.name,
+                svgVertex.text.attr("font-family"),
+                fontSize
+            )});
+            setStyle(svgVertex.text,v.defaultCSS[1]+";"+objToStyle(v.addedCSS[1])+";"+v.userCSS[1]); 
+        }
+        this.recalcAttrVertex = function (svgVertex, ind) {
+            let v=graph.getVertex(ind);
+            setStyle(svgVertex.circle,v.defaultCSS[0]+";"+objToStyle(v.addedCSS[0])+";"+v.userCSS[0]);
+        }
         this.defaultCSSVertexText="";
         this.drawVertexText = function (i, text) {
             let x=graph.svgVertices[i].coord[0],y=graph.svgVertices[i].coord[1];
@@ -359,12 +411,8 @@
                 class: "unselectable"
             });
             concatStyle(graph.svgVertices[i].text,this.defaultCSSVertexText);
-            graph.svgVertices[i].text.attr({dy: determineDy(
-                v.name,
-                graph.svgVertices[i].text.attr("font-family"),
-                fontSize
-            )});
-            v.defaultCSS[1]=concatStyle(graph.svgVertices[i].text,v.addedCSS[1]); 
+            v.defaultCSS[1]=graph.svgVertices[i].text.attr("style");
+            this.recalcAttrVertexText(graph.svgVertices[i],i);
         }
         this.defaultCSSVertex="";
         this.drawVertex = function (i) {
@@ -377,7 +425,8 @@
             });
             concatStyle(graph.svgVertices[i].circle,this.defaultCSSVertex);
             let v=graph.getVertex(i);
-            v.defaultCSS[0]=concatStyle(graph.svgVertices[i].circle,v.addedCSS[0]);
+            v.defaultCSS[0]=graph.svgVertices[i].circle.attr("style");
+            this.recalcAttrVertex(graph.svgVertices[i],i);
             this.drawVertexText(i,v.name);
             graph.svgVertices[i].group=snap.group(graph.svgVertices[i].circle,graph.svgVertices[i].text);
         }
@@ -468,14 +517,13 @@
                 let x=edge.x,y=edge.y;
                 let code=Math.max(x,y)*graph.n+Math.min(x,y);
                 let val=edgeMapCurr.get(code),cnt=edgeMapCnt.get(code);
-                let drawProperties;
-                if (x!==y) drawProperties=multiEdges[cnt][val++]*((x>y)?-1:1);
-                else drawProperties=loopEdges[cnt][val++];
-                let origProperties=drawProperties;
-                if (edge.curveHeight!==undefined) drawProperties=edge.curveHeight;
+                let drawProperties=[];
+                if (x!==y) drawProperties[2]=multiEdges[cnt][val++]*((x>y)?-1:1);
+                else drawProperties[2]=loopEdges[cnt][val++];
+                drawProperties[0]=drawProperties[2];
+                if (edge.curveHeight!==undefined) drawProperties[0]=edge.curveHeight;
+                drawProperties[1]=cnt;
                 graph.svgEdges[i]=this.drawEdge(graph.svgVertices[x].coord,graph.svgVertices[y].coord,i,drawProperties);
-                graph.svgEdges[i].drawProperties[1]=cnt;
-                graph.svgEdges[i].drawProperties[2]=origProperties;
                 edgeMapCurr.set(code,val);
                 
                 if (animateDraw===true) {
@@ -539,9 +587,6 @@
             for (let i=graph.n; i<graph.svgVertices.length; i++) {
                 graph.svgVertices[i]=undefined;
             }
-            /*for (let i=m; i<graph.svgEdges.length; i++) {
-                graph.svgEdges[i]=undefined;
-            }*/
             
             if ((animateDraw===true)&&(vertexRad!=oldRad)) {          
                 cntAnimations++;

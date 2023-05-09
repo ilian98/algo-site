@@ -65,6 +65,7 @@
             startMousePos=[svgPoint.x, svgPoint.y];
             
             if (type==="edge") drawProperties=graph.svgEdges[index].drawProperties[0];
+            
             let mouseOut = function (event) {
                 if (event===undefined) return ;
                 let boundBox = {
@@ -155,7 +156,7 @@
                 let end=[svgPoint.x, svgPoint.y];
                 if (segmentLength(circleCoord[0],circleCoord[1],svgPoint.x,svgPoint.y)>=vertexRad) {
                     if (currEdgeDraw===undefined) {
-                        currEdgeDraw=graph.graphDrawer.drawEdge(circleCoord,end,-1,0);
+                        currEdgeDraw=graph.graphDrawer.drawEdge(circleCoord,end);
                         graph.graphDrawer.setBack(currEdgeDraw.line);
                     }
                     else graph.graphDrawer.redrawEdge(currEdgeDraw,circleCoord,end,-1);
@@ -402,19 +403,27 @@
             if (Math.sqrt(dx*dx+dy*dy)<5*graph.size) graph.svgEdges[index].weight.transform("t0 0");
         }
         
-        function addCSS (obj, defaultCSS, newCSS, typeName, ind) {
+        function addCSS (obj, newCSS, typeName, ind) {
             let oldCSS;
+            if ((typeName==="vertex")||(typeName==="edge")) oldCSS=[obj.userCSS[0]];
+            else oldCSS=[obj.userCSS[1]];
+            if (graph.graphController!==undefined) graph.graphController.addChange("change-css-"+typeName,[ind, oldCSS]);
             if (typeName==="vertex") {
-                let vr=graph.getVertex(ind);
-                oldCSS=[vr.addedCSS[0], vr.addedCSS[1]];
+                obj.userCSS[0]=newCSS;
+                graph.graphDrawer.recalcAttrVertex(graph.svgVertices[ind],ind);
             }
-            else {
-                let edge=graph.getEdge(ind);
-                oldCSS=[edge.addedCSS[0], edge.addedCSS[1]];
+            else if (typeName==="vertex-name") {
+                obj.userCSS[1]=newCSS;
+                graph.graphDrawer.recalcAttrVertexText(graph.svgVertices[ind],ind);
             }
-            if (graph.graphController!==undefined)
-                graph.graphController.addChange("change-css-"+typeName,[ind, oldCSS]);
-            obj.attr("style",defaultCSS+" ; "+newCSS);
+            else if (typeName==="edge") {
+                obj.userCSS[0]=newCSS;
+                graph.graphDrawer.recalcAttrEdge(graph.svgEdges[ind],ind);
+            }
+            else if (typeName==="weight") {
+                obj.userCSS[1]=newCSS;
+                graph.graphDrawer.recalcAttrWeight(graph.svgEdges[ind],obj);
+            }
         }
         this.removeVertex = function (index) {
             for (let ind of graph.adjList[index]) {
@@ -446,32 +455,28 @@
             if (css===undefined)
                 css=prompt(
                     ((language==="bg")?"Въведете CSS стил за върха":"Input CSS style for the vertex")+
-                    ((vr.addedCSS[0]==="")?
+                    ((vr.userCSS[0]==="")?
                      ((language==="bg")?" (например за червен цвят fill: red)":" (for example for red colour - fill: red)"):""),
-                    vr.addedCSS[0]
+                    vr.userCSS[0]
                 );
-            else css=vr.addedCSS[0]+" ; "+css;
+            else css=vr.userCSS[0]+" ; "+css;
             if (css===null) return ;
             css=objToStyle(styleToObj(css));
-            if (vr.addedCSS[0]!==css)
-                addCSS(graph.svgVertices[index].circle,vr.defaultCSS[0],css,"vertex",index);
-            vr.addedCSS[0]=css;
+            if (vr.userCSS[0]!==css) addCSS(vr,css,"vertex",index);
         }
         this.addCSSVertexName = function (index, css) {
             let vr=graph.getVertex(index);
             if (css===undefined) 
                 css=prompt(
                     ((language==="bg")?"Въведете CSS стил за името на върха":"Input CSS style for the name of the vertex")+
-                    ((vr.addedCSS[1]==="")?
+                    ((vr.userCSS[1]==="")?
                      ((language==="bg")?" (например за червен цвят fill: red)":" (for example for red colour - fill: red)"):""),
-                    vr.addedCSS[1]
+                    vr.userCSS[1]
                 );
-            else css=vr.addedCSS[1]+" ; "+css;
+            else css=vr.userCSS[1]+" ; "+css;
             if (css===null) return ;
             css=objToStyle(styleToObj(css));
-            if (vr.addedCSS[1]!==css)
-                addCSS(graph.svgVertices[index].text,vr.defaultCSS[1],css,"vertex",index);
-            vr.addedCSS[1]=css;
+            if (vr.userCSS[1]!==css) addCSS(vr,css,"vertex-name",index);
         }
         function vertexClick (event) {
             if (trackedMouse===true) return ;
@@ -534,7 +539,7 @@
                 graph.svgEdges[index].weight.remove();
                 let x=edge.x,y=edge.y;
                 graph.svgEdges[index]=graph.graphDrawer.drawEdge(graph.svgVertices[x].coord,graph.svgVertices[y].coord,index,
-                                                     graph.svgEdges[index].drawProperties[0]);
+                                                     graph.svgEdges[index].drawProperties);
                 graph.graphDrawer.setBack(graph.svgEdges[index].line);
                 graph.graphDrawer.setBack(graph.svgEdges[index].weight);
                 addEdgeEvents(index);
@@ -546,26 +551,15 @@
             if (css===undefined)
                 css=prompt(
                     ((language==="bg")?"Въведете CSS стил за реброто":"Input CSS style for the edge")+
-                    ((edge.addedCSS[0]==="")?
+                    ((edge.userCSS[0]==="")?
                      ((language==="bg")?" (например за червен цвят stroke: red)":" (for example for red colour - stroke: red)"):""),
-                    edge.addedCSS[0]
+                    edge.userCSS[0]
                 );
-            else css=edge.addedCSS[0]+" ; "+css;
+            else css=edge.userCSS[0]+" ; "+css;
             if (css===null) return ;
             css=objToStyle(styleToObj(css));
             let svgEdge=graph.svgEdges[index];
-            if (edge.addedCSS[0]!==css)
-                addCSS(svgEdge.line,edge.defaultCSS[0],css,"edge",index);
-            edge.addedCSS[0]=css;
-            if ((graph.isDirected===true)||(graph.isNetwork===true)) {
-                let marker=svgEdge.line.markerEnd;
-                marker.attr("fill",svgEdge.line.attr("stroke"));
-            }
-            if (graph.isWeighted===true) {
-                if (edge.addedCSS[1].indexOf("fill")===-1) {
-                    svgEdge.weight.attr("fill",svgEdge.line.attr("stroke"));
-                }
-            }
+            if (edge.userCSS[0]!==css) addCSS(edge,css,"edge",index);
         }
         function edgeClick (event) {
             if (trackedMouse===true) return ;
@@ -595,20 +589,15 @@
             if (css===undefined)
                 css=prompt(
                     ((language==="bg")?"Въведете CSS стил за теглото":"Input CSS style for the weight")+
-                    ((edge.addedCSS[1]==="")?
+                    ((edge.userCSS[1]==="")?
                      ((language==="bg")?" (например за червен цвят fill: red)":" (for example for red colour - fill: red)"):""),
-                    edge.addedCSS[1]
+                    edge.userCSS[1]
                 );
-            else css=edge.addedCSS[1]+" ; "+css;
+            else css=edge.userCSS[1]+" ; "+css;
             if (css===null) return ;
             css=objToStyle(styleToObj(css));
             let weight=graph.svgEdges[index].weight;
-            if (edge.addedCSS[1]!==css)
-                addCSS(weight,edge.defaultCSS[1],css,"edge",index);
-            if (css.indexOf("fill")===-1) {
-                weight.attr("fill",graph.svgEdges[index].line.attr("stroke"));
-            }
-            edge.addedCSS[1]=css;
+            if (edge.userCSS[1]!==css) addCSS(edge,css,"weight",index);
         }
         function weightClick (event) {
             if (trackedMouse===true) return ;

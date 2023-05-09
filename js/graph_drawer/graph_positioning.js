@@ -499,10 +499,10 @@
                     }
                     if (graph.graphController!==undefined) 
                         graph.graphController.addChange("change-css-edge",
-                                                        [i, [edge.addedCSS[0], edge.addedCSS[1]]],
+                                                        [i, [edge.userCSS[0]]],
                                                         false);
                     if (found===true) {
-                        let s=edge.addedCSS[0];
+                        let s=edge.userCSS[0];
                         for (;;) {
                             let beg=s.indexOf(";;stroke-dasharray: "),end;
                             if (beg===-1) break;
@@ -513,12 +513,12 @@
                                 }
                             }
                             let remove=s.substring(beg,end+1);
-                            s=edge.addedCSS[0]=s.replace(remove,"");
+                            s=edge.userCSS[0]=s.replace(remove,"");
                         }
                         edge.curveHeight=undefined;
                         continue;
                     }
-                    edge.addedCSS[0]+="; ;;stroke-dasharray: "+(10*graph.size)+";";
+                    edge.userCSS[0]+="; ;;stroke-dasharray: "+(10*graph.size)+";";
                     
                     let oldCurveHeight=edge.curveHeight;
                     let flag=false;

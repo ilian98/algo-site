@@ -59,24 +59,26 @@
         return style;
     }
     
-    function Vertex (name, css=["",""]) {
+    function Vertex (name, userCSS=["",""], addedCSS=[[],[]]) {
         this.name=name;
         
         this.defaultCSS=["",""];
-        this.addedCSS=css;
+        this.addedCSS=addedCSS;
+        this.userCSS=["",""];
     }
     function SvgVertex () {
         this.coord=undefined;
         this.circle=undefined; this.text=undefined;
         this.group=undefined;
     }
-    function Edge (x, y, weight = "", css=["",""], curveHeight=undefined) {
+    function Edge (x, y, weight = "", userCSS=["",""], curveHeight=undefined, addedCSS=[[],[]]) {
         this.x=x;
         this.y=y;
         this.weight=weight;
         
         this.defaultCSS=["",""];
-        this.addedCSS=css;
+        this.addedCSS=addedCSS;
+        this.userCSS=userCSS;
         
         this.curveHeight=curveHeight;
 
@@ -160,7 +162,7 @@
         }
 
         function convertVertexToList (vertex) {
-            return [vertex.name,[vertex.addedCSS[0], vertex.addedCSS[1]]];
+            return [vertex.name,[vertex.userCSS[0], vertex.userCSS[1]]];
         }
         this.convertSimpleVertexList = function () {
             let vers=[];
@@ -192,7 +194,7 @@
         }
 
         function convertEdgeToList (edge) {
-            return [edge.x,edge.y,edge.weight,[edge.addedCSS[0],edge.addedCSS[1]],edge.curveHeight];
+            return [edge.x,edge.y,edge.weight,[edge.userCSS[0],edge.userCSS[1]],edge.curveHeight];
         }
         this.convertSimpleEdgeList = function () {
             let edges=[];
@@ -508,8 +510,8 @@
                 if (edgeList[i]===undefined) continue;
                 let info=[edgeList[i].x+1, edgeList[i].y+1];
                 if (edgeList[i].weight!=="") info.push(edgeList[i].weight);
-                if ((edgeList[i].addedCSS[0]!=="")||(edgeList[i].addedCSS[1]!=="")) {
-                    info.push("[["+edgeList[i].addedCSS[0]+"],["+edgeList[i].addedCSS[1]+"]]");
+                if ((edgeList[i].userCSS[0]!=="")||(edgeList[i].userCSS[1]!=="")) {
+                    info.push("[["+edgeList[i].userCSS[0]+"],["+edgeList[i].userCSS[1]+"]]");
                 }
                 if (edgeList[i].curveHeight!==undefined) info.push("["+edgeList[i].curveHeight+"]");
                 edges.push(info);
@@ -529,8 +531,8 @@
                 let info=[(i+1).toString()];
                 if (vertices[i].name!==info[0]) info.push(vertices[i].name);
                 info.push("["+this.svgVertices[i].coord[0]+","+this.svgVertices[i].coord[1]+"]");
-                if ((vertices[i].addedCSS[0]!=="")||(vertices[i].addedCSS[1]!=="")) {
-                    info.push("[["+vertices[i].addedCSS[0]+"],["+vertices[i].addedCSS[1]+"]]");
+                if ((vertices[i].userCSS[0]!=="")||(vertices[i].userCSS[1]!=="")) {
+                    info.push("[["+vertices[i].userCSS[0]+"],["+vertices[i].userCSS[1]+"]]");
                 }
                 vers.push(info);
             }

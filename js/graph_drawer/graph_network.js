@@ -46,49 +46,33 @@
             }
             
             for (let [i, edge] of edges) {
+                edge.addedCSS[0]["stroke-width"]="";
                 let strokeWidth=this.graphDrawer.findStrokeWidth("edge",i);
                 let curr=strokeWidth/2+(Math.abs(edge.flow)/max)*(1.5*strokeWidth);
-                let edgeStyleObj=styleToObj(edge.defaultCSS[0]);
-                edgeStyleObj["stroke-width"]=curr;
+                edge.addedCSS[0]["stroke-width"]=curr;
                 
                 if (this.isDirected===true) {
                     if (edge.real===false) {
-                        edgeStyleObj["stroke-dasharray"]=this.vertexRad/2;
-                        edgeStyleObj["opacity"]=0.5;
-                        
-                        let weightStyleObj=styleToObj(edge.defaultCSS[1]);
-                        weightStyleObj["opacity"]=0.5;
-                        let weightStyle=objToStyle(weightStyleObj);
-                        this.svgEdges[i].weight.attr("style",weightStyle+" ; "+edge.addedCSS[1]);
-                        edge.defaultCSS[1]=weightStyle;
+                        edge.addedCSS[0]["stroke-dasharray"]=10*this.size;
+                        edge.addedCSS[0]["opacity"]=0.5;
+                        edge.addedCSS[1]["opacity"]=0.5;
                     }
                 }
                 else {
                     if ((edge.flow<0)||((edge.flow==0)&&(edge.real===false))) {
-                        edgeStyleObj["opacity"]=0;
-                        
-                        let weightStyleObj=styleToObj(edge.defaultCSS[1]);
-                        weightStyleObj["opacity"]=0;
-                        let weightStyle=objToStyle(weightStyleObj);
-                        this.svgEdges[i].weight.attr("style",weightStyle+" ; "+edge.addedCSS[1]);
-                        edge.defaultCSS[1]=weightStyle;
+                        edge.addedCSS[0]["opacity"]=0;
+                        edge.addedCSS[1]["opacity"]=0;
                     }
-                    else if (edge.curveHeight===undefined) {
-                        if (edge.flow===0) this.svgEdges[i].endDist=0;
+                    if (edge.curveHeight===undefined) edge.curveHeight=0;
+                    if (edge.flow===0) { console.log("tuk");
+                        this.svgEdges[i].endDist=0;
+                        this.svgEdges[i].line.markerEnd.remove();
+                        let x=edge.x,y=edge.y;
+                        let st=this.svgVertices[x].coord,end=this.svgVertices[y].coord;        
+                        this.graphDrawer.redrawEdge(this.svgEdges[i],st,end,i);
                     }
                 }
-                if ((this.isDirected===true)||(edge.flow!=0)) {
-                    this.svgEdges[i].endDist=this.graphDrawer.addMarkerEnd(this.svgEdges[i].line,false,curr,
-                                  this.svgVertices[edge.x].coord,this.svgEdges[i].drawProperties[0]);
-                    edgeStyleObj["marker-end"]=styleToObj(this.svgEdges[i].line.attr("style"))["marker-end"];
-                }
-                else delete edgeStyleObj["marker-end"];
-                let edgeStyle=objToStyle(edgeStyleObj);
-                this.svgEdges[i].line.attr("style",edgeStyle+" ; "+edge.addedCSS[0]);
-                edge.defaultCSS[0]=edgeStyle;
-                let x=edge.x,y=edge.y;
-                let st=this.svgVertices[x].coord,end=this.svgVertices[y].coord;        
-                this.graphDrawer.redrawEdge(this.svgEdges[i],st,end,i);
+                this.graphDrawer.recalcAttrEdge(this.svgEdges[i],i);
             }
         }
     }

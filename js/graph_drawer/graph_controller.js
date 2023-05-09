@@ -317,13 +317,23 @@
                     }
                     else if (curr.type==="change-css-vertex") {
                         let vr=graph.getVertex(ind);
-                        pushOther(curr.type,[ind, [vr.addedCSS[0], vr.addedCSS[1]]]);
-                        vr.addedCSS=curr.data[1];
+                        pushOther(curr.type,[ind, [vr.userCSS[0]]]);
+                        vr.userCSS[0]=curr.data[1];
+                    }
+                    else if (curr.type==="change-css-vertex-name") {
+                        let vr=graph.getVertex(ind);
+                        pushOther(curr.type,[ind, [vr.userCSS[1]]]);
+                        vr.userCSS[1]=curr.data[1];
                     }
                     else if (curr.type==="change-css-edge") {
                         let edge=graph.getEdge(ind);
-                        pushOther(curr.type,[ind, [edge.addedCSS[0], edge.addedCSS[1]]]);
-                        edge.addedCSS=curr.data[1];
+                        pushOther(curr.type,[ind, [edge.userCSS[0]]]);
+                        edge.userCSS[0]=curr.data[1];
+                    }
+                    else if (curr.type==="change-css-weight") {
+                        let edge=graph.getEdge(ind);
+                        pushOther(curr.type,[ind, [edge.userCSS[1]]]);
+                        edge.userCSS[1]=curr.data[1];
                     }
                     else if (curr.type==="change-name") {
                         let vr=graph.getVertex(ind);
@@ -580,7 +590,7 @@
                 alert("Невалиден номер на връх за: "+lines[curr]);
                 return false;
             }
-            let weight="",addedCSS=["",""],curveHeight=undefined;
+            let weight="",userCSS=["",""],curveHeight=undefined;
             if (tokens.length>=3) {
                 let ind=2;
                 if (tokens[ind][0]!=='[') weight=tokens[ind++];
@@ -596,8 +606,8 @@
                             alert("Очаква се да има два CSS-а, разделени със запетайка при: "+lines[curr]);
                             return false;
                         }
-                        addedCSS[0]=css[0].slice(2,css[0].length-1);
-                        addedCSS[1]=css[1].slice(1,css[1].length-2);
+                        userCSS[0]=css[0].slice(2,css[0].length-1);
+                        userCSS[1]=css[1].slice(1,css[1].length-2);
                         ind++;
                         if (tokens.length>ind) {
                             if ((tokens[ind][0]!=='[')||(tokens[ind][tokens[ind].length-1]!==']')) {
@@ -614,7 +624,7 @@
                     }
                 }
             }
-            edges.push([x-1,y-1,weight,addedCSS,curveHeight]);
+            edges.push([x-1,y-1,weight,userCSS,curveHeight]);
             curr++;
         }
 
@@ -646,7 +656,7 @@
                     alert("Невалиден номер на връх за: "+lines[curr]);
                     return false;
                 }
-                let name=x.toString(),coord=undefined,addedCSS=["",""];
+                let name=x.toString(),coord=undefined,userCSS=["",""];
                 if (tokens.length>=2) {
                     let ind=1;
                     if (tokens[ind][0]!=='[') name=tokens[ind++];
@@ -677,8 +687,8 @@
                                 alert("Очаква се да има два CSS-а, разделени със запетайка при: "+lines[curr]);
                                 return false;
                             }
-                            addedCSS[0]=css[0].slice(2,css[0].length-1);
-                            addedCSS[1]=css[1].slice(1,css[1].length-2);
+                            userCSS[0]=css[0].slice(2,css[0].length-1);
+                            userCSS[1]=css[1].slice(1,css[1].length-2);
                             ind++;
                             if (tokens.length>ind) {
                                 alert("Твърде много свойства при: "+lines[curr]);
@@ -688,7 +698,7 @@
                     }
                 }
                 if (coord===undefined) flagCoords=false;
-                vers[x-1]=[name,addedCSS];
+                vers[x-1]=[name,userCSS];
                 versCoord[x-1]=coord;
                 curr++;
             }

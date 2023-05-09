@@ -148,27 +148,30 @@
             for (let j=0; j<comps[i].length; j++) {
                 let v=comps[i][j],vr=graph.getVertex(v);
                 if ((part===2)||(values.length===0)) {
-                    vr.addedCSS[0]="fill: "+colours[colour];
+                    vr.addedCSS[0]["fill"]=colours[colour];
                     versColour[v]=colours[colour];
                 }
                 else {
                     if (values[v]===true) {
-                        vr.addedCSS[0]="fill: green";
+                        vr.addedCSS[0]["fill"]="green";
                         versColour[v]="green";
                     }
                     else {
-                        vr.addedCSS[0]="fill: red";
+                        vr.addedCSS[0]["fill"]="red";
                         versColour[v]="red";
                     }
                 }
+                graph.graphDrawer.recalcAttrVertex(graph.svgVertices[v],v);
             }
             colour+=jump;
         }
         for (let [i, edge] of graph.getEdges()) {
             let from=edge.x,to=edge.y;
-            if (nums[from]===nums[to]) edge.addedCSS[0]="stroke: "+versColour[from];
+            if (nums[from]===nums[to]) {
+                edge.addedCSS[0]["stroke"]=versColour[from];
+                graph.graphDrawer.recalcAttrEdge(graph.svgEdges[i],i);
+            }
         }
-        graph.graphDrawer.draw(false);
     }
     function showSCC (part) {
         makeImplicationGraph(part);
