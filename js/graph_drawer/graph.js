@@ -81,6 +81,7 @@
         this.userCSS=userCSS;
         
         this.curveHeight=curveHeight;
+        this.weightTranslate=[0, 0];
 
         this.findEndPoint = function (vr) {
             if (this.x==vr) return this.y;
@@ -322,8 +323,11 @@
             this.size=size;
             
             if (this.calcPositions===undefined) this.initViewBox=[viewBox.width, viewBox.height];
+            let windowWidth=-1,windowsHeight=-1;
             function changeViewBox () {
                 if (svgObject.is(":hidden")===true) return ;
+				if ((windowWidth==$(window).width())&&(windowsHeight==$(window).height())) return ;
+				windowWidth=$(window).width(); windowsHeight=$(window).height();
                 let viewBox=svgObject.prop("viewBox").baseVal;
                 svgObject.attr("viewBox",viewBox.x+" "+viewBox.y+" "+this.initViewBox[0]+" "+this.initViewBox[1]);
                 if (svgObject.outerWidth()!=svgObject.parent().width()) {

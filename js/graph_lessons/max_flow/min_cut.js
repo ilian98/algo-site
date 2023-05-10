@@ -46,7 +46,8 @@
             findCut(edgeList[ind].findEndPoint(vr),adjList,edgeList);
         }
     }
-    function findFlowCut () {
+    function findFlowCut (change) {
+        if ((change==="draw")||(change==="font-load")||(change.startsWith("change-css"))) return ;
         dist=[]; ind=[];
         let vers=this.getVertices(),edges=this.getEdges();
         for (let [i, edge] of edges) {
@@ -71,35 +72,30 @@
         
         for (let [i, vr] of vers) {
             if (seen[i]===true) {
-                this.svgVertices[i].circle.attr("fill","green");
-                if (i===this.source) this.svgVertices[i].text.attr("fill","white");
-                else this.svgVertices[i].text.attr("fill","black");
+                vr.addedCSS[0]["fill"]="green";
+                if (i===this.source) vr.addedCSS[1]["fill"]="white";
+                else vr.addedCSS[1]["fill"]="black";
             }
             else {
-                this.svgVertices[i].circle.attr("fill","yellow");
-                if (i===this.sink) this.svgVertices[i].text.attr("fill","#6495ED");
-                else this.svgVertices[i].text.attr("fill","black");
+                vr.addedCSS[0]["fill"]="yellow";
+                if (i===this.sink) vr.addedCSS[1]["fill"]="#6495ED";
+                else vr.addedCSS[1]["fill"]="black";
             }
         }
         for (let [i, edge] of edges) {
-            this.svgEdges[i].weight.attr("textpath").node.innerHTML=(edge.flow+"/"+edge.weight).toString();
             if (edge.real===true) {
-                if ((seen[edge.x]===true)&&(seen[edge.y]!==true)) {
-                    this.svgEdges[i].line.attr("stroke","red");
-                    if (this.svgEdges[i].line.markerEnd!==undefined) this.svgEdges[i].line.markerEnd.attr("fill","red");
-                }
-                else {
-                    this.svgEdges[i].line.attr("stroke","black");
-                    if (this.svgEdges[i].line.markerEnd!==undefined) this.svgEdges[i].line.markerEnd.attr("fill","black");
-                }
+                if ((seen[edge.x]===true)&&(seen[edge.y]!==true)) edge.addedCSS[0]["stroke"]="red";
+                else edge.addedCSS[0]["stroke"]="black";
             }
         }
         this.networkView();
+        this.graphDrawer.draw(this.graphDrawer.isDynamic,(change!=="network-conversion"));
         if (this.wrapperName===".graphExample1") 
             $(".graphExample1 .value").text("Максималният поток = минималният срез = "+maxFlow);
         return [maxFlow, seen];
     }
     function findSolution (change) {
+        if ((change==="draw")||(change==="font-load")||(change.startsWith("change-css"))) return ;
         let text=$(".graphExample2 #inputArea").val().replaceAll("\r\n","\n");
         let lines=text.split("\n");
         let nums=[];
@@ -130,10 +126,11 @@
             this.graphController.undoStack=[];
             this.graphController.redoStack=[];
             this.buildEdgeDataStructures(edges);
-            this.convertToNetwork(0,n+1,false);
+            this.isNetwork=true; this.source=0; this.sink=n+1;
             this.drawNewGraph(false,0.6);
+            this.convertToNetwork(0,n+1,false);
         }
-        let [flow, cut]=findFlowCut.call(this);
+        let [flow, cut]=findFlowCut.call(this,change);
         $(".graphExample2 .value").text("Отговорът е $"+sum+"-"+flow+"$ $=sum-flow="+(sum-flow)+"$. ");
         $(".graphExample2 .value").append("Той се получава със следното разпределение:<br>");
         $(".graphExample2 .value").append('Отбор на "добрите":');
@@ -153,8 +150,9 @@
             $(".graphExample1 .default").on("click", function () {
                 example1.init(".graphExample1",5,true,findFlowCut);
                 example1.buildEdgeDataStructures([[0,1,5],[0,2,1],[1,3,5],[2,4,2],[3,2,2],[3,4,2]]);
-                example1.convertToNetwork(0,4,false);
+                example1.isNetwork=true; example1.source=0; example1.sink=4;
                 example1.drawNewGraph(true,5/4);
+                example1.convertToNetwork(0,4,false);
                 example1.setSettings([false, false, false]);
                 
                 $(".graphExample1 .src").val("1");
@@ -168,7 +166,7 @@
                         alert("Не трябва да съвпадат източника и приемника!");
                         return ;
                     }
-                    let [flow, cut]=findFlowCut.call(example1);
+                    let [flow, cut]=findFlowCut.call(example1,"outside");
                 });
                 $(".graphExample1 .sink").val("5");
                 $(".graphExample1 .sink").off("input").on("input",() => {
@@ -181,7 +179,7 @@
                         alert("Не трябва да съвпадат източника и приемника!");
                         return ;
                     }
-                    let [flow, cut]=findFlowCut.call(example1);
+                    let [flow, cut]=findFlowCut.call(example1,"outside");
                 });
             }).click();
         }

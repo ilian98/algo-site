@@ -227,6 +227,8 @@
                 if (this.undoStack[this.undoStack.length-1].time!=time) break;
                 this.removeChange();
             }
+            if (this.undoStack.length>0) this.undoTime=this.undoStack[this.undoStack.length-1].time+1;
+            else this.undoTime=0;
         }
         this.registerAction = function (type, data) {
             if ((this.undoType==="default")||(this.undoType==="redo")) this.addChange(type,data,true);
@@ -276,6 +278,7 @@
 
             let curr=stack[stack.length-1];
             let currTime=stack[stack.length-1].time;
+            let types=new Set();
             for (;;) {
                 if (stack.length===0) break;
                 let curr=stack[stack.length-1];
@@ -292,81 +295,93 @@
                             if (edge.real===false) graph.removeEdge(i);
                         }
                         graph.isNetwork=false;
+                        types.add("remove-edge");
                     }
                 }
                 else {
                     let ind=curr.data[0];
-                    if (curr.type==="new-pos") {
-                        pushOther(curr.type,[ind, [graph.svgVertices[ind].coord[0], graph.svgVertices[ind].coord[1]]]);
-                        graph.svgVertices[ind].coord=curr.data[1];
-                    }
-                    else if (curr.type==="add-edge") graph.removeEdge(ind);
+                    if (curr.type==="add-edge") graph.removeEdge(ind), types.add("remove-edge");
                     else if (curr.type==="remove-edge") {
                         let edgeData=curr.data[1];
                         graph.addEdge(edgeData[0],edgeData[1],edgeData[2],edgeData[3],edgeData[4],ind,true,curr.data[2]);
+                        types.add("add-edge");
                     }
-                    else if (curr.type==="add-vertex") graph.removeVertex(ind);
+                    else if (curr.type==="add-vertex") graph.removeVertex(ind), types.add("remove-vertex");
                     else if (curr.type==="remove-vertex") {
                         graph.addVertex(curr.data[2][0],curr.data[2][1],ind);
                         graph.svgVertices[ind].coord=curr.data[1];
+                        types.add("add-vertex");
                     }
-                    else if (curr.type==="change-curve-height") {
-                        let edge=graph.getEdge(ind);
-                        pushOther(curr.type,[ind, edge.curveHeight]);
-                        edge.curveHeight=curr.data[1];
-                    }
-                    else if (curr.type==="change-css-vertex") {
-                        let vr=graph.getVertex(ind);
-                        pushOther(curr.type,[ind, [vr.userCSS[0]]]);
-                        vr.userCSS[0]=curr.data[1];
-                    }
-                    else if (curr.type==="change-css-vertex-name") {
-                        let vr=graph.getVertex(ind);
-                        pushOther(curr.type,[ind, [vr.userCSS[1]]]);
-                        vr.userCSS[1]=curr.data[1];
-                    }
-                    else if (curr.type==="change-css-edge") {
-                        let edge=graph.getEdge(ind);
-                        pushOther(curr.type,[ind, [edge.userCSS[0]]]);
-                        edge.userCSS[0]=curr.data[1];
-                    }
-                    else if (curr.type==="change-css-weight") {
-                        let edge=graph.getEdge(ind);
-                        pushOther(curr.type,[ind, [edge.userCSS[1]]]);
-                        edge.userCSS[1]=curr.data[1];
-                    }
-                    else if (curr.type==="change-name") {
-                        let vr=graph.getVertex(ind);
-                        pushOther(curr.type,[ind, vr.name]);
-                        vr.name=curr.data[1];
-                    }
-                    else if (curr.type==="change-weight") {
-                        let edge=graph.getEdge(ind);
-                        pushOther(curr.type,[ind, edge.weight]);
-                        edge.weight=curr.data[1];
-                    }
-                    else if (curr.type==="change-property") {
-                        let type=curr.data[0];
-                        if (type==="isDirected") {
-                            pushOther(curr.type,[type, !curr.data[1]]);
-                            graph.isDirected=curr.data[1];
+                    else {
+                        if (curr.type==="new-pos") {
+                            pushOther(curr.type,[ind, [graph.svgVertices[ind].coord[0], graph.svgVertices[ind].coord[1]]]);
+                            graph.svgVertices[ind].coord=curr.data[1];
+                            types.add("new-pos");
                         }
-                        else if (type==="isTree") {
-                            pushOther(curr.type,[type, !curr.data[1]]);
-                            graph.isTree=curr.data[0];
+                        else if (curr.type==="change-curve-height") {
+                            let edge=graph.getEdge(ind);
+                            pushOther(curr.type,[ind, edge.curveHeight]);
+                            edge.curveHeight=curr.data[1];
                         }
-                        else if (type==="isWeighted") {
-                            pushOther(curr.type,[type, !curr.data[1]]);
-                            graph.isWeighted=curr.data[1];
+                        else if (curr.type==="change-weight-translate") {
+                            let edge=graph.getEdge(ind);
+                            pushOther(curr.type,[ind, edge.weightTranslate[0], edge.weightTranslate[1]]);
+                            edge.weightTranslate=curr.data[1];
                         }
-                        else if (type==="isMulti") {
-                            pushOther(curr.type,[type, !curr.data[1]]);
-                            graph.isMulti=curr.data[1];
+                        else if (curr.type==="change-css-vertex") {
+                            let vr=graph.getVertex(ind);
+                            pushOther(curr.type,[ind, [vr.userCSS[0]]]);
+                            vr.userCSS[0]=curr.data[1];
                         }
-                        else if (type==="size") {
-                            pushOther(curr.type,[type, graph.size]);
-                            graph.size=curr.data[1];
+                        else if (curr.type==="change-css-vertex-name") {
+                            let vr=graph.getVertex(ind);
+                            pushOther(curr.type,[ind, [vr.userCSS[1]]]);
+                            vr.userCSS[1]=curr.data[1];
                         }
+                        else if (curr.type==="change-css-edge") {
+                            let edge=graph.getEdge(ind);
+                            pushOther(curr.type,[ind, [edge.userCSS[0]]]);
+                            edge.userCSS[0]=curr.data[1];
+                        }
+                        else if (curr.type==="change-css-weight") {
+                            let edge=graph.getEdge(ind);
+                            pushOther(curr.type,[ind, [edge.userCSS[1]]]);
+                            edge.userCSS[1]=curr.data[1];
+                        }
+                        else if (curr.type==="change-name") {
+                            let vr=graph.getVertex(ind);
+                            pushOther(curr.type,[ind, vr.name]);
+                            vr.name=curr.data[1];
+                        }
+                        else if (curr.type==="change-weight") {
+                            let edge=graph.getEdge(ind);
+                            pushOther(curr.type,[ind, edge.weight]);
+                            edge.weight=curr.data[1];
+                        }
+                        else if (curr.type==="change-property") {
+                            let type=curr.data[0];
+                            if (type==="isDirected") {
+                                pushOther(curr.type,[type, !curr.data[1]]);
+                                graph.isDirected=curr.data[1];
+                            }
+                            else if (type==="isTree") {
+                                pushOther(curr.type,[type, !curr.data[1]]);
+                                graph.isTree=curr.data[0];
+                            }
+                            else if (type==="isWeighted") {
+                                pushOther(curr.type,[type, !curr.data[1]]);
+                                graph.isWeighted=curr.data[1];
+                            }
+                            else if (type==="isMulti") {
+                                pushOther(curr.type,[type, !curr.data[1]]);
+                                graph.isMulti=curr.data[1];
+                            }
+                            else if (type==="size") {
+                                pushOther(curr.type,[type, graph.size]);
+                                graph.size=curr.data[1];
+                            }
+                        }
+                        types.add(curr.type);
                     }
                 }
                 if (undoType==="undo") this.redoTime--;
@@ -375,8 +390,10 @@
             if (undoType==="undo") this.redoTime++;
             else this.undoTime++;
             this.undoType="default";
-            
             graph.graphDrawer.draw(graph.graphDrawer.isDynamic);
+            for (let type of types) {
+                graph.graphChange(type);
+            }
         }
     
         let isDynamic,isStatic;

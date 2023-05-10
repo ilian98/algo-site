@@ -208,16 +208,13 @@
         this.addMarkerEnd = function (line, isLoop, strokeWidth, st, properties) {
             let [arrowHeight, arrowWidth, arrowDist]=calculateArrowProperties(isLoop,strokeWidth,st,graph.getRadius(),properties);
             let arrowEnd=[3*arrowHeight/2,arrowHeight/2];
-            let points=[0,0,arrowEnd[0],arrowEnd[1],0,arrowHeight,0,0];
-            /*if (line.markerEnd!==undefined) line.markerEnd.attr("points",points);
-            else {*/
-                line.markerEnd=snap.polygon(points);
-                let marker=line.markerEnd.marker(0,0,arrowEnd[0],arrowHeight,
-                                                 (isLoop===false)?arrowEnd[0]-arrowDist:0,arrowEnd[1]).attr({
-                    markerUnits: "userSpaceOnUse"
-                });
-                line.attr({"marker-end": marker});
-            //}
+            if (line.markerEnd!==undefined) line.markerEnd.remove();
+            line.markerEnd=snap.polygon([0,0,arrowEnd[0],arrowEnd[1],0,arrowHeight,0,0]);
+            let marker=line.markerEnd.marker(0,0,arrowEnd[0],arrowHeight,
+                                             (isLoop===false)?arrowEnd[0]-arrowDist:0,arrowEnd[1]).attr({
+                markerUnits: "userSpaceOnUse"
+            });
+            line.attr({"marker-end": marker});
             return arrowDist;
         }
         function calcWeightPosition (weight, dx, isLoop, pathForWeight, properties) {
@@ -280,20 +277,25 @@
         }
         this.recalcAttrEdge = function (svgEdge, edgeInd = -1) {
             let edge;
-            if (edgeInd!==-1) edge=graph.getEdge(edgeInd);
             let oldStrokeWidth=parseFloat(svgEdge.line.attr("stroke-width"));
-            setStyle(svgEdge.line,edge.defaultCSS[0]+";"+objToStyle(edge.addedCSS[0])+";"+edge.userCSS[0]);
-            if (graph.isDirected===true) {
-                let currStrokeWidth=parseFloat(svgEdge.line.attr("stroke-width"));
-                
-                if (oldStrokeWidth!==currStrokeWidth) {
-                    let x=edge.x,y=edge.y;
-                    let st=graph.svgVertices[x].coord,end=graph.svgVertices[y].coord;
-                    svgEdge.endDist=this.addMarkerEnd(svgEdge.line,false,currStrokeWidth,st,end,svgEdge.drawProperties[0]);
-                    this.redrawEdge(svgEdge,st,end,edgeInd);
+            if (edgeInd!==-1) {
+                edge=graph.getEdge(edgeInd);
+                setStyle(svgEdge.line,edge.defaultCSS[0]+";"+objToStyle(edge.addedCSS[0])+";"+edge.userCSS[0]);
+                if ((svgEdge.line.markerEnd!==undefined)&&(svgEdge.line.markerEnd.removed!==true)) {
+                    let currStrokeWidth=parseFloat(svgEdge.line.attr("stroke-width"));
+                    if (oldStrokeWidth!==currStrokeWidth) {
+                        let x=edge.x,y=edge.y;
+                        let st=graph.svgVertices[x].coord,end=graph.svgVertices[y].coord;
+                        svgEdge.endDist=this.addMarkerEnd(svgEdge.line,false,currStrokeWidth,st,end,svgEdge.drawProperties[0]);
+                        if (edgeInd!==-1) svgEdge.endDist+=this.findStrokeWidth("vertex",graph.getEdge(edgeInd).y)/2;
+                        let styleObj=styleToObj(edge.defaultCSS[0]);
+                        styleObj["marker-end"]=styleToObj(svgEdge.line.attr("style"))["marker-end"];
+                        edge.defaultCSS[0]=objToStyle(styleObj);
+                        this.redrawEdge(svgEdge,st,end,edgeInd);
+                    }
+                    svgEdge.line.markerEnd.attr("fill",svgEdge.line.attr("stroke"));
+                    svgEdge.line.markerEnd.attr("opacity",svgEdge.line.attr("stroke-opacity"));
                 }
-                svgEdge.line.markerEnd.attr("fill",svgEdge.line.attr("stroke"));
-                svgEdge.line.markerEnd.attr("opacity",svgEdge.line.attr("stroke-opacity"));
             }
             if ((graph.isWeighted===true)&&(svgEdge.weight!==undefined)) this.recalcAttrWeight(svgEdge,edge);
         }
@@ -306,6 +308,7 @@
             if (isDrawn===false) {
                 edge=graph.getEdge(edgeInd);
                 if (edge.x===edge.y) isLoop=true;
+                if ((graph.isNetwork===true)&&(edge.flow===0)) isDirected=false;
             }
             
             let vertexRad=graph.getRadius();
@@ -318,7 +321,7 @@
             if (isDirected===true) {
                 let arrowDist=calculateArrowProperties(isLoop,strokeWidth,st,vertexRad,properties)[2];
                 endDist=((isDrawn===true)?0:this.findStrokeWidth("vertex",graph.getEdge(edgeInd).y)/2)+arrowDist;
-                if ((properties===0)&&(endDist>segmentLength(st[0],st[1],end[0],end[1])-2*graph.getRadius())) endDist=0;
+                if ((isDrawn===false)&&(properties===0)&&(endDist>segmentLength(st[0],st[1],end[0],end[1])-2*graph.getRadius())) endDist=0;
             }
             svgEdge.endDist=endDist;
 
@@ -359,13 +362,16 @@
                     fill: "black",
                 });
                 concatStyle(svgEdge.weight,this.defaultCSSWeight);
-                svgEdge.weight.width=svgEdge.weight.getBBox().width;
                 let font=svgEdge.weight.attr("font-family");
                 if (typeof fonts[font]!=="undefined") {
                     let bBox=textBBox(svgEdge.weight.attr("text"),font,fontSize);
+                    svgEdge.weight.width=bBox.x2-bBox.x1;
                     svgEdge.weight.height=bBox.y2-bBox.y1;
                 }
-                else svgEdge.weight.height=svgEdge.weight.getBBox().height;
+                else {
+                    svgEdge.weight.width=svgEdge.weight.getBBox().width;
+                    svgEdge.weight.height=svgEdge.weight.getBBox().height;
+                }
                 svgEdge.weight.dyCenter=determineDy(edge.weight.toString(),font,fontSize);
                 
                 pathForWeight=calcWeightPosition.call(this,svgEdge.weight,st[0]-end[0],isLoop,pathForWeight,properties);
@@ -374,6 +380,7 @@
                 
                 edge.defaultCSS[1]=svgEdge.weight.attr("style");
                 this.recalcAttrWeight(svgEdge,edge);
+                svgEdge.weight.transform("t"+edge.weightTranslate[0]+" "+edge.weightTranslate[1]);
             }
             return svgEdge;
         }
@@ -446,6 +453,7 @@
             let oldVersCoords=[],changedVers=[],cntAnimations=0;
             let oldRad=graph.getRadius(),vertexRad=graph.getRadius();
             let oldEdgesPaths=[],oldDy=[],oldWeightsPaths=[];
+            let oldWeightsTransform=[];
             let m=graph.getIndexedEdges().length;
             if (animateDraw===true) {
                 for (let i=0; i<graph.n; i++) {
@@ -475,12 +483,14 @@
                         if (graph.svgEdges[i].weight!==undefined) {
                             oldWeightsPaths[i]=snap.select(graph.svgEdges[i].weight.textPath.attr("href")).attr("d");
                             oldDy[i]=graph.svgEdges[i].weight.attr("dy");
+                            oldWeightsTransform[i]=graph.svgEdges[i].weight.transform().string;
                         }
                         else oldWeightsPaths[i]=undefined;
                     }
                     else oldEdgesPaths[i]=undefined, oldWeightsPaths[i]=undefined;
                 }
             }
+            if (graph.isNetwork===true) graph.networkView();
             
             graph.erase();
             this.bgElement=snap.circle(0,0,1e5);
@@ -558,13 +568,21 @@
                                 this.attr({d: currWeightPath});
                                 animationsEnd.call(graph);
                             }.bind(weightPath,this));
-                            
+
                             let currDy=graph.svgEdges[i].weight.attr("dy");
                             if (oldDy[i]!==currDy) {
                                 cntAnimations++;
                                 graph.svgEdges[i].weight.attr({dy: oldDy[i]});
                                 graph.svgEdges[i].weight.animate({dy: currDy},500,animationsEnd.bind(this));
                             }
+                        }
+                    }
+                    if ((oldWeightsTransform[i]!==undefined)&&(graph.svgEdges[i].weight!==undefined)) {
+                        let currTransform=graph.svgEdges[i].weight.transform().string;
+                        if (oldWeightsTransform[i]!==currTransform) {
+                            cntAnimations++;
+                            graph.svgEdges[i].weight.transform(oldWeightsTransform[i]);
+                            graph.svgEdges[i].weight.animate({transform: currTransform},500,animationsEnd.bind(this));
                         }
                     }
                 }
@@ -583,10 +601,11 @@
                     graph.svgVertices[i].group.animate({transform: "t 0 0"},500,animationsEnd.bind(this));
                 }
             }
-            graph.graphChange("draw");
             for (let i=graph.n; i<graph.svgVertices.length; i++) {
                 graph.svgVertices[i]=undefined;
             }
+            
+            graph.graphChange("draw");
             
             if ((animateDraw===true)&&(vertexRad!=oldRad)) {          
                 cntAnimations++;
@@ -622,7 +641,6 @@
             function animationsEnd () {
                 cntAnimations--;
                 if (cntAnimations<=0) {
-                    if (graph.isNetwork===true) graph.networkView();
                     this.isDynamic=addDynamic;
                     if (isStatic===false) {
                         if ((this.dynamicGraph===undefined)&&(typeof DynamicGraph!=="undefined")) {

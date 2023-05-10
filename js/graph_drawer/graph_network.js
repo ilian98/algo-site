@@ -37,6 +37,8 @@
             for (let [ind, edge] of edges) {
                 this.addReverseEdge(ind);
             }
+            this.graphDrawer.draw(this.graphDrawer.isDynamic,false);
+            this.graphChange("network-conversion");
         },
         networkView : function () {
             let max=1;
@@ -64,15 +66,7 @@
                         edge.addedCSS[1]["opacity"]=0;
                     }
                     if (edge.curveHeight===undefined) edge.curveHeight=0;
-                    if (edge.flow===0) { console.log("tuk");
-                        this.svgEdges[i].endDist=0;
-                        this.svgEdges[i].line.markerEnd.remove();
-                        let x=edge.x,y=edge.y;
-                        let st=this.svgVertices[x].coord,end=this.svgVertices[y].coord;        
-                        this.graphDrawer.redrawEdge(this.svgEdges[i],st,end,i);
-                    }
                 }
-                this.graphDrawer.recalcAttrEdge(this.svgEdges[i],i);
             }
         }
     }

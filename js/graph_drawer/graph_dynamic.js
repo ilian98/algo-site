@@ -53,6 +53,7 @@
             }
         }
         
+        let trackedMouse;
         function mouseDown (event) {
             let type=this.objType,index=this.index;
             
@@ -114,7 +115,7 @@
                 }
             }
         }
-        let trackedMouse,nearCircles=[];
+        let nearCircles=[];
         function trackMouseVertex (event) {
             event.preventDefault();
             
@@ -207,14 +208,16 @@
         function trackMouseWeight (event) {
             event.preventDefault();
             
+            let edge=graph.getEdge(startIndex);
             setSvgPoint(event);
             if (trackedMouse===false) {
                 trackedMouse=true;
                 $(graph.svgName).css({"border-color": "black"});
                 oldWeight=graph.svgEdges[startIndex].weight.clone();
                 oldWeight.attr({fill: "green", "fill-opacity": 0.5}).attr({opacity: 0});
+                oldWeight.transform("t0 0");
             }
-            let dx=svgPoint.x-startMousePos[0],dy=svgPoint.y-startMousePos[1];
+            let dx=edge.weightTranslate[0]+svgPoint.x-startMousePos[0],dy=edge.weightTranslate[1]+svgPoint.y-startMousePos[1];
             graph.svgEdges[startIndex].weight.transform("t"+dx+" "+dy);
             if (Math.sqrt(dx*dx+dy*dy)<5*graph.size) oldWeight.attr({opacity: 1});
             else oldWeight.attr({opacity: 0});
@@ -250,6 +253,10 @@
         }
         function clearWeightParameters () {
             if (oldWeight!==undefined) oldWeight.remove();
+            if (startIndex!==undefined) {
+                let edge=graph.getEdge(startIndex);
+                graph.svgEdges[startIndex].weight.transform("t"+edge.weightTranslate[0]+" "+edge.weightTranslate[1]);
+            }
         }
         function clearClickParameters (type) {
             if (type==="vertex") clearVertexParameters();
@@ -258,7 +265,6 @@
             
             $(graph.svgName).css({"border-color": "transparent"});
             drawProperties=undefined; startIndex=undefined;
-            trackedMouse=false;
             $(window).off("mousemove.mouse-out").off("touchmove.mouse-out");
             if (window.isMobile==="false") {
                 if (type==="vertex") {
@@ -345,6 +351,7 @@
                             else if (graph.graphController!==undefined) graph.graphController.undoTime++;
                         }
                         graph.graphDrawer.draw(graph.graphDrawer.isDynamic);
+                        graph.graphChange("add-edge");
                         break;
                     }
                 }
@@ -365,6 +372,7 @@
                 if ((oldCoords[0]!=graph.svgVertices[ind].coord[0])||(oldCoords[1]!=graph.svgVertices[ind].coord[1])) {
                     if (graph.graphController!==undefined) 
                         graph.graphController.addChange("new-pos",[ind, [oldCoords[0], oldCoords[1]]]);
+                    graph.graphChange("new-pos");
                 }
                 graph.graphDrawer.draw(graph.graphDrawer.isDynamic,false);
             }
@@ -391,16 +399,30 @@
             graph.graphDrawer.draw(graph.graphDrawer.isDynamic,false);
         }
         function mouseUpWeight (event) {
+            event.preventDefault();
+            
             let index=startIndex;
+            let edge=graph.getEdge(index);
+            let weightTranslate=edge.weightTranslate;
             if (trackedMouse===false) { // click event
                 clearClickParameters("weight");
                 if ((window.isMobile==="true")&&(graph.graphDrawer.isDynamic===true)) weightClick.call(graph.svgEdges[index].weight,event);
                 return ;
             }
-            let dx=svgPoint.x-startMousePos[0],dy=svgPoint.y-startMousePos[1];
+            let dx=weightTranslate[0]+svgPoint.x-startMousePos[0],dy=weightTranslate[1]+svgPoint.y-startMousePos[1];
             clearClickParameters("weight");
             
-            if (Math.sqrt(dx*dx+dy*dy)<5*graph.size) graph.svgEdges[index].weight.transform("t0 0");
+            if (Math.sqrt(dx*dx+dy*dy)<5*graph.size) {
+                graph.svgEdges[index].weight.transform("t0 0");
+                dx=dy=0;
+            }
+            let oldWeightTranslate=edge.weightTranslate;
+            if ((oldWeightTranslate[0]!==dx)||(oldWeightTranslate[1]!==dy)) {
+                if (graph.graphController!==undefined) 
+                        graph.graphController.addChange("change-weight-translate",[index, [oldWeightTranslate[0], oldWeightTranslate[1]]]);
+            }
+            graph.getEdge(index).weightTranslate=[dx, dy];
+            graph.svgEdges[index].weight.transform("t"+dx+" "+dy);
         }
         
         function addCSS (obj, newCSS, typeName, ind) {
@@ -521,8 +543,8 @@
         
         this.removeEdge = function (index) {
             graph.removeEdge(index);
-            graph.graphChange("remove-edge");
             edgeClickAreas[index].remove();
+            graph.graphChange("remove-edge");
         }
         this.changeEdgeWeight = function (index, weight) {
             let edge=graph.getEdge(index);
@@ -698,15 +720,18 @@
                 let addNewVertex=this.addNewVertex;
                 if (window.isMobile==="false") svgElement.off("dblclick").on("dblclick",addNewVertex);
                 else {
-                    let tapped=false;
+                    let tapped=false,coords=[];
                     svgElement.off("touchstart.add-vertex").on("touchstart.add-vertex",function (event) {
+                        let touch=getObjectForCoordinates(event);
                         if (tapped===false) {
                             tapped=true;
+                            coords=[touch.clientX, touch.clientY];
                             setTimeout(() => {tapped = false},300);
                         }
                         else {
                             tapped=false;
-                            addNewVertex.call(this,event);
+                            trackedMouse=true;
+							if (segmentLength(coords[0],coords[1],touch.clientX,touch.clientY)<20) addNewVertex.call(this,event);
                         }
                     });
                 }
