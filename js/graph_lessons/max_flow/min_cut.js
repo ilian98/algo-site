@@ -47,7 +47,7 @@
         }
     }
     function findFlowCut (change) {
-        if ((change==="draw")||(change==="font-load")||(change.startsWith("change-css"))) return ;
+        if (this.isVisualChange(change)===true) return ;
         dist=[]; ind=[];
         let vers=this.getVertices(),edges=this.getEdges();
         for (let [i, edge] of edges) {
@@ -95,7 +95,7 @@
         return [maxFlow, seen];
     }
     function findSolution (change) {
-        if ((change==="draw")||(change==="font-load")||(change.startsWith("change-css"))) return ;
+        if (this.isVisualChange(change)===true) return ;
         let text=$(".graphExample2 #inputArea").val().replaceAll("\r\n","\n");
         let lines=text.split("\n");
         let nums=[];

@@ -264,7 +264,7 @@
                 }
             }
 
-            if ((isDrawn===false)&&(graph.isWeighted===true)) {
+            if ((isDrawn===false)&&(graph.isWeighted===true)&&(svgEdge.weight!==undefined)) {
                 pathForWeight=calcWeightPosition.call(this,svgEdge.weight,st[0]-end[0],isLoop,pathForWeight,properties);
                 snap.select(svgEdge.weight.textPath.attr("href")).attr("d",pathForWeight);
             }
@@ -380,20 +380,22 @@
                 
                 edge.defaultCSS[1]=svgEdge.weight.attr("style");
                 this.recalcAttrWeight(svgEdge,edge);
-                svgEdge.weight.transform("t"+edge.weightTranslate[0]+" "+edge.weightTranslate[1]);
+                svgEdge.weight.transform("t"+edge.weightTranslate[0]+" "+edge.weightTranslate[1]+"r"+edge.weightRotation);
             }
             return svgEdge;
         }
 
         this.recalcAttrVertexText = function (svgVertex, ind) {
             let v=graph.getVertex(ind);
-            let fontSize=this.findFontSize("vertex-name",ind);
-            svgVertex.text.attr({dy: determineDy(
-                v.name,
-                svgVertex.text.attr("font-family"),
-                fontSize
-            )});
-            setStyle(svgVertex.text,v.defaultCSS[1]+";"+objToStyle(v.addedCSS[1])+";"+v.userCSS[1]); 
+            if (!((v.name.startsWith("$"))&&(v.name.endsWith("$")))) {
+                let fontSize=this.findFontSize("vertex-name",ind);
+                svgVertex.text.attr({dy: determineDy(
+                    v.name,
+                    svgVertex.text.attr("font-family"),
+                    fontSize
+                )});
+                setStyle(svgVertex.text,v.defaultCSS[1]+";"+objToStyle(v.addedCSS[1])+";"+v.userCSS[1]); 
+            }
         }
         this.recalcAttrVertex = function (svgVertex, ind) {
             let v=graph.getVertex(ind);
@@ -402,24 +404,50 @@
         this.defaultCSSVertexText="";
         this.drawVertexText = function (i, text) {
             let x=graph.svgVertices[i].coord[0],y=graph.svgVertices[i].coord[1];
-            if ((graph.svgVertices[i].text===undefined)||
-                (graph.svgVertices[i].text.removed===true)) graph.svgVertices[i].text=snap.text();
             let v=graph.getVertex(i);
             v.name=text;
-            let fontSize=this.findFontSize("vertex-name",i);
-            graph.svgVertices[i].text.attr({
-                x: x,
-                y: y,
-                text: text,
-                fill: "black",
-                "font-size": fontSize, 
-                "font-family": "Consolas",
-                "text-anchor": "middle", 
-                class: "unselectable"
-            });
-            concatStyle(graph.svgVertices[i].text,this.defaultCSSVertexText);
-            v.defaultCSS[1]=graph.svgVertices[i].text.attr("style");
+            let fontSize=this.findFontSize("vertex-name",i),removed=false;
+            if ((text.startsWith("$"))&&(text.endsWith("$"))&&(typeof MathJax!=="undefined")&&(MathJax.tex2svg!==undefined)) {
+                if (graph.svgVertices[i].text!==undefined) {
+                    removed=true;
+                    graph.svgVertices[i].text.remove();
+                }
+                let math=$(MathJax.tex2svg(text.substr(1,text.length-2))).children().children();
+                let html="";
+                for (let elem of math) {
+                    html+=elem.outerHTML;
+                }
+                graph.svgVertices[i].text=snap.group().append(Snap.parse(html));
+                let scale=0.025*(fontSize/25);
+                graph.svgVertices[i].text.transform("s"+scale);
+                let bBox=graph.svgVertices[i].text.getBBox();
+                let dx=x-bBox.w/2-bBox.x,dy=y-bBox.h/2-bBox.y;
+                graph.svgVertices[i].text.transform("t"+dx+","+dy+" s"+scale);
+            }
+            else {
+                if (graph.svgVertices[i].text!==undefined) {
+                    if (graph.svgVertices[i].text.type!=="text") {
+                        removed=true;
+                        graph.svgVertices[i].text.remove();
+                    }
+                }
+                if ((graph.svgVertices[i].text===undefined)||(graph.svgVertices[i].text.removed===true))
+                    graph.svgVertices[i].text=snap.text();
+                graph.svgVertices[i].text.attr({
+                    x: x,
+                    y: y,
+                    text: text,
+                    fill: "black",
+                    "font-size": fontSize, 
+                    "font-family": "Consolas",
+                    "text-anchor": "middle", 
+                    class: "unselectable"
+                });
+                concatStyle(graph.svgVertices[i].text,this.defaultCSSVertexText);
+                v.defaultCSS[1]=graph.svgVertices[i].text.attr("style");
+            }
             this.recalcAttrVertexText(graph.svgVertices[i],i);
+            if (removed===true) graph.svgVertices[i].group=snap.group(graph.svgVertices[i].circle,graph.svgVertices[i].text);
         }
         this.defaultCSSVertex="";
         this.drawVertex = function (i) {
@@ -578,11 +606,25 @@
                         }
                     }
                     if ((oldWeightsTransform[i]!==undefined)&&(graph.svgEdges[i].weight!==undefined)) {
+                        function transformParameters (s) {
+                            let tx=0,ty=0,r=0;
+                            let pos=s.search("r");
+                            let nums=s.substring(1,pos).split(' ');
+                            if (nums.length>0) tx=parseFloat(nums[0]), ty=parseFloat(nums[1]);
+                            if (pos<s.length) r=parseFloat(s.substring(pos+1));
+                            return [tx, ty, r];
+                        }
                         let currTransform=graph.svgEdges[i].weight.transform().string;
                         if (oldWeightsTransform[i]!==currTransform) {
+                            let oldParams=transformParameters(oldWeightsTransform[i]);
+                            let currParams=transformParameters(currTransform);
                             cntAnimations++;
-                            graph.svgEdges[i].weight.transform(oldWeightsTransform[i]);
-                            graph.svgEdges[i].weight.animate({transform: currTransform},500,animationsEnd.bind(this));
+                            Snap.animate(0,1,function (progress) {
+                                let tx=oldParams[0]+(currParams[0]-oldParams[0])*progress;
+                                let ty=oldParams[1]+(currParams[1]-oldParams[1])*progress;
+                                let r=oldParams[2]+(currParams[2]-oldParams[2])*progress;
+                                this.transform("t"+tx+" "+ty+"r"+r);
+                            }.bind(graph.svgEdges[i].weight),500,animationsEnd.bind(this));
                         }
                     }
                 }

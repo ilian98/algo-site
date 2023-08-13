@@ -215,10 +215,10 @@
                 $(graph.svgName).css({"border-color": "black"});
                 oldWeight=graph.svgEdges[startIndex].weight.clone();
                 oldWeight.attr({fill: "green", "fill-opacity": 0.5}).attr({opacity: 0});
-                oldWeight.transform("t0 0");
+                oldWeight.transform("t0 0r"+edge.weightRotation);
             }
             let dx=edge.weightTranslate[0]+svgPoint.x-startMousePos[0],dy=edge.weightTranslate[1]+svgPoint.y-startMousePos[1];
-            graph.svgEdges[startIndex].weight.transform("t"+dx+" "+dy);
+            graph.translateWeight(startIndex,dx,dy);
             if (Math.sqrt(dx*dx+dy*dy)<5*graph.size) oldWeight.attr({opacity: 1});
             else oldWeight.attr({opacity: 0});
         }
@@ -255,7 +255,7 @@
             if (oldWeight!==undefined) oldWeight.remove();
             if (startIndex!==undefined) {
                 let edge=graph.getEdge(startIndex);
-                graph.svgEdges[startIndex].weight.transform("t"+edge.weightTranslate[0]+" "+edge.weightTranslate[1]);
+                graph.translateWeight(startIndex,edge.weightTranslate[0],edge.weightTranslate[1]);
             }
         }
         function clearClickParameters (type) {
@@ -413,7 +413,7 @@
             clearClickParameters("weight");
             
             if (Math.sqrt(dx*dx+dy*dy)<5*graph.size) {
-                graph.svgEdges[index].weight.transform("t0 0");
+                graph.translateWeight(index,0,0);
                 dx=dy=0;
             }
             let oldWeightTranslate=edge.weightTranslate;
@@ -422,7 +422,7 @@
                         graph.graphController.addChange("change-weight-translate",[index, [oldWeightTranslate[0], oldWeightTranslate[1]]]);
             }
             graph.getEdge(index).weightTranslate=[dx, dy];
-            graph.svgEdges[index].weight.transform("t"+dx+" "+dy);
+            graph.translateWeight(index,dx,dy);
         }
         
         function addCSS (obj, newCSS, typeName, ind) {
@@ -606,6 +606,20 @@
             dropdowns[graph.wrapperName].showDropdown("edge",event,ind);
         }
         
+        this.changeRotationWeight = function (index, rotation) {
+            let edge=graph.getEdge(index);
+            if (rotation===undefined)
+                rotation=prompt(
+                    ((language==="bg")?"Въведете число от 0 до 360 градуса за ъгъла на ротацията":"Input number from 0 to 360 degrees for the rotation"),
+                    edge.weightRotation
+                );
+            if (rotation===null) return ;
+            if (graph.graphController!==undefined) graph.graphController.addChange("change-weight-rotate",[index, edge.weightRotation]);
+            rotation=parseInt(rotation);
+            if ((rotation<0)||(rotation>360)) return ;
+            graph.rotateWeight(index,rotation);
+            edge.weightRotation=rotation;
+        }
         this.addCSSWeight = function (index, css) {
             let edge=graph.getEdge(index);
             if (css===undefined)
@@ -706,6 +720,7 @@
             ]);
             menus.addNewDropdown("weight",[
                 ["change-weight", ((language==="bg")?"Промени теглото":"Change the weight"), this.changeEdgeWeight],
+                ["change-rotation", ((language==="bg")?"Промени ротацията":"Change rotation"), this.changeRotationWeight],
                 ["add-css", ((language==="bg")?"Сложи CSS стил":"Add CSS style"), this.addCSSWeight]
             ]);
             
@@ -799,6 +814,8 @@
                 if (graph.svgEdges[i].weight!==undefined) {
                     delete graph.svgEdges[i].weight.index;
                     graph.svgEdges[i].weight.attr({cursor: "auto"});
+                    if (window.isMobile==="false") graph.svgEdges[i].weight.unmousedown(mouseDown);
+                    else graph.svgEdges[i].weight.untouchstart(mouseDown);
                     graph.svgEdges[i].weight.unclick(weightClick);
                 }
             }

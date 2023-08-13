@@ -21,31 +21,31 @@
             outputSize.html(parseInt(graph.size*100));
             
             if (graph.isWeighted===false) {
-                $("#style .default-css-weight").parent().parent().hide();
+                $("#default-css-weight").parent().parent().hide();
                 $("#change #set-weights").parent().hide();
                 $("#change #css-weights").parent().hide();
             }
             else {
-                $("#style .default-css-weight").parent().parent().show();
+                $("#default-css-weight").parent().parent().show();
                 $("#change #set-weights").parent().show();
                 $("#change #css-weights").parent().show();
             }
             
-            $("#style .default-css-vertex").val(
+            $("#default-css-vertex").val(
                 'fill: '+graph.graphDrawer.findAttrValue("vertex","fill")+'; '+
                 'stroke: '+graph.graphDrawer.findAttrValue("vertex","stroke")+'; '+
                 'stroke-width: '+graph.graphDrawer.findStrokeWidth("vertex")+';'
             );
-            $("#style .default-css-name").val(
+            $("#default-css-name").val(
                 'fill: '+graph.graphDrawer.findAttrValue("vertex-name","fill")+'; '+
                 'font-size: '+graph.graphDrawer.findFontSize("vertex-name")+'px; '+
                 'font-family: '+graph.graphDrawer.findAttrValue("vertex-name","font-family")+';'
             );
-            $("#style .default-css-edge").val(
+            $("#default-css-edge").val(
                 'stroke: '+graph.graphDrawer.findAttrValue("edge","stroke")+'; '+
                 'stroke-width: '+graph.graphDrawer.findStrokeWidth("edge")+';'
             );
-            $("#style .default-css-weight").val(
+            $("#default-css-weight").val(
                 'fill: '+graph.graphDrawer.findAttrValue("weight","fill")+'; '+
                 'font-size: '+graph.graphDrawer.findFontSize("weight")+'px; '+
                 'font-family: '+graph.graphDrawer.findAttrValue("weight","font-family")+';'
@@ -65,48 +65,48 @@
         
         $("#add-vertices").on("click", () => {
             $("#change .make-change-all").hide();
-            $("#change .css-text").parent().parent().hide();
-            $("#change .weight-text").parent().parent().hide();
+            $("#css-text").parent().parent().hide();
+            $("#weight-text").parent().parent().hide();
         });
         $("#remove-vertices").on("click", () => {
             $("#change .make-change-all").show();
-            $("#change .css-text").parent().parent().hide();
-            $("#change .weight-text").parent().parent().hide();
+            $("#css-text").parent().parent().hide();
+            $("#weight-text").parent().parent().hide();
         });
         $("#css-vertices").on("click", () => {
             $("#change .make-change-all").show();
-            $("#change .css-text").parent().parent().show();
-            $("#change .weight-text").parent().parent().hide();
+            $("#css-text").parent().parent().show();
+            $("#weight-text").parent().parent().hide();
         });
         $("#css-vertices-name").on("click", () => {
             $("#change .make-change-all").show();
-            $("#change .css-text").parent().parent().show();
-            $("#change .weight-text").parent().parent().hide();
+            $("#css-text").parent().parent().show();
+            $("#weight-text").parent().parent().hide();
         });
         $("#remove-edges").on("click", () => {
             $("#change .make-change-all").show();
-            $("#change .css-text").parent().parent().hide();
-            $("#change .weight-text").parent().parent().hide();
+            $("#css-text").parent().parent().hide();
+            $("#weight-text").parent().parent().hide();
         });
         $("#css-edges").on("click", () => {
             $("#change .make-change-all").show();
-            $("#change .css-text").parent().parent().show();
-            $("#change .weight-text").parent().parent().hide();
+            $("#css-text").parent().parent().show();
+            $("#weight-text").parent().parent().hide();
         });
         $("#set-weights").on("click", () => {
             $("#change .make-change-all").show();
-            $("#change .css-text").parent().parent().hide();
-            $("#change .weight-text").parent().parent().show();
+            $("#css-text").parent().parent().hide();
+            $("#weight-text").parent().parent().show();
         });
         $("#css-weights").on("click", () => {
             $("#change .make-change-all").show();
-            $("#change .css-text").parent().parent().show();
-            $("#change .weight-text").parent().parent().hide();
+            $("#css-text").parent().parent().show();
+            $("#weight-text").parent().parent().hide();
         });
-        $("#change .css-text").val("fill: red");
-        $("#change .weight-text").val("3");
-        $("#change .weight-text").parent().parent().hide();
-        $("#change .change-items").val("1,2,3,4,5");
+        $("#css-text").val("fill: red");
+        $("#weight-text").val("3");
+        $("#weight-text").parent().parent().hide();
+        $("#change-items").val("1,2,3,4,5");
         function makeChanges (all) {
             let uniqueNums = new Set();
             let type,indType=0;
@@ -120,7 +120,7 @@
                 indType++;
             }
             if (all===false) {
-                let [nums,error]=findItemsFromText($("#change .change-items").val(),(indType!==0));
+                let [nums,error]=findItemsFromText($("#change-items").val(),(indType!==0));
                 if (error!=="") {
                     alert(((language==="bg")?"Невалидни номера":"Invalid numbers")+" - "+error+"!");
                     return ;
@@ -153,8 +153,8 @@
                 }
             }
             
-            let cssText=$("#change .css-text").val();
-            let weightText=$("#change .weight-text").val();
+            let cssText=$("#css-text").val();
+            let weightText=$("#weight-text").val();
             graph.graphController.freezeTime();
             for (let num of uniqueNums) {
                 if (type==="add-vertices") graph.graphDrawer.dynamicGraph.addNewVertex(undefined,num);
@@ -173,14 +173,14 @@
         
         
         $("#style .apply-default").on("click", () => {
-            graph.graphDrawer.defaultCSSVertex=$("#style .default-css-vertex").val();
-            graph.graphDrawer.defaultCSSVertexText=$("#style .default-css-name").val();
-            graph.graphDrawer.defaultCSSEdge=$("#style .default-css-edge").val();
-            graph.graphDrawer.defaultCSSWeight=$("#style .default-css-weight").val();
+            graph.graphDrawer.defaultCSSVertex=$("#default-css-vertex").val();
+            graph.graphDrawer.defaultCSSVertexText=$("#default-css-name").val();
+            graph.graphDrawer.defaultCSSEdge=$("#default-css-edge").val();
+            graph.graphDrawer.defaultCSSWeight=$("default-css-weight").val();
             graph.graphDrawer.draw(true,true,false);
         });
-        $("#style .default-bg").off("input").on("input", () => {
-            graph.graphDrawer.defaultBG=$("#style .default-bg").val();
+        $("#default-bg").off("input").on("input", () => {
+            graph.graphDrawer.defaultBG=$("#default-bg").val();
             graph.graphDrawer.bgElement.attr({fill: graph.graphDrawer.defaultBG});
         });
     }

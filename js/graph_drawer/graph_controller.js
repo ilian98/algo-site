@@ -325,8 +325,13 @@
                         }
                         else if (curr.type==="change-weight-translate") {
                             let edge=graph.getEdge(ind);
-                            pushOther(curr.type,[ind, edge.weightTranslate[0], edge.weightTranslate[1]]);
+                            pushOther(curr.type,[ind, [edge.weightTranslate[0], edge.weightTranslate[1]]]);
                             edge.weightTranslate=curr.data[1];
+                        }
+                        else if (curr.type==="change-weight-rotate") {
+                            let edge=graph.getEdge(ind);
+                            pushOther(curr.type,[ind, edge.weightRotation]);
+                            edge.weightRotation=curr.data[1];
                         }
                         else if (curr.type==="change-css-vertex") {
                             let vr=graph.getVertex(ind);
@@ -440,11 +445,21 @@
         let minY=graph.calcPositions.frameY+graph.calcPositions.frameH,maxY=0;
         graph.s.selectAll("*").forEach((elem) => {
             if (elem===graph.graphDrawer.bgElement) return ;
-            if (elem.hasClass("click-area")===true) return ;
+            if ((elem.type==="path")&&(elem.hasClass("click-area")===true)) return ;
             if ((elem.type==="marker")||(elem.type==="polygon")) return ;
             if (elem.type==="defs") return ;
             let bBox=elem.getBBox();
             if ((bBox.x2-bBox.x===0)||(bBox.y2-bBox.y===0)) return ;
+            let flag=false;
+            for (;;) {
+                elem=elem.parent();
+                if (elem===graph.s) break;
+                if (elem.type==="g") {
+                    flag=true;
+                    break;
+                }
+            }
+            if (flag===true) return ;
             minX=Math.min(minX,bBox.x);
             maxX=Math.max(maxX,bBox.x2);
             minY=Math.min(minY,bBox.y);
@@ -823,7 +838,7 @@
                         <div class="modal-body">
                             <form>
                                 <div class="form-group">
-                                    <label for="message-text" class="col-form-label">`+((language==="bg")?"Текст":"Text")+`:</label>
+                                    <label for="import-message-text" class="col-form-label">`+((language==="bg")?"Текст":"Text")+`:</label>
                                     <textarea class="form-control" id="import-message-text" rows="11"></textarea>
                                 </div>
                             </form>

@@ -82,6 +82,7 @@
         
         this.curveHeight=curveHeight;
         this.weightTranslate=[0, 0];
+        this.weightRotation=0;
 
         this.findEndPoint = function (vr) {
             if (this.x==vr) return this.y;
@@ -160,6 +161,10 @@
             this.graphChange=graphChange;
             
             graphs.set(wrapperName,this);
+        }
+        this.isVisualChange = function (name) {
+            if ((name==="draw")||(name==="font-load")||(name==="new-positions")||(name==="new-pos")||((name.startsWith("change"))&&(name!=="change-weight")&&(name!=="change-property"))) return true;
+            return false;
         }
 
         function convertVertexToList (vertex) {
@@ -361,6 +366,14 @@
             if (this.graphController!==undefined) this.graphController.removeChanges();
             
             this.graphDrawer.draw(addDynamic,false);
+        }
+        
+        let tmp=undefined;
+        this.translateWeight = function (ind, tx, ty) {
+            this.svgEdges[ind].weight.transform("t"+tx+" "+ty+"r"+edgeList[ind].weightRotation);
+        }
+        this.rotateWeight = function (ind, deg) {
+            this.svgEdges[ind].weight.transform("t"+edgeList[ind].weightTranslate[0]+" "+edgeList[ind].weightTranslate[1]+"r"+deg);
         }
         
         this.addEdge = function (x, y, weight, css = ["",""], curveHeight=undefined, prevInd = undefined, isReal = true, revData = []) {

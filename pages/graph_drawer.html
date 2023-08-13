@@ -23,6 +23,9 @@
         <script type="text/javascript" src="/algo-site/node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
         <script type="text/javascript" src="/algo-site/node_modules/snapsvg/dist/snap.svg-min.js"></script>
         <script type="text/javascript" src="/algo-site/node_modules/opentype.js/dist/opentype.min.js"></script>
+        <script src="/algo-site/js/mathjax-config.js"></script>
+        <script id="MathJax-script" async src="/algo-site/node_modules/mathjax/es5/tex-chtml.js"></script>
+        
         <script type="text/javascript" src="/algo-site/js/main.js"></script>
         <script type="text/javascript" src="/algo-site/js/graph_drawer/graph.js"></script>
         <script type="text/javascript" src="/algo-site/js/graph_drawer/graph_drawer.js"></script>
@@ -118,32 +121,32 @@
                                     <div class="row mb-2 justify-content-end">
                                         <label for="default-css-vertex" class="col-auto col-form-label pe-0">върхове:</label>
                                         <div class="col-9">
-                                            <input class="form-control default-css-vertex"/>
+                                            <input class="form-control" id="default-css-vertex"/>
                                         </div>
                                     </div>
                                     <div class="row mb-2 justify-content-end">
                                         <label for="default-css-name" class="col-auto col-form-label pe-0">имена:</label>
                                         <div class="col-9">
-                                            <input class="form-control default-css-name"/>
+                                            <input class="form-control" id="default-css-name"/>
                                         </div>
                                     </div>
                                     <div class="row mb-2 justify-content-end">
-                                        <label for="defatuls-css-edge" class="col-auto col-form-label pe-0">ребра:</label>
+                                        <label for="default-css-edge" class="col-auto col-form-label pe-0">ребра:</label>
                                         <div class="col-9">
-                                            <input class="form-control default-css-edge"/>
+                                            <input class="form-control" id="default-css-edge"/>
                                         </div>
                                     </div>
                                     <div class="row mb-2 justify-content-end">
                                         <label for="default-css-weight" class="col-auto col-form-label pe-0">тегла:</label>
                                         <div class="col-9">
-                                            <input class="form-control default-css-weight"/>
+                                            <input class="form-control" id="default-css-weight"/>
                                         </div>
                                     </div>
                                     <p style="margin-top: 1vh; margin-bottom: 1vh">Големина на върха</p>
                                     <div class="row mb-2">
                                         <label for="default-bg" class="col-auto col-form-label pe-0">Фон</label>
                                         <div class="col-auto">
-                                            <input class="default-bg" type="color"/>
+                                            <input id="default-bg" type="color"/>
                                         </div>
                                     </div>
                                     <div class="row mb-2">
@@ -194,13 +197,13 @@
                                     <div class="row mb-2">
                                         <label for="css-text" class="col-auto col-form-label pe-0">Въведете CSS:</label>
                                         <div class="col-auto">
-                                            <input class="form-control css-text"/>
+                                            <input class="form-control" id="css-text"/>
                                         </div>
                                     </div>
                                     <div class="row mb-2">
                                         <label for="weight-text" class="col-auto col-form-label pe-0">Въведете тегло:</label>
                                         <div class="col-auto">
-                                            <input class="form-control weight-text"/>
+                                            <input class="form-control" id="weight-text"/>
                                         </div>
                                     </div>
                                     <div class="row mb-2">
@@ -211,7 +214,7 @@
                                     <div class="row mb-2">
                                         <label for="change-items" class="col-auto col-form-label pe-0">Въведете номера:</label>
                                         <div class="col-auto">
-                                            <input class="form-control change-items"/>
+                                            <input class="form-control" id="change-items"/>
                                         </div>
                                     </div>
                                     <div class="row mb-2">
