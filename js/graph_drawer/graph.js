@@ -53,36 +53,45 @@
     }
     function objToStyle (obj) {
         let style="";
-        for (let [attr, value] of Object.entries(obj)) {
-            style+=attr+": "+value+";";
+        let keys=Object.keys(obj);
+        keys.sort();
+        for (let attr of keys) {
+            style+=attr+": "+obj[attr]+"; ";
         }
         return style;
     }
+    function copyObj (obj) {
+        let copy={};
+        for (let [attr, value] of Object.entries(obj)) {
+            copy[attr]=value;
+        }
+        return copy;
+    }
     
-    function Vertex (name, userCSS=["",""], addedCSS=[[],[]]) {
+    function Vertex (name, userCSS=[{},{}], addedCSS=[{},{}]) {
         this.name=name;
         
-        this.defaultCSS=["",""];
+        this.defaultCSS=[{},{}];
         this.addedCSS=addedCSS;
-        this.userCSS=["",""];
+        this.userCSS=userCSS;
     }
     function SvgVertex () {
         this.coord=undefined;
         this.circle=undefined; this.text=undefined;
         this.group=undefined;
     }
-    function Edge (x, y, weight = "", userCSS=["",""], curveHeight=undefined, addedCSS=[[],[]]) {
+    function Edge (x, y, weight="", userCSS=[{},{}], curveHeight=undefined, addedCSS=[{},{}], weightTranslate=[0, 0], weightRotation=0) {
         this.x=x;
         this.y=y;
         this.weight=weight;
         
-        this.defaultCSS=["",""];
+        this.defaultCSS=[{},{}];
         this.addedCSS=addedCSS;
         this.userCSS=userCSS;
         
         this.curveHeight=curveHeight;
-        this.weightTranslate=[0, 0];
-        this.weightRotation=0;
+        this.weightTranslate=weightTranslate;
+        this.weightRotation=weightRotation;
 
         this.findEndPoint = function (vr) {
             if (this.x==vr) return this.y;
@@ -168,7 +177,11 @@
         }
 
         function convertVertexToList (vertex) {
-            return [vertex.name,[vertex.userCSS[0], vertex.userCSS[1]]];
+            return [
+                vertex.name,
+                [copyObj(vertex.userCSS[0]), copyObj(vertex.userCSS[1])],
+                [copyObj(vertex.addedCSS[0]), copyObj(vertex.addedCSS[1])]
+            ];
         }
         this.convertSimpleVertexList = function () {
             let vers=[];
@@ -192,7 +205,7 @@
                     continue;
                 }
                 if (vers[i]===undefined) vertices[i]=undefined;
-                else vertices[i]=new Vertex(vers[i][0],vers[i][1]);
+                else vertices[i]=new Vertex(...vers[i]);
             }
         }
         this.initSvgVertex = function (x) {
@@ -200,7 +213,14 @@
         }
 
         function convertEdgeToList (edge) {
-            return [edge.x,edge.y,edge.weight,[edge.userCSS[0],edge.userCSS[1]],edge.curveHeight];
+            return [
+                edge.x,edge.y,edge.weight,
+                [copyObj(edge.userCSS[0]),copyObj(edge.userCSS[1])],
+                edge.curveHeight,
+                [copyObj(edge.addedCSS[0]),copyObj(edge.addedCSS[1])],
+                [edge.weightTranslate[0], edge.weightTranslate[1]],
+                edge.weightRotation
+            ];
         }
         this.convertSimpleEdgeList = function () {
             let edges=[];
@@ -223,15 +243,8 @@
                     edgeList.push(undefined);
                     continue;
                 }
-                if (edge.length===2) edgeList.push(new Edge(edge[0],edge[1]));
-                else if (edge.length===3) {
-                    edgeList.push(new Edge(edge[0],edge[1],edge[2]));
-                    this.isWeighted=true;
-                }
-                else {
-                    edgeList.push(new Edge(edge[0],edge[1],edge[2],edge[3],edge[4]));
-                    if (edge[2]!=="") this.isWeighted=true;
-                }
+                edgeList.push(new Edge(...edge));
+                if ((edge.length===3)||((edge.length>=3)&&(edge[2]!==""))) this.isWeighted=true;
             }
             let max=0;
             for (let i=0; i<this.n; i++) {
@@ -314,10 +327,7 @@
             this.s.selectAll("*").remove();
         }
         
-        this.vertexRad=20; this.size=undefined;
-        this.getRadius = function () {
-            return this.vertexRad*this.size;
-        }
+        this.size=undefined;
         this.calcPositions=undefined; this.initViewBox=undefined;
         this.drawNewGraph = function (addDynamic = false, size, drawST = false, frameX, frameY, frameW, frameH) {
             this.erase();
@@ -368,7 +378,6 @@
             this.graphDrawer.draw(addDynamic,false);
         }
         
-        let tmp=undefined;
         this.translateWeight = function (ind, tx, ty) {
             this.svgEdges[ind].weight.transform("t"+tx+" "+ty+"r"+edgeList[ind].weightRotation);
         }
@@ -418,8 +427,10 @@
             }
             if ((this.isDirected===true)||(this.isNetwork===true)) 
                 this.reverseAdjList[edge.y].splice(this.reverseAdjList[edge.y].indexOf(index),1);
-            this.svgEdges[index].line.remove();
-            if (this.svgEdges[index].weight!==undefined) this.svgEdges[index].weight.remove();
+            if (this.svgEdges[index]!==undefined) {
+                this.svgEdges[index].line.remove();
+                if (this.svgEdges[index].weight!==undefined) this.svgEdges[index].weight.remove();
+            }
             this.svgEdges[index]=undefined;
             edgeList[index]=undefined;
         }
@@ -481,7 +492,7 @@
             }
         }
         
-        this.import = function (isDirected, isTree, isWeighted, isMulti, n, vers, edges, flagCoords, versCoord, posProperties) {
+        this.import = function (isDirected, isTree, isWeighted, isMulti, n, vers, edges, flagCoords, versCoord, posProperties, defaultSettings) {
             let graphProperties=[this.isDirected, this.isTree, this.isWeighted, this.isMulti];
             this.isDirected=isDirected; this.isTree=isTree;
             this.isWeighted=isWeighted; this.isMulti=isMulti;
@@ -518,6 +529,14 @@
                 else this.calcPositions.calcOriginalPos(posProperties[0],posProperties[1],posProperties[2]);
             }
             if (this.graphController!==undefined) this.graphController.advanceTime();
+            
+            if (defaultSettings!==undefined) {
+                this.graphDrawer.defaultCSSVertex=defaultSettings[0];
+                this.graphDrawer.defaultCSSVertexText=defaultSettings[1];
+                this.graphDrawer.defaultCSSEdge=defaultSettings[2];
+                this.graphDrawer.defaultCSSWeight=defaultSettings[3];
+                this.graphDrawer.defaultBG=defaultSettings[4];
+            }
             this.graphDrawer.draw(this.graphDrawer.isDynamic,false);
             return true;
         }
@@ -527,10 +546,21 @@
                 if (edgeList[i]===undefined) continue;
                 let info=[edgeList[i].x+1, edgeList[i].y+1];
                 if (edgeList[i].weight!=="") info.push(edgeList[i].weight);
-                if ((edgeList[i].userCSS[0]!=="")||(edgeList[i].userCSS[1]!=="")) {
-                    info.push("[["+edgeList[i].userCSS[0]+"],["+edgeList[i].userCSS[1]+"]]");
+                if ((Object.keys(edgeList[i].userCSS[0]).length>0)||(Object.keys(edgeList[i].userCSS[1]).length>0)) {
+                    info.push("[["+objToStyle(edgeList[i].userCSS[0])+"],["+objToStyle(edgeList[i].userCSS[1])+"]]");
                 }
                 if (edgeList[i].curveHeight!==undefined) info.push("["+edgeList[i].curveHeight+"]");
+                if ((Object.keys(edgeList[i].addedCSS[0]).length>0)||(Object.keys(edgeList[i].addedCSS[1]).length>0)) {
+                    info.push("{{"+objToStyle(edgeList[i].addedCSS[0])+"},{"+objToStyle(edgeList[i].addedCSS[1])+"}}");
+                }
+                if (edgeList[i].weight!=="") {
+                    if ((edgeList[i].weightTranslate[0]!=0)||(edgeList[i].weightTranslate[1]!=0)) {
+                        info.push("{"+edgeList[i].weightTranslate[0]+","+edgeList[i].weightTranslate[1]+"}");
+                    }
+                    if (edgeList[i].weightRotation!=0) {
+                        info.push("{"+edgeList[i].weightRotation+"}");
+                    }
+                }
                 edges.push(info);
             }
             let text=this.n+" "+edges.length+"\n";
@@ -548,8 +578,11 @@
                 let info=[(i+1).toString()];
                 if (vertices[i].name!==info[0]) info.push(vertices[i].name);
                 info.push("["+this.svgVertices[i].coord[0]+","+this.svgVertices[i].coord[1]+"]");
-                if ((vertices[i].userCSS[0]!=="")||(vertices[i].userCSS[1]!=="")) {
-                    info.push("[["+vertices[i].userCSS[0]+"],["+vertices[i].userCSS[1]+"]]");
+                if ((Object.keys(vertices[i].userCSS[0]).length>0)||(Object.keys(vertices[i].userCSS[1]).length>0)) {
+                    info.push("[["+objToStyle(vertices[i].userCSS[0])+"],["+objToStyle(vertices[i].userCSS[1])+"]]");
+                }
+                if ((Object.keys(vertices[i].addedCSS[0]).length>0)||(Object.keys(vertices[i].addedCSS[1]).length>0)) {
+                    info.push("{{"+objToStyle(vertices[i].addedCSS[0])+"},{"+objToStyle(vertices[i].addedCSS[1])+"}}");
                 }
                 vers.push(info);
             }
@@ -563,6 +596,13 @@
             text+="\n";
             
             text+="["+this.calcPositions.minX+","+this.calcPositions.minY+","+this.calcPositions.distVertices+"]\n\n";
+            
+            text+="[["+objToStyle(this.graphDrawer.defaultCSSVertex)+"],["+
+                objToStyle(this.graphDrawer.defaultCSSVertexText)+"],["+
+                objToStyle(this.graphDrawer.defaultCSSEdge)+"],["+
+                objToStyle(this.graphDrawer.defaultCSSWeight)+"],["+
+                this.graphDrawer.defaultBG[0]+"],["+
+                this.graphDrawer.defaultBG[1]+"]]\n\n";
             
             if (this.isDirected===true) text+="Directed\n";
             else text+="Undirected\n";
@@ -587,4 +627,5 @@
     window.determineDy=determineDy;
     window.styleToObj=styleToObj;
     window.objToStyle=objToStyle;
+    window.copyObj=copyObj;
 })();

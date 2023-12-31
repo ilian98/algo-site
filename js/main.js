@@ -63,23 +63,23 @@
         tableText+='</tbody>';
         return tableText;
     }
-    function findItemsFromText (s, flagNumbers=true) {
+    function findItemsFromText (s, delimeter=",", flagNumbers=true) {
         if (s.length>1000) return [[],(language==="bg")?"дължината е над 1000 символа":"the length is greater than 1000 symbols"];
         let elements=[],last=0;
         for (let i=0; i<s.length; i++) {
-            if ((s[i]===',')||(i===s.length-1)) {
-                if ((s[i]===',')&&(last===i)) return [[],(language==="bg")?"липсва елемент между 2 запетайки":"missing element between 2 commas"];
-                let curr=s.substring(last,(s[i]===',')?i:i+1);
+            if ((s[i]===delimeter)||(i===s.length-1)) {
+                if ((s[i]===delimeter)&&(last===i)) return [[],(language==="bg")?"липсва елемент между 2 запетайки":"missing element between 2 commas"];
+                let curr=s.substring(last,(s[i]===delimeter)?i:i+1);
                 if (flagNumbers===true) {
-                    curr=parseInt(curr);
-                    if (isNaN(curr)===true) return [[],s.substring(last,(s[i]===',')?i:i+1)+
+                    curr=parseFloat(curr);
+                    if (isNaN(curr)===true) return [[],s.substring(last,(s[i]===delimeter)?i:i+1)+
                                                     ((language==="bg")?" не е число":" is not a number")];
                 }
                 elements.push(curr);
                 last=i+1;
             }
         }
-        if (s[s.length-1]===',') return [[],(language==="bg")?"липсва елемент след последната запетайка":"missing element after the last comma"];
+        if (s[s.length-1]===delimeter) return [[],(language==="bg")?"липсва елемент след последната запетайка":"missing element after the last comma"];
         return [elements,""];
     }
 

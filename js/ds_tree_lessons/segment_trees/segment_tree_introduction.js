@@ -25,9 +25,9 @@
         tree.graphDrawer.draw(false,false);
     }
     function addSegmentsLabels (index, l, r, tree, flagIndex, isDynamic) {
-        let vertexRad=tree.getRadius();
+        let vertexRad=tree.graphDrawer.findAttrValue("vertex","r");
         if (flagIndex===true) {
-            let indexFontSize=tree.graphDrawer.findFontSize("vertex-name",index,4/6);
+            let indexFontSize=tree.graphDrawer.findAttrValue("vertex-name","font-size",index)*4/6;
             let textIndex=tree.s.text(0,0,index+1);
             textIndex.attr({"font-size": indexFontSize,"font-family": "Times New Roman", "font-weight": "bold", class: "unselectable", fill: "blue"});
             textIndex.attr({
@@ -38,13 +38,13 @@
             tree.svgVertices[index].group=tree.s.group(tree.svgVertices[index].group,textIndex);
         }
 
-        let labelFontSize=tree.graphDrawer.findFontSize("vertex-name",index,5/6);
+        let labelFontSize=tree.graphDrawer.findAttrValue("vertex-name","font-size",index)*5/6;
         let segment=tree.s.text(0,0,"["+l+";"+r+"]");
         segment.attr({"font-size": labelFontSize, "font-family": "Times New Roman", class: "unselectable", fill: "#B22222"});
         if (l===r) {
            segment.attr({
                x: tree.svgVertices[index].coord[0], 
-               y: tree.svgVertices[index].coord[1]+vertexRad+tree.graphDrawer.findStrokeWidth("vertex",index)/2+2
+               y: tree.svgVertices[index].coord[1]+vertexRad+tree.graphDrawer.findAttrValue("vertex","stroke-width",index)/2+2
            });
            segment.attr({dy: 2*determineDy(segment.attr("text"),"Times New Roman",labelFontSize), "text-anchor": "middle"});
            tree.svgVertices[index].group=tree.s.group(tree.svgVertices[index].group,segment);
@@ -52,7 +52,7 @@
         }
         segment.attr({
             x: tree.svgVertices[index].coord[0], 
-            y: tree.svgVertices[index].coord[1]-vertexRad-tree.graphDrawer.findStrokeWidth("vertex",index)/2-2,
+            y: tree.svgVertices[index].coord[1]-vertexRad-tree.graphDrawer.findAttrValue("vertex","stroke-width",index)/2-2,
         });
         segment.attr({"text-anchor": "middle"});
         tree.svgVertices[index].group=tree.s.group(tree.svgVertices[index].group,segment);
@@ -297,9 +297,9 @@
             animations.push({
                 startFunction: function () {
                     let origName=tree.getVertex(index).name;
-                    tree.graphDrawer.drawVertexText.call(tree,index,val.toString());
+                    tree.graphDrawer.drawVertexText(index,val.toString());
                     return () => {
-                        tree.graphDrawer.drawVertexText.call(tree,index,origName);
+                        tree.graphDrawer.drawVertexText(index,origName);
                     };
                 },
                 animFunctions: [attrChangesAnimation(tree.svgVertices[index].circle,{fill: "black"}),
@@ -349,9 +349,9 @@
         animations.push({
             startFunction: function () {
                 let origName=tree.getVertex(index).name;
-                tree.graphDrawer.drawVertexText.call(tree,index,(suml+sumr).toString());
+                tree.graphDrawer.drawVertexText(index,(suml+sumr).toString());
                 return () => {
-                    tree.graphDrawer.drawVertexText.call(tree,index,origName);
+                    tree.graphDrawer.drawVertexText(index,origName);
                 };
             },
             animFunctions: [attrChangesAnimation(tree.svgVertices[index].circle,{fill: "black"},1.5),
@@ -362,9 +362,9 @@
     }
 
     function addSumText (tree, index, isLeaf, sum) {
-        let text=tree.s.text(0,0,sum),fontSize=tree.graphDrawer.findFontSize("vertex-name",index,5/6);
+        let text=tree.s.text(0,0,sum),fontSize=tree.graphDrawer.findAttrValue("vertex-name","font-size",index)*5/6;
         text.attr({"font-size": fontSize, "font-family": "Arial", "text-align": "center", class: "unselectable", fill: "orange"});
-        let vertexRad=tree.getRadius();
+        let vertexRad=tree.graphDrawer.findAttrValue("vertex","r");
         if (isLeaf===true) {
             text.attr({
                 x: tree.svgVertices[index].coord[0], 

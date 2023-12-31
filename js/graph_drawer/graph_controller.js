@@ -298,6 +298,20 @@
                         types.add("remove-edge");
                     }
                 }
+                else if (curr.type==="default-settings") {
+                    pushOther(curr.type, [
+                        copyObj(graph.graphDrawer.defaultCSSVertex),
+                        copyObj(graph.graphDrawer.defaultCSSVertexText),
+                        copyObj(graph.graphDrawer.defaultCSSEdge),
+                        copyObj(graph.graphDrawer.defaultCSSWeight),
+                        [graph.graphDrawer.defaultBG[0], graph.graphDrawer.defaultBG[1]]
+                    ]);
+                    graph.graphDrawer.defaultCSSVertex=curr.data[0];
+                    graph.graphDrawer.defaultCSSVertexText=curr.data[1];
+                    graph.graphDrawer.defaultCSSEdge=curr.data[2];
+                    graph.graphDrawer.defaultCSSWeight=curr.data[3];
+                    graph.graphDrawer.defaultBG=[curr.data[4][0], curr.data[4][1]];
+                }
                 else {
                     let ind=curr.data[0];
                     if (curr.type==="add-edge") graph.removeEdge(ind), types.add("remove-edge");
@@ -335,22 +349,22 @@
                         }
                         else if (curr.type==="change-css-vertex") {
                             let vr=graph.getVertex(ind);
-                            pushOther(curr.type,[ind, [vr.userCSS[0]]]);
+                            pushOther(curr.type,[ind, copyObj(vr.userCSS[0])]);
                             vr.userCSS[0]=curr.data[1];
                         }
                         else if (curr.type==="change-css-vertex-name") {
                             let vr=graph.getVertex(ind);
-                            pushOther(curr.type,[ind, [vr.userCSS[1]]]);
+                            pushOther(curr.type,[ind, copyObj(vr.userCSS[1])]);
                             vr.userCSS[1]=curr.data[1];
                         }
                         else if (curr.type==="change-css-edge") {
                             let edge=graph.getEdge(ind);
-                            pushOther(curr.type,[ind, [edge.userCSS[0]]]);
+                            pushOther(curr.type,[ind, copyObj(edge.userCSS[0])]);
                             edge.userCSS[0]=curr.data[1];
                         }
                         else if (curr.type==="change-css-weight") {
                             let edge=graph.getEdge(ind);
-                            pushOther(curr.type,[ind, [edge.userCSS[1]]]);
+                            pushOther(curr.type,[ind, copyObj(edge.userCSS[1])]);
                             edge.userCSS[1]=curr.data[1];
                         }
                         else if (curr.type==="change-name") {
@@ -467,10 +481,10 @@
         });
         for (let [i, vr] of graph.getVertices()) {
             let bBox=graph.svgVertices[i].circle.getBBox();
-            minX=Math.min(minX,bBox.x-graph.graphDrawer.findStrokeWidth("vertex",i));
-            maxX=Math.max(maxX,bBox.x2+graph.graphDrawer.findStrokeWidth("vertex",i));
-            minY=Math.min(minY,bBox.y-graph.graphDrawer.findStrokeWidth("vertex",i));
-            maxY=Math.max(maxY,bBox.y2+graph.graphDrawer.findStrokeWidth("vertex",i));
+            minX=Math.min(minX,bBox.x-graph.graphDrawer.findAttrValue("vertex","stroke-width",i));
+            maxX=Math.max(maxX,bBox.x2+graph.graphDrawer.findAttrValue("vertex","stroke-width",i));
+            minY=Math.min(minY,bBox.y-graph.graphDrawer.findAttrValue("vertex","stroke-width",i));
+            maxY=Math.max(maxY,bBox.y2+graph.graphDrawer.findAttrValue("vertex","stroke-width",i));
         }
         return [minX, maxX, minY, maxY];
     }
@@ -507,7 +521,7 @@
         let svgSave=$(graph.wrapperName+" .svg-save");
         
         $(".click-area").hide();
-        graph.graphDrawer.bgElement.attr("style","display: none");
+        graph.graphDrawer.bgElement.attr("display","none");
         let [minX, maxX, minY, maxY]=calcBBox(graph);
         svgSave.attr("viewBox",minX+" "+minY+" "+graph.s.attr("viewBox").w+" "+graph.s.attr("viewBox").h);
         svgSave.removeAttr("width").removeAttr("height");
@@ -523,7 +537,7 @@
         $("<a>").prop("download","graph.svg")
             .prop("href",svgURL)
             .prop("target","_black")[0].click();
-        graph.graphDrawer.bgElement.attr("style","");
+        graph.graphDrawer.bgElement.attr("display","");
         $(".click-area").show();
         svgSave.empty();
     }
@@ -575,11 +589,13 @@
         for (let i=0; i<s.length; i++) {
             if (s[i]==='[') cnt++;
             else if (s[i]===']') cnt--;
+            else if (s[i]==='{') cnt++;
+            else if (s[i]==='}') cnt--;
             else if ((s[i]===' ')&&(cnt>0)) s[i]='\x00'; // escaping spaces
             if (s[i]===' ') {
                 cntSpaces++;
-                if (((type==="vers")&&(cntSpaces>1)&&(i+1<s.length)&&(s[i+1]!=='['))||
-                    ((type==="edges")&&(cntSpaces>2)&&(i+1<s.length)&&(s[i+1]!=='[')))
+                if (((type==="vers")&&(cntSpaces>1)&&(i+1<s.length)&&(s[i+1]!=='[')&&(s[i+1]!=='{'))||
+                    ((type==="edges")&&(cntSpaces>2)&&(i+1<s.length)&&(s[i+1]!=='[')&&(s[i+1]!=='{')))
                     s[i]='\x00';
             }
         }
@@ -622,41 +638,50 @@
                 alert("Невалиден номер на връх за: "+lines[curr]);
                 return false;
             }
-            let weight="",userCSS=["",""],curveHeight=undefined;
-            if (tokens.length>=3) {
-                let ind=2;
-                if (tokens[ind][0]!=='[') weight=tokens[ind++];
-                if (tokens.length>ind) {
-                    if ((tokens[ind][0]!=='[')||(tokens[ind][tokens[ind].length-1]!==']')) {
-                        alert("Очаква се свойството да е оградено от квадратни скоби при: "+lines[curr]);
-                        return false;
-                    }
-                    if (tokens[ind][1]!='[') curveHeight=parseFloat(tokens[ind].slice(1,tokens[ind].length-1));
-                    else {
-                        let css=removeEmpty(tokens[ind].split(","));
-                        if (css.length!==2) {
-                            alert("Очаква се да има два CSS-а, разделени със запетайка при: "+lines[curr]);
-                            return false;
-                        }
-                        userCSS[0]=css[0].slice(2,css[0].length-1);
-                        userCSS[1]=css[1].slice(1,css[1].length-2);
-                        ind++;
-                        if (tokens.length>ind) {
-                            if ((tokens[ind][0]!=='[')||(tokens[ind][tokens[ind].length-1]!==']')) {
-                                alert("Очаква се свойството да е оградено от квадратни скоби при: "+lines[curr]);
-                                return false;
-                            }
-                            curveHeight=parseFloat(tokens[ind].slice(1,tokens[ind].length-1));
-                            ind++;
-                            if (tokens.length>ind) {
-                                alert("Твърде много свойства при: "+lines[curr]);
-                                return false;
-                            }
-                        }
-                    }
+            let weight="",userCSS=[{},{}],curveHeight=undefined,addedCSS=[{},{}],weightTranslate=[0, 0],weightRotation=0;
+            for (let i=2; i<tokens.length; i++) {
+                let token=tokens[i];
+                if ((i===2)&&(token[0]!=='[')&&(token[0]!=='{')) {
+                    weight=token;
+                    continue;
                 }
+                if (((token[0]!=='[')||(token[token.length-1]!==']'))&&
+                    ((token[0]!=='{')||(token[token.length-1]!=='}'))) {
+                    alert("Очаква се свойството да е оградено от квадратни или фигурни скоби при: "+lines[curr]);
+                    return false;
+                }
+                if ((token[0]==='[')&&(token[1]!=='[')) {
+                    curveHeight=parseFloat(token.slice(1,token.length-1));
+                    continue;
+                }
+                if ((token[0]==='{')&&(token[1]!=='}')) {
+                    let nums=removeEmpty(token.slice(1,token.length-1).split(","));
+                    if ((nums.length==0)||(nums.length>2)) {
+                        alert("Очаква се да има ъгъл на ротация или две числа за транслация при: "+lines[curr]);
+                    }
+                    if (nums.length===1) weightRotation=parseFloat(nums[0]);
+                    else weightTranslate=[parseFloat(nums[0]), parseFloat(nums[1])];
+                    continue;
+                }
+                let css=removeEmpty(token.split(","));
+                if (css.length!==2) {
+                    alert("Очаква се да има два CSS-а, разделени със запетайка при: "+lines[curr]);
+                    return false;
+                }
+                if ((token[1]==='[')&&(token[token.length-2]==']')) {
+                    userCSS[0]=styleToObj(css[0].slice(2,css[0].length-1));
+                    userCSS[1]=styleToObj(css[1].slice(1,css[1].length-2));
+                    continue;
+                }
+                else if ((token[1]==='{')&&(token[token.length-2]=='}')) {
+                    addedCSS[0]=styleToObj(css[0].slice(2,css[0].length-1));
+                    addedCSS[1]=styleToObj(css[1].slice(1,css[1].length-2));
+                    continue;
+                }
+                alert("Неочаквано свойство при: "+lines[curr]);
+                return false;
             }
-            edges.push([x-1,y-1,weight,userCSS,curveHeight]);
+            edges.push([x-1,y-1,weight,userCSS,curveHeight,addedCSS,weightTranslate,weightRotation]);
             curr++;
         }
 
@@ -688,73 +713,101 @@
                     alert("Невалиден номер на връх за: "+lines[curr]);
                     return false;
                 }
-                let name=x.toString(),coord=undefined,userCSS=["",""];
-                if (tokens.length>=2) {
-                    let ind=1;
-                    if (tokens[ind][0]!=='[') name=tokens[ind++];
-                    if (tokens.length>ind) {
-                        if ((tokens[ind][0]!=='[')||(tokens[ind][tokens[ind].length-1]!==']')) {
-                            alert("Очаква се свойството да е оградено от квадратни скоби при: "+lines[curr]);
+                let name=x.toString(),coord=undefined,userCSS=[{},{}],addedCSS=[{},{}];
+                for (let i=1; i<tokens.length; i++) {
+                    let token=tokens[i];
+                    if (token[0]!=='[') {
+                        name=token;
+                        continue;
+                    }
+                    if (((token[0]!=='[')||(token[token.length-1]!==']'))&&
+                        ((token[0]!=='{')||(token[token.length-1]!=='}'))) {
+                        alert("Очаква се свойството да е оградено от квадратни или фигурни скоби при: "+lines[curr]);
+                        return false;
+                    }
+                    if ((token[0]==='[')&&(token[1]!=='[')) {
+                        let coords=removeEmpty(token.slice(1,token.length-1).split(","));
+                        if (coords.length!==2) {
+                            alert("Очаква се да има две координати, разделени със запетайка при: "+lines[curr]);
                             return false;
                         }
-                        if (tokens[ind][1]!='[') {
-                            let coords=removeEmpty(tokens[ind].split(","));
-                            if (coords.length!==2) {
-                                alert("Очаква се да има две координати, разделени със запетайка при: "+lines[curr]);
-                                return false;
-                            }
-                            coord=[];
-                            coord[0]=parseFloat(coords[0].slice(1,coords[0].length));
-                            coord[1]=parseFloat(coords[1].slice(0,coords[1].length-1));
-                            ind++;
-                        }
-
-                        if (tokens.length>ind) {
-                            if ((tokens[ind][0]!=='[')||(tokens[ind][tokens[ind].length-1]!==']')) {
-                                alert("Очаква се свойството да е оградено от квадратни скоби при: "+lines[curr]);
-                                return false;
-                            }
-                            let css=removeEmpty(tokens[ind].split(","));
-                            if (css.length!==2) {
-                                alert("Очаква се да има два CSS-а, разделени със запетайка при: "+lines[curr]);
-                                return false;
-                            }
-                            userCSS[0]=css[0].slice(2,css[0].length-1);
-                            userCSS[1]=css[1].slice(1,css[1].length-2);
-                            ind++;
-                            if (tokens.length>ind) {
-                                alert("Твърде много свойства при: "+lines[curr]);
-                                return false;
-                            }
-                        }
+                        coord=[];
+                        coord[0]=parseFloat(coords[0]);
+                        coord[1]=parseFloat(coords[1]);
+                        continue;
                     }
+
+                    let css=removeEmpty(token.split(","));
+                    if (css.length!==2) {
+                        alert("Очаква се да има два CSS-а, разделени със запетайка при: "+lines[curr]);
+                        return false;
+                    }
+                    if ((token[1]==='[')&&(token[token.length-2]==']')) {
+                        userCSS[0]=styleToObj(css[0].slice(2,css[0].length-1));
+                        userCSS[1]=styleToObj(css[1].slice(1,css[1].length-2));
+                        continue;
+                    }
+                    else if ((token[1]==='{')&&(token[token.length-2]=='}')) {
+                        addedCSS[0]=styleToObj(css[0].slice(2,css[0].length-1));
+                        addedCSS[1]=styleToObj(css[1].slice(1,css[1].length-2));
+                        continue;
+                    }
+                    alert("Неочаквано свойство при: "+lines[curr]);
+                    return false;
                 }
                 if (coord===undefined) flagCoords=false;
-                vers[x-1]=[name,userCSS];
+                vers[x-1]=[name,userCSS,addedCSS];
                 versCoord[x-1]=coord;
                 curr++;
             }
         }
         else {
             for (let i=1; i<=n; i++) {
-                vers.push([i.toString(), ["",""]]);
+                vers.push([i.toString(), [{},{}], [{},{}]]);
             }
         }
 
-        let posProperties=undefined;
-        if (curr<lines.length) {
-            let words=removeEmpty(lines[curr].split(" "));
-            if ((words.length===1)&&(words[0].length>2)&&(words[0][0]=='[')&&(words[0][words[0].length-1]==']')) {
-                let tokens=words[0].slice(1,words[0].length-1).split(",");
-                if (tokens.length===3) {
-                    posProperties=[parseFloat(tokens[0]), parseFloat(tokens[1]), parseFloat(tokens[2])];
-                    if ((isNaN(posProperties[0])===true)||
-                        (isNaN(posProperties[1])===true)||
-                        (isNaN(posProperties[2])===true)) posProperties=undefined;
-                    else curr++;
+        let posProperties=undefined,defaultSettings=undefined;
+        for (;;) {
+            if (curr===lines.length) break;
+            let line=lines[curr];
+            if ((line.length>2)&&(line[0]==='[')&&(line[line.length-1]===']')) {
+                if (line[1]!=='[') {
+                    let tokens=line.slice(1,line.length-1).split(",");
+                    if (tokens.length===3) {
+                        posProperties=[parseFloat(tokens[0]), parseFloat(tokens[1]), parseFloat(tokens[2])];
+                        if ((isNaN(posProperties[0])===true)||
+                            (isNaN(posProperties[1])===true)||
+                            (isNaN(posProperties[2])===true)) {
+                            posProperties=undefined;
+                            break;
+                        }
+                        else curr++;
+                    }
                 }
+                else if ((line[1]=='[')&&(line[line.length-2]===']')) {
+                    let tokens=line.slice(1,line.length-1).split(",");
+                    if (tokens.length===6) {
+                        defaultSettings=[];
+                        for (let i=0; i<4; i++) {
+                            defaultSettings[i]=styleToObj(tokens[i].slice(1,tokens[i].length-1));
+                        }
+                        defaultSettings[4]=[
+                            tokens[4].slice(1,tokens[4].length-1),
+                            parseFloat(tokens[5].slice(1,tokens[5].length-1)),
+                        ]
+                        if (isNaN(defaultSettings[4][1])===true) {
+                            defaultSettings=undefined;
+                            break;
+                        }
+                        else curr++;
+                    }
+                }
+                else break;
             }
+            else break;
         }
+            
 
         let isDirected=graph.isDirected,isWeighted=false,isMulti=false,isTree=false;
         let flagWords=false;
@@ -811,7 +864,7 @@
         }
         if (flagWords===false) isWeighted=graph.isWeighted, isMulti=graph.isMulti, isTree=graph.isTree;
 
-        return graph.import(isDirected,isTree,isWeighted,isMulti,n,vers,edges,flagCoords,versCoord,posProperties);
+        return graph.import(isDirected,isTree,isWeighted,isMulti,n,vers,edges,flagCoords,versCoord,posProperties,defaultSettings);
     }
     function addImportFunctionality (wrapperName, graph) {
         let input=$(wrapperName+" .input-file");

@@ -142,12 +142,16 @@
                                             <input class="form-control" id="default-css-weight"/>
                                         </div>
                                     </div>
-                                    <p style="margin-top: 1vh; margin-bottom: 1vh">Големина на върха</p>
                                     <div class="row mb-2">
                                         <label for="default-bg" class="col-auto col-form-label pe-0">Фон</label>
-                                        <div class="col-auto">
+                                        <div class="col-auto d-flex align-items-center">
                                             <input id="default-bg" type="color"/>
                                         </div>
+                                        <label for="default-bg-opacity" class="col-auto col-form-label pe-0">Прозрачност</label>
+                                        <div class="col-auto pe-0">
+                                            <input class="form-control" style="width: 3.5rem; max-width: 100%" id="default-bg-opacity"/>
+                                        </div>
+                                        <label class="col-auto px-0 d-flex align-items-center">%</label>
                                     </div>
                                     <div class="row mb-2">
                                         <div class="col-auto">
@@ -212,9 +216,21 @@
                                         </div>
                                     </div>
                                     <div class="row mb-2">
-                                        <label for="change-items" class="col-auto col-form-label pe-0">Въведете номера:</label>
+                                        <label for="add-vers" class="col-auto col-form-label pe-0">Брой върхове:</label>
                                         <div class="col-auto">
-                                            <input class="form-control" id="change-items"/>
+                                            <input class="form-control" id="add-vers"/>
+                                        </div>
+                                    </div>
+                                    <div class="row mb-2">
+                                        <label for="change-ver-items" class="col-auto col-form-label pe-0">Въведете номера:</label>
+                                        <div class="col-auto">
+                                            <input class="form-control" id="change-ver-items"/>
+                                        </div>
+                                    </div>
+                                    <div class="row mb-2">
+                                        <label for="change-edge-items" class="col-auto col-form-label pe-0">Въведете ребра:</label>
+                                        <div class="col-auto">
+                                            <input class="form-control" id="change-edge-items"/>
                                         </div>
                                     </div>
                                     <div class="row mb-2">

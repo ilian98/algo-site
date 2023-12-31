@@ -15,7 +15,7 @@
         
         let tryDesperate=false;
         this.vertexEdge = function (center, ind, curvePath = "") {
-            let dist,vertexRad=graph.getRadius();
+            let dist,vertexRad=graph.graphDrawer.findAttrValue("vertex","r");
             if (tryDesperate===false) {
                 if (graph.isWeight===true) dist=3*vertexRad;
                 else if (graph.isMulti===true) dist=2.1*vertexRad;
@@ -100,7 +100,7 @@
                 for (let [i, vr] of vers) {
                     if (graph.svgVertices[i].coord===undefined) continue;
                     if (segmentLength(graph.svgVertices[i].coord[0],graph.svgVertices[i].coord[1],pos[0],pos[1])<
-                        2*graph.getRadius()+((flagCheckEdges===true)?this.distVertices:0)-1) {
+                        2*graph.graphDrawer.findAttrValue("vertex","r")+((flagCheckEdges===true)?this.distVertices:0)-1) {
                         flag=false;
                         break;
                     }
@@ -208,7 +208,7 @@
             let maxDepth=findMaxDepth(root,-1,0,adjList);
             fillVersDepth(root,-1,0,maxDepth,adjList,versDepth);
 
-            let vertexRad=graph.getRadius();
+            let vertexRad=graph.graphDrawer.findAttrValue("vertex","r");
             let x=0,y=(2*vertexRad+this.distVertices)*maxDepth,distX;
             if (versDepth[maxDepth].length>4) {
                 distX=this.findRealWidth()/(versDepth[maxDepth].length-1);
@@ -313,12 +313,12 @@
         this.findMaxStrokeWidth = function () {
             let max=0;
             for (let [i, vertex] of graph.getVertices()) {
-                max=Math.max(max,graph.graphDrawer.findStrokeWidth("vertex",i));
+                max=Math.max(max,graph.graphDrawer.findAttrValue("vertex","stroke-width",i));
             }
             return max;
         }
         this.findMinX = function () {
-            let weightDist=(graph.isWeighted===true)?graph.getRadius()/2:0;
+            let weightDist=(graph.isWeighted===true)?graph.graphDrawer.findAttrValue("vertex","r")/2:0;
             return Math.max(weightDist,this.frameX)+this.findMaxStrokeWidth()/2;
         }
         this.findMinY = function () {
@@ -329,14 +329,14 @@
                     break;
                 }
             }
-            let weightDist=(graph.isWeighted===true)?graph.getRadius()/2:0;
+            let weightDist=(graph.isWeighted===true)?graph.graphDrawer.findAttrValue("vertex","r")/2:0;
             return Math.max(Math.max(loopDist,weightDist),this.frameY)+this.findMaxStrokeWidth()/2;
         }
         this.findRealWidth = function () {
-            return this.frameW-2*graph.getRadius()-2*this.findMinX();
+            return this.frameW-2*graph.graphDrawer.findAttrValue("vertex","r")-2*this.findMinX();
         }
         this.findRealHeight = function () {
-            return this.frameH-2*graph.getRadius()-2*this.findMinY();
+            return this.frameH-2*graph.graphDrawer.findAttrValue("vertex","r")-2*this.findMinY();
         }
         this.distVertices=undefined; this.minX=undefined; this.minY=undefined;
         this.calcOriginalPos = function (minX = 0, minY = 0, dist = undefined) {
@@ -344,7 +344,7 @@
             if (dist!==undefined) this.distVertices=dist;
             this.minX=minX; this.minY=minY;
             
-            let vertexRad=graph.getRadius();
+            let vertexRad=graph.graphDrawer.findAttrValue("vertex","r");
             originalPos=[];
             let maxX=this.findMinX()+this.findRealWidth(),maxY=this.findMinY()+this.findRealHeight();
             let posX=[];
@@ -381,7 +381,7 @@
             if (graph.graphController!==undefined)
                 graph.graphController.registerAction("new-positions",findPositions());
             
-            let vertexRad=graph.getRadius();
+            let vertexRad=graph.graphDrawer.findAttrValue("vertex","r");
             let vers=graph.getVertices();
             for (let [i, vr] of vers) {
                 if (graph.svgVertices[i]===undefined) graph.initSvgVertex(i);
@@ -498,27 +498,15 @@
                         }
                     }
                     if (graph.graphController!==undefined) 
-                        graph.graphController.addChange("change-css-edge",
-                                                        [i, [edge.userCSS[0]]],
+                        graph.graphController.addChange("change-added-css-edge",
+                                                        [i, [edge.addedCSS[0]]],
                                                         false);
                     if (found===true) {
-                        let s=edge.userCSS[0];
-                        for (;;) {
-                            let beg=s.indexOf(";;stroke-dasharray: "),end;
-                            if (beg===-1) break;
-                            for (let j=beg+2; ; j++) {
-                                if (s[j]===';') {
-                                    end=j;
-                                    break;
-                                }
-                            }
-                            let remove=s.substring(beg,end+1);
-                            s=edge.userCSS[0]=s.replace(remove,"");
-                        }
+                        edge.addedCSS[0]["stroke-dasharray"]="";
                         edge.curveHeight=undefined;
                         continue;
                     }
-                    edge.userCSS[0]+="; ;;stroke-dasharray: "+(10*graph.size)+";";
+                    edge.addedCSS[0]["stroke-dasharray"]=(10*graph.size);
                     
                     let oldCurveHeight=edge.curveHeight;
                     let flag=false;
@@ -574,14 +562,14 @@
                 this.frameX=frameX; this.frameY=frameY;
                 this.frameW=frameW; this.frameH=frameH;
             }
-            let vertexRad=graph.getRadius();
+            let vertexRad=graph.graphDrawer.findAttrValue("vertex","r");
             this.distVertices=vertexRad*5/4+parseInt((Math.random())*vertexRad/4);
             if (graph.isWeighted===true) this.distVertices*=2;
             if (graph.isNetwork===true) this.distVertices*=2;
         }
         
         function centerGraph () {
-            let vertexRad=graph.getRadius();
+            let vertexRad=graph.graphDrawer.findAttrValue("vertex","r");
             let minX=this.frameX+this.frameW,maxX=0;
             let minY=this.frameY+this.frameH,maxY=0;
             let vers=graph.getVertices();

@@ -1,7 +1,7 @@
 "use strict";
 (function () {
     function addText (i, graph, s, position) {
-        let text=graph.s.text(0,0,s),fontSize=graph.graphDrawer.findFontSize("vertex-name",i,4/6);
+        let text=graph.s.text(0,0,s),fontSize=graph.graphDrawer.findAttrValue("vertex-name","font-size",i)*4/6;
         text.attr({
             "font-size": fontSize,
             "font-weight": "bold",
@@ -14,13 +14,18 @@
             text.attr({
                 fill: "blue",
                 x: graph.svgVertices[i].coord[0],
-                y: graph.svgVertices[i].coord[1]-graph.getRadius()-graph.graphDrawer.findStrokeWidth("vertex",i)/2-2,
+                y: graph.svgVertices[i].coord[1]-
+                graph.graphDrawer.findAttrValue("vertex","r",i)-
+                graph.graphDrawer.findAttrValue("vertex","stroke-width",i)/2-2,
             });
         }
         else {
             text.attr({
                 fill: "green",
-                x: graph.svgVertices[i].coord[0]+graph.getRadius()+graph.graphDrawer.findStrokeWidth("vertex",i)/2+text.getBBox().w/2+2,
+                x: graph.svgVertices[i].coord[0]+
+                graph.graphDrawer.findAttrValue("vertex","r",i)+
+                graph.graphDrawer.findAttrValue("vertex","stroke-width",i)/2+
+                text.getBBox().w/2+2,
                 y: graph.svgVertices[i].coord[1],
                 dy: determineDy(s,"Times New Roman",fontSize)
             });
@@ -90,7 +95,7 @@
                 if (up[to]>=inTime[to]) {
                     animations.push({
                         animFunctions: [attrChangesAnimation(graph.svgEdges[ind].line,{
-                            stroke: "red", "stroke-width": graph.graphDrawer.findStrokeWidth("edge",ind)*2
+                            stroke: "red", "stroke-width": graph.graphDrawer.findAttrValue("edge","stroke-width",ind)*2
                         })],
                         animText: "Понеже up["+(to+1)+"]>=in["+(to+1)+"], то това ребро е мост!"
                     });
@@ -197,7 +202,7 @@
             else {
                 graph.getEdge(i).addedCSS[0]["stroke"]="red";
                 graph.getEdge(i).addedCSS[0]["stroke-width"]="";
-                graph.getEdge(i).addedCSS[0]["stroke-width"]=graph.graphDrawer.findStrokeWidth("edge",i)*2;
+                graph.getEdge(i).addedCSS[0]["stroke-width"]=graph.graphDrawer.findAttrValue("edge","stroke-width",i)*2;
             }
             graph.graphDrawer.recalcAttrEdge(graph.svgEdges[i],i);
         }
@@ -222,7 +227,7 @@
             let animationObj = new Animation();
             $(".graphExample3 .default").on("click", function () {
                 example3.init(".graphExample3",8,false,function () {
-                    example3.calcPositions.frameY=example3.getRadius();
+                    example3.calcPositions.frameY=example3.graphDrawer.findAttrValue("vertex","r");
                 });
                 example3.buildEdgeDataStructures([[0,1],[0,2],[1,2],[1,6],[2,3],[2,6],[3,4],[3,7],[4,7],[5,6]]);
                 example3.drawNewGraph(true,3/4,false,0,15);

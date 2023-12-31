@@ -44,12 +44,13 @@
             let max=1;
             let edges=this.getEdges();
             for (let [i, edge] of edges) {
-                max=Math.max(max,edge.flow);
+                if (edge.flow!==undefined) max=Math.max(max,edge.flow);
             }
             
             for (let [i, edge] of edges) {
-                edge.addedCSS[0]["stroke-width"]="";
-                let strokeWidth=this.graphDrawer.findStrokeWidth("edge",i);
+                if (edge.flow===undefined) continue;
+                delete edge.addedCSS[0]["stroke-width"];
+                let strokeWidth=this.graphDrawer.findAttrValue("edge","stroke-width",i);
                 let curr=strokeWidth/2+(Math.abs(edge.flow)/max)*(1.5*strokeWidth);
                 edge.addedCSS[0]["stroke-width"]=curr;
                 
@@ -61,10 +62,6 @@
                     }
                 }
                 else {
-                    if ((edge.flow<0)||((edge.flow==0)&&(edge.real===false))) {
-                        edge.addedCSS[0]["opacity"]=0;
-                        edge.addedCSS[1]["opacity"]=0;
-                    }
                     if (edge.curveHeight===undefined) edge.curveHeight=0;
                 }
             }

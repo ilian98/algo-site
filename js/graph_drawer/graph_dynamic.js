@@ -46,10 +46,10 @@
                 else graph.graphDrawer.redrawEdge(graph.svgEdges[ind],otherCoords,[coords[0], coords[1]],ind);
             }
             for (let ind of graph.adjList[startIndex]) {
-                redrawEdge(ind);
+                if (graph.svgEdges[ind]!==undefined) redrawEdge(ind);
             }
             for (let ind of graph.reverseAdjList[startIndex]) {
-                redrawEdge(ind);
+                if (graph.svgEdges[ind]!==undefined) redrawEdge(ind);
             }
         }
         
@@ -120,7 +120,7 @@
             event.preventDefault();
             
             setSvgPoint(event);
-            let vertexRad=graph.getRadius();
+            let vertexRad=graph.graphDrawer.findAttrValue("vertex","r",startIndex);
             if (trackedMouse===false) {
                 if (segmentLength(svgPoint.x,svgPoint.y,startMousePos[0],startMousePos[1])<2) return ;
                 trackedMouse=true;
@@ -134,19 +134,18 @@
                     for (let pos of possiblePos) {
                         let circleVertex=graph.s.circle(pos[0],pos[1],vertexRad).attr({
                             stroke: "green",
-                            "stroke-width": graph.graphDrawer.findStrokeWidth("vertex"),
-                            fill: "white",
-                            "fill-opacity": 0.5
+                            "stroke-width": graph.graphDrawer.findAttrValue("vertex","stroke-width"),
+                            fill: "white"
                         });
-                        circleVertex.attr({opacity: 0});
+                        circleVertex.attr({opacity: 0.2});
                         let circle=graph.s.circle(pos[0]+(startMousePos[0]-graph.svgVertices[index].coord[0]),
                                                   pos[1]+(startMousePos[1]-graph.svgVertices[index].coord[1]),vertexRad/2);
                         circle.attr({opacity: 0});
                         circle.mouseover(function () {
-                            circleVertex.attr({opacity: 1});
+                            circleVertex.attr({opacity: 0.9});
                         });
                         circle.mouseout(function () {
-                            circleVertex.attr({opacity: 0});
+                            circleVertex.attr({opacity: 0.2});
                         });
                         nearCircles.push([circleVertex,circle]);
                     }
@@ -192,8 +191,7 @@
                 graph.graphDrawer.redrawEdge(graph.svgEdges[startIndex],st,end,startIndex);
                 graph.svgEdges[startIndex].endDist=endDist;
                 nearLine=graph.svgEdges[startIndex].line.clone();
-                nearLine.attr({stroke: "green", "stroke-opacity": 0.5}).attr({opacity: 0});
-                nearLine.attr({"marker-end": ""});
+                nearLine.attr({stroke: "green", opacity: 0.2, "marker-end": ""});
             }
             
             let area=orientedArea(st[0],st[1],end[0],end[1],svgPoint.x,svgPoint.y)/2*(-1);
@@ -201,8 +199,8 @@
             graph.svgEdges[startIndex].drawProperties[0]=height;
             graph.graphDrawer.redrawEdge(graph.svgEdges[startIndex],st,end,startIndex);
             
-            if (Math.abs(height-graph.svgEdges[startIndex].drawProperties[2])<5*graph.size) nearLine.attr({opacity: 1});
-            else nearLine.attr({opacity: 0});
+            if (Math.abs(height-graph.svgEdges[startIndex].drawProperties[2])<5*graph.size) nearLine.attr({opacity: 0.9});
+            else nearLine.attr({opacity: 0.2});
         }
         let oldWeight;
         function trackMouseWeight (event) {
@@ -214,13 +212,13 @@
                 trackedMouse=true;
                 $(graph.svgName).css({"border-color": "black"});
                 oldWeight=graph.svgEdges[startIndex].weight.clone();
-                oldWeight.attr({fill: "green", "fill-opacity": 0.5}).attr({opacity: 0});
+                oldWeight.attr({fill: "green", opacity: 0.2});
                 oldWeight.transform("t0 0r"+edge.weightRotation);
             }
             let dx=edge.weightTranslate[0]+svgPoint.x-startMousePos[0],dy=edge.weightTranslate[1]+svgPoint.y-startMousePos[1];
             graph.translateWeight(startIndex,dx,dy);
-            if (Math.sqrt(dx*dx+dy*dy)<5*graph.size) oldWeight.attr({opacity: 1});
-            else oldWeight.attr({opacity: 0});
+            if (Math.sqrt(dx*dx+dy*dy)<5*graph.size) oldWeight.attr({opacity: 0.9});
+            else oldWeight.attr({opacity: 0.2});
         }
         
         
@@ -307,7 +305,7 @@
             clearClickParameters("vertex");
             
             if (addVertexDrag===false) {
-                let vertexRad=graph.getRadius();
+                let vertexRad=graph.graphDrawer.findAttrValue("vertex","r",index);
                 for (let [i, vr] of graph.getVertices()) {
                     if (segmentLength(svgPoint.x,svgPoint.y,
                                       graph.svgVertices[i].coord[0],
@@ -337,6 +335,7 @@
                             if (weight===0) return ;
                         }
                         let ind=graph.addEdge(index,i,weight);
+                        graph.graphDrawer.draw(graph.graphDrawer.isDynamic);
                         if (graph.calcPositions.checkEdge(index,i,ind)===false) {
                             let oldCoords=[graph.svgVertices[i].coord[0], graph.svgVertices[i].coord[1]];
                             if (graph.graphController!==undefined) 
@@ -427,25 +426,14 @@
         
         function addCSS (obj, newCSS, typeName, ind) {
             let oldCSS;
-            if ((typeName==="vertex")||(typeName==="edge")) oldCSS=[obj.userCSS[0]];
-            else oldCSS=[obj.userCSS[1]];
+            if ((typeName==="vertex")||(typeName==="edge")) oldCSS=obj.userCSS[0];
+            else oldCSS=obj.userCSS[1];
             if (graph.graphController!==undefined) graph.graphController.addChange("change-css-"+typeName,[ind, oldCSS]);
-            if (typeName==="vertex") {
-                obj.userCSS[0]=newCSS;
-                graph.graphDrawer.recalcAttrVertex(graph.svgVertices[ind],ind);
-            }
-            else if (typeName==="vertex-name") {
-                obj.userCSS[1]=newCSS;
-                graph.graphDrawer.recalcAttrVertexText(graph.svgVertices[ind],ind);
-            }
-            else if (typeName==="edge") {
-                obj.userCSS[0]=newCSS;
-                graph.graphDrawer.recalcAttrEdge(graph.svgEdges[ind],ind);
-            }
-            else if (typeName==="weight") {
-                obj.userCSS[1]=newCSS;
-                graph.graphDrawer.recalcAttrWeight(graph.svgEdges[ind],obj);
-            }
+            if (typeName==="vertex") obj.userCSS[0]=styleToObj(newCSS);
+            else if (typeName==="vertex-name") obj.userCSS[1]=styleToObj(newCSS);
+            else if (typeName==="edge") obj.userCSS[0]=styleToObj(newCSS);
+            else if (typeName==="weight") obj.userCSS[1]=styleToObj(newCSS);
+            graph.graphDrawer.draw(graph.graphDrawer.isDynamic);
         }
         this.removeVertex = function (index) {
             for (let ind of graph.adjList[index]) {
@@ -477,13 +465,12 @@
             if (css===undefined)
                 css=prompt(
                     ((language==="bg")?"Въведете CSS стил за върха":"Input CSS style for the vertex")+
-                    ((vr.userCSS[0]==="")?
+                    ((Object.keys(vr.userCSS[0]).length===0)?
                      ((language==="bg")?" (например за червен цвят fill: red)":" (for example for red colour - fill: red)"):""),
-                    vr.userCSS[0]
+                    objToStyle(vr.userCSS[0])
                 );
             else css=vr.userCSS[0]+" ; "+css;
             if (css===null) return ;
-            css=objToStyle(styleToObj(css));
             if (vr.userCSS[0]!==css) addCSS(vr,css,"vertex",index);
         }
         this.addCSSVertexName = function (index, css) {
@@ -491,13 +478,12 @@
             if (css===undefined) 
                 css=prompt(
                     ((language==="bg")?"Въведете CSS стил за името на върха":"Input CSS style for the name of the vertex")+
-                    ((vr.userCSS[1]==="")?
+                    ((Object.keys(vr.userCSS[1]).length===0)?
                      ((language==="bg")?" (например за червен цвят fill: red)":" (for example for red colour - fill: red)"):""),
-                    vr.userCSS[1]
+                    objToStyle(vr.userCSS[1])
                 );
             else css=vr.userCSS[1]+" ; "+css;
             if (css===null) return ;
-            css=objToStyle(styleToObj(css));
             if (vr.userCSS[1]!==css) addCSS(vr,css,"vertex-name",index);
         }
         function vertexClick (event) {
@@ -531,13 +517,21 @@
             if (flag===true) {
                 setSvgPoint(event);
                 graph.svgVertices[ind].coord=[svgPoint.x, svgPoint.y];
+                graph.graphDrawer.drawVertex(ind);
+                addVertexEvents(ind);
             }
             else {
                 graph.calcPositions.calculatePossiblePos(true);
-                graph.calcPositions.placeVertex(ind,false);
+                if (graph.calcPositions.placeVertex(ind,false)===false) {
+                    graph.svgVertices[ind].coord=[0, 0];
+                    graph.calcPositions.calc();
+                    graph.graphDrawer.draw(graph.graphDrawer.isDynamic);
+                }
+                else {
+                    graph.graphDrawer.drawVertex(ind);
+                    addVertexEvents(ind);
+                }
             }
-            graph.graphDrawer.drawVertex(ind);
-            addVertexEvents(ind);
             graph.graphChange("add-vertex");
         }
         
@@ -573,13 +567,12 @@
             if (css===undefined)
                 css=prompt(
                     ((language==="bg")?"Въведете CSS стил за реброто":"Input CSS style for the edge")+
-                    ((edge.userCSS[0]==="")?
+                    ((Object.keys(edge.userCSS[0]).length===0)?
                      ((language==="bg")?" (например за червен цвят stroke: red)":" (for example for red colour - stroke: red)"):""),
-                    edge.userCSS[0]
+                    objToStyle(edge.userCSS[0])
                 );
             else css=edge.userCSS[0]+" ; "+css;
             if (css===null) return ;
-            css=objToStyle(styleToObj(css));
             let svgEdge=graph.svgEdges[index];
             if (edge.userCSS[0]!==css) addCSS(edge,css,"edge",index);
         }
@@ -610,7 +603,7 @@
             let edge=graph.getEdge(index);
             if (rotation===undefined)
                 rotation=prompt(
-                    ((language==="bg")?"Въведете число от 0 до 360 градуса за ъгъла на ротацията":"Input number from 0 to 360 degrees for the rotation"),
+                    ((language==="bg")?"Въведете число от 0 до 360 градуса за ъгъла на ротацията или използвайте стрелките при натиснато ребро":"Input number from 0 to 360 degrees for the rotation or use keyboards arrows when the weight is clicked"),
                     edge.weightRotation
                 );
             if (rotation===null) return ;
@@ -625,13 +618,12 @@
             if (css===undefined)
                 css=prompt(
                     ((language==="bg")?"Въведете CSS стил за теглото":"Input CSS style for the weight")+
-                    ((edge.userCSS[1]==="")?
+                    ((Object.keys(edge.userCSS[1]).length===0)?
                      ((language==="bg")?" (например за червен цвят fill: red)":" (for example for red colour - fill: red)"):""),
-                    edge.userCSS[1]
+                    objToStyle(edge.userCSS[1])
                 );
             else css=edge.userCSS[1]+" ; "+css;
             if (css===null) return ;
-            css=objToStyle(styleToObj(css));
             let weight=graph.svgEdges[index].weight;
             if (edge.userCSS[1]!==css) addCSS(edge,css,"weight",index);
         }
@@ -643,6 +635,29 @@
                 dropdowns[graph.wrapperName].menus["weight"].find(".change-weight").show();
             }
             else dropdowns[graph.wrapperName].menus["weight"].find(".change-weight").hide();
+            let flag=false;
+            $(document).off("keydown.w").on("keydown.w",(e) => {
+                if (dropdowns[graph.wrapperName].menus["weight"].is(":hidden")) return ;
+                if (e.keyCode===37) {
+                    let edge=graph.getEdge(ind);
+                    if ((flag===false)&&(graph.graphController!==undefined)) {
+                        flag=true;
+                        graph.graphController.addChange("change-weight-rotate",[ind, edge.weightRotation]);
+                        
+                    }
+                    edge.weightRotation++;
+                    graph.rotateWeight(ind,edge.weightRotation);
+                }
+                else if (e.keyCode===39) {
+                    let edge=graph.getEdge(ind);
+                    if ((flag===false)&&(graph.graphController!==undefined)) {
+                        flag=true;
+                        graph.graphController.addChange("change-weight-rotate",[ind, edge.weightRotation]);
+                    }
+                    edge.weightRotation--;
+                    graph.rotateWeight(ind,edge.weightRotation);
+                }
+            });
             dropdowns[graph.wrapperName].showDropdown("weight",event,ind);
         }
 
@@ -657,10 +672,8 @@
         let edgeClickAreas=[];
         function addEdgeEvents (ind) {
             graph.svgEdges[ind].line.attr({cursor: "pointer"});
-            let edge=graph.getEdge(ind);
-            edge.defaultCSS[0]+=" ; cursor: pointer";
             if (edgeClickAreas[ind]!==undefined) edgeClickAreas[ind].remove();
-            let strokeWidth=graph.graphDrawer.findStrokeWidth("edge",ind);
+            let strokeWidth=graph.graphDrawer.findAttrValue("edge","stroke-width",ind);
             if (graph.svgEdges[ind].drawProperties[1]===1) strokeWidth*=10;
             else {
                 if (graph.svgEdges[ind].drawProperties[0]===0) strokeWidth*=10;
@@ -671,7 +684,7 @@
                 "stroke-width": strokeWidth,
                 "fill": "none",
                 "stroke": "black",
-                "stroke-opacity": 0
+                "opacity": 0
             });
             clickArea.addClass("click-area");
             edgeClickAreas[ind]=clickArea;
@@ -728,7 +741,7 @@
                 addVertexEvents(i);
             }
             for (let [i, edge] of graph.getEdges()) {
-                addEdgeEvents(i);
+                if (graph.svgEdges[i]!==undefined) addEdgeEvents(i);
             }
             let svgElement=$(graph.svgName);
             if (graph.graphDrawer.isDynamic===true) {
