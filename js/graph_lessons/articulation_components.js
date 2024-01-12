@@ -201,7 +201,7 @@
             if (versColour[from]===versColour[to]) graph.getEdge(i).addedCSS[0]["stroke"]=versColour[from];
             else {
                 graph.getEdge(i).addedCSS[0]["stroke"]="red";
-                graph.getEdge(i).addedCSS[0]["stroke-width"]="";
+                delete graph.getEdge(i).addedCSS[0]["stroke-width"];
                 graph.getEdge(i).addedCSS[0]["stroke-width"]=graph.graphDrawer.findAttrValue("edge","stroke-width",i)*2;
             }
             graph.graphDrawer.recalcAttrEdge(graph.svgEdges[i],i);

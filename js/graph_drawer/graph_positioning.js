@@ -502,7 +502,7 @@
                                                         [i, [edge.addedCSS[0]]],
                                                         false);
                     if (found===true) {
-                        edge.addedCSS[0]["stroke-dasharray"]="";
+                        delete edge.addedCSS[0]["stroke-dasharray"];
                         edge.curveHeight=undefined;
                         continue;
                     }

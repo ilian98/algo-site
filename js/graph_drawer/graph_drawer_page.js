@@ -3,33 +3,11 @@
     let graph;
     function init () {
         graph=new Graph();    
-        graph.init(".graph-drawer",5,false,function () {
-            let cnt=graph.getVertices().length;
-            let sliderVers=$(".range-vers");
-            let outputVers=$(".slider-value-vers");
-            sliderVers.val(cnt);
-            outputVers.html(cnt);
-            
-            if (graph.isDirected===true) $("#directed").click();
-            else $("#undirected").click();
-            $("#weighted").prop("checked",graph.isWeighted);
-            $("#multi").prop("checked",graph.isMulti);
-            
+        graph.init(".graph-drawer",5,false,function (type) {
             let sliderSize=$(".range-size");
             let outputSize=$(".slider-value-size");
             sliderSize.val(parseInt(graph.size*100));
             outputSize.html(parseInt(graph.size*100));
-            
-            if (graph.isWeighted===false) {
-                $("#default-css-weight").parent().parent().hide();
-                $("#change #set-weights").parent().hide();
-                $("#change #css-weights").parent().hide();
-            }
-            else {
-                $("#default-css-weight").parent().parent().show();
-                $("#change #set-weights").parent().show();
-                $("#change #css-weights").parent().show();
-            }
             
             let sample=graph.s.circle();
             graph.graphDrawer.setAttributes(sample,"vertex",-1,1/graph.size);
@@ -51,6 +29,30 @@
             let defaultBG=graph.graphDrawer.defaultBG;
             $("#default-bg").val(defaultBG[0]);
             $("#default-bg-opacity").val(defaultBG[1]);
+            
+            if (graph.isVisualChange(type)===true) return ;
+            
+            let cnt=graph.getVertices().length;
+            let sliderVers=$(".range-vers");
+            let outputVers=$(".slider-value-vers");
+            sliderVers.val(cnt);
+            outputVers.html(cnt);
+            
+            if (graph.isDirected===true) $("#directed").click();
+            else $("#undirected").click();
+            $("#weighted").prop("checked",graph.isWeighted);
+            $("#multi").prop("checked",graph.isMulti);
+            
+            if (graph.isWeighted===false) {
+                $("#default-css-weight").parent().parent().hide();
+                $("#change #set-weights").parent().hide();
+                $("#change #css-weights").parent().hide();
+            }
+            else {
+                $("#default-css-weight").parent().parent().show();
+                $("#change #set-weights").parent().show();
+                $("#change #css-weights").parent().show();
+            }
         });
         
         function updateDefaultSettings (defaultCSSVertex, defaultCSSVertexText, defaultCSSEdge, defaultCSSWeight, defaultBG) {

@@ -419,9 +419,10 @@
             if ((oldWeightTranslate[0]!==dx)||(oldWeightTranslate[1]!==dy)) {
                 if (graph.graphController!==undefined) 
                         graph.graphController.addChange("change-weight-translate",[index, [oldWeightTranslate[0], oldWeightTranslate[1]]]);
+                graph.getEdge(index).weightTranslate=[dx, dy];
+                graph.translateWeight(index,dx,dy);
+                graph.graphChange("change-weight-translate");
             }
-            graph.getEdge(index).weightTranslate=[dx, dy];
-            graph.translateWeight(index,dx,dy);
         }
         
         function addCSS (obj, newCSS, typeName, ind) {
@@ -607,11 +608,12 @@
                     edge.weightRotation
                 );
             if (rotation===null) return ;
-            if (graph.graphController!==undefined) graph.graphController.addChange("change-weight-rotate",[index, edge.weightRotation]);
+            if (graph.graphController!==undefined) graph.graphController.addChange("change-weight-rotation",[index, edge.weightRotation]);
             rotation=parseInt(rotation);
             if ((rotation<0)||(rotation>360)) return ;
             graph.rotateWeight(index,rotation);
             edge.weightRotation=rotation;
+            graph.graphChange("change-weight-rotation");
         }
         this.addCSSWeight = function (index, css) {
             let edge=graph.getEdge(index);
@@ -642,20 +644,21 @@
                     let edge=graph.getEdge(ind);
                     if ((flag===false)&&(graph.graphController!==undefined)) {
                         flag=true;
-                        graph.graphController.addChange("change-weight-rotate",[ind, edge.weightRotation]);
-                        
+                        graph.graphController.addChange("change-weight-rotation",[ind, edge.weightRotation]);    
                     }
                     edge.weightRotation++;
                     graph.rotateWeight(ind,edge.weightRotation);
+                    graph.graphChange("change-weight-rotation");
                 }
                 else if (e.keyCode===39) {
                     let edge=graph.getEdge(ind);
                     if ((flag===false)&&(graph.graphController!==undefined)) {
                         flag=true;
-                        graph.graphController.addChange("change-weight-rotate",[ind, edge.weightRotation]);
+                        graph.graphController.addChange("change-weight-rotation",[ind, edge.weightRotation]);
                     }
                     edge.weightRotation--;
                     graph.rotateWeight(ind,edge.weightRotation);
+                    graph.graphChange("change-weight-rotation");
                 }
             });
             dropdowns[graph.wrapperName].showDropdown("weight",event,ind);

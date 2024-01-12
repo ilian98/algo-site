@@ -4,14 +4,20 @@
         addReverseEdge: function (ind, data = []) {
             let edge=this.getEdge(ind);
             let x=edge.x,y=edge.y,t=edge.weight;
-            let css=["",""];
-            let curveHeight=undefined,prevInd=undefined;
-            if (data.length==3) {
-                css=data[0];
+            let userCSS=[{},{}];
+            let curveHeight=undefined;
+            let addedCSS=[{},{}];
+            let weightTranslate=[0,0],weightRotation=0;
+            let prevInd=undefined;
+            if (data.length===6) {
+                userCSS=data[0];
                 curveHeight=data[1];
-                prevInd=data[2];
+                addedCSS=data[2];
+                weightTranslate=data[3];
+                weightRotation=data[4];
+                prevInd=data[5];
             }
-            let rev=this.addEdge(y,x,(this.isDirected===true)?0:t,css,curveHeight,prevInd,false);
+            let rev=this.addEdge(y,x,(this.isDirected===true)?0:t,userCSS,curveHeight,addedCSS,weightTranslate,weightRotation,prevInd,false);
             edge.flow=0; edge.rev=rev; edge.real=true;
             let revEdge=this.getEdge(rev);
             revEdge.flow=0; revEdge.rev=ind; revEdge.real=false;

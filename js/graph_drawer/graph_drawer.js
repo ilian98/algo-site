@@ -292,10 +292,6 @@
             else weight.attr({dy: (isLoop===false)?-7:-3});
             return pathForWeight;
         }
-        function weightName (edge, isNetwork) {
-            if (isNetwork===false) return edge.weight.toString();
-            return (edge.flow+"/"+edge.weight).toString();
-        }
         this.redrawEdge = function (svgEdge, st, end, edgeInd = -1) {
             let properties=svgEdge.drawProperties[0];
             let isLoop=false,isDrawn=(edgeInd===-1);
@@ -406,13 +402,22 @@
             }
 
             
-            if (isDirected===true) this.addMarkerEnd(svgEdge.line,isLoop,strokeWidth,st,properties);
-            if (isDrawn===false) edge.defaultCSS[0]=this.getAttributes(svgEdge.line);
-            this.setAttributes(svgEdge.line,"edge",edgeInd);
+            if (isDirected===true) {
+                if (isDrawn===true) this.setAttributes(svgEdge.line,"edge",edgeInd);
+                this.addMarkerEnd(svgEdge.line,isLoop,strokeWidth,st,properties);
+                if (isDrawn===false) {
+                    edge.defaultCSS[0]=this.getAttributes(svgEdge.line);
+                    this.setAttributes(svgEdge.line,"edge",edgeInd);
+                }
+            }
+            else {
+                if (isDrawn===false) edge.defaultCSS[0]=this.getAttributes(svgEdge.line);
+                this.setAttributes(svgEdge.line,"edge",edgeInd);
+            }
             this.recalcAttrEdge(svgEdge,edgeInd);
 
             if ((isDrawn===false)&&(graph.isWeighted===true)) {
-                svgEdge.weight=snap.text(0,0,weightName(edge,graph.isNetwork));
+                svgEdge.weight=snap.text(0,0,graph.weightValue(edge));
                 svgEdge.weight.attr("class","unselectable");
                 edge.defaultCSS[1]=this.getAttributes(svgEdge.weight);
                 this.setAttributes(svgEdge.weight,"weight",edgeInd);
@@ -673,8 +678,6 @@
                 graph.svgVertices[i]=undefined;
             }
             
-            graph.graphChange("draw");
-            
             let cntAnimations=animations.length;
             function animationsEnd () {
                 cntAnimations--;
@@ -694,6 +697,7 @@
                         }
                         if (this.dynamicGraph!==undefined) this.dynamicGraph.init();
                     }
+                    graph.graphChange("draw");
                 }
             }
             for (let [type, ind, obj, attr] of animations) {

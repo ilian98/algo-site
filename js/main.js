@@ -97,7 +97,6 @@
         sessionStorage.setItem("mobile","true");
         window.isMobile="true";
         cssMobile();
-        $(window).off("touchstart.mobile");
     });
     if (window.isMobile==="true") cssMobile();
         

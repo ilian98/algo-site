@@ -49,7 +49,6 @@
                 last=i;
             }
         }
-        if (first===-1) console.log(text);
         return text.substring(first+1,last);
     }
     function matchTrie (text) {

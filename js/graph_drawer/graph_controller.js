@@ -250,9 +250,11 @@
         }
         
         this.changeType=[true, true, true]; this.changeVers=true; this.changeSize=true;
-        this.setSettings = function (changeType = [true, true, true], changeVers = true, changeSize = true) {
+        this.importGraph=true;
+        this.setSettings = function (changeType = [true, true, true], changeVers = true, changeSize = true, importGraph = true) {
             this.changeType=[changeType[0], changeType[1], changeType[2]];
             this.changeVers=changeVers; this.changeSize=changeSize;
+            this.importGraph=importGraph;
             if ($(this.wrapperName+" .settings-panel").length===0) addSettings(graph,this);
         }
         
@@ -317,12 +319,12 @@
                     if (curr.type==="add-edge") graph.removeEdge(ind), types.add("remove-edge");
                     else if (curr.type==="remove-edge") {
                         let edgeData=curr.data[1];
-                        graph.addEdge(edgeData[0],edgeData[1],edgeData[2],edgeData[3],edgeData[4],ind,true,curr.data[2]);
+                        graph.addEdge(edgeData[0],edgeData[1],edgeData[2],edgeData[3],edgeData[4],edgeData[5],edgeData[6],edgeData[7],ind,true,curr.data[2]);
                         types.add("add-edge");
                     }
                     else if (curr.type==="add-vertex") graph.removeVertex(ind), types.add("remove-vertex");
                     else if (curr.type==="remove-vertex") {
-                        graph.addVertex(curr.data[2][0],curr.data[2][1],ind);
+                        graph.addVertex(curr.data[2][0],curr.data[2][1],curr.data[2][2],ind);
                         graph.svgVertices[ind].coord=curr.data[1];
                         types.add("add-vertex");
                     }
@@ -342,7 +344,7 @@
                             pushOther(curr.type,[ind, [edge.weightTranslate[0], edge.weightTranslate[1]]]);
                             edge.weightTranslate=curr.data[1];
                         }
-                        else if (curr.type==="change-weight-rotate") {
+                        else if (curr.type==="change-weight-rotation") {
                             let edge=graph.getEdge(ind);
                             pushOther(curr.type,[ind, edge.weightRotation]);
                             edge.weightRotation=curr.data[1];
@@ -451,6 +453,10 @@
                 
                 oldStop();
             }
+        }
+        
+        this.importGraph = function (data) {
+            importGraph(data,graph);
         }
     }
     
@@ -654,7 +660,7 @@
                     curveHeight=parseFloat(token.slice(1,token.length-1));
                     continue;
                 }
-                if ((token[0]==='{')&&(token[1]!=='}')) {
+                if ((token[0]==='{')&&(token[1]!=='{')) {
                     let nums=removeEmpty(token.slice(1,token.length-1).split(","));
                     if ((nums.length==0)||(nums.length>2)) {
                         alert("Очаква се да има ъгъл на ротация или две числа за транслация при: "+lines[curr]);
@@ -716,7 +722,7 @@
                 let name=x.toString(),coord=undefined,userCSS=[{},{}],addedCSS=[{},{}];
                 for (let i=1; i<tokens.length; i++) {
                     let token=tokens[i];
-                    if (token[0]!=='[') {
+                    if ((token[0]!=='[')&&(token[0]!=='{')) {
                         name=token;
                         continue;
                     }
@@ -767,7 +773,7 @@
             }
         }
 
-        let posProperties=undefined,defaultSettings=undefined;
+        let size=1,posProperties=undefined,defaultSettings=undefined;
         for (;;) {
             if (curr===lines.length) break;
             let line=lines[curr];
@@ -805,12 +811,18 @@
                 }
                 else break;
             }
+            else if ((line.length>2)&&(line[0]==='{')&&(line[line.length-1]==='}')) {
+                size=parseFloat(line.slice(1,line.length-1));
+                if (isNaN(size)===true) {
+                    size=1;
+                    break;
+                }
+                else curr++;
+            }
             else break;
         }
             
-
-        let isDirected=graph.isDirected,isWeighted=false,isMulti=false,isTree=false;
-        let flagWords=false;
+        let isDirected=graph.isDirected,isWeighted=graph.isWeighted,isMulti=graph.isMulti,isTree=false;
         for (;;) {
             if (lines.length===curr) break;
             let words=removeEmpty(lines[curr].split(" "));
@@ -818,7 +830,6 @@
                 alert("Очаквано е само една дума, описващо свойство на графа, при: "+lines[curr]);
                 return false;
             }
-            flagWords=true;
             if (words[0]==="Directed") {
                 if (isDirected===false) {
                     if (graph.graphController.changeType[0]===false) {
@@ -862,9 +873,9 @@
             }
             curr++;
         }
-        if (flagWords===false) isWeighted=graph.isWeighted, isMulti=graph.isMulti, isTree=graph.isTree;
 
-        return graph.import(isDirected,isTree,isWeighted,isMulti,n,vers,edges,flagCoords,versCoord,posProperties,defaultSettings);
+        return graph.import([isDirected,isTree,isWeighted,isMulti],
+                            size,n,vers,edges,flagCoords,versCoord,posProperties,defaultSettings);
     }
     function addImportFunctionality (wrapperName, graph) {
         let input=$(wrapperName+" .input-file");
@@ -885,7 +896,7 @@
                 <div class="modal-dialog">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h5 class="modal-title" id="importModalLabel">`+((language==="bg")?"Зареди или промени графа":"Import or change the graph")+`</h5>
+                            <h5 class="modal-title" id="importModalLabel"></h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
@@ -907,7 +918,7 @@
         
         dropdowns[graph.wrapperName].addNewDropdown("import-menu",[
             ["file", ((language==="bg")?"Зареди от файл":"Import from file"), () => { input.click() }],
-            ["text", ((language==="bg")?"Зареди от текстово поле":"Import from text field"), () => {
+            ["text", "", () => {
                 let graphText=graph.export();
                 $("#import-message-text").val(graphText);
                 $("#importModal .import").off("click").on("click",function () {
@@ -919,6 +930,25 @@
                 $("#importModal").modal("toggle");
             }]]);
         $(graph.wrapperName+" .import").off("click").on("click",function (event) {
+            if ((graph.isNetwork===false)&&(graph.graphController.importGraph===true)) {
+                dropdowns[graph.wrapperName].menus["import-menu"].find(".file").show();
+            }
+            else dropdowns[graph.wrapperName].menus["import-menu"].find(".file").hide();
+            if (graph.graphController.importGraph===true) {
+                dropdowns[graph.wrapperName].menus["import-menu"].find(".text").text(
+                    ((language==="bg")?"Зареди от текстово поле":"Import from text field")
+                );
+                $("#importModalLabel").text(((language==="bg")?"Зареди или промени графа":"Import or change the graph"));
+                $("#importModal .import").parent().show();
+            }
+            else {
+                dropdowns[graph.wrapperName].menus["import-menu"].find(".file").hide();
+                dropdowns[graph.wrapperName].menus["import-menu"].find(".text").text(
+                    ((language==="bg")?"Покажи описание на графа":"Show graph description")
+                );
+                $("#importModalLabel").text(((language==="bg")?"Пълно описание на графа":"Full description of the graph"));
+                $("#importModal .import").parent().hide();
+            }
             dropdowns[graph.wrapperName].showDropdown("import-menu",event,graph);
         });
     }

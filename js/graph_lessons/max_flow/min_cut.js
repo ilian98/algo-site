@@ -54,14 +54,14 @@
             edge.flow=0;
         }
         let maxFlow=0;
-        for (;;) {
+        for (let cnt=0; cnt<this.n*(this.getEdges().length/2); cnt++) {
             bfs(this);
             if (dist[this.sink]===0) break;
             ind=[];
             for (let [i, vr] of vers) {
                 ind[i]=0;
             }
-            for (;;) {
+            for (let cnt=0; cnt<this.n; cnt++) {
                 let flow=dfs(this.source,1e9,this.adjList,this.getIndexedEdges(),this.sink);
                 maxFlow+=flow;
                 if (flow===0) break;
@@ -187,7 +187,7 @@
             let example2=new Graph();
             $(".graphExample2 .default").on("click", function () {
                 example2.init(".graphExample2",7,false,findSolution.bind(example2));
-                example2.setSettings([false, false, false],false);
+                example2.setSettings([false, false, false],false,true,false);
                 
                 $(".graphExample2 #inputArea").val(`5 4
 10 15 22 20 31
