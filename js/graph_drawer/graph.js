@@ -150,9 +150,8 @@
             dropdowns[wrapperName] = new Dropdowns();
             this.graphDrawer=new GraphDrawer(this);
             this.graphDrawer.init(SvgEdge,fonts);
-            if ((typeof GraphController==="function")&&
-                (($(wrapperName+" .settings-panel").length!=0)||($(wrapperName+" .save").length!==0))) {
-                this.graphController = new GraphController(this);
+            if (typeof GraphController==="function") {
+                this.graphController=new GraphController(this);
                 this.graphController.init();
             }
             this.calcPositions=new CalcPositions(this);

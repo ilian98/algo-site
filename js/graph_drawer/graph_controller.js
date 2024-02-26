@@ -629,6 +629,7 @@
             return false;
         }
         let curr=1,edges=[];
+        let zeroInd=true,oneInd=true;
         for (let i=1; i<=m; i++) {
             if (lines.length===curr) {
                 alert("Има липсващи ребра!");
@@ -640,10 +641,21 @@
                 return false;
             }
             let x=parseInt(tokens[0]),y=parseInt(tokens[1]);
-            if (!((x>=1)&&(x<=n)&&(y>=1)&&(y<=n))) {
-                alert("Невалиден номер на връх за: "+lines[curr]);
+            if ((x<0)||(x>n)||(y<0)||(y>n)) {
+                alert("Невалиден номер на връх при: "+lines[curr]);
                 return false;
             }
+            if ((x===0)||(y===0)) oneInd=false;
+            if ((x===n)||(y===n)) zeroInd=false;
+        }
+        if ((zeroInd===false)&&(oneInd===false)) {
+            alert("Невалидна номерация на върховете!");
+            return false;
+        }
+        for (let i=1; i<=m; i++) {
+            let tokens=removeEmpty(getTokens(lines[curr],"edges"));
+            let x=parseInt(tokens[0]),y=parseInt(tokens[1]);
+            if (oneInd===true) x--, y--;
             let weight="",userCSS=[{},{}],curveHeight=undefined,addedCSS=[{},{}],weightTranslate=[0, 0],weightRotation=0;
             for (let i=2; i<tokens.length; i++) {
                 let token=tokens[i];
@@ -687,7 +699,7 @@
                 alert("Неочаквано свойство при: "+lines[curr]);
                 return false;
             }
-            edges.push([x-1,y-1,weight,userCSS,curveHeight,addedCSS,weightTranslate,weightRotation]);
+            edges.push([x,y,weight,userCSS,curveHeight,addedCSS,weightTranslate,weightRotation]);
             curr++;
         }
 
@@ -769,11 +781,12 @@
         }
         else {
             for (let i=1; i<=n; i++) {
-                vers.push([i.toString(), [{},{}], [{},{}]]);
+                if (oneInd===true) vers.push([i.toString(), [{},{}], [{},{}]]);
+                else vers.push([(i-1).toString(), [{},{}], [{},{}]]);
             }
         }
 
-        let size=1,posProperties=undefined,defaultSettings=undefined;
+        let size=graph.size,posProperties=undefined,defaultSettings=undefined;
         for (;;) {
             if (curr===lines.length) break;
             let line=lines[curr];

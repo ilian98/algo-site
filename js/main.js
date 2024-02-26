@@ -98,6 +98,12 @@
         window.isMobile="true";
         cssMobile();
     });
+    $(window).on("mousemove.desktop", function () {
+        $(window).off("mousemove.desktop");
+        $(window).off("touchstart.mobile");
+        sessionStorage.setItem("mobile","false");
+        window.isMobile="false";
+    });
     if (window.isMobile==="true") cssMobile();
         
     function setHeights () {
