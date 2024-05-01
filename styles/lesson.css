@@ -56,15 +56,6 @@ ul {
     cursor: pointer;
 }
 
-.link-danger, .link-secondary {
-    text-decoration: none;
-    cursor: pointer;
-}
-.link-danger:hover, .link-secondary:hover {
-    text-decoration: underline;
-    cursor: pointer;
-}
-
 pre {
     overflow-x: auto;
     max-width: 100%;
@@ -112,10 +103,10 @@ code {
     cursor: pointer;
 }
 .undo-mini, .redo-mini, .import-mini, .save-mini, .settings, .information {
-    color: #0d6efd;
+    color: #198754;
 }
 .undo-mini:hover, .undo-mini:focus, .redo-mini:hover, .redo-mini:focus, .import-mini:hover, .import-mini:focus, .save-mini:hover, .save-mini:focus, .settings:hover, .settings:focus, .information:hover, .information:focus {
-    color: #0b5ed7;
+    color: #157347;
 }
 
 .mini-menu {

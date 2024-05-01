@@ -921,7 +921,7 @@
                             </form>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-primary import">`+((language==="bg")?"Зареди":"Import")+`</button>
+                            <button type="button" class="btn btn-success import">`+((language==="bg")?"Зареди":"Import")+`</button>
                         </div>
                     </div>
                 </div>

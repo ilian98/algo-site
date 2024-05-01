@@ -62,17 +62,6 @@ header {
 .bg-navbar-color {
     background-color: lightgreen;
 }
-.btn-light:hover {
-    background-color: #e2e6ea;
-}
-.btn-light:focus {
-    background-color: #e2e6ea;
-    border-color: #d3d9df;
-}
-.btn-light.show {
-    background-color: #dae0e5;
-    border-color: #d3d9df;
-}
 
 .wrapper {
     overflow-y: auto;
@@ -99,11 +88,11 @@ footer {
     clear: both;
 }
 .about-me:link {
-    color: firebrick;
+    color: brown;
     text-decoration: underline;
 }
 .about-me:visited {
-    color: firebrick;
+    color: brown;
     text-decoration: underline;
 }
 .about-me:hover {
@@ -118,6 +107,9 @@ footer {
     padding-top: 7px;
     padding-bottom: 7px;
     margin-bottom: 0px;
+    background-color: #e9ecef;
+    padding-left: 1rem;
+    padding-right: 1rem;
 }
 .unselectable {
     -webkit-user-select: none;
@@ -141,29 +133,19 @@ footer {
     margin-bottom: 40px;
 }
 .card {
-    background-color: ghostwhite;
+    background-color: #f8f9fa;
     margin-top: 20px;
     margin-bottom: 24px;
     border-radius: 10px;
     padding: 0.25rem;
 }
-.card-link:link {
-    color: brown;
+.link-danger, .link-secondary {
     text-decoration: none;
+    cursor: pointer;
 }
-.card-link:visited {
-    color: brown;
-    text-decoration: none;
-}
-.card-link:hover {
-    color: brown;
-    text-decoration: none;
-}
-
-.breadcrumb {
-    background-color: #e9ecef;
-    padding-left: 1rem;
-    padding-right: 1rem;
+.link-danger:hover, .link-secondary:hover {
+    text-decoration: underline;
+    cursor: pointer;
 }
 
 .modal-dialog {
@@ -177,10 +159,25 @@ footer {
 
 input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
+    -webkit-appearance: none;
+    margin: 0;
 }
 /* Firefox */
 input[type=number] {
-  -moz-appearance: textfield;
+    -moz-appearance: textfield;
+}
+
+input[type="radio"]:checked, input[type="checkbox"]:checked {
+    background-color: #198754;
+    border-color: #157347;
+}
+.form-control:focus, input[type="radio"]:focus, input[type="checkbox"]:focus {
+    border-color: #28a745;
+    box-shadow: 0 0 0 0.3rem rgba(40, 167, 69, 0.25);
+}
+.nav-tabs > li > button {
+    color: #198754;
+}
+.nav-tabs > li > button:hover {
+    color: #006400;
 }
