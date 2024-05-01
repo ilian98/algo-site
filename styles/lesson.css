@@ -26,19 +26,19 @@
 ul {
     list-style-type: none;
 }
-.dashed-list:before {
-    content: '\2014';
-    margin-left: -20px;
-    margin-right: 10px;
+.dashed-list, .task-list {
+    margin-left: -15px;
 }
-.task-list:before {
-    content: '\2014';
-    margin-left: -40px;
-    margin-right: 10px;
+.dashed-list:before, .task-list:before {
+    content: '\2013';
+    margin-right: 20px;
+}
+.tilded-list {
+    margin-left: -20px;
 }
 .tilded-list:before {
     content: '\223C';
-    margin-left: -40px;
+    margin-right: 5px;
 }
 .info {
     text-decoration: none;

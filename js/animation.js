@@ -1,5 +1,7 @@
 "use strict";
 (function () {
+    let num=0;
+    
     function addChange (change, t, undoStack) {
         if (typeof change!=="function") return ;
         undoStack.push({
@@ -189,7 +191,9 @@
                 previousButton=$(name+" .animation-panel .previous");
                 nextButton=$(name+" .animation-panel .next");
                 speedObj=$(name+" .animation-panel .speed-wrapper");
-                speedInput=$(name+ " .animation-panel .speed");
+                speedObj.find("label").attr("for",`speed${num}`);
+                speedObj.find("input").attr("id",`speed${num}`);
+                speedInput=$(`#speed${num}`); num++;
                 animText=$(name+" .anim-text");
             }
             function otherWork () {
@@ -199,8 +203,8 @@
                 animText.hide();
                 this.clear();
                 if (isStatic===false) {
-                    $(name+" .animation-panel .speed").val("2");
-                    $(name+" .animation-panel .speed").on("keydown",isDigit);
+                    speedInput.val("2");
+                    speedInput.on("keydown",isDigit);
                 }
                 startButton.flag=false;
                 startButton.off("click").on("click",startButtonFunc.bind(this,findAnimations,isStatic,startButtonName,stopButtonName));
