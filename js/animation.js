@@ -1,5 +1,5 @@
-"use strict";
 (function () {
+    "use strict";
     let num=0;
     
     function addChange (change, t, undoStack) {
@@ -18,19 +18,20 @@
         if (animations[index].hasOwnProperty("endFunction")===true) addChange(animations[index].endFunction(),index,undoStack);
     }
 
-    function Animation () {
+    function Animation (obj) {
         let startButton,pauseButton,finishButton;
         let previousButton,nextButton;
         
         let flagStart,flagPause,flagStep;
         let animations=[];
+        const self=this;
         function startButtonFunc (findAnimations, isStatic, startButtonName, stopButtonName) {
             if (flagStart===false) {
-                this.startFunc();
+                self.startFunc();
                 stopAnimations();
                 animations=findAnimations();
                 if (animations.length===0) {
-                    this.stopFunc();
+                    self.stopFunc();
                     return ;
                 }
                 if (isStatic===false) {
@@ -41,7 +42,7 @@
                 }
                 
                 flagStart=true; startButton.html(stopButtonName);
-                if (this.finishFunc!==emptyFunc) finishButton.show();
+                if (self.finishFunc!==emptyFunc) finishButton.show();
                 
                 if (isStatic===false) {
                     speedObj.hide();
@@ -54,7 +55,7 @@
                 let maxH=0;
                 for (let animation of animations) {
                     animText.text(animation.animText);
-                    if (typeof MathJax!=="undefined") MathJax.typeset([name+" .anim-text"]);
+                    if ((typeof MathJax!=="undefined")&&(MathJax.typeset!==undefined)) MathJax.typeset([name+" .anim-text"]);
                     if (maxH<animText.height()) maxH=animText.height();
                 }
                 animText.text("");
@@ -69,9 +70,9 @@
                 previousButton.show();
                 nextButton.show();
 
-                this.start();
+                self.start();
             }
-            else finishButtonFunc.call(this,false,isStatic,startButtonName);
+            else finishButtonFunc(false,isStatic,startButtonName);
         }
         function finishButtonFunc (flagFinish, isStatic, startButtonName) {
             stopAnimations();
@@ -88,13 +89,13 @@
             }
             animText.hide();
 
-            this.clear();
-            this.stopFunc();
-            if (flagFinish===true) this.finishFunc();
+            self.clear();
+            self.stopFunc();
+            if (flagFinish===true) self.finishFunc();
         }
-        function pauseButtonFunc () {
+        function pauseButtonFunc (obj) {
             if (flagPause===false) {
-                flagPause=true; $(this).html("Пусни");
+                flagPause=true; $(obj).html("Пусни");
                 if (minas!==undefined) {
                     cleanMinas();
                     for (let mina of minas) {
@@ -103,7 +104,7 @@
                 }
             }
             else {
-                flagPause=false; $(this).html("Пaуза");
+                flagPause=false; $(obj).html("Пaуза");
                 if (minas!==undefined) {
                     cleanMinas();
                     for (let mina of minas) {
@@ -124,7 +125,7 @@
                 }
                 let animLen=animations.length;
                 if ((step===-1)&&(currAnimation===0)) currAnimation=1;
-                else if ((step===+1)&&(currAnimation===animLen-1)) currAnimation=animLen-2;
+                else if ((step===+1)&&(currAnimation===animLen-1)) return ;
 
                 if (isStatic===false) {
                     if (step===+1) {
@@ -161,12 +162,12 @@
                 }
                 if ((isStatic===true)||(currAnimation<animLen)) {
                     animText.text(animations[currAnimation].animText);
-                    if (typeof MathJax!=="undefined") MathJax.typeset([name+" .anim-text"]);
+                    if ((typeof MathJax!=="undefined")&&(MathJax.typeset!==undefined)) MathJax.typeset([name+" .anim-text"]);
                 }
             }
         }
         
-        let emptyFunc = () => {};
+        const emptyFunc = () => {};
         let speed,speedObj,speedInput,animText;
         this.startFunc=undefined; this.stopFunc=undefined; this.finishFunc=undefined;
         this.isStatic=false;
@@ -175,7 +176,7 @@
             this.isStatic=isStatic;
             this.startButtonName=startButtonName;
             this.stopButtonName=stopButtonName;
-        }
+        };
         this.name=undefined;
         this.init = async function (name, findAnimations, start = emptyFunc, stop = emptyFunc, finish = emptyFunc) {
             this.name=name;
@@ -197,21 +198,21 @@
                 animText=$(name+" .anim-text");
             }
             function otherWork () {
-                this.startFunc=(start===undefined)?emptyFunc:start;
-                this.stopFunc=(stop===undefined)?emptyFunc:stop;
-                this.finishFunc=(finish===undefined)?emptyFunc:finish;
+                self.startFunc=(start===undefined)?emptyFunc:start;
+                self.stopFunc=(stop===undefined)?emptyFunc:stop;
+                self.finishFunc=(finish===undefined)?emptyFunc:finish;
                 animText.hide();
-                this.clear();
+                self.clear();
                 if (isStatic===false) {
                     speedInput.val("2");
                     speedInput.on("keydown",isDigit);
                 }
                 startButton.flag=false;
-                startButton.off("click").on("click",startButtonFunc.bind(this,findAnimations,isStatic,startButtonName,stopButtonName));
-                pauseButton.off("click").on("click",pauseButtonFunc);
-                finishButton.off("click").on("click",finishButtonFunc.bind(this,true,startButtonName));
-                previousButton.off("click").on("click",stepButtonFunc.bind(this,-1,isStatic));
-                nextButton.off("click").on("click",stepButtonFunc.bind(this,+1,isStatic));
+                startButton.off("click").on("click",startButtonFunc.bind(null,findAnimations,isStatic,startButtonName,stopButtonName));
+                pauseButton.off("click").on("click",pauseButtonFunc.bind(null,pauseButton));
+                finishButton.off("click").on("click",finishButtonFunc.bind(null,true,startButtonName));
+                previousButton.off("click").on("click",stepButtonFunc.bind(null,-1,isStatic));
+                nextButton.off("click").on("click",stepButtonFunc.bind(null,+1,isStatic));
             }
             
             return new Promise((resolve, reject) => {
@@ -219,15 +220,15 @@
                     $.get("/algo-site/pages/animation_panel.html", function (data) {
                         $(name+" .animation-panel").html(data);
                         initialWork();
-                        otherWork.call(this);
-                    }.bind(this)).then(resolve, () => { alert("Load data error!") });
+                        otherWork();
+                    }).then(resolve, () => { alert("Load data error!"); });
                 }
                 else {
-                    otherWork.call(this);
+                    otherWork();
                     resolve();
                 }
             });
-        }
+        };
 
         let minas,currAnimation;
         let undoStack;
@@ -236,7 +237,7 @@
                 time: currAnimation,
                 action: change
             });
-        }
+        };
         let animFuncs;
         this.start = function () {
             currAnimation=0;
@@ -244,49 +245,52 @@
             if (this.isStatic===true) {
                 skipAnimation(animations,0,undoStack);
                 animText.text(animations[0].animText);
-                if (typeof MathJax!=="undefined") MathJax.typeset([name+" .anim-text"]);    
+                if ((typeof MathJax!=="undefined")&&(MathJax.typeset!==undefined)) MathJax.typeset([name+" .anim-text"]);    
                 return ;
             }
             minas=[];
             animFuncs=[];
-            for (let i=animations.length-1; i>=0; i--) {
-                let index=i;
-                animFuncs[i] = function () {
-                    let i=index;
-                    if ((currAnimation<i-1)||(currAnimation>i)) {
-                        return ;
-                    }
-                    currAnimation=i;
-                    animText.text(animations[i].animText);
-                    if (typeof MathJax!=="undefined") MathJax.typeset([name+" .anim-text"]);
-                    if (i===animations.length-1) pauseButton.hide();
-
-                    if (animations[i].hasOwnProperty("startFunction")) addChange(animations[i].startFunction(),i,undoStack);
-                    for (let j=0; j<animations[i].animFunctions.length; j++) {
-                        let isLast=(j===(animations[i].animFunctions.length-1));
-                        minas.push(...animations[i].animFunctions[j](function () {
-                            if ((this!==undefined)&&(this.removed!==undefined)) return ;
-                            if (isLast===true) {
-                                if (i<animations.length-1) {
-                                    if (animations[i].hasOwnProperty("endFunction")) addChange(animations[i].endFunction(),i,undoStack);
-                                    animFuncs[i+1]();
-                                }
-                            }
-                        },speed,undoStack,i));
-                    }
-                    if (animations[i].animFunctions.length===0) {
-                        if (animations[i].hasOwnProperty("endFunction")) addChange(animations[i].endFunction(),i,undoStack);
-                        if (i+1<animations.length) animFuncs[i+1]();
-                    }
+            const animFunc = (index) => {
+                let i=index;
+                if ((currAnimation<i-1)||(currAnimation>i)) {
+                    return ;
                 }
+                currAnimation=i;
+                animText.text(animations[i].animText);
+                if ((typeof MathJax!=="undefined")&&(MathJax.typeset!==undefined)) MathJax.typeset([name+" .anim-text"]);
+                if (i===animations.length-1) pauseButton.hide();
+
+                if (animations[i].hasOwnProperty("startFunction")) addChange(animations[i].startFunction(),i,undoStack);
+
+                const startNextAnimation = (isLast) => {
+                    if ((this!==undefined)&&(this.removed!==undefined)) return ;
+                    if (isLast===true) {
+                        if (i<animations.length-1) {
+                            if (animations[i].hasOwnProperty("endFunction")) addChange(animations[i].endFunction(),i,undoStack);
+                            animFuncs[i+1]();
+                        }
+                    }
+                };
+
+                for (let j=0; j<animations[i].animFunctions.length; j++) {
+                    let isLast=(j===(animations[i].animFunctions.length-1));
+                    minas.push(...animations[i].animFunctions[j](startNextAnimation.bind(null,isLast),speed,undoStack,i));
+                }
+                if (animations[i].animFunctions.length===0) {
+                    if (animations[i].hasOwnProperty("endFunction")) addChange(animations[i].endFunction(),i,undoStack);
+                    if (i+1<animations.length) animFuncs[i+1]();
+                }
+            };
+            for (let i=animations.length-1; i>=0; i--) {
+                animFuncs[i] = animFunc.bind(null,i);
             }
             animFuncs[0]();
-        }
+        };
         
         this.startedAnimation = function () {
             if (animations.length===0) return false;
             return true;
-        }
+        };
 
         function cleanMinas () {
             let tmp=[];
@@ -327,7 +331,7 @@
                 animText.text("");
                 animText.hide();
             }
-        }
+        };
     }
 
     if (typeof Graph==="function") {
@@ -375,13 +379,13 @@
                         })];
                     }
                     else {
-                        if (speedCoeff!==-1) setTimeout(callback.bind(this),0);
+                        if (speedCoeff!==-1) setTimeout(callback,0);
                         if (lineDraw!==undefined) lineDraw.remove();
                         return [];
                     }
-                }
+                };
             },
-        }
+        };
     }
     
     function attrChangesAnimation (obj, changes, speedCoeff = 1) {
@@ -389,6 +393,7 @@
             let origProps=[];
             for (let prop in changes) {
                 if (changes.hasOwnProperty(prop)===true) {
+                    if (obj.attr(prop)==="none") obj.attr(prop,0);
                     origProps[prop]=obj.attr(prop);
                 }
             }
@@ -408,10 +413,10 @@
             }
             else {
                 obj.attr(changes);
-                if (speedCoeff!==-1) setTimeout(callback.bind(this),0);
+                if (speedCoeff!==-1) setTimeout(callback,0);
             }
             return minas;
-        }
+        };
     }
     function translateAnimation (obj, dx, dy, speedCoeff = 1) {
         return function(callback, speed, undoStack, t) {
@@ -433,14 +438,13 @@
             }
             else {
                 obj.transform("t"+dx+" "+dy);
-                if (speedCoeff!==-1) setTimeout(callback.bind(this),0);
+                if (speedCoeff!==-1) setTimeout(callback,0);
             }
             return minas;
-        }
+        };
     }
     function textAnimation (textField, text, speedCoeff = 1) {
         return function(callback, speed, undoStack, t) {
-            let origText=textField.text();
             textField.text(text);
             if ((speed>0)&&(speedCoeff!==-1)) {
                 setTimeout(() => {
@@ -452,7 +456,7 @@
                 if (speedCoeff!==-1) setTimeout(callback,0);
             }
             return [];
-        }
+        };
     }
     function noAnimation (speedCoeff = 1) {
         return function(callback, speed, undoStack, t) {
@@ -460,7 +464,7 @@
             if ((speed>0)&&(speedCoeff!==-1)) minas.push(Snap.animate(0,0,() => {},speed*speedCoeff,callback));
             else setTimeout(callback,0);
             return minas;
-        }
+        };
     }
     
     

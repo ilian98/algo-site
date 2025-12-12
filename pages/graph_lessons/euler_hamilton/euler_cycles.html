@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="bg">
+    <head>
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-Y8NQ36XMJS"></script>
+		<script>
+		  window.dataLayer = window.dataLayer || [];
+		  function gtag(){dataLayer.push(arguments);}
+		  gtag('js', new Date());
+
+		  gtag('config', 'G-Y8NQ36XMJS');
+		</script>
+        
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+        
+        <link rel="shortcut icon" href="/algo-site/images/favicon.ico">
+        <link type="text/css" rel="stylesheet" href="/algo-site/node_modules/bootstrap/dist/css/bootstrap.min.css"  media="screen,projection"/>
+        <link type="text/css" rel="stylesheet" href="/algo-site/styles/style.css"  media="screen,projection"/>
+        <link type="text/css" rel="stylesheet" href="/algo-site/styles/lesson.css"  media="screen,projection"/>
+        <link type="text/css" rel="stylesheet" href="/algo-site/styles/animation.css"  media="screen,projection"/>
+        <link type="text/css" rel="stylesheet" href="/algo-site/node_modules/@highlightjs/cdn-assets/styles/github-dark.min.css">
+        
+        <script type="text/javascript" src="/algo-site/node_modules/jquery/dist/jquery.slim.min.js"></script>
+        <script type="text/javascript" src="/algo-site/node_modules/jquery/dist/jquery.min.js"></script>
+        <script type="text/javascript" src="/algo-site/node_modules/@popperjs/core/dist/umd/popper.min.js"></script>
+        <script type="text/javascript" src="/algo-site/node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
+        <script type="text/javascript" src="/algo-site/node_modules/snapsvg/dist/snap.svg-min.js"></script>
+        <script src="/algo-site/js/mathjax-config.js"></script>
+        <script id="MathJax-script" async src="/algo-site/node_modules/mathjax/es5/tex-chtml.js"></script>
+        <script type="text/javascript" src="/algo-site/node_modules/@highlightjs/cdn-assets/highlight.min.js"></script>
+        <script type="text/javascript" src="/algo-site/node_modules/opentype.js/dist/opentype.min.js"></script>
+        <script type="text/javascript" src="/algo-site/js/main.js"></script>
+        <script type="text/javascript" src="/algo-site/js/graph_drawer/graph.js"></script>
+        <script type="text/javascript" src="/algo-site/js/graph_drawer/graph_drawer.js"></script>
+        <script type="text/javascript" src="/algo-site/js/graph_drawer/graph_positioning.js"></script>
+        <script type="text/javascript" src="/algo-site/js/graph_drawer/graph_dynamic.js"></script>
+        <script type="text/javascript" src="/algo-site/js/graph_drawer/graph_controller.js"></script>
+        <script type="text/javascript" src="/algo-site/js/dropdown.js"></script>
+        <script type="text/javascript" src="/algo-site/js/animation.js"></script>
+        <script type="text/javascript" src="/algo-site/js/graph_lessons/euler_hamilton/euler_cycles.js"></script>
+        <title>Ойлерови цикли и пътища</title>
+    </head>
+    <body>
+        <header>
+            <div id="nav-placeholder"></div>
+            <nav aria-label="breadcrumb" class="unselectable">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a href="/algo-site/pages/graph_lessons.html" class="link-danger">Графи</a>
+                    </li>
+                    <li class="breadcrumb-item">
+                        <a class="link-secondary">Ойлерови цикли и пътища</a>
+                    </li>
+                    <li class="ms-auto">Последна промяна: 05.05.2024</li>
+                </ol>
+            </nav>
+        </header>
+        
+        <div class="wrapper" tabindex="-1">
+            <div class="content">            
+                <h1>Ойлерови цикли и пътища</h1>
+                
+                <div class="lesson-part-position">
+                    <button class="btn btn-secondary">1. Дефиниция, необходими и достатъчни условия</button>
+                    <div class="lesson-part">
+                        <div>
+                            <p class="text-format">Ойлеровите цикли и пътища са тясно свързани с обхожданията на графи, като може да се разглеждат както в ориентирани, така и в неориентирани графи. Те са едни от първите възникнали понятия в теорията на графите още през XVIII век от Леонард Ойлер.</p>
+                            <div class="graph-container" style="width: 20%; float: right; margin-left: 2vw">
+                                <svg class="graphExample1" viewBox="0 0 300 300"></svg>
+                            </div>
+                            <div class="graph-container" style="width: 20%; float: right; margin-left: 2vw; clear: both">
+                                <svg class="graphExample2" viewBox="0 0 300 300"></svg>
+                            </div>
+                            <p class="text-format bold">Определение: Ойлеров цикъл/път е такъв цикъл/път на графа, при който всяко ребро на графа се среща точно веднъж.</p>
+                            <p class="text-format">Не всички графи имат Ойлерови цикли и пътища и за това трябва да са изпълнени някои необходими и достатъчни условия. Така например, първият граф има Ойлеров цикъл: $1 - 2 - 3 - 4 - 5 - 2 - 1$. Такива графи се наричат Ойлерови. Това свойство показва, че ако се пробваме да нарисуваме графа с молив, то това може да стане "на един дъх", без да пускаме молива и освен това накрая да се върнем в началото (защото има цикъл). Вторият граф обаче няма Ойлеров цикъл, но има Ойлеров път: $2 - 1 - 2 - 3 - 4 - 5 - 2 - 4$. Тогава казваме, че графът е полу-Ойлеров.</p>
+                            <p class="text-format">Търсенето на Ойлерови цикли и пътища има най-много смисъл в свързани графи. Ако говорим за неориентирани графи, то това означаваше просто да имаме 1 свързана компонента. Ще разбираме, че ориентиран граф е свързан, ако го разгледаме като неориентиран граф и този граф е свързан.</p>
+                            <p class="text-format">Има много удобни необходими и достатъчни условия за съществуване на Ойлеров цикъл/път:</p>
+                            <ul style="margin-top: -15px">
+                                <li class="dashed-list">ориентирани графи</li>
+                                <li>
+                                    <ul>
+                                        <li class="tilded-list">Един свързан ориентиран граф има Ойлеров цикъл $\iff$ всеки връх има степен равна на $0$ (което означава, че има равен брой влизащи и излизащи ребра). (<a class="info">...</a><a class="info" style="display: none">може да се докаже, че ориентиран Ойлеров граф освен свързан, винаги е и силно-свързан</a>)</li>
+                                        <li class="tilded-list">Един свързан ориентиран граф има Ойлеров път $\iff$ всеки връх има степен равна на $0$ освен най-много два върха, които имат степени $+1$ и $-1$ (цикълът е и път).</li>
+                                    </ul>
+                                </li>
+                                <li class="dashed-list">неориентирани графи</li>
+                                <li>
+                                    <ul>
+                                        <li class="tilded-list">Един свързан неориентиран граф има Ойлеров цикъл $\iff$ всеки връх има четна степен.</li>
+                                        <li class="tilded-list">Един свързан неориентиран граф има Ойлеров път $\iff$ всеки връх има четна степен освен най-много два върха, които имат нечетна степен.</li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </div>
+                        <div style="clear: both">
+                            <p class="text-format">Както се вижда от необходимите и достатъчни условия, повечето графи не са Ойлерови. Забележете, че ако има върхове с <i>примки</i>, то тези ребра не пречат на съществуването на Ойлеров цикъл/път, защото в случая на неориентирани графи, ги броим по 2 пъти в степента, а при ориентирани графи се броят веднъж като влизащи и веднъж като излизащ ребра.</p>
+                        </div>
+                        <p class="text-format">От сега нататък ще считаме, че разглеждаме само свързани графи. Оказва се, че има лесен алгоритъм, модификация на <i>DFS</i>, който при Ойлеров или полу-Ойлеров граф, намира съответно пример за Ойлеров цикъл или път.</p>
+                    </div>
+                </div>
+
+                <div class="lesson-part-position">
+                    <button class="btn btn-secondary">2. Намиране в неориетирани графи</button>
+                    <div class="lesson-part">
+                        <div>
+                            <p class="text-format">Тук ще опишем стандартния алгоритъм, който се ползва - алгоритъмът на Хиерхолзър. Винаги преди да почнем намирането на Ойлеров цикъл/път трябва да проверим дали има такъв с простичките необходими и достатъчни условия. Първо ще говорим за намиране на Ойлеров цикъл в <i>свързан неориентиран</i> Ойлеров граф. Няма значение от кой връх ще почнем да търсим пример за Ойлеров цикъл, защото все пак говорим за цикъл и спокойно можем да го "завъртим", така че да почва от всеки един връх. Единственият проблем с това да намерим директно с <i>DFS</i> Ойлеровия цикъл е, че е възможно по някое време да нямаме накъде да продължим, но да не сме обходили всички ребра. В този момент обаче сме намерили един цикъл, т.е. сме се върнали във върха, от който сме започнали. Нека да видим, че това наистина е така. Това следва лесно от необходимото условие, че в графа всеки връх има четна степен. Наистина, щом сме използвали едно инцидентно ребро с началния връх, то трябва да има още някое (по което можем да се върнем в началния връх) и ако допуснем, че никога няма да го използваме, то може да забележим, че като минаваме през останалите върхове, без последния, използваме по две ребра (едно, с което влизаме в дадения връх и едно, с което го напускаме). Така последния връх трябва да е същият като началния, иначе последният връх няма да има четна степен.</p>
+                            <div class="graph-container" style="width: 20%; float: right; margin-left: 2vw">
+                                <svg class="graphExample3" viewBox="0 0 300 300"></svg>
+                            </div>   
+                            <p class="text-format">Ако искаме горния алгоритъм да може да състави целия Ойлеров цикъл, то по принцип е възможно да пускаме <i>DFS</i> обхождания по необходените ребра и накрая да сглобим целия цикъл, но това е доста по-сложно и може да направим нещо по умно. Нека за пример на този подход да разгледаме графа вдясно. Възможно е да направим следното обхождане $1 - 2 - 3 - 1$, след което от гледна точка на връх $1$ няма да има необходено ребро, през което да минем. Така за да довършим обхождането трябва да минем и през останалите необходени ребра: $3 - 4 - 5 - 3$ и бихме могли да сглобим Ойлеровия цикъл, като заместим връх $3$ в първото обхождане с втория цикъл и така да намерим следното: $1 - 2 - 3 - 4 - 5 - 3 - 1$.</p>
+                            <p class="text-format">Алгоритъмът на Хиерхолзър по хитър начин позволява да правим подобно на горното заместване, като правим едно единствено обхождане в дълбочина, но самият цикъл попълваме на излизане от върховете. Нека разгледаме следния псевдокод на така модифицирания <i>DFS</i>:</p>
+                            <div id="euler_cycle_pseudo_code" class="placeholder"></div>
+                            <p class="text-format">Очевидно този алгоритъм ще обходи всяко едно ребро на графа, защото графът е свързан. Можем да си мислим, че алгоритъмът работи по следния начин. Както в предния подход, намираме един цикъл (докато все още виждаме необходени ребра от всеки текущ връх), но го попълваме, докато се връщаме назад. Понеже графът е неориентиран, то няма значение в каква ориентация гледаме ребрата. Също така понеже имаме <i>for</i>-цикъл за необходените инцидентни ребра, то когато се връщаме назад и намерим, че някъде все още има необходени ребра, ще се отклоним (от досегашния цикъл), за да ги обходим. Нека предположим, че това се е случило при връх $x$, т.е. този връх е част от досегашния цикъл, но все още има необходено ребро, инцидентно с този връх. Отново можем да видим, че е вярно твърдението от преди, че новото обхождане ще спре, когато завършим цикъл и със сигурност ще сме на връх $x$. Така ще добавим $x$ към Ойлеровия цикъл и ще започнем да добавяме новия намерен цикъл към Ойлеровия, с което правим "заместването" на връх $x$ в стария цикъл с новия цикъл, което преди трябваше да правим ръчно. В крайна сметка по този начин ще обходим всички ребра и междувременно ще сме съставили правилен Ойлеров цикъл.</p>
+                            <div class="graphExample4 row" style="clear: both">
+                                <div class="col-sm">
+                                    <p class="text-format">Следва интерактивeн пример на алгоритъма на Хиерхолзър. Анимацията се пуска с бутона "Старт", като може да зададете от кой връх да започва намирането на Ойлеров цикъл. Преди това може да се задава ускорение от 1 до 9, както и по време на анимацията да се превърта на предишна или следваща стъпка.</p>
+                                    <div class="row">
+                                        <div class="col-auto mb-2">
+                                            <button class="btn btn-success default">Начален пример</button>
+                                        </div>
+                                        <div class="col mb-2">
+                                            <div class="row form-group">
+                                                <label for="start-vertex" class="col-auto col-form-label pe-0 unselectable">Начален връх:</label>
+                                                <div class="col-auto">
+                                                    <input class="form-control" id="start-vertex" maxLength="1" style="width: 2.5rem; max-width: 100%"/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>                
+                                </div>
+
+                                <div class="col-sm right-col">
+                                    <div class="row mb-2 settings-panel"></div>
+
+                                    <p class="cycle" style="margin-bottom: 0"></p>
+                                    <p class="path" style="margin-bottom: 0"></p>
+                                    <div class="row text-center">
+                                        <div class="graph-container" style="margin: 0">
+                                            <svg class="graph" viewBox="0 0 300 300" style="height: 50vh"></svg>
+                                        </div>
+                                    </div>
+                                    <p class="anim-text"></p>
+
+                                    <div class="row mt-2 animation-panel"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="lesson-part-position">
+                    <button class="btn btn-secondary">3. Намиране в неориентирани графи</button>
+                    <div class="lesson-part">
+                        
+                    </div>
+                </div>
+
+            </div>
+            
+            <div id="footer-placeholder"></div>
+        </div>
+    </body>
+</html>

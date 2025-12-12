@@ -1,5 +1,5 @@
-"use strict";
 (function () {
+    "use strict";
     let graphs = new Map();
     let settingsPanel;
     async function GraphControllerLoadData () {
@@ -11,7 +11,7 @@
                     if ($(name+" .graph-settings").length===0) addSettingsModal();
                     if ($(name+" .information").length!==0) addInfoModal(name,graph.graphController,graph);
                 }
-            }).then(resolve, () => { alert("Load data error!") });
+            }).then(resolve, () => { alert("Load data error!"); });
         });
     }
     
@@ -96,8 +96,7 @@
             graph.graphDrawer.draw(graph.graphDrawer.isDynamic);
         });
     }
-    function showSettings (graphController) {
-        let graph=this;
+    function showSettings (graph, graphController) {
         addSettings(graph,graphController);
         let sliderVers=$(".range-vers");
         let outputVers=$(".slider-value-vers");
@@ -123,13 +122,16 @@
         addSaveFunctionality(graph);
         addImportFunctionality(wrapperName,graph);
         addUndoFunctionality(wrapperName,graph,graphController);
-        $(wrapperName+" .settings").off("click.settings").on("click.settings",showSettings.bind(graph,graphController));
+        $(wrapperName+" .settings").off("click.settings").on("click.settings",showSettings.bind(null,graph,graphController));
     }
     function addSettingsModal () {
         if ($("#settingsModal").length!==0) return ;
         $.get("/algo-site/pages/settings_modal.html", function (data) {
             if ($("#settingsModal").length!==0) return ;
             $("body").append(data);
+            $("#settingsModal").off("hide.bs.modal").on("hide.bs.modal", () => {
+                if (document.activeElement) document.activeElement.blur();
+            });
         });
     }
     function addInfoModal (wrapperName, graphController, graph) {
@@ -164,7 +166,7 @@
         });
         if ($("#infoModal").length!==0) return ;
         let modal=`
-        <div class="modal fade" id="infoModal" tabindex="-1" aria-labelledby="infoModalLabel" aria-hidden="true">
+        <div class="modal fade" id="infoModal" tabindex="-1" aria-labelledby="infoModalLabel">
             <div class="modal-dialog">
                 <div class="modal-content" style="max-height: 100%; overflow-y: auto">
                     <div class="modal-header">
@@ -176,6 +178,9 @@
             </div>
         </div>`;
         $("body").append($(modal));
+        $("#infoModal").off("hide.bs.modal").on("hide.bs.modal", () => {
+            if (document.activeElement) document.activeElement.blur();
+        });
     }
     
     function GraphController (graph) {
@@ -189,7 +194,7 @@
                 if ($(graph.wrapperName+" .information").length!==0) addInfoModal(graph.wrapperName,this,graph);
             }
             else graphs.set(graph.wrapperName,graph);
-        }
+        };
         this.undoType="default"; this.increaseTime=true;
         this.addChange = function (type, data, increaseTime = true) {
             if (this.increaseTime===false) increaseTime=false;
@@ -200,14 +205,14 @@
             });
             if (increaseTime===true) this.undoTime++;
             if (this.undoType==="default") this.redoStack=[];
-        }
+        };
         this.addChanges = function (changes, increaseTime = true) {
             if (this.increaseTime===false) increaseTime=false;
             for (let [type, data] of changes) {
                 this.addChange(type,data,false);
             }
             if (increaseTime===true) this.undoTime++;
-        }
+        };
         this.redoChange = function (type, data) {
             this.redoStack.push({
                 time: this.redoTime, 
@@ -215,10 +220,10 @@
                 data: data
             });
             if (this.increaseTime===true) this.redoTime++;
-        }
+        };
         this.removeChange = function () {
             this.undoStack.pop();
-        }
+        };
         this.removeChanges = function () {
             if (this.undoStack.length===0) return ;
             let time=this.undoStack[this.undoStack.length-1].time;
@@ -229,16 +234,16 @@
             }
             if (this.undoStack.length>0) this.undoTime=this.undoStack[this.undoStack.length-1].time+1;
             else this.undoTime=0;
-        }
+        };
         this.registerAction = function (type, data) {
             if ((this.undoType==="default")||(this.undoType==="redo")) this.addChange(type,data,true);
             else this.redoChange(type,data);
-        }
+        };
         this.freezes=0;
         this.freezeTime = function () {
             this.freezes++;
             this.increaseTime=false;
-        }
+        };
         this.advanceTime = function () {
             this.freezes--;
             if (this.freezes==0) {
@@ -247,7 +252,7 @@
                 else this.redoTime++;
             }
             else if (this.freezes<0) this.freezes=0;
-        }
+        };
         
         this.changeType=[true, true, true]; this.changeVers=true; this.changeSize=true;
         this.importGraph=true;
@@ -256,15 +261,26 @@
             this.changeVers=changeVers; this.changeSize=changeSize;
             this.importGraph=importGraph;
             if ($(this.wrapperName+" .settings-panel").length===0) addSettings(graph,this);
-        }
+        };
         
         this.undoAction = function (undoType) {
             this.undoType=undoType;
             this.increaseTime=true;
             
             let stack,otherStack;
-            if (undoType==="undo") stack=this.undoStack, otherStack=this.redoStack;
-            else stack=this.redoStack, otherStack=this.undoStack;
+            if (undoType==="undo") {
+                stack=this.undoStack; otherStack=this.redoStack;
+            }
+            else {
+                stack=this.redoStack; otherStack=this.undoStack;
+            }
+            /*console.log(undoType,stack.length,otherStack.length);
+            for (let i=0; i<stack.length; i++) {
+                console.log(1,stack[i]);
+            }
+            for (let i=0; i<otherStack.length; i++) {
+                console.log(0,otherStack[i]);
+            }*/
             if (stack.length===0) return ;
             
             let graphController=this;
@@ -316,13 +332,17 @@
                 }
                 else {
                     let ind=curr.data[0];
-                    if (curr.type==="add-edge") graph.removeEdge(ind), types.add("remove-edge");
+                    if (curr.type==="add-edge") {
+                        graph.removeEdge(ind); types.add("remove-edge");
+                    }
                     else if (curr.type==="remove-edge") {
                         let edgeData=curr.data[1];
                         graph.addEdge(edgeData[0],edgeData[1],edgeData[2],edgeData[3],edgeData[4],edgeData[5],edgeData[6],edgeData[7],ind,true,curr.data[2]);
                         types.add("add-edge");
                     }
-                    else if (curr.type==="add-vertex") graph.removeVertex(ind), types.add("remove-vertex");
+                    else if (curr.type==="add-vertex") {
+                        graph.removeVertex(ind); types.add("remove-vertex");
+                    }
                     else if (curr.type==="remove-vertex") {
                         graph.addVertex(curr.data[2][0],curr.data[2][1],curr.data[2][2],ind);
                         graph.svgVertices[ind].coord=curr.data[1];
@@ -415,7 +435,7 @@
             for (let type of types) {
                 graph.graphChange(type);
             }
-        }
+        };
     
         let isDynamic,isStatic;
         this.hasAnimation = function (animationObj) {
@@ -452,12 +472,12 @@
                 }
                 
                 oldStop();
-            }
-        }
+            };
+        };
         
         this.importGraph = function (data) {
             importGraph(data,graph);
-        }
+        };
     }
     
     function calcBBox (graph) {
@@ -655,8 +675,10 @@
         for (let i=1; i<=m; i++) {
             let tokens=removeEmpty(getTokens(lines[curr],"edges"));
             let x=parseInt(tokens[0]),y=parseInt(tokens[1]);
-            if (oneInd===true) x--, y--;
-            let weight="",userCSS=[{},{}],curveHeight=undefined,addedCSS=[{},{}],weightTranslate=[0, 0],weightRotation=0;
+            if (oneInd===true) {
+                x--; y--;
+            }
+            let weight="",userCSS=[{},{}],curveHeight,addedCSS=[{},{}],weightTranslate=[0, 0],weightRotation=0;
             for (let i=2; i<tokens.length; i++) {
                 let token=tokens[i];
                 if ((i===2)&&(token[0]!=='[')&&(token[0]!=='{')) {
@@ -731,7 +753,7 @@
                     alert("Невалиден номер на връх за: "+lines[curr]);
                     return false;
                 }
-                let name=x.toString(),coord=undefined,userCSS=[{},{}],addedCSS=[{},{}];
+                let name=x.toString(),coord,userCSS=[{},{}],addedCSS=[{},{}];
                 for (let i=1; i<tokens.length; i++) {
                     let token=tokens[i];
                     if ((token[0]!=='[')&&(token[0]!=='{')) {
@@ -786,7 +808,7 @@
             }
         }
 
-        let size=graph.size,posProperties=undefined,defaultSettings=undefined;
+        let size=graph.size,posProperties,defaultSettings;
         for (;;) {
             if (curr===lines.length) break;
             let line=lines[curr];
@@ -814,7 +836,7 @@
                         defaultSettings[4]=[
                             tokens[4].slice(1,tokens[4].length-1),
                             parseFloat(tokens[5].slice(1,tokens[5].length-1)),
-                        ]
+                        ];
                         if (isNaN(defaultSettings[4][1])===true) {
                             defaultSettings=undefined;
                             break;
@@ -899,13 +921,13 @@
             reader.onload = function (event) {
                 let text=event.target.result.replaceAll("\r\n","\n");
                 importGraph(text,graph);
-            }
+            };
             reader.readAsText(event.target.files[0]);
             $(input).val("");
         });
         if ($("#importModal").length===0) {
             let modal=`
-            <div class="modal fade" id="importModal" tabindex="-1" aria-labelledby="importModalLabel" aria-hidden="true">
+            <div class="modal fade" id="importModal" tabindex="-1" aria-labelledby="importModalLabel">
                 <div class="modal-dialog">
                     <div class="modal-content">
                         <div class="modal-header">
@@ -927,10 +949,13 @@
                 </div>
             </div>`;
             $("body").append($(modal));
+            $("#importModal").off("hide.bs.modal").on("hide.bs.modal", () => {
+                if (document.activeElement) document.activeElement.blur();
+            });
         }
         
         dropdowns[graph.wrapperName].addNewDropdown("import-menu",[
-            ["file", ((language==="bg")?"Зареди от файл":"Import from file"), () => { input.click() }],
+            ["file", ((language==="bg")?"Зареди от файл":"Import from file"), () => { input.click(); }],
             ["text", "", () => {
                 let graphText=graph.export();
                 $("#import-message-text").val(graphText);

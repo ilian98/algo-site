@@ -192,7 +192,7 @@
                     }
                     card+="</div></div>";
                     $(".content").append(card);
-                    MathJax.typeset([".card.result"]);
+                    if ((typeof MathJax!=="undefined")&&(MathJax.typeset!==undefined)) MathJax.typeset([".card.result"]);
                 });
             }
         });

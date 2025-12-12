@@ -1,5 +1,5 @@
-"use strict";
 (function () {
+    "use strict";
     function checkInteger (s) {
         if (s===null) return false;
         if (s.length===0) return false;
@@ -9,8 +9,11 @@
         return true;
     }
     window.checkWeightValue = checkInteger;
+    function isMobile (event) {
+        return (event.type==="touchstart")||(event.type==="touchmove")||(event.type==="touchend");
+    }
     function getObjectForCoordinates (event) {
-        if (window.isMobile==="false") return event;
+        if (isMobile(event)===false) return event;
         else if (event.changedTouches!==undefined) return event.changedTouches[0];
         else if (event.touches!==undefined) return event.touches[0];
         else return event;
@@ -29,10 +32,10 @@
             return s;
         }
         
-        let addVertexDrag=false,startIndex=undefined;
-        let currEdgeDraw=undefined;
+        let addVertexDrag=false,startIndex;
+        let currEdgeDraw;
         let startMousePos;
-        let drawProperties=undefined;
+        let drawProperties;
         
         function redrawEdges (dx, dy) {
             let coords=[graph.svgVertices[startIndex].coord[0]+dx,
@@ -54,8 +57,8 @@
         }
         
         let trackedMouse;
-        function mouseDown (event) {
-            let type=this.objType,index=this.index;
+        function mouseDown (obj, event) {
+            let type=obj.objType,index=obj.index;
             
             event.preventDefault();
             dropdowns[graph.wrapperName].closeDropdowns();
@@ -82,10 +85,10 @@
                     clearClickParameters(type);
                 }
             };
-            if (window.isMobile==="false") $(window).off("mousemove.mouse-out").on("mousemove.mouse-out",mouseOut);
+            if (isMobile(event)===false) $(window).off("mousemove.mouse-out").on("mousemove.mouse-out",mouseOut);
             else $(window).off("touchmove.mouse-out").on("touchmove.mouse-out",mouseOut);
             
-            if (window.isMobile==="false") {
+            if (isMobile(event)===false) {
                 if (event.button!==0) return ;
                 if (type==="vertex") {
                     graph.s.mousemove(trackMouseVertex);
@@ -141,12 +144,12 @@
                         let circle=graph.s.circle(pos[0]+(startMousePos[0]-graph.svgVertices[index].coord[0]),
                                                   pos[1]+(startMousePos[1]-graph.svgVertices[index].coord[1]),vertexRad/2);
                         circle.attr({opacity: 0});
-                        circle.mouseover(function () {
+                        circle.mouseover(function (circleVertex) {
                             circleVertex.attr({opacity: 0.9});
-                        });
-                        circle.mouseout(function () {
+                        }.bind(null,circleVertex));
+                        circle.mouseout(function (circleVertex) {
                             circleVertex.attr({opacity: 0.2});
-                        });
+                        }.bind(null,circleVertex));
                         nearCircles.push([circleVertex,circle]);
                     }
                 }
@@ -264,33 +267,23 @@
             $(graph.svgName).css({"border-color": "transparent"});
             drawProperties=undefined; startIndex=undefined;
             $(window).off("mousemove.mouse-out").off("touchmove.mouse-out");
-            if (window.isMobile==="false") {
-                if (type==="vertex") {
-                    graph.s.unmousemove(trackMouseVertex);
-                    graph.s.unmouseup(mouseUpVertex);
-                }
-                else if (type==="edge") {
-                    graph.s.unmousemove(trackMouseEdge);
-                    graph.s.unmouseup(mouseUpEdge);
-                }
-                else {
-                    graph.s.unmousemove(trackMouseWeight);
-                    graph.s.unmouseup(mouseUpWeight);
-                }
+            if (type==="vertex") {
+                graph.s.unmousemove(trackMouseVertex);
+                graph.s.unmouseup(mouseUpVertex);
+                graph.s.untouchmove(trackMouseVertex);
+                graph.s.untouchend(mouseUpVertex);
+            }
+            else if (type==="edge") {
+                graph.s.unmousemove(trackMouseEdge);
+                graph.s.unmouseup(mouseUpEdge);
+                graph.s.untouchmove(trackMouseEdge);
+                graph.s.untouchend(mouseUpEdge);
             }
             else {
-                if (type==="vertex") {
-                    graph.s.untouchmove(trackMouseVertex);
-                    graph.s.untouchend(mouseUpVertex);
-                }
-                else if (type==="edge") {
-                    graph.s.untouchmove(trackMouseEdge);
-                    graph.s.untouchend(mouseUpEdge);
-                }
-                else {
-                    graph.s.untouchmove(trackMouseWeight);
-                    graph.s.untouchend(mouseUpWeight);
-                }
+                graph.s.unmousemove(trackMouseWeight);
+                graph.s.unmouseup(mouseUpWeight);
+                graph.s.untouchmove(trackMouseWeight);
+                graph.s.untouchend(mouseUpWeight);
             }
         }
         
@@ -298,8 +291,8 @@
             let index=startIndex;
             if (trackedMouse===false) { // click event
                 clearClickParameters("vertex");
-                if ((window.isMobile==="true")&&(graph.graphDrawer.isDynamic===true)) 
-                    vertexClick.call(graph.svgVertices[index].group,event);
+                if ((isMobile(event)===true)&&(graph.graphDrawer.isDynamic===true)) 
+                    vertexClick(graph.svgVertices[index].group,event);
                 return ;
             }
             clearClickParameters("vertex");
@@ -381,7 +374,7 @@
             let height=graph.svgEdges[index].drawProperties[0];
             if (trackedMouse===false) { // click event
                 clearClickParameters("edge");
-                if ((window.isMobile==="true")&&(graph.graphDrawer.isDynamic===true)) edgeClick.call(graph.svgEdges[index].line,event);
+                if ((isMobile(event)===true)&&(graph.graphDrawer.isDynamic===true)) edgeClick(graph.svgEdges[index].line,event);
                 return ;
             }
             clearClickParameters("edge");
@@ -405,7 +398,7 @@
             let weightTranslate=edge.weightTranslate;
             if (trackedMouse===false) { // click event
                 clearClickParameters("weight");
-                if ((window.isMobile==="true")&&(graph.graphDrawer.isDynamic===true)) weightClick.call(graph.svgEdges[index].weight,event);
+                if ((isMobile(event)===true)&&(graph.graphDrawer.isDynamic===true)) weightClick(graph.svgEdges[index].weight,event);
                 return ;
             }
             let dx=weightTranslate[0]+svgPoint.x-startMousePos[0],dy=weightTranslate[1]+svgPoint.y-startMousePos[1];
@@ -445,11 +438,10 @@
             }
             graph.removeVertex(index);
             graph.graphChange("remove-vertex");
-        }
+        };
         function changeVertexName (index) {
             let vr=graph.getVertex(index);
-            let name=prompt((language==="bg")?"Въведете ново име на върха":"Input new name of the vertex"
-                            ,vr.name);
+            let name=prompt((language==="bg")?"Въведете ново име на върха":"Input new name of the vertex",vr.name);
             if (name===null) return ;
             if (vr.name!==name) {
                 if (graph.graphController!==undefined)
@@ -473,7 +465,7 @@
             else css=vr.userCSS[0]+" ; "+css;
             if (css===null) return ;
             if (vr.userCSS[0]!==css) addCSS(vr,css,"vertex",index);
-        }
+        };
         this.addCSSVertexName = function (index, css) {
             let vr=graph.getVertex(index);
             if (css===undefined) 
@@ -486,18 +478,18 @@
             else css=vr.userCSS[1]+" ; "+css;
             if (css===null) return ;
             if (vr.userCSS[1]!==css) addCSS(vr,css,"vertex-name",index);
-        }
-        function vertexClick (event) {
+        };
+        function vertexClick (obj, event) {
             if (trackedMouse===true) return ;
             if (graph.graphDrawer.isDynamic===true) {
-                dropdowns[graph.wrapperName].menus["vertex"].find(".remove-vertex").show();
-                dropdowns[graph.wrapperName].menus["vertex"].find(".change-name").show();
+                dropdowns[graph.wrapperName].menus.vertex.find(".remove-vertex").show();
+                dropdowns[graph.wrapperName].menus.vertex.find(".change-name").show();
             }
             else {
-                dropdowns[graph.wrapperName].menus["vertex"].find(".remove-vertex").hide();
-                dropdowns[graph.wrapperName].menus["vertex"].find(".change-name").hide();
+                dropdowns[graph.wrapperName].menus.vertex.find(".remove-vertex").hide();
+                dropdowns[graph.wrapperName].menus.vertex.find(".change-name").hide();
             }
-            dropdowns[graph.wrapperName].showDropdown("vertex",event,this.index);
+            dropdowns[graph.wrapperName].showDropdown("vertex",event,obj.index);
         }
                                
         this.addNewVertex = function (event, name) {
@@ -534,18 +526,17 @@
                 }
             }
             graph.graphChange("add-vertex");
-        }
+        };
         
         this.removeEdge = function (index) {
             graph.removeEdge(index);
             edgeClickAreas[index].remove();
             graph.graphChange("remove-edge");
-        }
+        };
         this.changeEdgeWeight = function (index, weight) {
             let edge=graph.getEdge(index);
             if (weight===undefined) 
-                weight=prompt((language==="bg")?"Въведете ново тегло на реброто":"Input new weight for the edge"
-                              ,edge.weight);
+                weight=prompt((language==="bg")?"Въведете ново тегло на реброто":"Input new weight for the edge",edge.weight);
             if (checkWeightValue(weight)===false) return ;
             if (edge.weight!==weight) {
                 if (graph.graphController!==undefined)
@@ -562,7 +553,7 @@
                 addEdgeEvents(index);
             }
             graph.graphChange("change-weight");
-        }
+        };
         this.addCSSEdge = function (index, css) {
             let edge=graph.getEdge(index);
             if (css===undefined)
@@ -576,26 +567,26 @@
             if (css===null) return ;
             let svgEdge=graph.svgEdges[index];
             if (edge.userCSS[0]!==css) addCSS(edge,css,"edge",index);
-        }
-        function edgeClick (event) {
+        };
+        function edgeClick (obj, event) {
             if (trackedMouse===true) return ;
-            let ind=this.index;
+            let ind=obj.index;
             if (graph.isNetwork===true) {
                 if ((graph.getEdge(ind).real===true)&&(graph.graphDrawer.isDynamic===true)) {
-                    dropdowns[graph.wrapperName].menus["edge"].find(".remove-edge").show();
-                    dropdowns[graph.wrapperName].menus["edge"].find(".change-weight").show();
+                    dropdowns[graph.wrapperName].menus.edge.find(".remove-edge").show();
+                    dropdowns[graph.wrapperName].menus.edge.find(".change-weight").show();
                 }
                 else {
-                    dropdowns[graph.wrapperName].menus["edge"].find(".remove-edge").hide();
-                    dropdowns[graph.wrapperName].menus["edge"].find(".change-weight").hide();
+                    dropdowns[graph.wrapperName].menus.edge.find(".remove-edge").hide();
+                    dropdowns[graph.wrapperName].menus.edge.find(".change-weight").hide();
                 }
             }
             else {
                 if ((graph.isWeighted===true)&&(graph.graphDrawer.isDynamic===true)) 
-                    dropdowns[graph.wrapperName].menus["edge"].find(".change-weight").show();
-                else dropdowns[graph.wrapperName].menus["edge"].find(".change-weight").hide();
-                if (graph.graphDrawer.isDynamic===true) dropdowns[graph.wrapperName].menus["edge"].find(".remove-edge").show();
-                else dropdowns[graph.wrapperName].menus["edge"].find(".remove-edge").hide();
+                    dropdowns[graph.wrapperName].menus.edge.find(".change-weight").show();
+                else dropdowns[graph.wrapperName].menus.edge.find(".change-weight").hide();
+                if (graph.graphDrawer.isDynamic===true) dropdowns[graph.wrapperName].menus.edge.find(".remove-edge").show();
+                else dropdowns[graph.wrapperName].menus.edge.find(".remove-edge").hide();
             }
             dropdowns[graph.wrapperName].showDropdown("edge",event,ind);
         }
@@ -614,7 +605,7 @@
             graph.rotateWeight(index,rotation);
             edge.weightRotation=rotation;
             graph.graphChange("change-weight-rotation");
-        }
+        };
         this.addCSSWeight = function (index, css) {
             let edge=graph.getEdge(index);
             if (css===undefined)
@@ -628,18 +619,18 @@
             if (css===null) return ;
             let weight=graph.svgEdges[index].weight;
             if (edge.userCSS[1]!==css) addCSS(edge,css,"weight",index);
-        }
-        function weightClick (event) {
+        };
+        function weightClick (obj, event) {
             if (trackedMouse===true) return ;
-            let ind=this.index;
+            let ind=obj.index;
             if (((graph.isNetwork===true)&&(graph.getEdge(ind).real===true)&&(graph.graphDrawer.isDynamic===true))||
                 ((graph.isNetwork===false)&&(graph.graphDrawer.isDynamic===true))) {
-                dropdowns[graph.wrapperName].menus["weight"].find(".change-weight").show();
+                dropdowns[graph.wrapperName].menus.weight.find(".change-weight").show();
             }
-            else dropdowns[graph.wrapperName].menus["weight"].find(".change-weight").hide();
+            else dropdowns[graph.wrapperName].menus.weight.find(".change-weight").hide();
             let flag=false;
             $(document).off("keydown.w").on("keydown.w",(e) => {
-                if (dropdowns[graph.wrapperName].menus["weight"].is(":hidden")) return ;
+                if (dropdowns[graph.wrapperName].menus.weight.is(":hidden")) return ;
                 if (e.keyCode===37) {
                     let edge=graph.getEdge(ind);
                     if ((flag===false)&&(graph.graphController!==undefined)) {
@@ -668,9 +659,9 @@
             graph.svgVertices[ind].group.attr({cursor: "pointer"});
             graph.svgVertices[ind].group.objType="vertex";
             graph.svgVertices[ind].group.index=ind;
-            if (window.isMobile==="false") graph.svgVertices[ind].group.mousedown(mouseDown);
-            else graph.svgVertices[ind].group.touchstart(mouseDown);
-            graph.svgVertices[ind].group.click(vertexClick);
+            graph.svgVertices[ind].group.mousedown(mouseDown.bind(null,graph.svgVertices[ind].group));
+            graph.svgVertices[ind].group.touchstart(mouseDown.bind(null,graph.svgVertices[ind].group));
+            graph.svgVertices[ind].group.click(vertexClick.bind(null,graph.svgVertices[ind].group));
         }
         let edgeClickAreas=[];
         function addEdgeEvents (ind) {
@@ -697,24 +688,20 @@
             clickArea.index=ind;
             graph.svgEdges[ind].line.objType="edge";
             graph.svgEdges[ind].line.index=ind;
-            if (window.isMobile==="false") {
-                clickArea.mousedown(mouseDown);
-                graph.svgEdges[ind].line.mousedown(mouseDown);
-            }
-            else {
-                clickArea.touchstart(mouseDown);
-                graph.svgEdges[ind].line.touchstart(mouseDown);
-            }
-            clickArea.click(edgeClick);
-            graph.svgEdges[ind].line.click(edgeClick);
+            clickArea.mousedown(mouseDown.bind(null,clickArea));
+            clickArea.touchstart(mouseDown.bind(null,clickArea));
+            graph.svgEdges[ind].line.mousedown(mouseDown.bind(null,graph.svgEdges[ind].line));
+            graph.svgEdges[ind].line.touchstart(mouseDown.bind(null,graph.svgEdges[ind].line));
+            clickArea.click(edgeClick.bind(null,clickArea));
+            graph.svgEdges[ind].line.click(edgeClick.bind(null,graph.svgEdges[ind].line));
             
             if (graph.svgEdges[ind].weight!==undefined) {
                 graph.svgEdges[ind].weight.attr({cursor: "pointer"});
                 graph.svgEdges[ind].weight.objType="weight";
                 graph.svgEdges[ind].weight.index=ind;
-                if (window.isMobile==="false") graph.svgEdges[ind].weight.mousedown(mouseDown);
-                else graph.svgEdges[ind].weight.touchstart(mouseDown);
-                graph.svgEdges[ind].weight.click(weightClick);
+                graph.svgEdges[ind].weight.mousedown(mouseDown.bind(null,graph.svgEdges[ind].weight));
+                graph.svgEdges[ind].weight.touchstart(mouseDown.bind(null,graph.svgEdges[ind].weight));
+                graph.svgEdges[ind].weight.click(weightClick.bind(null,graph.svgEdges[ind].weight));
             }
         }
         
@@ -749,23 +736,22 @@
             let svgElement=$(graph.svgName);
             if (graph.graphDrawer.isDynamic===true) {
                 let addNewVertex=this.addNewVertex;
-                if (window.isMobile==="false") svgElement.off("dblclick").on("dblclick",addNewVertex);
-                else {
-                    let tapped=false,coords=[];
-                    svgElement.off("touchstart.add-vertex").on("touchstart.add-vertex",function (event) {
-                        let touch=getObjectForCoordinates(event);
-                        if (tapped===false) {
-                            tapped=true;
-                            coords=[touch.clientX, touch.clientY];
-                            setTimeout(() => {tapped = false},300);
+                const tapped=[false, false],coords=[[], []];
+                svgElement.off("mousedown.add-vertex touchstart.add-vertex").on("mousedown.add-vertex touchstart.add-vertex",function (event) {
+                    const type=+isMobile(event);
+                    const touch=getObjectForCoordinates(event);
+                    if (tapped[type]===false) {
+                        tapped[type]=true;
+                        coords[type]=[touch.clientX, touch.clientY];
+                        setTimeout(() => {tapped[type] = false;},300);
+                    }
+                    else {
+                        tapped[type]=false;
+                        if (tapped[1-type]===false) {
+                            if (segmentLength(coords[type][0],coords[type][1],touch.clientX,touch.clientY)<20) addNewVertex.call(this,event);
                         }
-                        else {
-                            tapped=false;
-                            trackedMouse=true;
-							if (segmentLength(coords[0],coords[1],touch.clientX,touch.clientY)<20) addNewVertex.call(this,event);
-                        }
-                    });
-                }
+                    }
+                });
                 if ($(graph.wrapperName+" .dragging-mini").length!==0) {
                     let dragSwitch=$(graph.wrapperName+" .dragging-mini");
                     dragSwitch.show();
@@ -786,21 +772,20 @@
                             addVertexDrag=true;
                             dragSwitch.parent().prop("title",(language==="bg")?"Чертаене на ребра":"Drawing edges");
                         }
-                    }.bind(this));
+                    });
                 }
                 else {
-                    $(graph.wrapperName+" .settings").off("click.draw-settings").on("click.draw-settings",this.addSettings.bind(this));
+                    $(graph.wrapperName+" .settings").off("click.draw-settings").on("click.draw-settings",this.addSettings);
                 }
             }
             else {
                 addVertexDrag=true;
                 $(graph.wrapperName+" .dragging-mini").hide();
             }
-        }
+        };
         this.clear = function () {
             let svgElement=$(graph.svgName);
-            svgElement.off("dblclick");
-            svgElement.off("touchstart.add-vertex");
+            svgElement.off("mousedown.add-vertex touchstart.add-vertex");
             if ($(graph.wrapperName+" .dragging-mini").length!==0) $(graph.wrapperName+" .dragging-mini").off("click");
             else $(graph.wrapperName+" .settings").off("click.draw-settings");
             
@@ -813,8 +798,8 @@
                 graph.svgVertices[i].group.attr({cursor: "auto"});
                 delete graph.svgVertices[i].group.objType;
                 delete graph.svgVertices[i].group.index;
-                if (window.isMobile==="false") graph.svgVertices[i].group.unmousedown(mouseDown);
-                else graph.svgVertices[i].group.untouchstart(mouseDown);
+                graph.svgVertices[i].group.unmousedown(mouseDown);
+                graph.svgVertices[i].group.untouchstart(mouseDown);
                 graph.svgVertices[i].group.unclick(vertexClick);
             }
             for (let [i, edge] of graph.getEdges()) {
@@ -824,31 +809,31 @@
                 graph.svgEdges[i].line.attr({cursor: "auto"});
                 delete graph.svgEdges[i].line.objType;
                 delete graph.svgEdges[i].line.index;
-                if (window.isMobile==="false") graph.svgEdges[i].line.unmousedown(mouseDown);
-                else graph.svgEdges[i].line.untouchstart(mouseDown);
+                graph.svgEdges[i].line.unmousedown(mouseDown);
+                graph.svgEdges[i].line.untouchstart(mouseDown);
                 graph.svgEdges[i].line.unclick(edgeClick);
                 if (graph.svgEdges[i].weight!==undefined) {
                     delete graph.svgEdges[i].weight.index;
                     graph.svgEdges[i].weight.attr({cursor: "auto"});
-                    if (window.isMobile==="false") graph.svgEdges[i].weight.unmousedown(mouseDown);
-                    else graph.svgEdges[i].weight.untouchstart(mouseDown);
+                    graph.svgEdges[i].weight.unmousedown(mouseDown);
+                    graph.svgEdges[i].weight.untouchstart(mouseDown);
                     graph.svgEdges[i].weight.unclick(weightClick);
                 }
             }
             $(graph.svgName+" .click-area").remove();
             edgeClickAreas=[];
-        }
+        };
         
         this.addSettings = function () {
             if (addVertexDrag===false) $("#edgeDraw").click();
             else $("#vertexMove").click();
             $("#edgeDraw").off("click").on("click",function () {
                 addVertexDrag=false;
-            }.bind(this));
+            });
             $("#vertexMove").off("click").on("click",function () {
                 addVertexDrag=true;
-            }.bind(this));
-        }
+            });
+        };
     }
     
     

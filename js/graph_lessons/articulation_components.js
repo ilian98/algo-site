@@ -1,5 +1,5 @@
-"use strict";
 (function () {
+    "use strict";
     function addText (i, graph, s, position) {
         let text=graph.s.text(0,0,s),fontSize=graph.graphDrawer.findAttrValue("vertex-name","font-size",i)*4/6;
         text.attr({
@@ -37,32 +37,32 @@
         if (father===-1) {
             animations.push({
                 animFunctions: [attrChangesAnimation(graph.svgVertices[vr].circle,{fill: "red"})],
-                animText: "Започваме обхождането и строенето на дървото с корен "+(vr+1)+"."
+                animText: "Започваме обхождането и строенето на дървото с корен "+graph.getVertex(vr).name+"."
             });        
         }
         else {
             animations.push({
                 animFunctions: [attrChangesAnimation(graph.svgVertices[vr].circle,{fill: "red"}),
                                 attrChangesAnimation(graph.svgVertices[vr].text,{fill: "black"})],
-                animText: "Сега сме във връх "+(vr+1)+"."
+                animText: "Сега сме във връх "+graph.getVertex(vr).name+"."
             });
         }
         
-        let upText;
+        let upText={obj: {}};
         animations[animations.length-1].startFunction = function (time) {
             let text=addText(vr,graph,"in="+time,"up");
-            upText=addText(vr,graph,"up="+time,"down");
+            upText.obj=addText(vr,graph,"up="+time,"down");
             return function () {
                 text.remove();
-                upText.remove();
+                upText.obj.remove();
             };
-        }.bind(this,time);
+        }.bind(null,time);
         animations[animations.length-1].endFunction = function (time) {
             $(".graphExample3 .time").text("Време: "+time);
             return function () {
                 $(".graphExample3 .time").text("Време: "+(time-1));
-            }
-        }.bind(this,time+1);
+            };
+        }.bind(null,time+1);
         animations[animations.length-1].animText+=" Отбелязваме време на влизане "+time+" и увеличаваме времето. Слагаме минималното in-време на поддървото на текущия връх, на "+time+".";
         inTime[vr]=time++; up[vr]=inTime[vr];
         used[vr]=true;
@@ -73,23 +73,23 @@
                     animFunctions: [attrChangesAnimation(graph.svgVertices[vr].circle,{fill: "grey"}),
                                     attrChangesAnimation(graph.svgVertices[vr].text,{fill: "white"}),
                                     graph.edgeAnimation(vr,to,ind)],
-                    animText: "Напускаме връх "+(vr+1)+" и отиваме към сина "+(to+1)+" в строящото се покриващо дърво."
+                    animText: "Напускаме връх "+graph.getVertex(vr).name+" и отиваме към сина "+graph.getVertex(to).name+" в строящото се покриващо дърво."
                 });
 
                 dfs(to,vr,used,inTime,up,graph,animations);
 
                 up[vr]=Math.min(up[vr],up[to]);
                 animations.push({
-                    startFunction: function (up) {
-                        let origText=upText.attr("text");
-                        upText.attr("text","up="+up,"down");
+                    startFunction: function (upText, up) {
+                        let origText=upText.obj.attr("text");
+                        upText.obj.attr("text","up="+up,"down");
                         return function () {
-                            upText.attr("text",origText);
+                            upText.obj.attr("text",origText);
                         };
-                    }.bind(this,up[vr]),
+                    }.bind(null,upText,up[vr]),
                     animFunctions: [attrChangesAnimation(graph.svgVertices[vr].circle,{fill: "red"}),
                                     attrChangesAnimation(graph.svgVertices[vr].text,{fill: "black"})],
-                    animText: "Връщаме се на връх "+(vr+1)+" и вземаме предвид up["+(to+1)+"]="+up[to]+" при смятането на минималното in-време на up["+(vr+1)+"]."
+                    animText: "Връщаме се на връх "+graph.getVertex(vr).name+" и вземаме предвид up["+graph.getVertex(to).name+"]="+up[to]+" при смятането на минималното in-време на up["+graph.getVertex(vr).name+"]."
                 });
                 
                 if (up[to]>=inTime[to]) {
@@ -97,35 +97,35 @@
                         animFunctions: [attrChangesAnimation(graph.svgEdges[ind].line,{
                             stroke: "red", "stroke-width": graph.graphDrawer.findAttrValue("edge","stroke-width",ind)*2
                         })],
-                        animText: "Понеже up["+(to+1)+"]>=in["+(to+1)+"], то това ребро е мост!"
+                        animText: "Понеже up["+graph.getVertex(to).name+"]>=in["+graph.getVertex(to).name+"], то това ребро е мост!"
                     });
                 }
             }
             else if (to===father) {
                 animations.push({
                     animFunctions: [graph.edgeAnimation(vr,to,ind)],
-                    animText: "Oказва се, че този съсед се явява бащата "+(to+1)+" на текущия връх в покриващото дърво."
+                    animText: "Oказва се, че този съсед се явява бащата "+graph.getVertex(to).name+" на текущия връх в покриващото дърво."
                 });
             }
             else {
                 up[vr]=Math.min(up[vr],inTime[to]);
                 animations.push({
                     animFunctions: [graph.edgeAnimation(vr,to,ind)],
-                    animText: "Това ребро е обратно, затова вземаме предвид in["+(to+1)+"]="+inTime[to]+" при смятането на минималното in-време на up["+(vr+1)+"].",
-                    endFunction: function (up) {
-                        let origText=upText.attr("text");
-                        upText.attr("text","up="+up,"down");
+                    animText: "Това ребро е обратно, затова вземаме предвид in["+graph.getVertex(to).name+"]="+inTime[to]+" при смятането на минималното in-време на up["+graph.getVertex(vr).name+"].",
+                    endFunction: function (upText, up) {
+                        let origText=upText.obj.attr("text");
+                        upText.obj.attr("text","up="+up,"down");
                         return function () {
-                            upText.attr("text",origText);
+                            upText.obj.attr("text",origText);
                         };
-                    }.bind(this,up[vr]),
+                    }.bind(null,upText,up[vr]),
                 });
             }
         }
         animations.push({
             animFunctions: [attrChangesAnimation(graph.svgVertices[vr].circle,{fill: "black"}),
                             attrChangesAnimation(graph.svgVertices[vr].text,{fill: "white"})],
-            animText: "Приключихме с връх "+(vr+1)+" и намерихме, че минималното in-време, което се достига от това поддърво е "+up[vr]+"."
+            animText: "Приключихме с връх "+graph.getVertex(vr).name+" и намерихме, че минималното in-време, което се достига от това поддърво е "+up[vr]+"."
         });
     }
     
@@ -178,8 +178,7 @@
         }
         return comps;
     }
-    function colourDCC () {
-        let graph=this;
+    function colourDCC (graph) {
         let colours=["#c76dbf","#99498a","#80447f","#513d66","#3653b3","#248ad4","#5fcaed","#82ebf5","#17b2e6","#306ec9",
                      "#237040","#2d801b","#52992e","#66b324","#86cc14","#b0e627","#ffff69","#f7db02","#e8c00e","#f7aa25",
                      "#ff8c00","#ff8c00","#f0690e","#f0cab6","#e8bb97","#e09e75","#c9794b","#b06838","#ad6615","#733405",
@@ -190,7 +189,7 @@
         for (let i=0; i<num; i++) {
             for (let j=0; j<comps[i].length; j++) {
                 let v=comps[i][j];
-                graph.getVertex(v).addedCSS[0]["fill"]=colours[colour];
+                graph.getVertex(v).addedCSS[0].fill=colours[colour];
                 graph.graphDrawer.recalcAttrVertex(graph.svgVertices[v],v);
                 versColour[v]=colours[colour];
             }
@@ -198,9 +197,9 @@
         }
         for (let [i, edge] of graph.getEdges()) {
             let from=edge.x,to=edge.y;
-            if (versColour[from]===versColour[to]) graph.getEdge(i).addedCSS[0]["stroke"]=versColour[from];
+            if (versColour[from]===versColour[to]) graph.getEdge(i).addedCSS[0].stroke=versColour[from];
             else {
-                graph.getEdge(i).addedCSS[0]["stroke"]="red";
+                graph.getEdge(i).addedCSS[0].stroke="red";
                 delete graph.getEdge(i).addedCSS[0]["stroke-width"];
                 graph.getEdge(i).addedCSS[0]["stroke-width"]=graph.graphDrawer.findAttrValue("edge","stroke-width",i)*2;
             }
@@ -213,13 +212,13 @@
             let example1=new Graph();
             example1.init(".graphExample1",6,false);
             example1.buildEdgeDataStructures([[0,1],[1,2],[2,0],[2,3],[3,4],[4,5],[5,3]]);
-            example1.getEdge(3).addedCSS[0]["stroke"]="red";
+            example1.getEdge(3).addedCSS[0].stroke="red";
             example1.drawNewGraph(false,5/4);
             
             let example2=new Graph();
             example2.init(".graphExample2",5,false);
             example2.buildEdgeDataStructures([[0,1],[1,2],[2,0],[2,3],[3,4],[4,2]]);
-            example2.getVertex(2).addedCSS[0]["stroke"]="red";
+            example2.getVertex(2).addedCSS[0].stroke="red";
             example2.drawNewGraph(false,5/4);
         }
         else if (part===2) {
@@ -233,17 +232,19 @@
                 example3.drawNewGraph(true,3/4,false,0,15);
                 example3.setSettings([false, false, true]);
                 
-                $(".graphExample3 .start-vertex").val("1");
+                let startVertex="1";
+                $("#start-vertex").val(startVertex);
                 $(".graphExample3 .time").hide();
                 animationObj.init(".graphExample3",function findAnimations () {
-                    let st=parseInt($(".graphExample3 .start-vertex").val()); st--;
-                    let used=[],found=false;
+                    startVertex=$("#start-vertex").val();
+                    let st=-1;
+                    const used=[];
                     for (let [i, vr] of example3.getVertices()) {
-                        if (i===st) found=true;
+                        if (vr.name===startVertex) st=i;
                         used[i]=false;
                     }
-                    if (found===false) {
-                        alert("Невалиден номер на връх!");
+                    if (st===-1) {
+                        alert("Невалиден начален връх!");
                         return [];
                     }
                     
@@ -263,30 +264,30 @@
                     $(".graphExample3 .default").parent().show();
                     $(".graphExample3 .time").hide();
                 }).then(
-                    () => { example3.graphController.hasAnimation(animationObj) },
-                    () => { alert("Failed loading animation data!") }
+                    () => { example3.graphController.hasAnimation(animationObj); },
+                    () => { alert("Failed loading animation data!"); }
                 );
             }).click();
-            $("graphExample3 .start-vertex").on("keydown",isDigit);
+            $("#start-vertex").on("keydown",isDigit);
         }
         else if (part===3) {
             let example4=new Graph();
             example4.init(".graphExample4",5,false);
             example4.buildEdgeDataStructures([[0,1],[1,2],[2,0],[2,3],[3,4],[4,2]]);
-            example4.getVertex(0).addedCSS[0]["fill"]="magenta";
-            example4.getVertex(1).addedCSS[0]["fill"]="magenta";
-            example4.getVertex(2).addedCSS[0]["fill"]="red";
-            example4.getVertex(3).addedCSS[0]["fill"]="yellow";
-            example4.getVertex(4).addedCSS[0]["fill"]="yellow";
+            example4.getVertex(0).addedCSS[0].fill="magenta";
+            example4.getVertex(1).addedCSS[0].fill="magenta";
+            example4.getVertex(2).addedCSS[0].fill="red";
+            example4.getVertex(3).addedCSS[0].fil="yellow";
+            example4.getVertex(4).addedCSS[0].fill="yellow";
             example4.drawNewGraph(false,5/4);
             
             let example5=new Graph();
             $(".graphExample5 .default").on("click", function () {
-                example5.init(".graphExample5",8,false,colourDCC.bind(example5));
+                example5.init(".graphExample5",8,false,colourDCC.bind(null,example5));
                 example5.buildEdgeDataStructures([[0,1],[0,2],[1,2],[1,6],[2,3],[2,6],[3,4],[3,7],[4,7],[5,6]]);
                 example5.drawNewGraph(true,3/4,false,0,15);
                 example5.setSettings([false, false, true]);
-                colourDCC.call(example5);
+                colourDCC(example5);
             }).click();
         }
     }

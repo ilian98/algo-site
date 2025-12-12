@@ -1,5 +1,5 @@
-"use strict";
 (function () {
+    "use strict";
     function segmentLength (x1, y1, x2, y2) {
         return Math.sqrt((x1-x2)*(x1-x2)+(y1-y2)*(y1-y2));
     }
@@ -17,9 +17,9 @@
         return new Promise((resolve, reject) => {
             if (typeof window.font==="undefined") {
                 opentype.load("/algo-site/fonts/Consolas.woff", (error, font) => {
-                    fonts["Consolas"]=font;
+                    fonts.Consolas=font;
                     opentype.load("/algo-site/fonts/Arial.woff", (error, font) => {
-                        fonts["Arial"]=font;
+                        fonts.Arial=font;
                         opentype.load("/algo-site/fonts/TimesNewRoman.woff", (error, font) => {
                             fonts["Times New Roman"]=font;
                             resolve();
@@ -46,7 +46,9 @@
     function styleToObj (style) {
         let regex=/([\w-]*)\s*:\s*([^;]*)/g;
         let match,properties={};
-        while (match=regex.exec(style)) {
+        while (true) {
+            match=regex.exec(style);
+            if (!match) break;
             properties[match[1]]=match[2].trim();
         }
         return properties;
@@ -100,7 +102,7 @@
         this.findEndPoint = function (vr) {
             if (this.x==vr) return this.y;
             else return this.x;
-        }
+        };
     }
     function SvgEdge () {
         this.line=undefined;
@@ -116,14 +118,14 @@
                 graph.graphDrawer.draw(graph.graphDrawer.isDynamic,false);
                 graph.graphChange("font-load");
             }
-        }, () => { alert("Load font data error!") });
+        }, () => { alert("Load font data error!"); });
         GraphControllerLoadData();
     }
     function Graph () {
         this.wrapperName=undefined; this.svgName=undefined; this.s=undefined;
         this.svgVertices=undefined; this.svgEdges=undefined;
         this.n=undefined;
-        let vertices=undefined,edgeList=undefined;
+        let vertices,edgeList;
         this.adjList=undefined; this.adjMatrix=undefined;
         this.isDirected=undefined; this.isMulti=undefined; this.isWeighted=undefined; this.isNetwork=false;
         this.graphChange=undefined; // function to be called after changing the graph, for exampe adding new edge
@@ -179,15 +181,15 @@
                 if (this.isNetwork===true) sessionStorage.removeItem(getGraphStorageName(this.svgName));
                 else sessionStorage.setItem(getGraphStorageName(this.svgName),this.export());
                 return graphChange.call(this,...args);
-            }
+            };
             
             graphs.set(wrapperName,this);
-        }
+        };
         this.isVisualChange = function (name) {
             if (name===undefined) return false;
             if ((name==="draw")||(name==="font-load")||(name==="new-positions")||(name==="new-pos")||((name.startsWith("change"))&&(name!=="change-weight")&&(name!=="change-property"))) return true;
             return false;
-        }
+        };
 
         function convertVertexToList (vertex) {
             return [
@@ -206,7 +208,7 @@
                 vers.push(convertVertexToList(vertex));
             }
             return vers;
-        }
+        };
         this.initVertices = function (n, vers) {
             if (this.graphController!==undefined) 
                 this.graphController.registerAction("vertex-list",[this.n, this.convertSimpleVertexList()]);
@@ -220,10 +222,10 @@
                 if (vers[i]===undefined) vertices[i]=undefined;
                 else vertices[i]=new Vertex(...vers[i]);
             }
-        }
+        };
         this.initSvgVertex = function (x) {
             this.svgVertices[x]=new SvgVertex();
-        }
+        };
 
         function convertEdgeToList (edge) {
             return [
@@ -245,7 +247,7 @@
                 edges.push(convertEdgeToList(edge));
             }
             return edges;
-        }
+        };
         this.buildEdgeDataStructures = function (edges) {
             if (this.graphController!==undefined) 
                 this.graphController.registerAction("edge-list",this.convertSimpleEdgeList());
@@ -303,7 +305,7 @@
                 }
                 if (this.isDirected===true) this.reverseAdjList[y].push(i);
             }
-        }
+        };
         this.getVertices = function () {
             let res=[];
             for (let i=0; i<this.n; i++) {
@@ -311,13 +313,13 @@
                 res.push([i, vertices[i]]);
             }
             return res;
-        }
+        };
         this.getIndexedVertices = function () {
             return vertices;
-        }
+        };
         this.getVertex = function (ind) {
             return vertices[ind];
-        }
+        };
         this.getEdges = function () {
             let res=[];
             for (let i=0; i<edgeList.length; i++) {
@@ -325,24 +327,27 @@
                 res.push([i, edgeList[i]]);
             }
             return res;
-        }
+        };
         this.getIndexedEdges = function () {
             return edgeList;
-        }
+        };
         this.clearEdges = function () {
             edgeList=[];
-        }
+        };
         this.getEdge = function (ind) {
             return edgeList[ind];
-        }
+        };
 
         this.erase = function () {
             this.s.selectAll("*").remove();
-        }
+        };
         
         this.size=undefined;
         this.calcPositions=undefined; this.initViewBox=undefined;
-        this.drawNewGraph = function (addDynamic = false, size, drawST = false, frameX, frameY, frameW, frameH) {
+        this.drawNewGraph = function (addDynamic, size, drawST, frameX, frameY, frameW, frameH) {
+            addDynamic = (addDynamic === undefined) ? false : addDynamic;
+            drawST = (drawST === undefined) ? false : drawST;
+            
             this.erase();
             
             let svgObject=$(this.svgName);
@@ -354,12 +359,13 @@
             
             if (firstTime===true) this.initViewBox=[viewBox.width, viewBox.height];
             let windowWidth=-1,windowsHeight=-1;
+            const self=this;
             function changeViewBox () {
                 if (svgObject.is(":hidden")===true) return ;
 				if ((windowWidth==$(window).width())&&(windowsHeight==$(window).height())) return ;
 				windowWidth=$(window).width(); windowsHeight=$(window).height();
                 let viewBox=svgObject.prop("viewBox").baseVal;
-                svgObject.attr("viewBox",viewBox.x+" "+viewBox.y+" "+this.initViewBox[0]+" "+this.initViewBox[1]);
+                svgObject.attr("viewBox",viewBox.x+" "+viewBox.y+" "+self.initViewBox[0]+" "+self.initViewBox[1]);
                 if (svgObject.outerWidth()!=svgObject.parent().width()) {
                     let w=svgObject.parent().width()/svgObject.outerWidth()*viewBox.width;
                     svgObject.attr("viewBox",viewBox.x+" "+viewBox.y+" "+w+" "+viewBox.height);
@@ -369,18 +375,18 @@
                     svgObject.attr("viewBox",viewBox.x+" "+viewBox.y+" "+viewBox.width+" "+h);
                 }
                 if (firstTime===false) {
-                    this.calcPositions.frameW=viewBox.width;
-                    this.calcPositions.frameH=viewBox.height;
-                    this.calcPositions.calcOriginalPos(this.calcPositions.minX,this.calcPositions.minY);
+                    self.calcPositions.frameW=viewBox.width;
+                    self.calcPositions.frameH=viewBox.height;
+                    self.calcPositions.calcOriginalPos(self.calcPositions.minX,self.calcPositions.minY);
                 }
             }
-            changeViewBox.call(this);
+            changeViewBox();
             viewBox=svgObject.prop("viewBox").baseVal;
             if (frameX===undefined) frameX=viewBox.x;
             if (frameY===undefined) frameY=viewBox.y;
             if (frameW===undefined) frameW=viewBox.width;
             if (frameH===undefined) frameH=viewBox.height;
-            if (firstTime===true) $(window).on("resize",changeViewBox.bind(this));
+            if (firstTime===true) $(window).on("resize",changeViewBox);
             this.calcPositions.init(frameX,frameY,frameW,frameH);
             if ((drawST===false)||(drawST===true)) this.calcPositions.calc(drawST);
             else this.calcPositions.calc(true,drawST);
@@ -398,18 +404,18 @@
                 this.graphController.importGraph(importData);
                 this.graphController.undoStack=[];
             }
-        }
+        };
         
         this.weightValue = function (edge) {
             if (this.isNetwork===false) return edge.weight.toString();
             return (edge.flow+"/"+edge.weight).toString();
-        }
+        };
         this.translateWeight = function (ind, tx, ty) {
             this.svgEdges[ind].weight.transform("t"+tx+" "+ty+"r"+edgeList[ind].weightRotation);
-        }
+        };
         this.rotateWeight = function (ind, deg) {
             this.svgEdges[ind].weight.transform("t"+edgeList[ind].weightTranslate[0]+" "+edgeList[ind].weightTranslate[1]+"r"+deg);
-        }
+        };
         
         this.addEdge = function (x, y, weight, userCSS = [{},{}], curveHeight=undefined, addedCSS=[{},{}], weightTranslate=[0, 0], weightRotation=0, prevInd = undefined, isReal = true, revData = []) {
             let ind;
@@ -434,7 +440,7 @@
             
             if ((this.isNetwork===true)&&(isReal===true)) this.addReverseEdge(ind,revData);
             return ind;
-        }
+        };
         this.removeEdge = function (index) {
             let edge=edgeList[index],revData=[];
             if ((this.isNetwork===true)&&(edge.real===true)) {
@@ -459,7 +465,7 @@
             }
             this.svgEdges[index]=undefined;
             edgeList[index]=undefined;
-        }
+        };
         this.addVertex = function (name, userCSS = [{},{}], addedCSS = [{},{}], prevInd = undefined) {
             let ind;
             if (prevInd!==undefined) ind=prevInd;
@@ -485,7 +491,7 @@
                 }
             }
             this.svgVertices[ind]=new SvgVertex();
-        }
+        };
         this.removeVertex = function (x) {
             let removeEdges=[];
             for (let ind of this.adjList[x]) {
@@ -516,7 +522,7 @@
                 this.n--;
                 vertices.pop();
             }
-        }
+        };
         
         this.import = function (graphTypes, size, n, vers, edges, flagCoords, versCoord, posProperties, defaultSettings) {
             let oldGraphTypes=[this.isDirected, this.isTree, this.isWeighted, this.isMulti];
@@ -574,7 +580,7 @@
             this.graphChange("import");
             if ((this.isNetwork===true)&&(this.graphController!==undefined)) this.graphController.undoStack=[];
             return true;
-        }
+        };
         this.export = function () {
             let edges=[];
             for (let i=0; i<edgeList.length; i++) {
@@ -648,11 +654,11 @@
             if (this.isTree===true) text+="Tree\n";
             
             return text;
-        }
+        };
         
         this.setSettings = function (changeType = [true, true, true], changeVers = true, changeSize = true, importGraph = true) {
             this.graphController.setSettings(changeType,changeVers,changeSize,importGraph);
-        }
+        };
     }
     
     

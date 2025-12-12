@@ -1,5 +1,5 @@
-"use strict";
 (function () {
+    "use strict";
     function dfs (vr, used, graph, animations) {
         used[vr]=true;
         for (let ind of graph.adjList[vr]) {
@@ -9,13 +9,13 @@
                     animFunctions: [attrChangesAnimation(graph.svgVertices[vr].circle,{fill: "grey"}),
                                     attrChangesAnimation(graph.svgVertices[vr].text,{fill: "white"}),
                                     graph.edgeAnimation(vr,to,ind)],
-                    animText: "Напускаме връх "+(vr+1)+" и отиваме в "+(to+1)+"."
+                    animText: "Напускаме връх "+graph.getVertex(vr).name+" и отиваме в "+graph.getVertex(to).name+"."
                 });
 
                 animations.push({
                     animFunctions: [attrChangesAnimation(graph.svgVertices[to].circle,{fill: "red"}),
                                     attrChangesAnimation(graph.svgVertices[to].text,{fill: "black"})],
-                    animText: "Сега сме във връх "+(to+1)+"."
+                    animText: "Сега сме във връх "+graph.getVertex(to).name+"."
                 });
 
                 dfs(to,used,graph,animations);
@@ -23,20 +23,20 @@
                 animations.push({
                     animFunctions: [attrChangesAnimation(graph.svgVertices[vr].circle,{fill: "red"}),
                                     attrChangesAnimation(graph.svgVertices[vr].text,{fill: "black"})],
-                    animText: "Връщаме се на връх "+(vr+1)+"."
+                    animText: "Връщаме се на връх "+graph.getVertex(vr).name+"."
                 });
             }
             else {
                 animations.push({
                     animFunctions: [graph.edgeAnimation(vr,to,ind)],
-                    animText: "Oказва се, че съседът с номер "+(to+1)+" вече е обходен."
+                    animText: "Oказва се, че съседът с номер "+graph.getVertex(to).name+" вече е обходен."
                 });
             }
         }
         animations.push({
             animFunctions: [attrChangesAnimation(graph.svgVertices[vr].circle,{fill: "black"}),
                             attrChangesAnimation(graph.svgVertices[vr].text,{fill: "white"})],
-            animText: "Вече проверихме всички съседи на връх "+(vr+1)+" и го напускаме."
+            animText: "Вече проверихме всички съседи на връх "+graph.getVertex(vr).name+" и го напускаме."
         });
     }
 
@@ -46,28 +46,30 @@
         graph.drawNewGraph(true,size);
         graph.setSettings([true, false, true]);
 
-        $(name+" .start-vertex").val("1");
+        let startVertex="1";
+        $("#start-vertex").val(startVertex);
         animationObj.init(name,function findAnimations () {
-            let st=parseInt($(name+" .start-vertex").val()); st--;
-            let used=[],found=false;
+            startVertex=$("#start-vertex").val();
+            let st=-1; 
+            const used=[];
             for (let [i, vr] of graph.getVertices()) {
-                if (i===st) found=true;
+                if (vr.name===startVertex) st=i;
                 used[i]=false;
             }
-            if (found===false) {
-                alert("Невалиден номер на връх!");
+            if (st===-1) {
+                alert("Невалиден начален връх!");
                 return [];
             }
             let animations=[];
             animations.push({
                 animFunctions: [attrChangesAnimation(graph.svgVertices[st].circle,{fill: "red"})],
-                animText: "Започваме обхождането от връх номер "+(st+1)+"."
+                animText: "Започваме обхождането от връх номер "+graph.getVertex(st).name+"."
             });
             dfs(st,used,graph,animations);
             return animations;
         }).then(
-            () => { graph.graphController.hasAnimation(animationObj) },
-            () => { alert("Failed loading animation data!") });
+            () => { graph.graphController.hasAnimation(animationObj); },
+            () => { alert("Failed loading animation data!"); });
     }
 
     function initExample (part) {
@@ -81,7 +83,7 @@
             let graphDFS = new Graph();
             let animationObj = new Animation();
             let exampleName=".graphExample2";
-            $(exampleName+" .default").off("click").on("click",defaultExample.bind(this,exampleName,graphDFS,animationObj,1)).click();
+            $(exampleName+" .default").off("click").on("click",defaultExample.bind(null,exampleName,graphDFS,animationObj,1)).click();
             $(exampleName+" .start-vertex").on("keydown",isDigit);
         }
         else if (part==3) {

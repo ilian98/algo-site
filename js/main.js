@@ -1,5 +1,5 @@
-"use strict";
 (function () {
+    "use strict";
     function get_page (URL = document.URL) {
         let index=-1,endIndex=URL.length;
         for (let i=0; i<URL.length; i++) {
@@ -193,14 +193,14 @@
                     sessionStorage.setItem(page+name,"1");
                     $(name).show();
                     $("#miniLesson"+ind).show();
-                    if (beginning===false) initFuncs.push(initExamples.bind(this,ind+1));
+                    if (beginning===false) initFuncs.push(initExamples.bind(null,ind+1));
                     if (parts[parts.length-1]===ind+1) {
                         $(".wrapper").animate({
                             scrollTop: $(btn)[0].offsetTop-$(".wrapper")[0].offsetTop
                         },"slow");
                     }
                 }
-                if (beginning===true) initFuncs.push(initExamples.bind(this,ind+1));
+                if (beginning===true) initFuncs.push(initExamples.bind(null,ind+1));
             }
             else {
                 href="#part"+addPart(ind+1,anchor);
@@ -209,10 +209,10 @@
                 $("#miniLesson"+ind).hide();
             }
             
-            $(btn).off("click").on("click",function () {
+            $(btn).off("click").on("click",function ($, btn, href) {
                 $(btn).off("click");
                 window.location.hash=href;
-            });
+            }.bind(null,$,btn,href));
             ind++;
         }
         if (typeof GraphLoadData==="function") GraphLoadData();
@@ -250,6 +250,7 @@
     if (page.endsWith("_en.html")===true) navigation_page="/algo-site/navigation_en.html";
     let language="bg";
     if (page.endsWith("_en.html")===true) language="en";
+    let self=this;
     function changeLanguage (language) {
         let s=document.URL;
         if (s.includes(".html")===false) {
@@ -258,7 +259,7 @@
             }
         if (language==="bg") s=s.replace("_en.html",".html");
         else if (s.includes("_en")===false) s=s.replace(".html","_en.html");
-        this.setAttribute("href",s);
+        self.setAttribute("href",s);
     }
 
     $(document).ready(function () {
@@ -307,11 +308,11 @@
         for (let elem of $(".placeholder")) {
             let codeName=$(elem).prop("id")+".cpp";
             let index=2+ind;
-            $.get(codeName, function (code) {
+            $.get(codeName, function (hljs, $, elem, finishedWork, index, checkForFinish, code) {
                 let data=hljs.highlight(code,{language: "cpp"}).value;
                 $(elem).replaceWith('<pre><code class="language-cpp hljs">'+data+'</code></pre>');
                 finishedWork[index]=true; checkForFinish();
-            });
+            }.bind(null,hljs,$,elem,finishedWork,index,checkForFinish));
             ind++;
         }
         
@@ -358,16 +359,16 @@
         let ind=0;
         for (let btn of $(".lesson-part-position >.btn")) {
             $(btn).clone().wrap('<div class="mini-btn" id="miniBtn'+ind+'"></div>').parent().appendTo(".mini-menu");
-            $("#miniBtn"+ind).on("click",function () {
+            $("#miniBtn"+ind).on("click",function ($, btn) {
                 $(btn).click();
-            });
+            }.bind($,btn));
             $(".mini-menu").append('<div class="mini-lesson-part" id="miniLesson'+ind+'"></div>');
             if (parts.includes(ind+1)===false) $("#miniLesson"+ind).hide();
-            $("#miniLesson"+ind).on("click",function (ind) {
+            $("#miniLesson"+ind).on("click",function ($, ordinals, ind) {
                 $(".wrapper").animate({
                     scrollTop: $("#"+ordinals[ind]+"Part")[0].offsetTop-$(".wrapper")[0].offsetTop
                 },"slow");
-            }.bind(this,ind));
+            }.bind(null,$,ordinals,ind));
             ind++;
         }
         const h=$(".lesson-part-position .btn").height();

@@ -1,8 +1,10 @@
-"use strict";
 (function () {
-    
+    "use strict";
+    function isMobile (event) {
+        return (event.type==="touchstart")||(event.type==="touchmove")||(event.type==="touchend");
+    }
     function getObjectForCoordinates (event) {
-        if (window.isMobile==="false") return event;
+        if (isMobile(event)===false) return event;
         else if (event.changedTouches!==undefined) return event.changedTouches[0];
         else if (event.touches!==undefined) return event.touches[0];
         else return event;
@@ -25,9 +27,9 @@
 
             this.clickInfo=undefined;
             for (let [option, text, event] of list) {
-                this.object.find("."+option).on("click",function () {
+                this.object.find("."+option).on("click",function (event) {
                     event.call(this,this.clickInfo);
-                }.bind(this));
+                }.bind(this,event));
             }
         }
 
@@ -36,12 +38,12 @@
             let dropdown = new DropdownMenu(name,list);
             dropdowns.set(name,dropdown);
             this.menus[name]=dropdown.object;
-        }
+        };
         this.closeDropdowns = function () {
             for (let [name, dropdown] of dropdowns) {
                 dropdown.object.removeClass("show");
             }
-        }
+        };
         this.showDropdown = function (name, event, clickInfo) {
             this.closeDropdowns();
             dropdowns.get(name).clickInfo=clickInfo;
@@ -60,7 +62,7 @@
             $(window).one("click",function () {
                 dropdown.removeClass("show");
             });
-        }
+        };
     }
     
 

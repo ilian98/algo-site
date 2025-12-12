@@ -1,25 +1,24 @@
-"use strict";
 (function () {
+    "use strict";
     let dynSegTree = {
         maxC: 64,
         frameX: 2,
     };
     
     function endAnimation (tree, elements, pos, val) {
-        pos=parseInt(pos.val()); val=parseInt(val.val());
-        elements[pos-1]=val;
+        elements[pos.v-1]=val.v;
         makeEdgesAndNames(0,0,elements.length-1,[],tree.getIndexedVertices(),elements,false);
         tree.graphDrawer.draw(false,false);
     }
-    function toggleIndexes (tree, elements, isDynamic) {
+    function toggleIndexes (obj, tree, elements, isDynamic) {
         if ((isDynamic===false)&&(elements.length===0)) return ;
         let flagIndexes;
-        if (this.text()=="Покажи номерата") {
-            this.text("Скрий номерата");
+        if (obj.text()=="Покажи номерата") {
+            obj.text("Скрий номерата");
             flagIndexes=true;
         }
         else {
-            this.text("Покажи номерата");
+            obj.text("Покажи номерата");
             flagIndexes=false;
         }
         tree.graphDrawer.draw(false,false);
@@ -151,9 +150,9 @@
             updateDyn(vr.rind,mid+1,r,c,tree);
         }
     }
-    function addPoint (exampleName, tree) {
+    function addPoint (tree) {
         let maxC=dynSegTree.maxC;
-        let c=$(exampleName+" .c").val();
+        let c=$("#c").val();
         if ((c<1)||(c>maxC)) {
             alert("Невалидна координата");
             return ;
@@ -171,13 +170,15 @@
         }
         else if ((exampleName==".segTreeExample2")||(exampleName==".segTreeExample3")) {
             $(exampleName+" .array").val("7,9,1,2,4,8,5,16");
+            let pos={v: 3},val={v: 10};
+            let ql=2,qr=7;
             if (exampleName==".segTreeExample2") {
-                $(exampleName+" .pos").val("3");
-                $(exampleName+" .val").val("10");
+                $("#pos").val(pos.v);
+                $("#val").val(val.v);
             }
             else {
-                $(exampleName+" .ql").val("2");
-                $(exampleName+" .qr").val("7");
+                $("#ql").val(ql);
+                $("#qr").val(qr);
             }
 
             makeSegTree(exampleName,tree,elements,animationObj);
@@ -185,9 +186,9 @@
             animationObj.init(exampleName+" .treeExample",function findAnimations () {
                 let animations=[];
                 if (exampleName===".segTreeExample2") {
-                    let pos=parseInt($(exampleName+" .pos").val());
-                    let val=parseInt($(exampleName+" .val").val());
-                    if ((Number.isNaN(pos))||(Number.isNaN(val))||(pos<1)||(pos>elements.length)) {
+                    pos.v=parseInt($("#pos").val());
+                    val.v=parseInt($("#val").val());
+                    if ((Number.isNaN(pos.v))||(Number.isNaN(val.v))||(pos.v<1)||(pos.v>elements.length)) {
                         alert("Невалидна позиция");
                         return animations;
                     }
@@ -195,11 +196,11 @@
                         animFunctions: [attrChangesAnimation(tree.svgVertices[0].circle,{fill: "red"})],
                         animText: "Започваме обхождането от корена на върховете за промяна."
                     });
-                    update(0,1,elements.length,pos,val,tree,animations);
+                    update(0,1,elements.length,pos.v,val.v,tree,animations);
                 }
                 else {
-                    let ql=parseInt($(exampleName+" .ql").val());
-                    let qr=parseInt($(exampleName+" .qr").val());
+                    ql=parseInt($("#ql").val());
+                    qr=parseInt($("#qr").val());
                     if ((Number.isNaN(ql))||(Number.isNaN(qr))||(ql<1)||(qr<ql)||(qr>elements.length)) {
                         alert("Невалидни позиции");
                         return animations;
@@ -212,13 +213,13 @@
                 }
                 return animations;
             },undefined,undefined,
-                              (exampleName==".segTreeExample2")?endAnimation.bind(this,tree,elements,$(exampleName+" .pos"),$(exampleName+" .val")):undefined
+                              (exampleName==".segTreeExample2")?endAnimation.bind(null,tree,elements,pos,val):undefined
             ).then(
-            () => { tree.graphController.hasAnimation(animationObj) },
-            () => { alert("Failed loading animation data!") });
+            () => { tree.graphController.hasAnimation(animationObj); },
+            () => { alert("Failed loading animation data!"); });
         }
         else if (exampleName==".segTreeExample4") {
-            $(exampleName+" .c").val("42");
+            $("#c").val("42");
             makeDynSegTree(tree);
         }
     }
@@ -231,11 +232,11 @@
                 if ($(exampleName+" .indexes").text()=="Скрий номерата") addSegmentsLabels(0,1,elements.length,tree,true,false);
                 else addSegmentsLabels(0,1,elements.length,tree,false,false);
             });
-            $(exampleName+" .default").off("click").on("click",defaultExample.bind(this,exampleName,tree,elements));
-            $(exampleName+" .make").off("click").on("click",makeSegTree.bind(this,exampleName,tree,elements,undefined));
-            $(exampleName+" .indexes").off("click").on("click",toggleIndexes.bind($(exampleName+" .indexes"),tree,elements,false));
+            $(exampleName+" .default").off("click").on("click",defaultExample.bind(null,exampleName,tree,elements));
+            $(exampleName+" .make").off("click").on("click",makeSegTree.bind(null,exampleName,tree,elements,undefined));
+            $(exampleName+" .indexes").off("click").on("click",toggleIndexes.bind(null,$(exampleName+" .indexes"),tree,elements,false));
 
-            $(exampleName+" .array").on("keydown",isDigitOrComma);
+            $("#array1").on("keydown",isDigitOrComma);
 
             defaultExample(exampleName,tree,elements);
         }
@@ -247,12 +248,12 @@
                 addSegmentsLabels(0,1,elements1.length,tree1,false,false);
             });
             let animationObj1=new Animation();
-            $(exampleName1+" .default").off("click").on("click",defaultExample.bind(this,exampleName1,tree1,elements1,animationObj1));
-            $(exampleName1+" .make").off("click").on("click",makeSegTree.bind(this,exampleName1,tree1,elements1,animationObj1));
+            $(exampleName1+" .default").off("click").on("click",defaultExample.bind(null,exampleName1,tree1,elements1,animationObj1));
+            $(exampleName1+" .make").off("click").on("click",makeSegTree.bind(null,exampleName1,tree1,elements1,animationObj1));
 
-            $(exampleName1+" .array").on("keydown",isDigitOrComma);
-            $(exampleName1+" .pos").on("keydown",isDigit);
-            $(exampleName1+" .val").on("keydown",isDigit);
+            $("#array2").on("keydown",isDigitOrComma);
+            $("#pos").on("keydown",isDigit);
+            $("#val").on("keydown",isDigit);
 
             defaultExample(exampleName1,tree1,elements1,animationObj1);
 
@@ -264,12 +265,12 @@
                addSegmentsLabels(0,1,elements2.length,tree2,false,false);
             });
             let animationObj2=new Animation();
-            $(exampleName2+" .default").off("click").on("click",defaultExample.bind(this,exampleName2,tree2,elements2,animationObj2));
-            $(exampleName2+" .make").off("click").on("click",makeSegTree.bind(this,exampleName2,tree2,elements2,animationObj2));
+            $(exampleName2+" .default").off("click").on("click",defaultExample.bind(null,exampleName2,tree2,elements2,animationObj2));
+            $(exampleName2+" .make").off("click").on("click",makeSegTree.bind(null,exampleName2,tree2,elements2,animationObj2));
 
-            $(exampleName2+" .array").on("keydown",isDigitOrComma);
-            $(exampleName2+" .ql").on("keydown",isDigit);
-            $(exampleName2+" .qr").on("keydown",isDigit);
+            $("#array3").on("keydown",isDigitOrComma);
+            $("#ql").on("keydown",isDigit);
+            $("#qr").on("keydown",isDigit);
 
             defaultExample(exampleName2,tree2,elements2,animationObj2);
         }
@@ -281,11 +282,11 @@
                 else addSegmentsLabels(0,1,dynSegTree.maxC,tree,false,true);
             });
             let elements=[];
-            $(exampleName+" .default").off("click").on("click",defaultExample.bind(this,exampleName,tree,elements));
-            $(exampleName+" .add").off("click").on("click",addPoint.bind(this,exampleName,tree));
+            $(exampleName+" .default").off("click").on("click",defaultExample.bind(null,exampleName,tree,elements));
+            $(exampleName+" .add").off("click").on("click",addPoint.bind(null,tree));
             $(exampleName+" .indexes").off("click").on("click",toggleIndexes.bind($(exampleName+" .indexes"),tree,elements,true));
 
-            $(exampleName+" .c").on("keydown",isDigit);
+            $("#c").on("keydown",isDigit);
 
             defaultExample(exampleName,tree,elements);
         }
