@@ -250,8 +250,7 @@
     if (page.endsWith("_en.html")===true) navigation_page="/algo-site/navigation_en.html";
     let language="bg";
     if (page.endsWith("_en.html")===true) language="en";
-    let self=this;
-    function changeLanguage (language) {
+    function changeLanguage (obj, language) {
         let s=document.URL;
         if (s.includes(".html")===false) {
             if (language==="en") s+="index_en.html";
@@ -259,7 +258,7 @@
             }
         if (language==="bg") s=s.replace("_en.html",".html");
         else if (s.includes("_en")===false) s=s.replace(".html","_en.html");
-        self.setAttribute("href",s);
+        obj.setAttribute("href",s);
     }
 
     $(document).ready(function () {
@@ -286,10 +285,10 @@
             finishedWork[0]=true;
             $("#nav-placeholder").replaceWith(data);
             let dropdown=$('[aria-labelledby="languages"] .dropdown-item');
-            $(dropdown[0]).on("click",changeLanguage.bind(dropdown[0],"bg"));
-            $(dropdown[1]).on("click",changeLanguage.bind(dropdown[1],"en"));
-            $(dropdown[2]).on("click",changeLanguage.bind(dropdown[2],"bg"));
-            $(dropdown[3]).on("click",changeLanguage.bind(dropdown[3],"en"));
+            $(dropdown[0]).on("click",changeLanguage.bind(null,dropdown[0],"bg"));
+            $(dropdown[1]).on("click",changeLanguage.bind(null,dropdown[1],"en"));
+            $(dropdown[2]).on("click",changeLanguage.bind(null,dropdown[2],"bg"));
+            $(dropdown[3]).on("click",changeLanguage.bind(null,dropdown[3],"en"));
                 
             $("#search").submit(function (event) {
                 if ($("#search input").val().length===0) event.preventDefault();

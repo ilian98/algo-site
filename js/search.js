@@ -1,5 +1,5 @@
-"use strict";
 (function () {
+    "use strict";
     function Node () {
         this.children=[];
         this.fail=undefined;
@@ -166,34 +166,35 @@
                 ind=next+1;
             }
             
+            const checkMatch = (URL, name, data) => {
+                let matches=match(data);
+                if (matches.length===0) return ;
+                let card=`
+                    <div class="card result">
+                        <div class="card-body">
+                            <h3 class="card-title unselectable"><a href="`+URL+`">`+name+`</a></h3>`;
+                for (let i=0; i<Math.min(5,matches.length); i++) {
+                    let text=matches[i];
+                    for (let word of words) {
+                        text=text.replaceAll(word,'<span style="background-color: orange">'+word+'</span>');
+                        let capitalWord=word[0].toUpperCase()+word.substr(1);
+                        text=text.replaceAll(capitalWord,'<span style="background-color: orange">'+capitalWord+'</span>');
+                        text=text.replaceAll(word.toUpperCase(),'<span style="background-color: orange">'+word.toUpperCase()+'</span>');
+                    }
+                    text="... "+text+" ...";
+                    card+='<p class="card-text mb-2">'+text+'</p>';
+                }
+                card+="</div></div>";
+                $(".content").append(card);
+                if ((typeof MathJax!=="undefined")&&(MathJax.typeset!==undefined)) MathJax.typeset([".card.result"]);
+            };
             for (let i=0; i<URLs.length; i++) {
                 let j;
                 for (j=0; j<i; j++) {
                     if (URLs[i]===URLs[j]) break;
                 }
                 if (j<i) continue;
-                $.get(URLs[i],"",function (data) {
-                    let matches=match(data);
-                    if (matches.length===0) return ;
-                    let card=`
-                        <div class="card result">
-                            <div class="card-body">
-                                <h3 class="card-title unselectable"><a href="`+URLs[i]+`">`+names[i]+`</a></h3>`;
-                    for (let i=0; i<Math.min(5,matches.length); i++) {
-                        let text=matches[i];
-                        for (let word of words) {
-                            text=text.replaceAll(word,'<span style="background-color: orange">'+word+'</span>');
-                            let capitalWord=word[0].toUpperCase()+word.substr(1);
-                            text=text.replaceAll(capitalWord,'<span style="background-color: orange">'+capitalWord+'</span>');
-                            text=text.replaceAll(word.toUpperCase(),'<span style="background-color: orange">'+word.toUpperCase()+'</span>');
-                        }
-                        text="... "+text+" ...";
-                        card+='<p class="card-text mb-2">'+text+'</p>';
-                    }
-                    card+="</div></div>";
-                    $(".content").append(card);
-                    if ((typeof MathJax!=="undefined")&&(MathJax.typeset!==undefined)) MathJax.typeset([".card.result"]);
-                });
+                $.get(URLs[i],"",checkMatch.bind(null,URLs[i],names[i]));
             }
         });
     });

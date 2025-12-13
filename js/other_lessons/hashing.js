@@ -1,24 +1,24 @@
-"use strict";
 (function () {
+    "use strict";
     function initExample (part) {
         if (part===2) {
-            $(".hashExample1 .base").val("307");
-            $(".hashExample1 .modulo").val("1009");
+            $("#base1").val("307");
+            $("#modulo1").val("1009");
             $("#string").val("abcab");
             $(".hashExample1 .start").on("click",calculateHashString).click();
             
-            $(".hashExample1 .base").on("keydown",isDigit);
-            $(".hashExample1 .modulo").on("keydown",isDigit);
+            $("#base1").on("keydown",isDigit);
+            $("#modulo1").on("keydown",isDigit);
             $("#string").on("keydown",isSmallLatinLetter);
         }
         else if (part===4) {
-            $(".hashExample2 .base").val("7");
-            $(".hashExample2 .modulo").val("1009");
+            $("#base2").val("7");
+            $("#modulo2").val("1009");
             $("#multiSet").val("1,2,3");
             $(".hashExample2 .start").on("click",calculateHashMultiSet).click();
             
-            $(".hashExample2 .base").on("keydown",isDigit);
-            $(".hashExample2 .modulo").on("keydown",isDigit);
+            $("#base2").on("keydown",isDigit);
+            $("#modulo2").on("keydown",isDigit);
             $("#multiSet").on("keydown",isDigitOrComma);
         }
     }
@@ -36,8 +36,8 @@
         }
         $("#stringTable").html(tableHTML(table));
 
-        let base=$(".hashExample1 .base").val();
-        let modulo=$(".hashExample1 .modulo").val();
+        let base=$("#base1").val();
+        let modulo=$("#modulo1").val();
         let paragraph=$(".hashExample1 .hash"),hash;
         paragraph.text("");
         if ((s.length==0)||(base<2)||(modulo<2)) return ;
@@ -49,13 +49,13 @@
             return ;
         }
         paragraph.append("Хеш-кодът на низа е: ");
-        paragraph.append("$ ("+s.charCodeAt(0)+"."+base+"^{"+(s.length-1)+"} $ ");
+        paragraph.append("$("+s.charCodeAt(0)+"."+base+"^{"+(s.length-1)+"}");
         for (let i=1; i<s.length; i++) {
-            paragraph.append(" $ +\\space"+s.charCodeAt(i)+"."+base+"^{"+(s.length-1-i)+"}$");
+            paragraph.append("+\\space"+s.charCodeAt(i)+"."+base+"^{"+(s.length-1-i)+"}");
             hash*=base; hash+=s.charCodeAt(i);
             hash%=modulo;
         }
-        paragraph.append("$ )\\space \\% \\space"+modulo+" = "+hash+"$.");
+        paragraph.append(")\\space \\% \\space"+modulo+" = "+hash+"$.");
         if ((typeof MathJax!=="undefined")&&(MathJax.typeset!==undefined)) MathJax.typeset([".hashExample1 .hash"]);
     }
 
@@ -67,8 +67,8 @@
     }
     function calculateHashMultiSet () {
         let s=$("#multiSet").val();
-        let base=$(".hashExample2 .base").val();
-        let modulo=$(".hashExample2 .modulo").val();
+        let base=$("#base2").val();
+        let modulo=$("#modulo2").val();
         let paragraph=$(".hashExample2 .hash"),hash,currHash;
         paragraph.text("");
         if ((s.length===0)||(base<2)||(modulo<2)) return ;
@@ -79,24 +79,22 @@
             return ;
         }
         
-        paragraph.append("Хеш-кодът на мултимножеството е: ");
+        paragraph.append("Хеш-кодът на мултимножеството е: $");
         for (let i=0; i<elements.length; i++) {
-            paragraph.append(" $");
             if (i==0) paragraph.append("(");
-            paragraph.append(base+"^{"+elements[i]+"} \\space \\% \\space"+modulo+"$");
-            if (i<elements.length-1) paragraph.append("$ \\space + $");
+            paragraph.append(base+"^{"+elements[i]+"} \\space \\% \\space"+modulo);
+            if (i<elements.length-1) paragraph.append("\\space +");
         }
-        paragraph.append("$ ) \\space \\% \\space"+modulo+" = $");
+        paragraph.append(") \\space \\% \\space"+modulo+" =");
         hash=0;
         for (let i=0; i<elements.length; i++) {
             currHash=fastPower(base,elements[i],modulo);
-            paragraph.append(" $");
             if (i==0) paragraph.append("(");
-            paragraph.append(currHash+"$");
-            if (i<elements.length-1) paragraph.append("$ \\space + $");
+            paragraph.append(currHash);
+            if (i<elements.length-1) paragraph.append("\\space +");
             hash+=currHash; hash%=modulo;
         }
-        paragraph.append("$ ) \\space \\% \\space"+modulo+"\\space = "+hash+"$.");
+        paragraph.append(") \\space \\% \\space"+modulo+"\\space = "+hash+"$.");
         if ((typeof MathJax!=="undefined")&&(MathJax.typeset!==undefined)) MathJax.typeset([".hashExample2 .hash"]);
     }
     

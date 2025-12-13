@@ -1,14 +1,14 @@
-"use strict";
 (function () {
+    "use strict";
     let graphs=[];
     function initExample (part) {
         part--;
         let showButton=$(".twoSATexample"+part+((part===1)?" .make":" .show"));
-        showButton.on("click",(part===1)?makeImplicationGraph.bind(this,part):showSCC.bind(this,part));
+        showButton.on("click",(part===1)?makeImplicationGraph.bind(null,part):showSCC.bind(null,part));
         $(".twoSATexample"+part+" .default").on("click",function () {
             graphs[part]=new Graph();
             graphs[part].init(".twoSATexample"+part+" .graphExample",5,true);
-            $(".twoSATexample"+part+" .formula").val("(a||b)&&(a||!c)&&(!a||!b)"+((part===3)?"&&(a||!b)":""));
+            $("#formula"+part).val("(a||b)&&(a||!c)&&(!a||!b)"+((part===3)?"&&(a||!b)":""));
             showButton.click();
         }).click();
     }
@@ -86,7 +86,7 @@
     function makeImplicationGraph (part) {
         let graph=graphs[part];
         graph.erase();
-        let formula=$(".twoSATexample"+part+" .formula").val();
+        let formula=$("#formula"+part).val();
         let implications=[];
         if (findImplications(implications,formula)===false) {
             alert("Невалиден израз!");
@@ -148,16 +148,16 @@
             for (let j=0; j<comps[i].length; j++) {
                 let v=comps[i][j],vr=graph.getVertex(v);
                 if ((part===2)||(values.length===0)) {
-                    vr.addedCSS[0]["fill"]=colours[colour];
+                    vr.addedCSS[0].fill=colours[colour];
                     versColour[v]=colours[colour];
                 }
                 else {
                     if (values[v]===true) {
-                        vr.addedCSS[0]["fill"]="green";
+                        vr.addedCSS[0].fill="green";
                         versColour[v]="green";
                     }
                     else {
-                        vr.addedCSS[0]["fill"]="red";
+                        vr.addedCSS[0].fill="red";
                         versColour[v]="red";
                     }
                 }
@@ -168,7 +168,7 @@
         for (let [i, edge] of graph.getEdges()) {
             let from=edge.x,to=edge.y;
             if (nums[from]===nums[to]) {
-                edge.addedCSS[0]["stroke"]=versColour[from];
+                edge.addedCSS[0].stroke=versColour[from];
                 graph.graphDrawer.recalcAttrEdge(graph.svgEdges[i],i);
             }
         }
@@ -224,13 +224,21 @@
             text+=name;
             if (comp[0]>comp[1]) {
                 text+=" = 1";
-                if (graph.getVertex(i).name[0]==='!') values[i+1]=true, values[i]=false;
-                else values[i]=true, values[i+1]=false;
+                if (graph.getVertex(i).name[0]==='!') {
+                    values[i+1]=true; values[i]=false;
+                }
+                else {
+                    values[i]=true; values[i+1]=false;
+                }
             }
             else {
                 text+=" = 0";
-                if (graph.getVertex(i).name[0]==='!') values[i+1]=false, values[i]=true;
-                else values[i]=false, values[i+1]=true;
+                if (graph.getVertex(i).name[0]==='!') {
+                    values[i+1]=false; values[i]=true;
+                }
+                else {
+                    values[i]=false; values[i+1]=true;
+                }
             }
         }
         if (values.length!=0) text+="$";

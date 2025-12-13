@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="bg">
     <head>
         <script async src="https://www.googletagmanager.com/gtag/js?id=G-Y8NQ36XMJS"></script>
 		<script>
@@ -23,7 +23,7 @@
         <script type="text/javascript" src="/algo-site/node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
         <script type="text/javascript" src="/algo-site/node_modules/snapsvg/dist/snap.svg-min.js"></script>
         <script src="/algo-site/js/mathjax-config.js"></script>
-        <script id="MathJax-script" async src="/algo-site/node_modules/mathjax/es5/tex-chtml.js"></script>
+        <script id="MathJax-script" async src="/algo-site/node_modules/mathjax/tex-chtml.js"></script>
         <script type="text/javascript" src="/algo-site/node_modules/@highlightjs/cdn-assets/highlight.min.js"></script>
         <script type="text/javascript" src="/algo-site/js/main.js"></script>
         <script type="text/javascript" src="/algo-site/js/other_lessons/hashing.js"></script>
@@ -47,7 +47,7 @@
         
         <div class="wrapper" tabindex="-1">
             <div class="content">            
-                <h1 align="center">Хеширане</h1>
+                <h1>Хеширане</h1>
 
                 <div class="lesson-part-position">
                     <button class="btn btn-secondary">1. Какво представлява хеширането?</button>
@@ -67,26 +67,26 @@
                 <div class="lesson-part-position">
                     <button class="btn btn-secondary">2. Позиционно хеширане.</button>
                     <div class="lesson-part">
-                        <p class="text-format">Този вид се изпозва за хеширане на низове, редици, въобще обекти, в които наредбата има значение. Нека да се върнем към примера с низовете от малки латински букви (<a class="info">...</a><a class="info" style="display: none">с това не целим ограничаване на символите, а по-голяма простота при обяснение</a>), за да демонстрираме стандартното хеширане, използвано в състезателната информатика. Разглеждаме низа като число в позиционна бройна система. Лесно можем да съпоставяме на всяка буква, индексът в азбуката или по-универсално <i>ASCII</i> кода. Така ако фиксираме основата на бройната система $p$ можем лесно да сметнем какви числа, съпоставяме на низовете. По този начин обаче не се съобразяваме, че ще съпоставяме единствено числа, които се събират в типа <i>long long</i> в <i>C++</i>, защото хешът на низа лесно ще стане много по-голям, отколкото може да се побере в типа. Затова стандартно се добавя модул $m$, по който извършваме сметките смятаме. По този начин възможните хеш-кодове са числата $0,1, \dots , m-1$ $-$ общо $m$ на брой. По математически причини е силно препоръчително това число да е просто (<a class="info">...</a><a class="info" style="display: none">един такъв факт е следният - когато $m$ е просто число, то $\forall a \in \Bbb{N}, a \not\equiv 0 \pmod{m} : a.k$ за $k=0,1, \dots ,m-1$ минава всички възможни остатъци по модул $m$</a>). Желателно е и основата на бройната система $p$ да е просто число, по-голямо от най-големия <i>ASCII</i> код (255). Нека разгледаме точно как става описаното хеширане със следният интерактивен пример:</p>
+                        <p class="text-format">Този вид се изпозва за хеширане на низове, редици, въобще обекти, в които наредбата има значение. Нека да се върнем към примера с низовете от малки латински букви (<a class="info">...</a><a class="info" style="display: none">с това не целим ограничаване на символите, а по-голяма простота при обяснение</a>), за да демонстрираме стандартното хеширане, използвано в състезателната информатика. Разглеждаме низа като число в позиционна бройна система. Лесно можем да съпоставяме на всяка буква, индексът в азбуката или по-универсално <i>ASCII</i> кода. Така ако фиксираме основата на бройната система $p$ можем лесно да сметнем какви числа, съпоставяме на низовете. По този начин обаче не се съобразяваме, че ще съпоставяме единствено числа, които се събират в типа <i>long long</i> в <i>C++</i>, защото хешът на низа лесно ще стане много по-голям, отколкото може да се побере в типа. Затова стандартно се добавя модул $m$, по който извършваме сметките смятаме. По този начин възможните хеш-кодове са числата $0,1, \dots , m-1-$ общо $m$ на брой. По математически причини е силно препоръчително това число да е просто (<a class="info">...</a><a class="info" style="display: none">един такъв факт е следният - когато $m$ е просто число, то $\forall a \in \Bbb{N}, a \not\equiv 0 \pmod{m} : a.k$ за $k=0,1, \dots ,m-1$ минава всички възможни остатъци по модул $m$</a>). Желателно е и основата на бройната система $p$ да е просто число, по-голямо от най-големия <i>ASCII</i> код (255). Нека разгледаме точно как става описаното хеширане със следният интерактивен пример:</p>
                         <div class="hashExample1">
                             <div class="row">
                                 <div class="col-sm-4">
                                     <div class="row justify-content-end mb-2">
-                                        <label for="base" class="col-auto col-form-label pe-0">Основа $p$:</label>
+                                        <label for="base1" class="col-auto col-form-label pe-0">Основа $p$:</label>
                                         <div class="col-auto">
-                                            <input class="form-control base" maxLength="10" style="width: 4.5rem; max-width: 100%"/>
+                                            <input class="form-control" id="base1" maxLength="10" style="width: 4.5rem; max-width: 100%"/>
                                         </div>
                                     </div>
                                     <div class="row justify-content-end mb-2">
-                                        <label for="modulo" class="col-auto col-form-label pe-0">Модул $m$:</label>
+                                        <label for="modulo1" class="col-auto col-form-label pe-0">Модул $m$:</label>
                                         <div class="col-auto">
-                                            <input class="form-control modulo" maxLength="10" style="width: 4.5rem; max-width: 100%"/>
+                                            <input class="form-control" id="modulo1" maxLength="10" style="width: 4.5rem; max-width: 100%"/>
                                         </div>
                                     </div>
                                     <div class="row justify-content-end mb-2">
                                         <label for="string" class="col-auto col-form-label pe-0">Низ $s$:</label>
                                         <div class="col-auto">
-                                            <input class="form-control" maxLength="10" id="string" style="width: 4.5rem; max-width: 100%"/>
+                                            <input class="form-control" id="string" maxLength="10" style="width: 4.5rem; max-width: 100%"/>
                                         </div>
                                     </div>
                                 </div>
@@ -113,7 +113,7 @@
                     <button class="btn btn-secondary">3. Алгоритъм на Рабин-Карп.</button>
                     <div class="lesson-part">
                         <p class="text-format">Сега ще приложим тази техника за оптимално решаване на една стандартна задача - търсене на шаблон в текст. Нека текстът е с големина $n$, а шаблонът с големина $m$. От сега нататък, основата на бройната система ще означаваме с <i>base</i>, а модулът с <i>mod</i>. Наивният алгоритъм за решаване на тази задача, със сложност $O(nm)$, работи по следния начин. Пробва всяка позиция в текста за срещането на шаблона, като проверката дали се среща е линейна по дължината на шаблон - в най-лошия случай $O(m)$. Тук идва място на хеширането за оптимизиране на проверката. В алгоритъма на Рабин-Карп, преди да почнем да обхождаме текста, ще изчислим хеша на шаблона. Да разгледаме точно как се променя изразът за намиране на хеша на подниз в текста при последователното обхождане на текста, чрез следното примерче:</p>
-                        <p class="text-format">Нека текстът е: $abcba$ и търсим шаблон с големина 3, т.е. $m=3$. Нека сме намерили хеша $num$ на първите три букви - $num=h(abc)$. Да видим как се променя тази стойност за хеша на вторите три букви в шаблона или по-точно колко е $h(bcb)$, използвайки намерения $h(abc)$. Лесно може да се види, като се разпише, че $h(bcb)$ $= (h(abcb)-h(a)*base^3) \space \% \space mod$ $=(h(abc)*base+h(b)-h(a)*base^m)$ $\% \space mod$ $=(num*base+h(b)-h(a)*base^m) \space \% \space mod$. Това следва от работата в бройната системат с основа <i>base</i>. Забелязва се общият модел на това как се променя последователно хеша на поднизовете с дължина $m$ в текста - ако на текущ подниз сме сметнали, че хеш-стойността е $num$, то за да получим новата хеш-стойност трябва да умножим по основата, да добавим новата буква отзад и да махнем излишната буква най-отпред. Така с последователното обхождане на текста, хешът се "плъзга" по поднизовете с дължина $m$. Затова се казва също, че този алгоритъм използва метода <b>rolling hash</b>. Ако се вгледаме подробно виждаме, че за смятането на хешовете едниствено ще ни трябва да знаем $base^m$. Вече можем да напишем точните стъпки на алгоритъма, след което следва и примерна реализация на езика <i>C++</i>:</p>
+                        <p class="text-format">Нека текстът е: $abcba$ и търсим шаблон с големина 3, т.е. $m=3$. Нека сме намерили хеша $num$ на първите три букви - $num=h(abc)$. Да видим как се променя тази стойност за хеша на вторите три букви в шаблона или по-точно колко е $h(bcb)$, използвайки намерения $h(abc)$. Лесно може да се види, като се разпише, че $h(bcb)= (h(abcb)-h(a)*base^3) \space \% \space mod=(h(abc)*base+h(b)-h(a)*base^m)\% \space mod=(num*base+h(b)-h(a)*base^m) \space \% \space mod$. Това следва от работата в бройната системат с основа <i>base</i>. Забелязва се общият модел на това как се променя последователно хеша на поднизовете с дължина $m$ в текста - ако на текущ подниз сме сметнали, че хеш-стойността е $num$, то за да получим новата хеш-стойност трябва да умножим по основата, да добавим новата буква отзад и да махнем излишната буква най-отпред. Така с последователното обхождане на текста, хешът се "плъзга" по поднизовете с дължина $m$. Затова се казва също, че този алгоритъм използва метода <b>rolling hash</b>. Ако се вгледаме подробно виждаме, че за смятането на хешовете едниствено ще ни трябва да знаем $base^m$. Вече можем да напишем точните стъпки на алгоритъма, след което следва и примерна реализация на езика <i>C++</i>:</p>
                         <ol>
                             <li>Определяме основа и модул за хеша.</li>
                             <li>Намираме хеш-стойността на модела и едновременно с това $base^m$. </li>
@@ -132,21 +132,21 @@
                             <div class="row">
                                 <div class="col-sm-4">
                                     <div class="row justify-content-end mb-2">
-                                        <label for="base" class="col-auto col-form-label pe-0">Основа $p$:</label>
+                                        <label for="base2" class="col-auto col-form-label pe-0">Основа $p$:</label>
                                         <div class="col-auto">
-                                            <input class="form-control base" maxLength="10" style="width: 4.5rem; max-width: 100%"/>
+                                            <input class="form-control" id="base2" maxLength="10" style="width: 4.5rem; max-width: 100%"/>
                                         </div>
                                     </div>
                                     <div class="row justify-content-end mb-2">
-                                        <label for="modulo" class="col-auto col-form-label pe-0">Модул $m$:</label>
+                                        <label for="modulo2" class="col-auto col-form-label pe-0">Модул $m$:</label>
                                         <div class="col-auto">
-                                            <input class="form-control modulo" maxLength="10" style="width: 4.5rem; max-width: 100%"/>
+                                            <input class="form-control" id="modulo2" maxLength="10" style="width: 4.5rem; max-width: 100%"/>
                                         </div>
                                     </div>
                                     <div class="row justify-content-end mb-2">
                                         <label for="multiSet" class="col-auto col-form-label pe-0">Мултимн-во:</label>
                                         <div class="col-auto">
-                                            <input class="form-control" maxLength="20" id="multiSet"  style="width: 4.5rem; max-width: 100%"/>
+                                            <input class="form-control" id="multiSet" maxLength="20" style="width: 4.5rem; max-width: 100%"/>
                                         </div>
                                     </div>
                                 </div>

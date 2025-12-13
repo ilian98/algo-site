@@ -1,5 +1,5 @@
-"use strict";
 (function () {
+    "use strict";
     function circlesIntersection (x1, y1, r1, x2, y2, r2) {
         x2-=x1; y2-=y1;
         let flag=false;
@@ -105,7 +105,7 @@
         this.defaultCSSEdge={};
         this.defaultCSSWeight={};
         this.findAttrValue = function (type, attr, ind = -1) {
-            let res=undefined;
+            let res;
             if (type==="vertex") {
                 if (attr==="fill") res="white";
                 else if (attr==="stroke") res="black";
@@ -156,7 +156,7 @@
             }
             if ((attr==="r")||(attr==="stroke-width")||(attr==="font-size")) res=parseFloat(res)*graph.size;
             return res;
-        }
+        };
         this.setAttributes = function (obj, type, ind = -1, coef = 1) {
             for (let [attr, value] of Object.entries(obj.attr())) {
                 obj.attr(attr,"");
@@ -210,7 +210,7 @@
                 obj.attr("text-anchor",this.findAttrValue(type,"text-anchor",ind));
                 obj.attr("font-size",this.findAttrValue(type,"font-size",ind)*coef+"px");
             }
-        }
+        };
         this.getAttributes = function (obj) {
             let res={};
             for (let [attr, value] of Object.entries(obj.attr())) {
@@ -221,7 +221,7 @@
                 res[attr]=value;
             }
             return res;
-        }
+        };
         
         function calcStraightEdge (st, end, isDrawn, endDist, vertexRad) {
             let edgeLen=segmentLength(st[0],st[1],end[0],end[1]);
@@ -254,7 +254,7 @@
             let bezierPointFinal=findBezierPoint(p1.x,p1.y,p2.x,p2.y,tr,ang,par);
             if (beg!==st) [p1,p2]=[p2,p1];
             return [bezierPath([p1.x,p1.y],[p2.x,p2.y],bezierPointFinal), bezierPoint];
-        }
+        };
         function calculateArrowProperties (isLoop, strokeWidth, st, vertexRad, properties) {
             let arrowHeight;
             if (isLoop===false) arrowHeight=5*(strokeWidth);
@@ -276,7 +276,7 @@
             });
             line.attr({"marker-end": marker});
             return arrowDist;
-        }
+        };
         function calcWeightPosition (weight, dx, isLoop, pathForWeight, properties) {
             let isVertical=false;
             if (Math.abs(dx)<=2*graph.graphDrawer.findAttrValue("vertex","r")) isVertical=true;
@@ -323,18 +323,18 @@
             if ((isDrawn===false)&&(graph.isWeighted===true)&&(svgEdge.weight!==undefined)) {
                 pathForWeight=calcWeightPosition(svgEdge.weight,st[0]-end[0],isLoop,pathForWeight,properties);
                 let edge=graph.getEdge(edgeInd);
-                edge.defaultCSS[1]["dy"]=svgEdge.weight.attr("dy");
+                edge.defaultCSS[1].dy=svgEdge.weight.attr("dy");
                 snap.select(svgEdge.weight.textPath.attr("href")).attr("d",pathForWeight);
                 svgEdge.weight.transform("t"+edge.weightTranslate[0]+" "+edge.weightTranslate[1]+"r"+edge.weightRotation);
             }
             return svgEdge;
-        }
+        };
         
         this.recalcAttrWeight = function (svgEdge, edgeInd) {
             svgEdge.weight.attr("fill",svgEdge.line.attr("stroke"));
             let edge=graph.getEdge(edgeInd);
             this.setAttributes(svgEdge.weight,"weight",edgeInd);
-        }
+        };
         this.recalcAttrEdge = function (svgEdge, edgeInd = -1) {
             let edge;
             let oldStrokeWidth=parseFloat(svgEdge.line.attr("stroke-width"));
@@ -356,7 +356,7 @@
                 }
             }
             if ((graph.isWeighted===true)&&(svgEdge.weight!==undefined)) this.recalcAttrWeight(svgEdge,edgeInd);
-        }
+        };
         this.drawEdge = function (st, end, edgeInd = -1, drawProperties = [0, 1, 0]) {
             let isLoop=false,isDrawn=(edgeInd===-1),isDirected=graph.isDirected||graph.isNetwork;
             let strokeWidth=this.findAttrValue("edge","stroke-width",edgeInd);
@@ -434,7 +434,7 @@
                 svgEdge.weight.dyCenter=determineDy(edge.weight.toString(),font,fontSize);
                 
                 pathForWeight=calcWeightPosition(svgEdge.weight,st[0]-end[0],isLoop,pathForWeight,properties);
-                edge.defaultCSS[1]["dy"]=svgEdge.weight.attr("dy");
+                edge.defaultCSS[1].dy=svgEdge.weight.attr("dy");
                 svgEdge.weight.attr({textpath: pathForWeight});
                 svgEdge.weight.textPath.attr({"startOffset": "50%"});
                 
@@ -442,23 +442,23 @@
                 svgEdge.weight.transform("t"+edge.weightTranslate[0]+" "+edge.weightTranslate[1]+"r"+edge.weightRotation);
             }
             return svgEdge;
-        }
+        };
 
         this.recalcAttrVertexText = function (svgVertex, ind) {
             let v=graph.getVertex(ind);
             if (!((v.name.startsWith("$"))&&(v.name.endsWith("$")))) {
-                v.defaultCSS[1]["dy"]=determineDy(
+                v.defaultCSS[1].dy=determineDy(
                     v.name,
                     this.findAttrValue("vertex-name","font-family",ind),
                     parseFloat(this.findAttrValue("vertex-name","font-size",ind))
                 );
                 this.setAttributes(svgVertex.text,"vertex-name",ind);
             }
-        }
+        };
         this.recalcAttrVertex = function (svgVertex, ind) {
             let v=graph.getVertex(ind);
             this.setAttributes(svgVertex.circle,"vertex",ind);
-        }
+        };
         this.drawVertexText = function (i, text) {
             let x=graph.svgVertices[i].coord[0],y=graph.svgVertices[i].coord[1];
             let v=graph.getVertex(i);
@@ -501,7 +501,7 @@
             }
             this.recalcAttrVertexText(graph.svgVertices[i],i);
             if (removed===true) graph.svgVertices[i].group=snap.group(graph.svgVertices[i].circle,graph.svgVertices[i].text);
-        }
+        };
         this.drawVertex = function (i) {
             let x=graph.svgVertices[i].coord[0],y=graph.svgVertices[i].coord[1];
             graph.svgVertices[i].circle=snap.circle(x,y,graph.graphDrawer.findAttrValue("vertex","r"));
@@ -511,14 +511,16 @@
             this.recalcAttrVertex(graph.svgVertices[i],i);
             this.drawVertexText(i,v.name);
             graph.svgVertices[i].group=snap.group(graph.svgVertices[i].circle,graph.svgVertices[i].text);
-        }
+        };
         this.findLoopEdgeProperties = function (vertexRad = graph.graphDrawer.findAttrValue("vertex","r")) {
             return [3*vertexRad/4, vertexRad/2];
-        }
+        };
         this.isDynamic=undefined; this.dynamicGraph=undefined;
         this.isStatic=false;
         this.defaultBG=["#ffffff", 100];
         this.bgElement=undefined;
+        
+        const self=this;
         this.draw = function (addDynamic, animateDraw = true, isStatic = undefined) { /// this functions expects that coordinates are already calculated
             if ((this.dynamicGraph!==undefined)&&(addDynamic===false)) this.dynamicGraph.clear();
             
@@ -687,15 +689,15 @@
                             if (type!=="edge") continue;
                             let x=graph.getEdge(ind).x,y=graph.getEdge(ind).y;
                             if (x!==y) continue;
-                            this.redrawEdge(graph.svgEdges[ind],graph.svgVertices[x].coord,graph.svgVertices[y].coord,ind);
+                            self.redrawEdge(graph.svgEdges[ind],graph.svgVertices[x].coord,graph.svgVertices[y].coord,ind);
                         }
                     }
-                    this.isDynamic=addDynamic;
+                    self.isDynamic=addDynamic;
                     if (isStatic===false) {
-                        if ((this.dynamicGraph===undefined)&&(typeof DynamicGraph!=="undefined")) {
-                            this.dynamicGraph=new DynamicGraph(graph);
+                        if ((self.dynamicGraph===undefined)&&(typeof DynamicGraph!=="undefined")) {
+                            self.dynamicGraph=new DynamicGraph(graph);
                         }
-                        if (this.dynamicGraph!==undefined) this.dynamicGraph.init();
+                        if (self.dynamicGraph!==undefined) self.dynamicGraph.init();
                     }
                     graph.graphChange("draw");
                 }
@@ -704,17 +706,17 @@
                 obj.animate(attr,500,animationsEnd.bind(this));
             }
             if (cntAnimations===0) animationsEnd.call(this);
-        }
+        };
         this.setBack = function (obj) {
             obj.prependTo(snap);
             this.bgElement.prependTo(snap);
-        }
+        };
         
         this.init = function (svgEdge, f) {
             snap=graph.s;
             SvgEdge = svgEdge;
             fonts = f;
-        }
+        };
     }
     
     

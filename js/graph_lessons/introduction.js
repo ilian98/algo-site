@@ -1,5 +1,5 @@
-"use strict";
 (function () {
+    "use strict";
     function displayDegree (graph) {
         let table=[];
         table.push(["Име на връx","Степен"]);
@@ -44,7 +44,7 @@
         return path.reverse();
     }
     function findPaths (graph) {
-        let beg=$(".graphExample5 .beg").val(),end=$(".graphExample5 .end").val();
+        let beg=$("#beg").val(),end=$("#end").val();
         if ((beg<1)||(beg>graph.n)) {
             alert("Невалиден номер на начален връх!");
             return ;
@@ -172,8 +172,8 @@
                 example5.drawNewGraph(true,1);
                 example5.setSettings([false, false, false]);
                 $(".graphExample5 .find").off("click").on("click",findPaths.bind(this,example5));
-                $(".graphExample5 .beg").val("1");
-                $(".graphExample5 .end").val("2"); 
+                $("#beg").val("1");
+                $("#end").val("2"); 
                 findPaths(example5);
             }).click();
 

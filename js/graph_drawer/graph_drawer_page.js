@@ -1,5 +1,5 @@
-"use strict";
 (function () {
+    "use strict";
     let graph;
     function init () {
         graph=new Graph();    
@@ -78,7 +78,7 @@
             if (s===null) return false;
             if (s.length===0) return false;
             return true;
-        }
+        };
         graph.graphChange();
         
         
@@ -254,8 +254,8 @@
             }
             graph.graphController.advanceTime();
         }
-        $("#change .make-change").on("click",makeChanges.bind(this,false));
-        $("#change .make-change-all").on("click",makeChanges.bind(this,true));
+        $("#change .make-change").on("click",makeChanges.bind(null,false));
+        $("#change .make-change-all").on("click",makeChanges.bind(null,true));
         
         
         $("#style .apply-default").on("click", () => {

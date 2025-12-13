@@ -1,5 +1,5 @@
-"use strict";
 (function () {
+    "use strict";
     $(document).ready(function () {
         for (let anchor of $("a")) {
             if ($(anchor).prop("href")==="") continue;

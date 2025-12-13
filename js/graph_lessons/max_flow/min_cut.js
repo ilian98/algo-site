@@ -1,5 +1,5 @@
-"use strict";
 (function () {
+    "use strict";
     let dist,ind;
     function dfs (vr, min1, adjList, edgeList, sink) {
         if (vr===sink) return min1;
@@ -46,56 +46,56 @@
             findCut(edgeList[ind].findEndPoint(vr),adjList,edgeList);
         }
     }
-    function findFlowCut (change) {
-        if (this.isVisualChange(change)===true) return ;
+    function findFlowCut (graph, change) {
+        if (graph.isVisualChange(change)===true) return ;
         dist=[]; ind=[];
-        let vers=this.getVertices(),edges=this.getEdges();
+        let vers=graph.getVertices(),edges=graph.getEdges();
         for (let [i, edge] of edges) {
             edge.flow=0;
         }
         let maxFlow=0;
-        for (let cnt=0; cnt<this.n*(this.getEdges().length/2); cnt++) {
-            bfs(this);
-            if (dist[this.sink]===0) break;
+        for (let cnt=0; cnt<graph.n*(graph.getEdges().length/2); cnt++) {
+            bfs(graph);
+            if (dist[graph.sink]===0) break;
             ind=[];
             for (let [i, vr] of vers) {
                 ind[i]=0;
             }
-            for (let cnt=0; cnt<this.n; cnt++) {
-                let flow=dfs(this.source,1e9,this.adjList,this.getIndexedEdges(),this.sink);
+            for (let cnt=0; cnt<graph.n; cnt++) {
+                let flow=dfs(graph.source,1e9,graph.adjList,graph.getIndexedEdges(),graph.sink);
                 maxFlow+=flow;
                 if (flow===0) break;
             }
         }
         seen=[];
-        findCut(this.source,this.adjList,this.getIndexedEdges());
+        findCut(graph.source,graph.adjList,graph.getIndexedEdges());
         
         for (let [i, vr] of vers) {
             if (seen[i]===true) {
-                vr.addedCSS[0]["fill"]="green";
-                if (i===this.source) vr.addedCSS[1]["fill"]="white";
-                else vr.addedCSS[1]["fill"]="black";
+                vr.addedCSS[0].fill="green";
+                if (i===graph.source) vr.addedCSS[1].fill="white";
+                else vr.addedCSS[1].fill="black";
             }
             else {
-                vr.addedCSS[0]["fill"]="yellow";
-                if (i===this.sink) vr.addedCSS[1]["fill"]="#6495ED";
-                else vr.addedCSS[1]["fill"]="black";
+                vr.addedCSS[0].fill="yellow";
+                if (i===graph.sink) vr.addedCSS[1].fill="#6495ED";
+                else vr.addedCSS[1].fill="black";
             }
         }
         for (let [i, edge] of edges) {
             if (edge.real===true) {
-                if ((seen[edge.x]===true)&&(seen[edge.y]!==true)) edge.addedCSS[0]["stroke"]="red";
-                else edge.addedCSS[0]["stroke"]="black";
+                if ((seen[edge.x]===true)&&(seen[edge.y]!==true)) edge.addedCSS[0].stroke="red";
+                else edge.addedCSS[0].stroke="black";
             }
         }
-        this.networkView();
-        this.graphDrawer.draw(this.graphDrawer.isDynamic,(change!=="network-conversion"));
-        if (this.wrapperName===".graphExample1") 
+        graph.networkView();
+        graph.graphDrawer.draw(graph.graphDrawer.isDynamic,(change!=="network-conversion"));
+        if (graph.wrapperName===".graphExample1") 
             $(".graphExample1 .value").text("Максималният поток = минималният срез = "+maxFlow);
         return [maxFlow, seen];
     }
-    function findSolution (change) {
-        if (this.isVisualChange(change)===true) return ;
+    function findSolution (graph, change) {
+        if (graph.isVisualChange(change)===true) return ;
         let text=$(".graphExample2 #inputArea").val().replaceAll("\r\n","\n");
         let lines=text.split("\n");
         let nums=[];
@@ -118,20 +118,20 @@
             edges.push([parseInt(nums[i][0]),parseInt(nums[i][1]),parseInt(nums[i][2])]);
         }
         if (change==="outside") {
-            this.initVertices(n+2);
-            for (let [i, vr] of this.getVertices()) {
+            graph.initVertices(n+2);
+            for (let [i, vr] of graph.getVertices()) {
                 vr.name=i.toString();
             }
-            this.clearEdges();
-            this.graphController.undoStack=[];
-            this.graphController.redoStack=[];
-            this.buildEdgeDataStructures(edges);
-            this.isNetwork=true; this.source=0; this.sink=n+1;
-            this.drawNewGraph(false,0.6);
-            this.convertToNetwork(0,n+1,false);
+            graph.clearEdges();
+            graph.graphController.undoStack=[];
+            graph.graphController.redoStack=[];
+            graph.buildEdgeDataStructures(edges);
+            graph.isNetwork=true; graph.source=0; graph.sink=n+1;
+            graph.drawNewGraph(false,0.6);
+            graph.convertToNetwork(0,n+1,false);
         }
-        let [flow, cut]=findFlowCut.call(this,change);
-        $(".graphExample2 .value").text("Отговорът е $"+sum+"-"+flow+"$ $=sum-flow="+(sum-flow)+"$. ");
+        let [flow, cut]=findFlowCut(graph,change);
+        $(".graphExample2 .value").text("Отговорът е $"+sum+"-"+flow+"=sum-flow="+(sum-flow)+"$. ");
         $(".graphExample2 .value").append("Той се получава със следното разпределение:<br>");
         $(".graphExample2 .value").append('Отбор на "добрите":');
         for (let i=1; i<=n; i++) {
@@ -148,16 +148,16 @@
         if (part===2) {
             let example1=new Graph();
             $(".graphExample1 .default").on("click", function () {
-                example1.init(".graphExample1",5,true,findFlowCut);
+                example1.init(".graphExample1",5,true,findFlowCut.bind(null,example1));
                 example1.buildEdgeDataStructures([[0,1,5],[0,2,1],[1,3,5],[2,4,2],[3,2,2],[3,4,2]]);
                 example1.isNetwork=true; example1.source=0; example1.sink=4;
                 example1.drawNewGraph(true,5/4);
                 example1.convertToNetwork(0,4,false);
                 example1.setSettings([false, false, false]);
                 
-                $(".graphExample1 .src").val("1");
-                $(".graphExample1 .src").off("input").on("input",() => {
-                    let v=parseInt($(".graphExample1 .src").val());
+                $("#src").val("1");
+                $("#src").off("input").on("input",() => {
+                    let v=parseInt($("#src").val());
                     if ((v<1)||(v>example1.n)) return ;
                     v--;
                     if (example1.getVertex(v)===undefined) return ;
@@ -166,11 +166,11 @@
                         alert("Не трябва да съвпадат източника и приемника!");
                         return ;
                     }
-                    let [flow, cut]=findFlowCut.call(example1,"outside");
+                    let [flow, cut]=findFlowCut(example1,"outside");
                 });
-                $(".graphExample1 .sink").val("5");
-                $(".graphExample1 .sink").off("input").on("input",() => {
-                    let v=parseInt($(".graphExample1 .sink").val());
+                $("#sink").val("5");
+                $("#sink").off("input").on("input",() => {
+                    let v=parseInt($("#sink").val());
                     if ((v<1)||(v>example1.n)) return ;
                     v--;
                     if (example1.getVertex(v)===undefined) return ;
@@ -179,14 +179,14 @@
                         alert("Не трябва да съвпадат източника и приемника!");
                         return ;
                     }
-                    let [flow, cut]=findFlowCut.call(example1,"outside");
+                    let [flow, cut]=findFlowCut(example1,"outside");
                 });
             }).click();
         }
         else if (part===3) {
             let example2=new Graph();
             $(".graphExample2 .default").on("click", function () {
-                example2.init(".graphExample2",7,false,findSolution.bind(example2));
+                example2.init(".graphExample2",7,false,findSolution.bind(null,example2));
                 example2.setSettings([false, false, false],false,true,false);
                 
                 $(".graphExample2 #inputArea").val(`5 4
@@ -196,7 +196,7 @@
 2 4 10
 1 3 2
 4 5 10`);
-                $(".graphExample2 .calc").off("click").on("click",findSolution.bind(example2,"outside")).click();
+                $(".graphExample2 .calc").off("click").on("click",findSolution.bind(null,example2,"outside")).click();
             }).click();
         }
     }

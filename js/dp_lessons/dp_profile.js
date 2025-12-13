@@ -1,5 +1,5 @@
-"use strict";
 (function () {
+    "use strict";
     function bit (mask, pos) {
         return mask&(1<<pos)?1:0;
     }
@@ -37,7 +37,7 @@
         textField.text(text);
     }
     function calcMatrices () {
-        let n=$(".dpProfileExample1 .n").val(),m=$(".dpProfileExample1 .m").val();
+        let n=$("#n").val(),m=$("#m").val();
         if ((n<1)||(n>3)) {
             alert("Невалидна стойност за n!");
             return ;
@@ -119,7 +119,7 @@
         let table=$(".dpProfileExample2 .profiles");
         table.hide();
 
-        let l=Array.from($(".dpProfileExample2 .l").val()),r=Array.from($(".dpProfileExample2 .r").val());
+        let l=Array.from($("#l").val()),r=Array.from($("#r").val());
         if (l.length!=r.length) {
             alert("Профилите не са с една и съща дължина!");
             return ;
@@ -159,11 +159,11 @@
             if (r[i]!=='0') cnt=0;
             else cnt++;
 
-            tableText+='<tr><td class="text-center'
+            tableText+='<tr><td class="text-center';
             if (l[i]==='1') tableText+=' white r-hole';
             tableText+='" style="padding: 0; vertical-align: middle">'+l[i]+'</td>';
 
-            tableText+='<td class="text-center white'
+            tableText+='<td class="text-center white';
             if (r[i]==='2') tableText+=' l-hole';
             else if (r[i]==='1') tableText+=' r-hole';
             else if (r[i]==='0') {
@@ -178,19 +178,19 @@
     function initExample (part) {
         if (part==3) {
             $(".dpProfileExample1 .calc").off("click").on("click",calcMatrices);
-            $(".dpProfileExample1 .n").val("2");
-            $(".dpProfileExample1 .m").val("2");
-            $(".dpProfileExample1 .n").on("keydown",isDigit);
-            $(".dpProfileExample1 .m").on("keydown",isDigit);
+            $("#n").val("2");
+            $("#m").val("2");
+            $("#n").on("keydown",isDigit);
+            $("#m").on("keydown",isDigit);
             calcMatrices();
         }
         else {
             $(".dpProfileExample2 .check").off("click").on("click",checkProfiles);
             $(".dpProfileExample2 .error").hide();
-            $(".dpProfileExample2 .l").val("01001");
-            $(".dpProfileExample2 .r").val("10000");
-            $(".dpProfileExample2 .l").on("keydown",isBinary);
-            $(".dpProfileExample2 .r").on("keydown",isBinary);
+            $("#l").val("01001");
+            $("#r").val("10000");
+            $("#l").on("keydown",isBinary);
+            $("#r").on("keydown",isBinary);
             checkProfiles();
         }
     }

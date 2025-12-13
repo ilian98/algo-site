@@ -1,5 +1,5 @@
-"use strict";
 (function () {
+    "use strict";
     let fontData;
     function loadFontData () {
         return new Promise((resolve, reject) => {
@@ -163,12 +163,12 @@
             let s,m,f;
             let animFunc=$(".failureExample .anim-func"),animFunc2=$(".failureExample .anim-func2");
             let animationObj=new Animation();
-            let indexObj=undefined,indexVal=undefined;
+            let indexObj,indexVal;
             animationObj.setParameters(true,"Покажи намирането","Прекъсни");
             $(".failureExample .default").on("click", function () {
                 $(".failureExample .calc-f").click();
                 if (indexVal!==undefined) indexVal.val("8");
-                $(".failureExample .model").val("aabaabaaac");
+                $("#model1").val("aabaabaaac");
                 animationObj.init(".failureExample",function findAnimations () {
                     let animations=[];
                     let index=parseInt(indexVal.val());
@@ -205,27 +205,27 @@
                                 animText: ((l>0)?
                                            "Показан е префиксът, съответстващ на най-дългия добър суфикс на позиция $"+pos+"$ и еднаквия му суфикс на позиция $"+(index-1)+"$. Дължината му е $l=f("+pos+")="+l+"$.":
                                            "Дължината на най-дългия добър суфикс на позиция $"+pos+"$ е $l=f("+pos+")=0$."),
-                                endFunction: () => {
+                                endFunction: function (MathJax) {
                                     MathJax.typeset([".failureExample .anim-func"]);
-                                }
+                                }.bind(null,MathJax)
                             });
                         }
                         animations.push({
                             animFunctions: [textAnimation(animFunc,makeBlueRegions(s,index,0,l-1,index-l,index-1,-1,l,index),-1),
                                             textAnimation(animFunc2,"",-1),],
                             animText: "Сравняваме символите $s[l="+l+"]$ и текущия символ $s["+index+"]$.",
-                            endFunction: () => {
+                            endFunction: function (MathJax) {
                                 if (typeof MathJax!=="undefined") MathJax.typeset([".failureExample .anim-func"]);
-                            }
+                            }.bind(null,MathJax)
                         });
                         if (s[l]===s[index]) {
                             animations.push({
                                 animFunctions: [textAnimation(animFunc,makeBlueRegions(s,index,0,l,index-l,index),-1),
                                                 textAnimation(animFunc2,"",-1),],
                                 animText: "Понеже са равни, то можем да удължим най-дългия добър суфикс на позиция $"+pos+"$ с $s[l="+l+"]$ и приключваме търсенето. Намерихме, че $f("+index+")=l+1="+(l+1)+"$.",
-                                endFunction: () => {
+                                endFunction: function (MathJax) {
                                     MathJax.typeset([".failureExample .anim-func"]);
-                                }
+                                }.bind(null,MathJax)
                             });
                             break;
                         }
@@ -234,10 +234,10 @@
                                             textAnimation(animFunc2,makeOrangeRegions(s,index,l-f[l-1],l-1,index-f[l-1],index-1),-1),],
                             animText: "Понеже са различни, то се връщаме на по-предна позиция $l-1="+(l-1)+"$, получена от префикса, съответстващ на най-дългия добър суфикс на предната позиция $"+pos+"$."+
                             ((f[l-1]>0)?" Изобразен е също най-дългият добър суфикс на новата позиция $"+(l-1)+"$, който е и суфикс на позиция $i-1="+(index-1)+"$.":""),
-                            endFunction: () => {
+                            endFunction: function (MathJax) {
                                 MathJax.typeset([".failureExample .anim-func"]);
                                 MathJax.typeset([".failureExample .anim-func2"]);
-                            }
+                            }.bind(null, MathJax)
                         });
                         pos=l-1;
                     }
@@ -266,13 +266,13 @@
                             indexObj=$(`<div class="row form-group justify-content-end speed-wrapper">
 		                                  <label for="index" class="col-auto col-form-label pe-0 unselectable">$i$:</label>
 		                                  <div class="col-auto">
-			                                 <input class="form-control index" maxLength="2" style="width: 3rem; max-width: 100%"/>
+			                                 <input class="form-control" id="index" maxLength="2" style="width: 3rem; max-width: 100%"/>
 		                                  </div>
 	                                   </div>`);
                             $(".failureExample .animation-panel .col.text-end").append(indexObj);
                             if ((typeof MathJax!=="undefined")&&(MathJax.typeset!==undefined)) 
                                 MathJax.typeset([".failureExample .animation-panel .col.text-end"]);
-                            indexVal=$(".failureExample .animation-panel .index");
+                            indexVal=$("#index");
                             indexVal.on("keydown",isDigit);
                             indexVal.val("8");
                         }
@@ -285,15 +285,15 @@
                 animFunc.text("");
                 animFunc2.text("");
                 if (indexObj!==undefined) indexObj.show();
-                s=$(".failureExample .model").val();
+                s=$("#model1").val();
                 m=s.length;
                 f=calcFailureFunction(s);
                 makeFailureTable(s,f,"failureTable");
             }).click();
-            $(".failureExample .model").on("keydown",isSmallLatinLetter);
+            $("#model1").on("keydown",isSmallLatinLetter);
         }
         else if (part===3) {
-            let model=$(".KMPExample .model"),text=$(".KMPExample .text");
+            let model=$("#model2"),text=$("#text");
             let svgModel,svgText;
             let s,t,f;
             let snap=Snap(".KMPExample .text-animation");
@@ -308,7 +308,7 @@
                     let y;
                     [svgText, y]=createText(text.val(),5,0,snap,fontSize);
                     [svgModel, y]=createText(model.val(),5,y+20,snap,fontSize);
-                }, () => { alert("Load font data error!") });
+                }, () => { alert("Load font data error!"); });
                 animationObj.init(".KMPExample",function findAnimations () {
                     if (s.length===0) {
                         alert("Шаблонът трябва да има ненулева дължина!");
@@ -338,14 +338,14 @@
                         for (j=matched; j<s.length; j++) {
                             let pos1=pos,j1=j;
                             animations.push({
-                                startFunction: function () {
+                                startFunction: function (svgText, pos1, j1, svgModel) {
                                     svgText[pos1+j1].attr("text-decoration","underline");
                                     svgModel[j1].attr("text-decoration","underline");
                                     return function () {
                                         svgText[pos1+j1].attr("text-decoration","");
                                         svgModel[j1].attr("text-decoration","");
                                     };
-                                },
+                                }.bind(null,svgText,pos1,j1,svgModel),
                                 animFunctions: [attrChangesAnimation(svgText[pos+j],{"fill": "orange"},2),
                                                 attrChangesAnimation(svgModel[j],{"fill": "orange"},2)],
                                 animText: "Сравняваме символа на позиция "+(pos+j+1)+" в текста със символа на позиция "+(j+1)+" в шаблона.",
@@ -356,14 +356,14 @@
                                     animFunctions: [attrChangesAnimation(svgText[pos+j],{"fill": "red"},2),
                                                     attrChangesAnimation(svgModel[j],{"fill": "red"},2)],
                                     animText: "Понеже символите са различни, то прекъсваме търсенето на шаблона в текста от тази позиция и ще изчислим на коя следваща позиция $pos$ в текста, трябва да се преместим.",
-                                    endFunction : function () {
+                                    endFunction : function (svgText, pos1, j1, svgModel) {
                                         svgText[pos1+j1].attr("text-decoration","");
                                         svgModel[j1].attr("text-decoration","");
                                         return function () {
                                             svgText[pos1+j1].attr("text-decoration","underline");
                                             svgModel[j1].attr("text-decoration","underline");
                                         };
-                                    }    
+                                    }.bind(null,svgText,pos1,j1,svgModel)
                                 });
                                 break;
                             }
@@ -371,20 +371,20 @@
                                 animFunctions: [attrChangesAnimation(svgText[pos+j],{"fill": "green"}),
                                                 attrChangesAnimation(svgModel[j],{"fill": "green"})],
                                 animText: "Понеже символите са равни, "+((j===s.length-1)?"то намерихме пълно съвпадение на шаблона с текста на позиция $pos="+(pos+1)+"$.":" продължаваме напред сравняването."),
-                                endFunction : function () {
+                                endFunction : function (svgText, pos1, j1, svgModel) {
                                     svgText[pos1+j1].attr("text-decoration","");
                                     svgModel[j1].attr("text-decoration","");
                                     return function () {
                                         svgText[pos1+j1].attr("text-decoration","underline");
                                         svgModel[j1].attr("text-decoration","underline");
                                     };
-                                }    
+                                }.bind(null,svgText,pos1,j1,svgModel)
                             });
                         }
                         if (j===s.length) break;
                         if (j>0) {
                             let r1,r2,pos1=pos;
-                            function makeRectangles () {
+                            const makeRectangles = function (f, j, r1, snap, svgText, pos1, svgModel, r2) {
                                 let ind1=f[j-1]-1;
                                 r1=snap.rect(
                                     svgText[pos1].getBBox().x-0.5,svgModel[0].getBBox().y-5,
@@ -407,15 +407,15 @@
                                     "stroke": "blue",
                                     "stroke-width": 2
                                 });   
-                            }
+                            }.bind(null,f,j,r1,snap,svgText,pos1,svgModel,r2);
                             animations.push({
-                                startFunction: function () {
+                                startFunction: function (r1, r2) {
                                     makeRectangles();
                                     return function () {
                                         r1.remove();
                                         r2.remove();
                                     };
-                                },
+                                }.bind(null,r1,r2),
                                 animFunctions: [attrChangesAnimation(svgText[pos+j],{"fill": "black"},2),
                                                 attrChangesAnimation(svgModel[j],{"fill": "black"},2)],
                                 animText: "За да видим следващата удачна позиция в текста, гледаме функцията на неуспеха на шаблона за съвпадащия префикс с дължина "+j+". Имаме, че $f("+(j-1)+")="+f[j-1]+"$."
@@ -429,13 +429,13 @@
                             }
                             funcs.push(translateAnimation(svgModel,svgText[pos+j-1-f[j-1]+1].attr("x")-5,0,2));
                             animations.push({
-                                startFunction: function () {
+                                startFunction: function (r1, r2) {
                                     r1.remove();
                                     r2.remove();
                                     return function () {
                                         makeRectangles();
-                                    }
-                                },
+                                    };
+                                }.bind(null,r1,r2),
                                 animFunctions: funcs,
                                 animText: "Следващата позиция, от която ще пробваме да намерим шаблона е равна на $pos=pos+"+j+"-f("+(j-1)+")+1="+(pos+j-f[j-1]+1)+"$. Освен това знаем, че от тази позиция първите "+f[j-1]+" символа съвпадат, защото се преместихме на добър суфикс."
                             });

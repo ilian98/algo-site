@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="bg">
     <head>
         <script async src="https://www.googletagmanager.com/gtag/js?id=G-Y8NQ36XMJS"></script>
 		<script>
@@ -24,7 +24,7 @@
         <script type="text/javascript" src="/algo-site/node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
         <script type="text/javascript" src="/algo-site/node_modules/snapsvg/dist/snap.svg-min.js"></script>
         <script src="/algo-site/js/mathjax-config.js"></script>
-        <script id="MathJax-script" async src="/algo-site/node_modules/mathjax/es5/tex-chtml.js"></script>
+        <script id="MathJax-script" async src="/algo-site/node_modules/mathjax/tex-chtml.js"></script>
         <script type="text/javascript" src="/algo-site/node_modules/@highlightjs/cdn-assets/highlight.min.js"></script>
         <script type="text/javascript" src="/algo-site/js/main.js"></script>
         <script type="text/javascript" src="/algo-site/js/dp_lessons/dp_profile.js"></script>
@@ -48,7 +48,7 @@
         
         <div class="wrapper" tabindex="-1">
             <div class="content">            
-                <h1 align="center">Динамично по профил</h1>
+                <h1>Динамично по профил</h1>
 
                 <div class="lesson-part-position">
                     <button class="btn btn-secondary">1. Какво представлява динамичното по профил?</button>
@@ -131,17 +131,17 @@
                         </div>
                         <p class="text-format">Стейтът на динамичното е $dp[$брой колони$][$номер на профила на последната колона$]$, като в него пазим броя валидни оцветявания. Базовите стойности са: $dp[1][0]=dp[1][1]=dp[1][2]=1$ (<a class="info">...</a><a class="info" style="display: none">понякога не всички профили са валидни за начални</a>). За да сметнем стойностите при две колони е достатъчно да видим кои профили са съвместими. Написано подробно:<p>
                         <ul>
-                            <li class="dashed-list">$dp[2][0]=1*dp[1][0]+$ $1*dp[1][1]+1*dp[1][2]=3$</li>
-                            <li class="dashed-list">$dp[2][1]=1*dp[1][0]+$ $0*dp[1][1]+1*dp[1][2]=2$</li>
-                            <li class="dashed-list">$dp[2][2]=1*dp[1][0]+$ $1*dp[1][1]+0*dp[1][2]=2$</li>
+                            <li class="dashed-list">$dp[2][0]=1*dp[1][0]+1*dp[1][1]+1*dp[1][2]=3$</li>
+                            <li class="dashed-list">$dp[2][1]=1*dp[1][0]+0*dp[1][1]+1*dp[1][2]=2$</li>
+                            <li class="dashed-list">$dp[2][2]=1*dp[1][0]+1*dp[1][1]+0*dp[1][2]=2$</li>
                         </ul>
                         <p class="text-format">Всъщност едниствените несъвместими профили като ляв и десен са номер 1 със себе си и номер 2 със себе си. Може да се провери, че тези числа съответстват на разписването в случая $2$x$2$ по-горе. От друга страна горните формули са същите за получаване на бройките при 3 колони от тези за 2, при 4 колони от тези за 3 и т.н. Така в общия случай за $m$ колони при два реда е вярно:</p>
                         <ul>
-                            <li class="dashed-list">$dp[m][0]=1*dp[m-1][0]+$ $1*dp[m-1][1]+1*dp[m-1][2]$</li>
-                            <li class="dashed-list">$dp[m][1]=1*dp[m-1][0]+$ $0*dp[m-1][1]+1*dp[m-1][2]$</li>
-                            <li class="dashed-list">$dp[m][2]=1*dp[m-1][0]+$ $1*dp[m-1][1]+0*dp[m-1][2]$</li>
+                            <li class="dashed-list">$dp[m][0]=1*dp[m-1][0]+1*dp[m-1][1]+1*dp[m-1][2]$</li>
+                            <li class="dashed-list">$dp[m][1]=1*dp[m-1][0]+0*dp[m-1][1]+1*dp[m-1][2]$</li>
+                            <li class="dashed-list">$dp[m][2]=1*dp[m-1][0]+1*dp[m-1][1]+0*dp[m-1][2]$</li>
                         </ul>
-                        <p class="text-format">Тази сметка може да се изрази и чрез матрично умножениe по следния начин: $\begin{pmatrix}dp[m-1][0] & dp[m-1][1] & dp[m-1][2]\end{pmatrix}*T=$ $\begin{pmatrix}dp[m][0] & dp[m][1] & dp[m][2]\end{pmatrix}$, където $T$ се нарича матрица на прехода между профилите. В нашия случай при два реда - $T=\begin{pmatrix}1 & 1 & 1 \\ 1 & 0 & 1 \\ 1 & 1 & 0\end{pmatrix}$. Всъщност числата в колоните с индекси 0, 1 и 2 са коефициентите при смятането на $dp[m][0], dp[m][1]$ и $dp[m][2]$.</p>
+                        <p class="text-format">Тази сметка може да се изрази и чрез матрично умножениe по следния начин: $\begin{pmatrix}dp[m-1][0] & dp[m-1][1] & dp[m-1][2]\end{pmatrix}*T=\begin{pmatrix}dp[m][0] & dp[m][1] & dp[m][2]\end{pmatrix}$, където $T$ се нарича матрица на прехода между профилите. В нашия случай при два реда - $T=\begin{pmatrix}1 & 1 & 1 \\ 1 & 0 & 1 \\ 1 & 1 & 0\end{pmatrix}$. Всъщност числата в колоните с индекси 0, 1 и 2 са коефициентите при смятането на $dp[m][0], dp[m][1]$ и $dp[m][2]$.</p>
                         <p class="text-format">Забележете, че матрицата на прехода зависи от броя редове в задачата. Горна оценка за големината на $T$ е $2^n$ x $2^n$. При малко по-точен анализ, лесно може да се забележи, че броят валидни профили в зависимост от броя редове образуват редицата на Фибоначи или при $n$ реда, броят е $F_{n+2}$. Като вземем предвид, че $F_{n} \approx \varphi^n$, то големината на $T$ пак е експоненциална спрямо $n$: $\varphi^{n+2}$ x $\varphi^{n+2}$ (<a class="info">...</a><a class="info" style="display: none">известно още и като златното сечение - $\varphi \approx 1.618$</a>). Затова искаме малък брой на редовете, иначе този подход е неприложим.</p>
                         <div class="row">
                             <div class="col-sm-10">
@@ -176,13 +176,13 @@
                                     <div class="row justify-content-end mb-3">
                                         <label for="n" class="col-auto col-form-label pe-0">$n$:</label>
                                         <div class="col-auto">
-                                            <input class="form-control n" maxLength="1" style="width: 2.5rem; max-width: 100%"/>
+                                            <input class="form-control" id="n" maxLength="1" style="width: 2.5rem; max-width: 100%"/>
                                         </div>
                                     </div>
                                     <div class="row justify-content-end mb-3">
                                         <label for="n" class="col-auto col-form-label pe-0">$m$:</label>
                                         <div class="col-auto">
-                                            <input class="form-control m" maxLength="2" style="width: 3rem; max-width: 100%"/>
+                                            <input class="form-control" id="m" maxLength="2" style="width: 3rem; max-width: 100%"/>
                                         </div>
                                     </div>
                                     <div class="row justify-content-end">
@@ -220,13 +220,13 @@
                                     <div class="row justify-content-end mb-3">
                                         <label for="l" class="col-auto col-form-label pe-0">$l$:</label>
                                         <div class="col-auto">
-                                            <input class="form-control l" maxLength="5" style="width: 4.5rem; max-width: 100%"/>
+                                            <input class="form-control" id="l" maxLength="5" style="width: 4.5rem; max-width: 100%"/>
                                         </div>
                                     </div>
                                     <div class="row justify-content-end mb-3">
                                         <label for="r" class="col-auto col-form-label pe-0">$r$:</label>
                                         <div class="col-auto">
-                                            <input class="form-control r" maxLength="5" style="width: 4.5rem; max-width: 100%"/>
+                                            <input class="form-control" id="r" maxLength="5" style="width: 4.5rem; max-width: 100%"/>
                                         </div>
                                     </div>
                                     <div class="row justify-content-end">

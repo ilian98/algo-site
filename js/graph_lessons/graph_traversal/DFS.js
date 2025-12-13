@@ -1,6 +1,6 @@
 (function () {
     "use strict";
-    function dfs (vr, used, graph, animations) {
+    function dfs (vr, used, graph, animations, pathText) {
         used[vr]=true;
         for (let ind of graph.adjList[vr]) {
             let to=graph.getEdge(ind).findEndPoint(vr);
@@ -13,12 +13,19 @@
                 });
 
                 animations.push({
+                    startFunction: function (pathText, graph, vr) {
+                        const origText=pathText.text();
+                        pathText.text(origText+", "+vr);
+                        return () => {
+                            pathText.text(origText);
+                        };
+                    }.bind(null,pathText,graph,graph.getVertex(to).name),
                     animFunctions: [attrChangesAnimation(graph.svgVertices[to].circle,{fill: "red"}),
                                     attrChangesAnimation(graph.svgVertices[to].text,{fill: "black"})],
                     animText: "Сега сме във връх "+graph.getVertex(to).name+"."
                 });
 
-                dfs(to,used,graph,animations);
+                dfs(to,used,graph,animations,pathText);
 
                 animations.push({
                     animFunctions: [attrChangesAnimation(graph.svgVertices[vr].circle,{fill: "red"}),
@@ -36,7 +43,16 @@
         animations.push({
             animFunctions: [attrChangesAnimation(graph.svgVertices[vr].circle,{fill: "black"}),
                             attrChangesAnimation(graph.svgVertices[vr].text,{fill: "white"})],
-            animText: "Вече проверихме всички съседи на връх "+graph.getVertex(vr).name+" и го напускаме."
+            animText: "Вече проверихме всички съседи на връх "+graph.getVertex(vr).name+" и го напускаме.",
+            endFunction: function (vr) {
+                const origPathText=pathText.text();
+                let tmp=origPathText.slice(0,origPathText.length-(vr.length+1));
+                if (tmp.endsWith(",")) tmp=tmp.slice(0,tmp.length-1);
+                pathText.text(tmp);
+                return () => {
+                    pathText.text(origPathText);
+                };
+            }.bind(null,graph.getVertex(vr).name),
         });
     }
 
@@ -48,6 +64,7 @@
 
         let startVertex="1";
         $("#start-vertex").val(startVertex);
+        const pathText=$(name+" .path");
         animationObj.init(name,function findAnimations () {
             startVertex=$("#start-vertex").val();
             let st=-1; 
@@ -62,11 +79,22 @@
             }
             let animations=[];
             animations.push({
+                startFunction: () => {
+                    const origText=pathText.text();
+                    pathText.text(origText+" "+graph.getVertex(st).name);
+                    return () => {
+                        pathText.text(origText);
+                    };
+                },
                 animFunctions: [attrChangesAnimation(graph.svgVertices[st].circle,{fill: "red"})],
                 animText: "Започваме обхождането от връх номер "+graph.getVertex(st).name+"."
             });
-            dfs(st,used,graph,animations);
+            dfs(st,used,graph,animations,pathText);
             return animations;
+        },() => {
+            pathText.text("Текущ път:");
+        },() => {
+            pathText.text("");
         }).then(
             () => { graph.graphController.hasAnimation(animationObj); },
             () => { alert("Failed loading animation data!"); });

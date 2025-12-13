@@ -1,14 +1,14 @@
-"use strict";
 (function () {
+    "use strict";
     Graph.prototype = {
         addReverseEdge: function (ind, data = []) {
             let edge=this.getEdge(ind);
             let x=edge.x,y=edge.y,t=edge.weight;
             let userCSS=[{},{}];
-            let curveHeight=undefined;
+            let curveHeight;
             let addedCSS=[{},{}];
             let weightTranslate=[0,0],weightRotation=0;
-            let prevInd=undefined;
+            let prevInd;
             if (data.length===6) {
                 userCSS=data[0];
                 curveHeight=data[1];
@@ -63,8 +63,8 @@
                 if (this.isDirected===true) {
                     if (edge.real===false) {
                         edge.addedCSS[0]["stroke-dasharray"]=10*this.size;
-                        edge.addedCSS[0]["opacity"]=0.5;
-                        edge.addedCSS[1]["opacity"]=0.5;
+                        edge.addedCSS[0].opacity=0.5;
+                        edge.addedCSS[1].opacity=0.5;
                     }
                 }
                 else {
@@ -72,5 +72,5 @@
                 }
             }
         }
-    }
+    };
 })();
